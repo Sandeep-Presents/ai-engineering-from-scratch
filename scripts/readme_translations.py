@@ -257,7 +257,7 @@ TRANSLATIONS = {
         '<td valign="top">Drop into Claude, Cursor, Codex, OpenClaw, Hermes, or any agent that reads <code>SKILL.md</code>.</td>': '<td valign="top">放入 Claude、Cursor、Codex、OpenClaw、Hermes，或任何能够读取 <code>SKILL.md</code> 的智能体。</td>',
         '<td valign="top">Deploy as autonomous workers — you wrote the loop yourself in Phase 14.</td>': '<td valign="top">部署为自主工作者——你会在阶段 14 亲手编写它的循环。</td>',
         '<td valign="top">Plug into any MCP-compatible client. Built end-to-end in Phase 13.</td>': '<td valign="top">接入任何兼容 MCP 的客户端。你会在阶段 13 从头到尾完成构建。</td>',
-        "Install the lot with `python3 scripts/install_skills.py <target>`. Real tools, not homework. By the end of the curriculum, you have a portfolio of 523 artifacts you actually understand because you built them.": "使用 `python3 scripts/install_skills.py <target>` 一次性安装全部成果。这些是真正的工具，不是作业。学完整套课程时，你将拥有由 523 项成果组成的作品集；因为它们都是你亲手构建的，所以你真正理解每一项成果。",
+        "Install the lot with `python3 scripts/install_skills.py <target> --type all`. Real tools, not homework. By the end of the curriculum, you have a portfolio of 523 artifacts you actually understand because you built them.": "使用 `python3 scripts/install_skills.py <target> --type all` 一次性安装全部成果。这些是真正的工具，不是作业。学完整套课程时，你将拥有由 523 项成果组成的作品集；因为它们都是你亲手构建的，所以你真正理解每一项成果。",
         "FIG_002 · A worked sample": "图 002 · 完整示例",
         "Phase 14, lesson 1: the agent loop. ~120 lines of pure Python, no dependencies.": "阶段 14 第 1 课：智能体循环。约 120 行纯 Python 代码，零依赖。",
         "**`code/agent_loop.py`** &nbsp; <sub><i>build it</i></sub>": "**`code/agent_loop.py`** &nbsp; <sub><i>亲手构建</i></sub>",
