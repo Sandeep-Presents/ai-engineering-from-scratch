@@ -15,5 +15,6 @@
   "phases/15-autonomous-systems/14-kill-switches-canaries/docs/en.md": "75ace984dda6cc34bc2dabf0da98bed969cb849bba80530b34e2b65413e4b64d",
   "phases/15-autonomous-systems/15-propose-then-commit/docs/en.md": "066d62177805838d9d0678e12e73824d860440642edd386b738307c20ee579c4",
   "phases/15-autonomous-systems/16-checkpoints-rollback/docs/en.md": "a530818bb301abf263f3ca3b331287160ae5f94b4557b5a0cb5e01133f611d62",
-  "phases/15-autonomous-systems/17-constitutional-ai/docs/en.md": "05b75703c17dfa8e118833fd0443e7b95e26216aab1ef97aa9fed34bc6bbadcc"
+  "phases/15-autonomous-systems/17-constitutional-ai/docs/en.md": "05b75703c17dfa8e118833fd0443e7b95e26216aab1ef97aa9fed34bc6bbadcc",
+  "phases/15-autonomous-systems/18-llama-guard/docs/en.md": "d2e6f91903b8358ead955c4db18c9ba986e51b359d62366e2fc8e4cb23f02d08"
 }
