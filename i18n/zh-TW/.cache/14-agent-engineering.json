@@ -36,5 +36,6 @@
   "phases/14-agent-engineering/35-initialization-scripts/docs/en.md": "4ee89ee7aa2b7b40145524afac0b71d6291f8f2ec789297cccf22ed04dce2b9b",
   "phases/14-agent-engineering/36-scope-contracts/docs/en.md": "993c6db81c5c0d8fdd66023e9588fc4777a1461b76bf078cf96db7c94caf3c85",
   "phases/14-agent-engineering/37-runtime-feedback-loops/docs/en.md": "702a2f8ef5e03dc631ba401af3b12cbfff1e4cfa1f5d1ae3a38f3ddd8f7681eb",
-  "phases/14-agent-engineering/38-verification-gates/docs/en.md": "4959114e249714257295b82f895d03c8b8a144bd1c689883bc9cf7f25c9785a0"
+  "phases/14-agent-engineering/38-verification-gates/docs/en.md": "4959114e249714257295b82f895d03c8b8a144bd1c689883bc9cf7f25c9785a0",
+  "phases/14-agent-engineering/39-reviewer-agent/docs/en.md": "363be9d97da5499c7fbfe8381559490ce77bbb1af46c45f33f01b5999e0086f1"
 }
