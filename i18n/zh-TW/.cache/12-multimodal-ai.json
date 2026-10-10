@@ -2,5 +2,6 @@
   "phases/12-multimodal-ai/01-vision-transformer-patch-tokens/docs/en.md": "05fc1bb5a0e7a1777da50ae42ea01a6b5ae17c066bf1a5fa8c53208f5482dd60",
   "phases/12-multimodal-ai/02-clip-contrastive-pretraining/docs/en.md": "802bc398424324f3a203a4f8f468f1e21d327372a1a273db23dbe2d675d6d07d",
   "phases/12-multimodal-ai/03-blip2-qformer-bridge/docs/en.md": "8849ac3172d4edecb50891b890d4a3080f6efd1a7af17ea6c79c86b410a63c28",
-  "phases/12-multimodal-ai/04-flamingo-gated-cross-attention/docs/en.md": "ee025c471f27b129edbaa5930c75688306a349f57658b4d4bcf4059cd9919b8f"
+  "phases/12-multimodal-ai/04-flamingo-gated-cross-attention/docs/en.md": "ee025c471f27b129edbaa5930c75688306a349f57658b4d4bcf4059cd9919b8f",
+  "phases/12-multimodal-ai/05-llava-visual-instruction-tuning/docs/en.md": "8eaf0cdcfc4548e7d44ac0a7cf50fe1b92154b42d99ac715926701719a8ff04c"
 }
