@@ -9,5 +9,6 @@
   "phases/15-autonomous-systems/08-bounded-self-improvement/docs/en.md": "ed3e03bb1c0431173c30bf272e4a484a8264ab6823f305f10850a8e245b207d0",
   "phases/15-autonomous-systems/09-coding-agent-landscape/docs/en.md": "62d80c824129f6f23833be3473421afaa99330f4dfa617f49108013fe76bfeb3",
   "phases/15-autonomous-systems/10-claude-code-permission-modes/docs/en.md": "89c7658a26b24a863992b5284936730885ea25c254e3a4b1c1949126da9d683c",
-  "phases/15-autonomous-systems/11-browser-agents/docs/en.md": "fc1ad4d5c053b9effc8840efa4d993faabe6639a80b00a6485529331ddc0d493"
+  "phases/15-autonomous-systems/11-browser-agents/docs/en.md": "fc1ad4d5c053b9effc8840efa4d993faabe6639a80b00a6485529331ddc0d493",
+  "phases/15-autonomous-systems/12-durable-execution/docs/en.md": "adc5aa6f20ee09b6920ab01aec2e062234e9e6620ca58f4e43fc59f073c15bba"
 }
