@@ -14,5 +14,6 @@
   "phases/15-autonomous-systems/13-cost-governors/docs/en.md": "4bbc8166514794ae938da3981b90bf55549cde613ad6b5440da67115dbb7fd83",
   "phases/15-autonomous-systems/14-kill-switches-canaries/docs/en.md": "75ace984dda6cc34bc2dabf0da98bed969cb849bba80530b34e2b65413e4b64d",
   "phases/15-autonomous-systems/15-propose-then-commit/docs/en.md": "066d62177805838d9d0678e12e73824d860440642edd386b738307c20ee579c4",
-  "phases/15-autonomous-systems/16-checkpoints-rollback/docs/en.md": "a530818bb301abf263f3ca3b331287160ae5f94b4557b5a0cb5e01133f611d62"
+  "phases/15-autonomous-systems/16-checkpoints-rollback/docs/en.md": "a530818bb301abf263f3ca3b331287160ae5f94b4557b5a0cb5e01133f611d62",
+  "phases/15-autonomous-systems/17-constitutional-ai/docs/en.md": "05b75703c17dfa8e118833fd0443e7b95e26216aab1ef97aa9fed34bc6bbadcc"
 }
