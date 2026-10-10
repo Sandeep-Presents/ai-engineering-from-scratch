@@ -39,5 +39,6 @@
   "phases/14-agent-engineering/38-verification-gates/docs/en.md": "4959114e249714257295b82f895d03c8b8a144bd1c689883bc9cf7f25c9785a0",
   "phases/14-agent-engineering/39-reviewer-agent/docs/en.md": "363be9d97da5499c7fbfe8381559490ce77bbb1af46c45f33f01b5999e0086f1",
   "phases/14-agent-engineering/40-multi-session-handoff/docs/en.md": "d2537f34853af5e07bae24f3d5c5198bf321aa4de6fec9349ac5cd7804d723c4",
-  "phases/14-agent-engineering/41-workbench-for-real-repos/docs/en.md": "75d2298297ec8a23832dea06df7e12a448e1030b265465aac178dc914b881d27"
+  "phases/14-agent-engineering/41-workbench-for-real-repos/docs/en.md": "75d2298297ec8a23832dea06df7e12a448e1030b265465aac178dc914b881d27",
+  "phases/14-agent-engineering/42-agent-workbench-capstone/docs/en.md": "a8307ba30442dd1b2eb29b6c642586d92bdf2ba04c6f9f4d6c357c7e1c98627f"
 }
