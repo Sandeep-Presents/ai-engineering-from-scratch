@@ -22,5 +22,6 @@
   "phases/12-multimodal-ai/21-embodied-vlas-openvla-pi0-groot/docs/en.md": "74e67225ca1e15d42fa2a561e836c1053ce944c0f11e2706d237294a9550885e",
   "phases/12-multimodal-ai/22-document-diagram-understanding/docs/en.md": "063ffd18e02c1add40116a7a4c3aa86eccae7b93d9e936e7cafa94ae76c13749",
   "phases/12-multimodal-ai/23-colpali-vision-native-rag/docs/en.md": "3e21fa1908caa13e3fd34a6f7ec5e07b208ea4e03a2e18864045bc620bb94a08",
-  "phases/12-multimodal-ai/24-multimodal-rag-cross-modal/docs/en.md": "fc9d6c0c73229255a26820e81839b3837a2f7827b49af959bd2db224f1f22272"
+  "phases/12-multimodal-ai/24-multimodal-rag-cross-modal/docs/en.md": "fc9d6c0c73229255a26820e81839b3837a2f7827b49af959bd2db224f1f22272",
+  "phases/12-multimodal-ai/25-multimodal-agents-computer-use/docs/en.md": "388c376120b81d1302dfc355f2f1ef031c32a38b86c476410a050a32af72cb51"
 }
