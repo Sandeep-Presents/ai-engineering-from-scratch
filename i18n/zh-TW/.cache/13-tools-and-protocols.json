@@ -28,5 +28,6 @@
   "phases/13-tools-and-protocols/27-skill-evals-packaging-and-portability/docs/en.md": "789e3988293fc077fc9ddb8511779f1f7b345a89406ec03589c2b4b8745c3ce3",
   "phases/13-tools-and-protocols/28-mcp-tool-contracts-and-content/docs/en.md": "713a0c2c7a28774c61b59756221528c57dbae1361521967d95ac7647a98f7864",
   "phases/13-tools-and-protocols/29-mcp-reliability-cancellation-and-flow-control/docs/en.md": "50f4b4cf4a382debc911c7f769cb3699bf0f54f4789bf19b9418635097be25df",
-  "phases/13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/docs/en.md": "734698d661d450db141c54509144cf914443f3b335e4b18a14d175bad520d60b"
+  "phases/13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/docs/en.md": "734698d661d450db141c54509144cf914443f3b335e4b18a14d175bad520d60b",
+  "phases/13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md": "fa7b16e90177a54f5ee0adb5c8a0d471a454074dda0ba277dc93b0e6abe28d57"
 }
