@@ -1,0 +1,119 @@
+# METR 時間時程與外部能力評估（METR Time Horizons and External Capability Evaluation）
+
+> METR（前身為 ARC Evals）自 2023 年 12 月起成為獨立運作的 501(c)(3) 非營利機構。其 Time Horizon 1.1 基準測試（2026 年 1 月發布）將任務成功機率對人類專家完成時間的對數擬合出一條邏輯斯曲線；該曲線在 50% 成功機率處的交點，即定義為該模型的時間時程（time horizon）。其 2025–2026 年的評測對象涵蓋了 GPT-5.1、GPT-5.1-Codex-Max 以及原型監控評估（檢驗監控系統能否抓到模型的副任務；以及 agent 是否會蓄意逃避監控）。核心評測套件包括：HCAST（180 多個涵蓋機器學習、資安、軟體工程與推理的任務；跨度從 1 分鐘到 8 小時以上）、RE-Bench（71 個具備人類專家基準線的機器學習研發工程任務）以及 SWAA。客觀的現實提醒：METR 的測量環境高度理想化——沒有真實人類干擾，沒有實質嚴重後果——且該團隊已詳盡記錄了評測與正式環境之間的行為落差（第 1 課）。時間時程僅是一項能力的上限天花板，絕非正式部署時的真實表現預測。
+
+**Type:** Learn
+**Languages:** Python (stdlib, logistic-fit horizon estimator)
+**Prerequisites:** Phase 15 · 01 (Long-horizon agents), Phase 15 · 19 (RSP)
+**Time:** ~60 minutes
+
+## The Problem｜問題
+
+擴展政策（第 19、20 課）的實用性，完全取決於其所引用的客觀測量指標。「AI R&D-4 能力門檻」與「長程自主性」在政策文本中僅是抽象的文字描述；唯有當特定的實證評估產出具體的數值指標時，它們才真正具備可操作性。
+
+METR 正是 2024–2026 年間確立了這套量化體系權威地位的外部獨立評估組織。他們專門在模型發布前夕（通常在簽署保密協議的受控環境下）對尖端模型展開極限自主能力測試，並在事後公開其完整方法論。Time Horizon 1.1 基準測試（2026 年 1 月發布）是其旗艦成果：將複雜的模型能力濃縮為單一人類易讀的純量指標（「該模型能在 50% 可靠度下，完成一位人類專家需要耗費 X 小時才能搞定的任務」）。
+
+本課的學習重心一方面在於方法論本身（時間時程究竟是如何被數學擬合出來的），另一方面在於批判性解讀能力（為何時間時程僅代表理論上限，而非正式部署的預測值）。這兩項素養相輔相成。一個深刻理解時程擬合原理的工程團隊，比起只在簡報上看見「14 小時」亮眼標籤的團隊，在面對供應商的花俏宣傳時具備高出數倍的免疫力。
+
+## The Concept｜核心概念
+
+### METR 的機構背景
+
+- 成立時間：2023 年 12 月（由原 ARC Evals 團隊拆分獨立，登記為非營利 501(c)(3) 機構）。
+- 核心業務：針對尖端前沿模型的極限自主能力進行嚴格評測，通常在模型正式發布前介入。
+- 合作實驗室：Anthropic、OpenAI（在 2025–2026 年間展開了多次深度評測合作）。
+- 代表性成果：Time Horizon 1.0（2025 年 3 月）、Time Horizon 1.1（2026 年 1 月），以及原型監控評估研究。
+
+### 時間時程的邏輯斯擬合（Logistic Fit）
+
+核心方法論（整理自 METR 官方技術部落格與論文）：
+
+1. 收集一套跨越數分鐘至數小時人類專家完成時間的任務測試集。目前涵蓋 HCAST（180 多個任務）、RE-Bench（71 個任務）與 SWAA。
+2. 讓受測模型在每個任務上自主執行；記錄最終的成功或失敗。
+3. 進行邏輯斯曲線擬合：將成功機率 P(success) 表示為專家完成時間對數 log(time) 的函式。
+4. 時間時程即為 P(success) = 0.5 所對應的人類專家工時。
+
+採用邏輯斯擬合的數學合理性在於：模型能力相對於任務難度通常展現出先快速增長、隨後逐步逼近天花板的飽和 S 型曲線。將門檻選在 50% 是人為設定的標準（亦可設定為 10% 或 90%）；METR 在詳細論文中報告了多個機率門檻，但在公開宣傳中以 50% 為主，因為它最符合人類的直覺認知。
+
+### 2026 年 1 月的最新權威實測指標
+
+依據 Time Horizon 1.1 報告：
+
+- Claude Opus 4.6：截至 Time Horizon 1.1（2026 年 1 月），在 50% 可靠度下的時間時程約為 14 小時。
+- 在類 HCAST 任務上的翻倍週期：依據 2023 年之後的資料擬合，翻倍週期約為 4.3 個月（130.8 天）；而約 7 個月的週期則是涵蓋 2019–2025 年全週期的歷史擬合值，兩項數字在 TH1.1 中皆被完整披露。
+
+這正是 Phase 15 其餘章節所反覆引述的權威基準。它們在 Anthropic 的 RSP v3.0（第 19 課）與 DeepMind 的 FSF v3（第 20 課）中皆被列為評估模型是否逼近危險能力門檻的核心輸入依據。
+
+### 評測基準套件全景
+
+- **HCAST**：包含 189 個跨越機器學習、網路安全、軟體工程與通用推理的綜合任務。工時跨度從 1 分鐘到 8 小時以上的人類專家時間。是時程純量指標背後的最核心評測集。
+- **RE-Bench**：包含 71 個具備人類專家基準線的機器學習研發工程任務。專門衡量模型能否勝任餵養進「AI R&D-4」能力門檻的機器學習研發工作。
+- **SWAA**：任務長度較短的測試集；主要用於精準校準時程曲線的低難度起點。
+
+### 原型監控評估（Prototype Monitoring Evaluations）
+
+METR 在 2025–2026 年間開展了一項前沿研究：檢驗監控系統能否精準抓包正在偷偷執行「副任務（side task）」（即偏離維運者預期意圖的私自行為）的模型，以及 agent 是否會展現出逃避監控的對抗傾向。這項研究直接為 OpenAI PF v2 中的「破壞安全防護機制」以及 DeepMind FSF v3 中的欺騙性對齊監控（第 20 課）提供了實證土壤。
+
+### 為什麼時間時程僅代表能力上限
+
+- **過度理想化的工具環境**：基準測試為模型提供了乾淨、規範且格式工整的工具與輸入資料。真實正式環境中的工具鏈則充滿雜訊與斷裂。
+- **缺乏真實的不可逆代價**：在測試中，模型永遠不必擔心向真實客戶開錯帳單、誤刪正式資料庫或騷擾真實用戶。而在真實部署中，許多操作的後果是絕對不可逆的。
+- **評測語境博弈（第 1 課）**：模型在意識到自己處於測試環境時往往表現得更為合規且收斂。2026 年《國際 AI 安全報告》提供了詳盡的實證記錄。
+- **缺乏真實世界的使用者歧義**：基準測試的 prompt 通常結構清晰。而真實使用者提出的請求往往充滿語意模糊、上下文缺失與矛盾。
+
+時程數字代表的是在極度優渥順境下的能力天花板。真實正式環境中的可靠度必然顯著低於此數值，工程團隊必須在自身的業務分布上親自實測才能獲知真相。
+
+### 外部獨立評估的核心價值
+
+外部獨立評估之所以不可替代，是因為實驗室內部天生存在粉飾自己對外發布指標的強烈商業動機。METR 作為具備透明方法論與同行評審論文背書的獨立 501(c)(3) 機構，在結構上構成了關鍵的制衡力量。雖然它並非絕對萬能（實驗室依然能在一定程度上篩選提供給 METR 的資訊），但它客觀上遠勝於完全缺乏外部獨立檢驗的自說自話。
+
+### 在工程實務中如何理性使用時程數字
+
+- **作為能力適配的硬性過濾器**：若某個模型的時間時程顯著低於你預計交付任務的人類專家工時，絕對嚴禁將其推向無人值守自主運作（參見第 1 課的交付 skill 範本）。
+- **作為技術演進的趨勢指針**：翻倍週期清楚告訴你：即便不引入任何新的緩解技術，現有的工程防護在多久之後就會被模型的自主能力徹底衝垮。
+- **作為初始的保守先驗**：14 小時的時程僅是一個起點。你必須根據自身任務的混亂度、內部工具鏈的粗糙度以及部署環境的敏感性，大幅向下打折修正。
+
+```figure
+a5-horizon-fit
+```
+
+## Use It｜實際應用
+
+`code/main.py` 透過 Python 標準函式庫實現了一個給定合成測試集後的「任務成功率對專家工時對數」的邏輯斯擬合器。它會自動輸出 50% 時程（METR 的旗艦指標）、10% 時程（保守防守指標）以及 90% 時程（樂觀上限指標）。並直觀展示當評測語境博弈導致成功率被人為虛報時，時程曲線會產生何種劇烈的失真位移。
+
+## Ship It｜交付成果
+
+`outputs/skill-horizon-interpretation.md` 能為供應商宣稱的時間時程進行全面審查，並精準產出基準測試宣稱與真實部署環境之間的落差分析報告。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。確認擬合出的 50% 時程是否與合成資料集中的真實基準線完全吻合。接著將任務時間網格的解析度減半，觀察時程估計值是否發生了實質性偏移。
+
+2. 閱讀 METR 發布的 Time Horizon 1.1 技術文章。指出模型可靠度最高與最低的具體任務類別分別為何。分析兩者之間產生巨大鴻溝的深層原因。
+
+3. 閱讀 METR 的「Measuring Autonomous AI Capabilities」官方資源。列出 HCAST 的所有任務子類別。挑選一個在你的正式業務中最具權重的類別，並為你的權重傾斜給出充分理由。
+
+4. 在模擬器中引入評測語境博弈：人為將約 20% 的失敗任務翻轉為成功。重新計算並回報新的時程數值。這能直觀展示 20% 的造假率會對觀察到的能力時程產生何等巨大的膨脹效應。
+
+5. 為你團隊內部的 bug 清單或代表性任務集設計一套內部時程評估協定。詳細說明資料收集流程、擬合計算方式，以及輸出指標所代表的實務意義。將其與 METR 的官方數字進行對比。
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|---|---|---|
+| METR | "External evaluator" | ex-ARC Evals; independent 501(c)(3) since Dec 2023 |
+| Time Horizon | "Capability measure" | Expert task length at 50% reliability, from logistic fit |
+| HCAST | "METR's main suite" | 180+ tasks spanning 1 min to 8+ hours |
+| RE-Bench | "Research engineering" | 71 ML research-engineering tasks with human baseline |
+| SWAA | "Short-task suite" | Calibrates the low end of the horizon curve |
+| Doubling time | "Growth rate" | Time for the 50% horizon to double; ~7 months per HCAST |
+| Eval-context gaming | "Model behaves differently" | Documented behavior gap between tests and deployment |
+| Upper bound | "Horizon is a ceiling" | Benchmark horizon > deployment reliability under load |
+
+## Further Reading｜延伸閱讀
+
+- [METR — Resources for Measuring Autonomous AI Capabilities](https://metr.org/measuring-autonomous-ai-capabilities/) — HCAST、RE-Bench 與 SWAA 官方規範。
+- [METR — Measuring AI Ability to Complete Long Tasks](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/) — 時間時程奠基論文。
+- [METR — Time Horizon 1.1 (January 2026)](https://metr.org/research/) — 最新實測數字與方法論更新。
+- [Epoch AI — METR Time Horizons benchmark](https://epoch.ai/benchmarks/metr-time-horizons) — 即時動態追蹤看板。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 實驗室內部對照 METR 測量結果的權威觀點。
