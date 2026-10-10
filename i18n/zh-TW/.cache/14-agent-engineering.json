@@ -12,5 +12,6 @@
   "phases/14-agent-engineering/11-planning-htn-and-evolutionary/docs/en.md": "f4999bbfd5e356debc4193581fc9a9b6df991366783c41110c5296781eeeb020",
   "phases/14-agent-engineering/12-anthropic-workflow-patterns/docs/en.md": "55c8edf5c8a62595d2db17d555b2ca3cddf12a8b8d8bdf0ff745b347000c0a57",
   "phases/14-agent-engineering/13-langgraph-stateful-graphs/docs/en.md": "eff89296945c389b50c9491488940eebee8dc61756ea274a2b1a094709fb4951",
-  "phases/14-agent-engineering/14-autogen-actor-model/docs/en.md": "d711c64e9a5125ae7cb7b50dfd73abf765f3b3e0d6cef0992da9240fee934ad8"
+  "phases/14-agent-engineering/14-autogen-actor-model/docs/en.md": "d711c64e9a5125ae7cb7b50dfd73abf765f3b3e0d6cef0992da9240fee934ad8",
+  "phases/14-agent-engineering/15-crewai-role-based-crews/docs/en.md": "cf08c2959fa6c2fc70a935fe932a8693664c61e39a7d7979bc049f487bc70561"
 }
