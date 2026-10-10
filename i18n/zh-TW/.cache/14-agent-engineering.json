@@ -21,5 +21,6 @@
   "phases/14-agent-engineering/20-benchmarks-webarena-osworld/docs/en.md": "5f2b258833ea48979405b3f939f5765a667a5a28ae0786b4c208710ac6d8c717",
   "phases/14-agent-engineering/21-computer-use-agents/docs/en.md": "fddd303eb087f556eb13754431e8a118980c7c9184eb53f61dc810b91638605e",
   "phases/14-agent-engineering/22-voice-agents-pipecat-livekit/docs/en.md": "514d102d6130a6c3c6682b33e86d7a2e24de4e9240176de6e78403ecc9d8083d",
-  "phases/14-agent-engineering/23-otel-genai-conventions/docs/en.md": "079cbb2f56f7ec32724047275efa9fbd66a2af5f3953edba52f675527e336aa8"
+  "phases/14-agent-engineering/23-otel-genai-conventions/docs/en.md": "079cbb2f56f7ec32724047275efa9fbd66a2af5f3953edba52f675527e336aa8",
+  "phases/14-agent-engineering/24-agent-observability-platforms/docs/en.md": "aa3f70277a5ad92c61142f4be10b0c68df38981115001dcc870d7987d827751b"
 }
