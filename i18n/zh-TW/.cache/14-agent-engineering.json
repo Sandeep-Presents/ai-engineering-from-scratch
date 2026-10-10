@@ -18,5 +18,6 @@
   "phases/14-agent-engineering/17-claude-agent-sdk/docs/en.md": "f1fb3653f42b54dd9267aa3bd20bb56714567f56c71a8b92972d725f0948b9bd",
   "phases/14-agent-engineering/18-agno-and-mastra-runtimes/docs/en.md": "825b6ee75ecab014886579c42bbae112c977eb6b51b91d570c412faa3933ec79",
   "phases/14-agent-engineering/19-benchmarks-swebench-gaia/docs/en.md": "b2a282a875e13aa30bea25d2a937ce1e26c422e14e7f4d675808675de1cd6f76",
-  "phases/14-agent-engineering/20-benchmarks-webarena-osworld/docs/en.md": "5f2b258833ea48979405b3f939f5765a667a5a28ae0786b4c208710ac6d8c717"
+  "phases/14-agent-engineering/20-benchmarks-webarena-osworld/docs/en.md": "5f2b258833ea48979405b3f939f5765a667a5a28ae0786b4c208710ac6d8c717",
+  "phases/14-agent-engineering/21-computer-use-agents/docs/en.md": "fddd303eb087f556eb13754431e8a118980c7c9184eb53f61dc810b91638605e"
 }
