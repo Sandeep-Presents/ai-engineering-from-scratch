@@ -8,5 +8,6 @@
   "phases/12-multimodal-ai/07-open-weight-vlm-recipes/docs/en.md": "a4fd19938cd04d5e5b3bf9edb2284d4ce7cbf3efb499f58f72e20d7f25442d48",
   "phases/12-multimodal-ai/08-llava-onevision-single-multi-video/docs/en.md": "d29e9d9d7f178eb2514a51dbe3324382c5eaad609613ab0f9f1c932bb5c64830",
   "phases/12-multimodal-ai/09-qwen-vl-family-dynamic-fps/docs/en.md": "9591f7b9c113bd233f066804f4ba79127cac3a1aaef1bf99db613b7c75e5dd54",
-  "phases/12-multimodal-ai/10-internvl3-native-multimodal/docs/en.md": "859fcab226b623475ece1a15a9bb46721c8e637fc9888939a5d282fca815b3e4"
+  "phases/12-multimodal-ai/10-internvl3-native-multimodal/docs/en.md": "859fcab226b623475ece1a15a9bb46721c8e637fc9888939a5d282fca815b3e4",
+  "phases/12-multimodal-ai/11-chameleon-early-fusion-tokens/docs/en.md": "c5409ecf20aa61fcbb8e9e7203299b4585b047cb2eeaffeb3029e90d1d3eaf31"
 }
