@@ -20,5 +20,6 @@
   "phases/12-multimodal-ai/19-audio-language-whisper-to-af3/docs/en.md": "e804554df688d4902e1d44d47afde4440c7189f55ac0cf9d93d352b37ce9b43f",
   "phases/12-multimodal-ai/20-omni-models-thinker-talker/docs/en.md": "6a61e636804224bc4c0a1530b3f0f26bfdabb46bdf6b31f92f72e5f1d7ebe8c4",
   "phases/12-multimodal-ai/21-embodied-vlas-openvla-pi0-groot/docs/en.md": "74e67225ca1e15d42fa2a561e836c1053ce944c0f11e2706d237294a9550885e",
-  "phases/12-multimodal-ai/22-document-diagram-understanding/docs/en.md": "063ffd18e02c1add40116a7a4c3aa86eccae7b93d9e936e7cafa94ae76c13749"
+  "phases/12-multimodal-ai/22-document-diagram-understanding/docs/en.md": "063ffd18e02c1add40116a7a4c3aa86eccae7b93d9e936e7cafa94ae76c13749",
+  "phases/12-multimodal-ai/23-colpali-vision-native-rag/docs/en.md": "3e21fa1908caa13e3fd34a6f7ec5e07b208ea4e03a2e18864045bc620bb94a08"
 }
