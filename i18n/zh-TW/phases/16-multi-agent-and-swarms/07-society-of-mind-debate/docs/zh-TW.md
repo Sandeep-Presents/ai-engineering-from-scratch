@@ -1,0 +1,118 @@
+# 心智社會與多 Agent 辯論機制（Society of Mind and Multi-Agent Debate）
+
+> 閔斯基（Marvin Minsky）在 1986 年提出的深刻洞見——智慧本質上是一座由專家組成的社會——每隔十年就會被學界重新發現一次。2023 年，Du 等人將這項哲學構想具體化為嚴謹的演算法：多個 LLM 執行個體各自提出答案、互相閱讀對方的推理、展開交叉質疑並動態更新觀點。經過 N 輪辯論後，系統收斂出的群體共識在六項推理與事實性基準測試中，全面擊敗了零樣本思維鏈（CoT）與自我反思（Reflection）。兩項關鍵實證結論至關重要：**多個 Agent** 與**多輪交互**各自提供獨立的正向貢獻。群體協同勝過單一 Agent 的自言自語；而多輪交鋒則徹底超越了一次性的多數表決。
+
+**Type:** Learn + Build
+**Languages:** Python (stdlib)
+**Prerequisites:** Phase 16 · 04 (Primitive Model)
+**Time:** ~60 minutes
+
+## Problem｜問題
+
+自我一致性（Self-consistency）——對同一個模型進行多次獨立取樣並採取多數決投票——是提升推理準確率最為廉價直接的改進手段。它確實有效，但其效能紅利會以極快的速度遭遇瓶頸飽和。在達到特定門檻後，即便你將取樣數量翻倍，也很難再看見任何實質性的躍升。
+
+辯論機制徹底打破了這層天花板。它不再是從單一模型中提取 N 個孤立的獨立樣本，而是讓 N 個 agent 互相通讀對方的推理脈絡並迭代修訂自身立場。樣本之間的相關性顯著降低（它們不再是獨立同分布的 i.i.d. 樣本），而最終收斂的共識點往往能在傳統 i.i.d. 投票自信給出錯誤答案的難題上，精準導向正確結論。
+
+## Concept｜核心概念
+
+### Du 等人的 2023 年經典演算法
+
+源自論文 arXiv:2305.14325（ICML 2024）：
+
+1. N 個 agent 各自獨立生成對該問題的初始答案。
+2. 進入辯論輪次 r = 2..R：向每位 agent 展示其他 agent 在第 r-1 輪給出的答案與推理，並提示：「綜合考量上述論點，請給出你更新後的答案。」
+3. 經過 R 輪交鋒後，對最終輪次的所有答案執行多數決投票（majority-vote）。
+
+該研究在 MMLU、GSM8K、人物傳記生成、MATH 以及各類事實性基準測試上展開了詳盡評測。多 Agent 辯論在所有基準上持續穩定地超越單純的思維鏈（CoT）與自我反思（Self-Reflection）。
+
+### 兩個各自獨立的調控旋鈕
+
+論文中的消融實驗揭示了深刻規律：
+
+- **單純增加 Agent 數量**（1 輪對話，對 N 個獨立答案進行多數決）在多數任務上優於單一 Agent，但迅速觸碰高原期。
+- **單純增加對話輪次**（1 個 Agent 反覆審視自身的先前推理）幾乎無法帶來任何幫助——這正是自我反思已被廣泛證實的固有盲點。
+- **雙管齊下** 則能引發質的飛躍。多個 Agent 之間展開跨輪次的多輪交鋒，正是驅動巨大效能躍升的最核心引擎。
+
+### 為什麼辯論機制能突破天花板
+
+兩大深層致勝機制：
+
+1. **直面分歧的認知推力。** 當一個 agent 親眼目睹另一個 agent 帶著截然不同的推導邏輯得出相悖的結論時，它被迫必須在堅守立場並提出反駁、或是承認疏漏並修正答案之間做出抉擇。無論選擇哪一條路，第 r+1 輪的上下文資訊豐富度皆顯著高於第 r 輪。
+2. **消解相關性系統誤差。** 在自我一致性取樣中，所有樣本皆衍生自同一個底層模型，其內在盲點具有高度相關性——多數決只會以極高自信匯聚至錯誤的答案。引入不同的模型或不同隨機種子能夠打破這種相關性。而在**激烈的跨觀點辯論**之下，系統誤差能獲得更深層次的解耦。
+
+### 異質模型辯論（Heterogeneous Debate）
+
+A-HMAD 及相關後續研究進一步在不同 agent 席位上採用了**完全不同的基底模型**。讓 Llama、Claude 與 GPT 共同同台辯論，能有效遏止單一模型家族的單一文化崩潰（Monoculture collapse，詳見第 26 課），因為單一模型架構所特有的固有偏見不會在其他異質家族中同步重現。
+
+潛在代價：若辯論體系中混入了能力過弱的模型，它可能會以錯誤的雜訊將整體共識拉向深淵（詳見《Should we be going MAD?》，arXiv:2311.17371）。
+
+### NLSOM——129 個 Agent 的超大規模社會擴展
+
+Zhuge 等人（《Mindstorms in Natural Language-Based Societies of Mind》，arXiv:2305.17066）將該理念大膽擴展至擁有 129 位成員的龐大 agent 社會。實證結果顯示：隨著群體規模的擴大，系統自然湧現出了自組織的分工協同架構，在視覺問答等高難度任務上的綜合表現顯著超越單一 Agent。
+
+### 典型的系統失效模式
+
+- **諂媚附和級聯（Sycophancy cascade）。** 所有 agent 紛紛向語調最為自信、文字最長篇大論的那個 agent 妥協低頭。辯論最終退化為誰的聲音最大誰就獲勝。緩解之道：透過 prompt 強制分配對抗性角色（例如「必須有一位 agent 堅定為反方立場進行抗辯」）。
+- **話題漂移（Topic drift）。** 經過多輪激辯後，討論焦點往往會偏離最初的使用者原始問題。緩解之道：在每一輪對話中強制重新注入原始問題背景。
+- **算力與成本爆炸。** N 個 agent × R 個輪次 = N·R 次 LLM 呼叫，且每次呼叫的上下文都在線性膨脹。一個包含 5 位 agent、進行 5 輪交鋒的辯論需要 25 次昂貴的上下文呼叫。單一問題的成本可能超過單次 CoT 的 10 倍以上。
+
+```figure
+multi-agent-debate
+```
+
+## Build It｜動手實作
+
+`code/main.py` 模擬了一個 3 位 Agent × 3 個輪次的數學推理辯論，其中每位 agent 一開始皆持有不同（且包含錯誤）的初始答案。各 agent 採用腳本化模擬——依據帶有預設信賴度的加權機制，參考鄰居的答案逐步「更新立場」。群體逐步收斂至共識的過程在逐輪日誌中清晰可見。
+
+展示程式生動展現了兩大核心規律：
+
+- 單一輪次的資訊交換能顯著將各 agent 拉向更接近真實答案的座標點。
+- 超過第 2 輪之後的額外輪次，邊際效益呈現斷崖式遞減（精準印證了 Du 等人所觀察到的收斂高原期）。
+
+執行指令：
+
+```
+python3 code/main.py
+```
+
+## Use It｜實際應用
+
+`outputs/skill-debate-configurator.md` 能為一項全新業務任務快速配置完整的辯論架構：涵蓋最適 agent 數量、最優交鋒輪次、異質性配比（同質模型 vs 混成模型）、角色分工策略（對稱同儕 vs 強制對抗者），並在實際執行前精確預估端到端 token 預算消耗。
+
+## Ship It｜交付成果
+
+若你打算在正式環境中落地辯論機制，請恪守以下工程準則：
+
+- **嚴格將交鋒輪次限制在 3 輪以內。** Du 等人的研究證明 3 輪已能斬獲絕大部分的準確率收益。更多輪次只會帶來純粹的成本浪費，而無品質提升。
+- **嚴格將 Agent 數量控制在 5 位以下。** 超過 5 位之後，上下文視窗膨脹與呼叫成本將徹底失控。
+- **預設採用異質混成模型。** 在候選池中至少配置兩種源自不同研發機構的底層基底模型。
+- **強制保留對抗性反方席位。** 至少安排一位 agent 的 prompt 鎖定在堅定反駁，以徹底斬斷盲目附和的諂媚級聯。
+- **完整落盤每一輪中間軌跡。** 隱藏中間辯論過程的系統將徹底喪失事後除錯與合規稽核的能力。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`，接著將交鋒輪次調增至 5 輪，觀察邊際效益遞減的具體曲線。究竟在哪一輪之後，額外的收斂進步已完全停滯？
+2. 在系統中追加第四位帶有惡意對抗角色的 agent：永遠反對當前的大多數意見。這會徹底破壞系統收斂，還是反而有助於提升最終答案的品質？
+3. 在終端機中繪製（或列印輸出）每一輪的共識協同分數（即持多數答案的 agent 比例）。該分數在何時首次達到 1.0？達到 1.0 是否在物理上必然等同於「答案正確」？
+4. 閱讀 Du 等人論文第 4 節的消融實驗。利用本課程式碼嘗試重現「僅多 Agent」、「僅多輪次」與「兩者結合」三種條件下的對比成效。
+5. 閱讀論文《Should we be going MAD?》（arXiv:2311.17371），列舉兩種除了全體輪詢（Round-robin）之外的全新辯論拓撲變體——例如裁判主導型（Judge-led）、辯論鏈（Chain-of-debate）或單一對抗型。
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Society of Mind | "Minsky's idea" | Intelligence as interacting specialists; 1986 framing now operationalized via LLM debate. |
+| Multi-agent debate | "Agents argue" | N agents propose, critique each other, revise over R rounds, majority-vote. |
+| Consensus | "They agree" | Not epistemic truth — just fraction-on-majority-answer. Can be confidently wrong. |
+| Rounds | "Exchange steps" | One round = each agent reads the others and updates once. |
+| Heterogeneous debate | "Mix model families" | Using different base models to decorrelate errors. |
+| Sycophancy cascade | "Everyone agrees with the loud one" | Debate failure where agents defer to the most confident agent regardless of correctness. |
+| NLSOM | "129-agent society" | Natural-language society of mind; Zhuge et al.'s scaled version. |
+| Correlated error | "Same model, same bug" | Why self-consistency saturates; debate across different views decorrelates. |
+
+## Further Reading｜延伸閱讀
+
+- [Du et al. — Improving Factuality and Reasoning in Language Models through Multiagent Debate](https://arxiv.org/abs/2305.14325) — ICML 2024 奠基論文。
+- [Zhuge et al. — Mindstorms in Natural Language-Based Societies of Mind](https://arxiv.org/abs/2305.17066) — 擴展至 129 個 agent 的 NLSOM 經典研究。
+- [Should we be going MAD? A Look at Multi-Agent Debate Strategies for LLMs](https://arxiv.org/abs/2311.17371) — 各類辯論拓撲變體的權威基準測試。
+- [Debate project page](https://composable-models.github.io/llm_debate/) — Du 等人官方開源程式碼庫、互動展示與消融實驗細節。
