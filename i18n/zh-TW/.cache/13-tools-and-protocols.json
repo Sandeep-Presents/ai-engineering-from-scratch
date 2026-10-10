@@ -8,5 +8,6 @@
   "phases/13-tools-and-protocols/07-building-an-mcp-server/docs/en.md": "8acac5ca68ac5a3057d94199905e5f26743fda4624b4eea05087a84e2857a76e",
   "phases/13-tools-and-protocols/08-building-an-mcp-client/docs/en.md": "dc2ca4a30c21094e72f5e225724c5a6680119d65aa974e34d411be4ce458fc6d",
   "phases/13-tools-and-protocols/09-mcp-transports/docs/en.md": "8b35336a155283e509f16008a3acd65caedd87c443bde2c86c7836d615f6bb4e",
-  "phases/13-tools-and-protocols/10-mcp-resources-and-prompts/docs/en.md": "fc4d77f598eca44d493dd1cb765d2355a739577a65387a4a1a7e0e1d55946579"
+  "phases/13-tools-and-protocols/10-mcp-resources-and-prompts/docs/en.md": "fc4d77f598eca44d493dd1cb765d2355a739577a65387a4a1a7e0e1d55946579",
+  "phases/13-tools-and-protocols/11-mcp-sampling/docs/en.md": "a205ee1e92a30eb61080e980620eaf0c5dbd1772db8b35da65a453273ed4fd71"
 }
