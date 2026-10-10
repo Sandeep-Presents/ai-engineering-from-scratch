@@ -17,5 +17,6 @@
   "phases/12-multimodal-ai/16-mio-any-to-any-streaming/docs/en.md": "270e372c9f66f05cf04faa197dffbe86349573b17163c396e2a5550aa277fdb3",
   "phases/12-multimodal-ai/17-video-language-temporal-grounding/docs/en.md": "9e17f6c9311d0df49f261e4435e4420793dd9780d5ae031beccc3249580751f1",
   "phases/12-multimodal-ai/18-long-video-million-token/docs/en.md": "d7352a3b7b1c8df360602be567922d19c2950ef714733a024f5ece8fffe50af3",
-  "phases/12-multimodal-ai/19-audio-language-whisper-to-af3/docs/en.md": "e804554df688d4902e1d44d47afde4440c7189f55ac0cf9d93d352b37ce9b43f"
+  "phases/12-multimodal-ai/19-audio-language-whisper-to-af3/docs/en.md": "e804554df688d4902e1d44d47afde4440c7189f55ac0cf9d93d352b37ce9b43f",
+  "phases/12-multimodal-ai/20-omni-models-thinker-talker/docs/en.md": "6a61e636804224bc4c0a1530b3f0f26bfdabb46bdf6b31f92f72e5f1d7ebe8c4"
 }
