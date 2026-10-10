@@ -6,5 +6,6 @@
   "phases/14-agent-engineering/05-self-refine-and-critic/docs/en.md": "9c7f53947f9886f431c8f1a5d51f4f1c97af01ff68887f33275dbd64892f93e3",
   "phases/14-agent-engineering/06-tool-use-and-function-calling/docs/en.md": "73cf8bf653c6148817147fd98b4fc780d9794ca3e9651605f6c8e3f242a14992",
   "phases/14-agent-engineering/07-memory-virtual-context-memgpt/docs/en.md": "71b0ba93e4d737f64c1c7a90408489676e35aaa75418050ca42c5a68a95e355d",
-  "phases/14-agent-engineering/08-memory-blocks-sleep-time-compute/docs/en.md": "c9d406091f226f33e6b8336bd887d12e7a8cdbe769b257a6c6bda4988eff6f3b"
+  "phases/14-agent-engineering/08-memory-blocks-sleep-time-compute/docs/en.md": "c9d406091f226f33e6b8336bd887d12e7a8cdbe769b257a6c6bda4988eff6f3b",
+  "phases/14-agent-engineering/09-hybrid-memory-mem0/docs/en.md": "f7e13f26fd141cdf48067ab7f09c16bc63d35f6eb65063d4378dc29c7d3a2ebb"
 }
