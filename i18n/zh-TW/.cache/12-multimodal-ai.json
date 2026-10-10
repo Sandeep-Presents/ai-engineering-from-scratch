@@ -15,5 +15,6 @@
   "phases/12-multimodal-ai/14-show-o-discrete-diffusion-unified/docs/en.md": "c87e6d0054f7b3244a92d39902938128f154c59f5e5aecbc3d1c27055b7e2091",
   "phases/12-multimodal-ai/15-janus-pro-decoupled-encoders/docs/en.md": "2ee1a525a09cab506e0d616e1151caaa7a8f51102158430e545242e57ebe24a7",
   "phases/12-multimodal-ai/16-mio-any-to-any-streaming/docs/en.md": "270e372c9f66f05cf04faa197dffbe86349573b17163c396e2a5550aa277fdb3",
-  "phases/12-multimodal-ai/17-video-language-temporal-grounding/docs/en.md": "9e17f6c9311d0df49f261e4435e4420793dd9780d5ae031beccc3249580751f1"
+  "phases/12-multimodal-ai/17-video-language-temporal-grounding/docs/en.md": "9e17f6c9311d0df49f261e4435e4420793dd9780d5ae031beccc3249580751f1",
+  "phases/12-multimodal-ai/18-long-video-million-token/docs/en.md": "d7352a3b7b1c8df360602be567922d19c2950ef714733a024f5ece8fffe50af3"
 }
