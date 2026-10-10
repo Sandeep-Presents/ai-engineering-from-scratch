@@ -21,5 +21,6 @@
   "phases/13-tools-and-protocols/20-opentelemetry-genai/docs/en.md": "473d0c4210eddf4b2ae01ce38d1b5a997e75fab66b4be17c32b319c666d88dbb",
   "phases/13-tools-and-protocols/21-llm-routing-layer/docs/en.md": "76708436ac5d3bafa1bcf40c7a4a7cc6cdb7e89b9d75bd0694bc5cc81549549a",
   "phases/13-tools-and-protocols/22-skills-and-agent-sdks/docs/en.md": "adc5ec9cd045c954ade287b53453397cfaf3c1152024d5cf01f896b80f4ff2b6",
-  "phases/13-tools-and-protocols/23-capstone-tool-ecosystem/docs/en.md": "8502c8512390067ef4d8bad0dcafcf1cfe9f3a40d6f24e71b9d54939f13ab4c4"
+  "phases/13-tools-and-protocols/23-capstone-tool-ecosystem/docs/en.md": "8502c8512390067ef4d8bad0dcafcf1cfe9f3a40d6f24e71b9d54939f13ab4c4",
+  "phases/13-tools-and-protocols/24-skill-discovery-and-progressive-disclosure/docs/en.md": "5880cb2e0c0d2bc5e83ad8e6e5633e7645db5f67fefd5c78323ff81ef974bc8c"
 }
