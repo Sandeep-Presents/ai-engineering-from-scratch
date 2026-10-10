@@ -24,5 +24,6 @@
   "phases/14-agent-engineering/23-otel-genai-conventions/docs/en.md": "079cbb2f56f7ec32724047275efa9fbd66a2af5f3953edba52f675527e336aa8",
   "phases/14-agent-engineering/24-agent-observability-platforms/docs/en.md": "aa3f70277a5ad92c61142f4be10b0c68df38981115001dcc870d7987d827751b",
   "phases/14-agent-engineering/25-multi-agent-debate/docs/en.md": "4dcb50b8b599fd3666f1a8ff1930ecec21a5dcd27ec5262deabad5a375aff61c",
-  "phases/14-agent-engineering/26-failure-modes-agentic/docs/en.md": "588b80e7011058fe627db20be59a8ccb2fea5d54940340c4ba226b67d1209dd3"
+  "phases/14-agent-engineering/26-failure-modes-agentic/docs/en.md": "588b80e7011058fe627db20be59a8ccb2fea5d54940340c4ba226b67d1209dd3",
+  "phases/14-agent-engineering/27-prompt-injection-defense/docs/en.md": "1b00eb02f351e1cc3286f3e9f26859da8a9ed4d254cc426772dcf18424d4cc31"
 }
