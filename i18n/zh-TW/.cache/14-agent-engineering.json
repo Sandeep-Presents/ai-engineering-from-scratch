@@ -29,5 +29,6 @@
   "phases/14-agent-engineering/28-orchestration-patterns/docs/en.md": "c45bf70a77e6c5a172587da2d472cc0d398e62b3bd48352ad4da34d108a2a7f2",
   "phases/14-agent-engineering/29-production-runtimes/docs/en.md": "693a6f21557b8a6c349730ee6d378eb619b327c65ff8dbfe9474a75968b5f940",
   "phases/14-agent-engineering/30-eval-driven-agent-development/docs/en.md": "7f1772928ead5688466ea0b7178d2cbd7bd10f0fa2e3568656e76dc4e8fcf891",
-  "phases/14-agent-engineering/31-agent-workbench-why-models-fail/docs/en.md": "2575fa8bca26da9a545cfc45d79237eac2911e977d5b9e3a77b1a21675111850"
+  "phases/14-agent-engineering/31-agent-workbench-why-models-fail/docs/en.md": "2575fa8bca26da9a545cfc45d79237eac2911e977d5b9e3a77b1a21675111850",
+  "phases/14-agent-engineering/32-minimal-agent-workbench/docs/en.md": "ed33899118e133a6201e503a96d5bd07e54e36616a4586979ea9e5bdc211e980"
 }
