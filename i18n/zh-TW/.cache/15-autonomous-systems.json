@@ -7,5 +7,6 @@
   "phases/15-autonomous-systems/06-automated-alignment-research/docs/en.md": "b9baea7e1c628eff4a700a67ed30eb3952574c159beb63e8e1def6acce623307",
   "phases/15-autonomous-systems/07-recursive-self-improvement/docs/en.md": "203b879ffa5b1a34afc51caf2fdedcde5553bb08e1873039b036bd1add6f38b0",
   "phases/15-autonomous-systems/08-bounded-self-improvement/docs/en.md": "ed3e03bb1c0431173c30bf272e4a484a8264ab6823f305f10850a8e245b207d0",
-  "phases/15-autonomous-systems/09-coding-agent-landscape/docs/en.md": "62d80c824129f6f23833be3473421afaa99330f4dfa617f49108013fe76bfeb3"
+  "phases/15-autonomous-systems/09-coding-agent-landscape/docs/en.md": "62d80c824129f6f23833be3473421afaa99330f4dfa617f49108013fe76bfeb3",
+  "phases/15-autonomous-systems/10-claude-code-permission-modes/docs/en.md": "89c7658a26b24a863992b5284936730885ea25c254e3a4b1c1949126da9d683c"
 }
