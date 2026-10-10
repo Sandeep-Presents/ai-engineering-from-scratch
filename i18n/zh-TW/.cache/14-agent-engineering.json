@@ -51,5 +51,6 @@
   "phases/14-agent-engineering/50-choose-the-smallest-testable-slice/docs/en.md": "8dcdf1ba55e1b58f5ceb019de63ab5be3006b51e051e7acfa4e5cbd6f40149ab",
   "phases/14-agent-engineering/51-write-specifications-that-preserve-judgment/docs/en.md": "e63576917c5e0a1ea4824bead4391f25f9733977419e785b272ff5076d1f11c3",
   "phases/14-agent-engineering/52-design-success-metrics/docs/en.md": "dd1c976a46c3cffd2de66283c967c8b6589217f3171e2168b8f6852fdbc27ecc",
-  "phases/14-agent-engineering/53-prototype-pilot-or-production/docs/en.md": "2f596fd43c98189fc0c314b87b59aa94a6e6351e643cfbd4832ba8b33e53c455"
+  "phases/14-agent-engineering/53-prototype-pilot-or-production/docs/en.md": "2f596fd43c98189fc0c314b87b59aa94a6e6351e643cfbd4832ba8b33e53c455",
+  "phases/14-agent-engineering/54-build-the-feedback-ratchet/docs/en.md": "9320ff565659a4952845cb0eeb3e4416390337391f42f7d08963be0add3ca3ed"
 }
