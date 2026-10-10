@@ -3,5 +3,6 @@
   "phases/13-tools-and-protocols/02-function-calling-deep-dive/docs/en.md": "4691bbc616aa41426d78eb1e3b77b8635de13cf451272e63fba79b59094a7e71",
   "phases/13-tools-and-protocols/03-parallel-and-streaming-tool-calls/docs/en.md": "b848b9e12e391ea6442042d0108f5c9cc9a5527a5f31a8acabed0083e8da9306",
   "phases/13-tools-and-protocols/04-structured-output/docs/en.md": "bd468ed5c79526e09282f88722e4603d5f80e9a3087e8de0e151dd94d48f73cc",
-  "phases/13-tools-and-protocols/05-tool-schema-design/docs/en.md": "960a389a1c12b06ec7f4731f06cfb5713657b665b15e09cd271c2be6c92a8d2b"
+  "phases/13-tools-and-protocols/05-tool-schema-design/docs/en.md": "960a389a1c12b06ec7f4731f06cfb5713657b665b15e09cd271c2be6c92a8d2b",
+  "phases/13-tools-and-protocols/06-mcp-fundamentals/docs/en.md": "9724abed6bec27050404bf895aa78579fb8b4d7ae70bb99a6a2edccf46eca7d6"
 }
