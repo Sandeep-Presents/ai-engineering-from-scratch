@@ -18,5 +18,6 @@
   "phases/12-multimodal-ai/17-video-language-temporal-grounding/docs/en.md": "9e17f6c9311d0df49f261e4435e4420793dd9780d5ae031beccc3249580751f1",
   "phases/12-multimodal-ai/18-long-video-million-token/docs/en.md": "d7352a3b7b1c8df360602be567922d19c2950ef714733a024f5ece8fffe50af3",
   "phases/12-multimodal-ai/19-audio-language-whisper-to-af3/docs/en.md": "e804554df688d4902e1d44d47afde4440c7189f55ac0cf9d93d352b37ce9b43f",
-  "phases/12-multimodal-ai/20-omni-models-thinker-talker/docs/en.md": "6a61e636804224bc4c0a1530b3f0f26bfdabb46bdf6b31f92f72e5f1d7ebe8c4"
+  "phases/12-multimodal-ai/20-omni-models-thinker-talker/docs/en.md": "6a61e636804224bc4c0a1530b3f0f26bfdabb46bdf6b31f92f72e5f1d7ebe8c4",
+  "phases/12-multimodal-ai/21-embodied-vlas-openvla-pi0-groot/docs/en.md": "74e67225ca1e15d42fa2a561e836c1053ce944c0f11e2706d237294a9550885e"
 }
