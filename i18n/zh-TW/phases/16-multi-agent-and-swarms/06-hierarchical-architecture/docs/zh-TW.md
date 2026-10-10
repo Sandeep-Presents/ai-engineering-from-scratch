@@ -1,0 +1,130 @@
+# 階層式架構與其特有失效模式（Hierarchical Architecture and Its Failure Mode）
+
+> 階層式架構本質上是巢狀嵌套的監督者模式：由經理 Agent（Manager agent）管轄多個副經理，再由副經理指揮底層的工作者。CrewAI 的 `Process.hierarchical` 是教科書級別的經典代表：由專門的 `manager_llm` 動態委派任務並逐層驗收輸出成果。在 LangGraph 中，等價的實作是巢狀呼叫 `create_supervisor(create_supervisor(...))`。當面對的業務本質上就是真實企業組織架構時，這是一套極其自然的對映模式。然而，它也是最容易陷入「管理死迴圈」的架構——經理 Agent 經常錯誤派發任務、扭曲解讀下屬的彙報，或在不同部門之間陷入無法達成共識的無休止內耗。在許多真實業務中，簡單純粹的循序管線往往能輕鬆擊敗它。
+
+**Type:** Learn + Build
+**Languages:** Python (stdlib)
+**Prerequisites:** Phase 16 · 05 (Supervisor Pattern)
+**Time:** ~60 minutes
+
+## Problem｜問題
+
+一旦你完全掌握了監督者模式，一個看似無比自然的下一個思考便是：「如果工作者本身也是一個監督者呢？」真實世界的團隊有專案小組；大型企業由層層嵌套的事業群組成。階層式多 Agent 架構正是這種組織結構在軟體世界中的直觀投影。
+
+然而殘酷的現實是：LLM 充當的管理經理與真實人類經理有著本質的差異。人類經理對自身下屬的知識儲備具備長期穩定的認知先驗。而 LLM 經理在每一輪對話中，僅能依據其當前上下文視窗中的片段雜訊重新推理整個組織關係。一旦上下文發生微小的語意漂移，整棵組織樹就會以雪崩之勢將任務派發至徹底錯誤的方向。
+
+## Concept｜核心概念
+
+### 核心架構形態
+
+```
+                 Manager
+                 ┌─────┐
+                 └──┬──┘
+           ┌────────┴────────┐
+           ▼                 ▼
+       Sub-Mgr A         Sub-Mgr B
+       ┌─────┐           ┌─────┐
+       └──┬──┘           └──┬──┘
+         ┌┴──┬──┐          ┌┴──┐
+         ▼   ▼  ▼          ▼   ▼
+       W1  W2  W3         W4  W5
+```
+
+組織樹中的每一個內部非葉節點皆負責統籌規劃、委派任務與提煉綜述。唯有底層的葉節點（Leaves）才會真正動手執行實質工作。
+
+### 該模式大放異彩的優勢場景
+
+- **清晰精準對映真實組織部門。** 若業務需求本質上是跨部門審核（「法務部門審核文件、財務部門審核合約、工程部門評估可行性，最後向執行長匯報總結」），階層式架構是極具直觀性的對照投影。
+- **逐層就地摘要（Local summarization）。** 每個副經理在向頂層總經理匯報之前，會先將自身團隊的產出提煉為高度濃縮的摘要。總經理僅需閱讀三個副經理的綜述，而無需被迫塞入十五個基層工作者的原始細節。
+
+### 該模式容易崩潰的致命缺陷
+
+2026 年業界各大事故檢討報告中反覆出現的三大經典失效模式：
+
+1. **任務指派失真（Task assignment error）。** 總經理 Agent 通讀總目標後，產生了荒謬的幻覺拆解，將關鍵任務指派給了錯誤的副經理。而由於副經理完全順從地按照被指派的任務埋頭苦幹，該致命錯誤直到最頂層進行最終綜述時才會被察覺——此時它早已遠離了人類監督原本能夠輕易揪出錯誤的起點。
+2. **輸出逐層扭曲（Output misinterpretation）。** 底層副經理回傳「無法驗證宣稱 X」。頂層總經理在二次轉譯時總結為「宣稱 X 未獲證實」。語意在每一層的傳遞中悄悄漂移，最終面目全非。
+3. **共識死迴圈（Consensus loops）。** 兩個副經理回傳了相互矛盾的結論；總經理要求雙方重新協商核對；雙方再次向各自底層重新派發任務；工作者重新執行；副經理給出了微幅調整後的不同答案；系統陷入無限死迴圈。CrewAI 的 `Process.hierarchical` 雖然透過設置步數上限加以防範，但步數門檻本身隨即淪為極難調校的黑箱超參數。
+
+### 關鍵抉擇核心問題
+
+循序管線（Sequential）vs 階層式架構（Hierarchical）：你的真實業務任務到底是真的存在彼此獨立的專門小組，還是本質上只是一條硬被包裝成樹狀結構的線性工作流？若是後者，請堅決使用循序管線。若是前者，在採用階層式架構的同時，必須為其配置明確硬性的協商衝突裁決規則。
+
+### 基於角色框架的實作（CrewAI）
+
+CrewAI 的 `Process.hierarchical` 透過一個全域經理 LLM 統籌管轄多個專家團隊（Crews）。經理負責：
+
+- 接收最頂層任務，
+- 將子任務精準分發給各專案團隊，
+- 嚴格評估各團隊的產出品質，
+- 裁定是直接接受成果、重新委派，還是打回進行下一輪迭代。
+
+官方文件：https://docs.crewai.com/en/introduction (look for "Hierarchical Process" under Core Concepts)。
+
+### 基於圖結構框架的實作（LangGraph）
+
+LangGraph 採用巢狀呼叫 `create_supervisor` 的方式建構階層樹。內層監督者擁有專屬的內部圖；外層監督者將內層圖視為一個黑箱的不透明節點。在除錯維度上，這種模式比 CrewAI 更加清晰乾淨（你能單獨單步除錯每一張子圖），但缺點是在執行時期較難以靈活表達動態重構樹狀結構的需求。
+
+參考文獻：https://reference.langchain.com/python/langgraph-supervisor.
+
+```figure
+swarm-hierarchy-token
+```
+
+## Build It｜動手實作
+
+`code/main.py` 完整運作了一個包含 3 個層級的階層式系統：
+
+- 頂層總經理：將總體任務拆解為「工程」與「法務」兩大路徑，
+- 工程副經理：將任務進一步分發給「前端」與「後端」工作者，
+- 法務副經理：管轄單一法務工作者。
+
+展示程式生動對比了正常路徑（Happy path，全員順暢達成共識）與**受擾動路徑（Perturbed path）**：在後者中，頂層總經理在拆解時產生幻覺，誤將「法務」標註為「財務」，隨後整場災難如多米諾骨牌般連鎖崩潰——副經理順從地執行財務分析，頂層總經理一本正經地匯報財務成果，而使用者最初提出的核心法務問題就此石沉大海、徹底無人解答。
+
+執行指令：
+
+```
+python3 code/main.py
+```
+
+輸出將並列展現兩條路徑的完整執行日誌，讓「使用者到底問了什麼」與「系統最終交出了什麼」形成強烈而震撼的對比。
+
+## Use It｜實際應用
+
+`outputs/skill-hierarchy-fitness.md` 能客觀評估一項給定的業務任務究竟應當採用階層式、循序管線還是扁平監督者架構。輸入：任務描述、組織架構、協商預算。輸出：最適架構模式推薦，外加該情境下必須防禦的特定失效模式清單。
+
+## Ship It｜交付成果
+
+若你必須在正式環境部署階層式架構，請務必恪守以下四大鐵律：
+
+- **嚴格將樹的深度限制在 2 層以內。** 一旦邁入 3 層以上，系統的可觀測性將徹底雪崩，人類將完全喪失排查中層失真的能力。
+- **配置明確硬性的協商輪次預算。** 設定頂層經理強制輸出最終結論的最大輪次上限。通常為 2 輪。
+- **每一次綜述皆必須強制附帶資料溯源鏈條（Provenance）。** 每個非葉節點的總結報告中，必須明確標註該結論具體源自底層哪些葉節點的輸出。
+- **針對任務拆解漂移設置即時告警。** 在每一步記錄經理的任務拆解；自動對照原始使用者查詢進行語意比對。一旦發現拆解結果已經無法覆蓋原始查詢，立即引爆告警。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py` 並比對正常路徑與受擾動路徑。經過多少層經理交接之後，最頂層的產出才會徹底偏離使用者的原始問題？
+2. 在架構中追加第三個層級（頂層 → 副經理 → 專案副組長 → 工作者）。隨著層級深度的增加，受擾動路徑是有可能自我修正，還是必然加速發散？量化測量其發生機率。
+3. 在每個副經理節點部署一個「金絲雀（canary）」工作者，專門直接接收未經任何修改的使用者原始問題。利用金絲雀的答案來即時偵測任務拆解漂移。當金絲雀的回報與副經理綜述的答案發生衝突時，經理應當做出何種反應？
+4. 閱讀 CrewAI 的 `Process.hierarchical` 官方文件。指出一項 CrewAI 所採用的具體防護措施（例如步數上限限制、manager_llm 約束條件），並說明該機制旨在防禦哪一類特定的失效模式。
+5. 橫向對比巢狀 LangGraph 監督者與 CrewAI 階層式流程。在實務除錯中，哪一種方案能以更低廉的成本偵測並定位跨層級的協商死迴圈？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Hierarchical | "Org chart pattern" | Supervisors over supervisors; only leaves do work. |
+| Manager LLM | "The boss" | The LLM that decomposes, assigns, and validates at an internal node. |
+| Decomposition drift | "The boss lost the plot" | Top manager's split no longer covers the original question. |
+| Reconciliation loop | "Endless meetings" | Sub-managers disagree; top re-delegates; workers re-run; loop until budget exhausted. |
+| Depth-2 ceiling | "Don't go deeper than 2 levels" | Empirical guardrail: 3+ levels collapses observability. |
+| Canary question | "Ground truth at every level" | A worker that is always asked the original query unchanged, to detect drift. |
+| Provenance chain | "Who said what" | Trace from each synthesis back to the leaf outputs that produced it. |
+
+## Further Reading｜延伸閱讀
+
+- [CrewAI introduction — Process.hierarchical](https://docs.crewai.com/en/introduction) — 基於經理 LLM 統籌的教科書級階層式架構官方文件。
+- [LangGraph supervisor reference](https://reference.langchain.com/python/langgraph-supervisor) — 透過 `create_supervisor` 實現巢狀監督者架構的參考實作。
+- [Anthropic engineering — Research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 深刻揭示 Anthropic 在科研系統中為何刻意挑選扁平監督者而堅決放棄階層架構的深層工程原因。
+- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 失效分類權威論文；其中協同失靈章節深入剖析了任務拆解漂移的本質。
