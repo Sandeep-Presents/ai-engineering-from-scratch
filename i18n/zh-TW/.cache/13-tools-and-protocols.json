@@ -10,5 +10,6 @@
   "phases/13-tools-and-protocols/09-mcp-transports/docs/en.md": "8b35336a155283e509f16008a3acd65caedd87c443bde2c86c7836d615f6bb4e",
   "phases/13-tools-and-protocols/10-mcp-resources-and-prompts/docs/en.md": "fc4d77f598eca44d493dd1cb765d2355a739577a65387a4a1a7e0e1d55946579",
   "phases/13-tools-and-protocols/11-mcp-sampling/docs/en.md": "a205ee1e92a30eb61080e980620eaf0c5dbd1772db8b35da65a453273ed4fd71",
-  "phases/13-tools-and-protocols/12-mcp-roots-and-elicitation/docs/en.md": "5b061e2bec0962f9a1bcf881f7886fbe16426236f428311f30199f398c1af6bd"
+  "phases/13-tools-and-protocols/12-mcp-roots-and-elicitation/docs/en.md": "5b061e2bec0962f9a1bcf881f7886fbe16426236f428311f30199f398c1af6bd",
+  "phases/13-tools-and-protocols/13-mcp-async-tasks/docs/en.md": "6987b0cabf06d9f37c5f42b31a76889ad26b36b3571aeaae6629ceb2cd0f7314"
 }
