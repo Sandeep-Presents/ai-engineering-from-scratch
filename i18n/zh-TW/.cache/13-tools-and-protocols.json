@@ -13,5 +13,6 @@
   "phases/13-tools-and-protocols/12-mcp-roots-and-elicitation/docs/en.md": "5b061e2bec0962f9a1bcf881f7886fbe16426236f428311f30199f398c1af6bd",
   "phases/13-tools-and-protocols/13-mcp-async-tasks/docs/en.md": "6987b0cabf06d9f37c5f42b31a76889ad26b36b3571aeaae6629ceb2cd0f7314",
   "phases/13-tools-and-protocols/14-mcp-apps/docs/en.md": "40f058cda91f1ed151492d82de0578ec39a8df5ded405087c2824c4d885abdcc",
-  "phases/13-tools-and-protocols/15-mcp-security-tool-poisoning/docs/en.md": "8df9c5d03680ae24853c738c8c3876eb8e95decd5932e8356ac7c3b2915820e6"
+  "phases/13-tools-and-protocols/15-mcp-security-tool-poisoning/docs/en.md": "8df9c5d03680ae24853c738c8c3876eb8e95decd5932e8356ac7c3b2915820e6",
+  "phases/13-tools-and-protocols/16-mcp-security-oauth-2-1/docs/en.md": "74e8633388346ce360cc53b8aca33dcf3be056362c1111c54c367c257a32dde0"
 }
