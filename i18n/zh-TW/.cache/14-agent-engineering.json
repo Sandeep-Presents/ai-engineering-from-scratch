@@ -31,5 +31,6 @@
   "phases/14-agent-engineering/30-eval-driven-agent-development/docs/en.md": "7f1772928ead5688466ea0b7178d2cbd7bd10f0fa2e3568656e76dc4e8fcf891",
   "phases/14-agent-engineering/31-agent-workbench-why-models-fail/docs/en.md": "2575fa8bca26da9a545cfc45d79237eac2911e977d5b9e3a77b1a21675111850",
   "phases/14-agent-engineering/32-minimal-agent-workbench/docs/en.md": "ed33899118e133a6201e503a96d5bd07e54e36616a4586979ea9e5bdc211e980",
-  "phases/14-agent-engineering/33-instructions-as-executable-constraints/docs/en.md": "6ba9752ebfeb92b1a187a7cbace37940438fb57ad11f5518e8688195b5796f6a"
+  "phases/14-agent-engineering/33-instructions-as-executable-constraints/docs/en.md": "6ba9752ebfeb92b1a187a7cbace37940438fb57ad11f5518e8688195b5796f6a",
+  "phases/14-agent-engineering/34-repo-memory-and-state/docs/en.md": "c43ee57ba42296d7536eaa6b46281a3fa64c59ed392b19a7891cfdc0fb50e4bc"
 }
