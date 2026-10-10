@@ -6,5 +6,6 @@
   "phases/13-tools-and-protocols/05-tool-schema-design/docs/en.md": "960a389a1c12b06ec7f4731f06cfb5713657b665b15e09cd271c2be6c92a8d2b",
   "phases/13-tools-and-protocols/06-mcp-fundamentals/docs/en.md": "9724abed6bec27050404bf895aa78579fb8b4d7ae70bb99a6a2edccf46eca7d6",
   "phases/13-tools-and-protocols/07-building-an-mcp-server/docs/en.md": "8acac5ca68ac5a3057d94199905e5f26743fda4624b4eea05087a84e2857a76e",
-  "phases/13-tools-and-protocols/08-building-an-mcp-client/docs/en.md": "dc2ca4a30c21094e72f5e225724c5a6680119d65aa974e34d411be4ce458fc6d"
+  "phases/13-tools-and-protocols/08-building-an-mcp-client/docs/en.md": "dc2ca4a30c21094e72f5e225724c5a6680119d65aa974e34d411be4ce458fc6d",
+  "phases/13-tools-and-protocols/09-mcp-transports/docs/en.md": "8b35336a155283e509f16008a3acd65caedd87c443bde2c86c7836d615f6bb4e"
 }
