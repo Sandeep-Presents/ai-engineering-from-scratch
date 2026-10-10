@@ -3,5 +3,6 @@
   "phases/14-agent-engineering/02-rewoo-plan-and-execute/docs/en.md": "6415552ddca63102995206c84e95e9b0225b77c0c06ac808f316eb36431bb4df",
   "phases/14-agent-engineering/03-reflexion-verbal-rl/docs/en.md": "9afabebcab9e1ce6d6ab3b2b0ceabd8b0aa308b25a73b8d6510fc2f2739f9b36",
   "phases/14-agent-engineering/04-tree-of-thoughts-lats/docs/en.md": "c0d4e1af4425b9cc2a97b944e4b538fb2bcef90e4469acab0d547c69e317e92f",
-  "phases/14-agent-engineering/05-self-refine-and-critic/docs/en.md": "9c7f53947f9886f431c8f1a5d51f4f1c97af01ff68887f33275dbd64892f93e3"
+  "phases/14-agent-engineering/05-self-refine-and-critic/docs/en.md": "9c7f53947f9886f431c8f1a5d51f4f1c97af01ff68887f33275dbd64892f93e3",
+  "phases/14-agent-engineering/06-tool-use-and-function-calling/docs/en.md": "73cf8bf653c6148817147fd98b4fc780d9794ca3e9651605f6c8e3f242a14992"
 }
