@@ -11,5 +11,6 @@
   "phases/12-multimodal-ai/10-internvl3-native-multimodal/docs/en.md": "859fcab226b623475ece1a15a9bb46721c8e637fc9888939a5d282fca815b3e4",
   "phases/12-multimodal-ai/11-chameleon-early-fusion-tokens/docs/en.md": "c5409ecf20aa61fcbb8e9e7203299b4585b047cb2eeaffeb3029e90d1d3eaf31",
   "phases/12-multimodal-ai/12-emu3-next-token-for-generation/docs/en.md": "4ab06008e32cc50c306f7bcd81af826b9fa4431534ea2ef7a653d5bddf614d05",
-  "phases/12-multimodal-ai/13-transfusion-autoregressive-diffusion/docs/en.md": "fe6e5c16f8fed7f6f61f68dd6f0bda20200527ee585f3faee80fcc779116bfe0"
+  "phases/12-multimodal-ai/13-transfusion-autoregressive-diffusion/docs/en.md": "fe6e5c16f8fed7f6f61f68dd6f0bda20200527ee585f3faee80fcc779116bfe0",
+  "phases/12-multimodal-ai/14-show-o-discrete-diffusion-unified/docs/en.md": "c87e6d0054f7b3244a92d39902938128f154c59f5e5aecbc3d1c27055b7e2091"
 }
