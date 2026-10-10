@@ -1,0 +1,128 @@
+# 檢查點與回滾機制（Checkpoints and Rollback）
+
+> 圖狀態（graph-state）的每一次躍遷皆會被持久化保存。當某個 worker 當機崩潰時，其持有的租約（lease）會自然過期，並由另一個 worker 接手並精準從最近的檢查點（checkpoint）恢復執行。Cloudflare Durable Objects 能夠跨越數小時乃至數週維持持久狀態。先提議後確認寫入（第 15 課）為每個動作定義了專屬的回滾（rollback）方案。動作後驗證則確保了整個閉環的完整性。歐盟《人工智慧法案》第 14 條將「有效的人類監督」定為高風險系統的法定強制規範——在實務工程上，這意味著檢查點必須支援外部查詢、回滾方案必須經過實戰演練，且稽核軌跡必須在服務重新部署後依然完好無損。最致命的尖銳失效模式在於：若缺乏冪等性金鑰與前置條件檢查，短暫的瞬時故障重試極易導致早已核准的動作被重複執行兩次。動作後驗證正是精準捕獲該漏洞的關鍵閘門。
+
+**Type:** Learn
+**Languages:** Python (stdlib, checkpoint and rollback state machine)
+**Prerequisites:** Phase 15 · 12 (Durable execution), Phase 15 · 15 (Propose-then-commit)
+**Time:** ~60 minutes
+
+## The Problem｜問題
+
+持久化執行（第 12 課）讓當機的 agent 具備了自我復原重啟的能力。先提議後確認寫入（第 15 課）讓已核准的動作具備了完整的可稽核性。本課將兩者無縫結合：當一個已獲得核准的動作僅執行了一半便突發崩潰，並隨後重啟恢復時，系統該如何應對？回滾機制應在何時介入？又該依據哪一份狀態進行還原？
+
+業界真實系統有著不同的實作風格：
+
+- **LangGraph** 將圖狀態的每一次躍遷皆寫入 PostgreSQL 檢查點。當 worker 崩潰時，租約自動釋放，另一個 worker 立即從最新的檢查點喚醒接手。工作流程可在 `interrupt()` 處優雅暫停，而暫停狀態本身也是持久化的。
+- **Cloudflare Durable Objects** 依據唯一鍵值維持跨越數小時乃至數週的狀態。將運算邏輯與已核准動作的儲存空間緊密共置。
+- **微軟 Agent Framework** 在工作流程 API 中直接暴露了 `Checkpoint` 原語；重播機制搭配冪等性金鑰完整覆蓋了故障重試。
+
+在所有架構中，唯一能在實務中穩定奏效的防禦組合拳是：冪等性金鑰（防止重複執行）+ 前置條件檢查（確保目前環境狀態與當初核准時一致）+ 動作後驗證（確認外部副作用確實正確發生）+ 驗證失敗時自動觸發回滾。
+
+## The Concept｜核心概念
+
+### 每一次狀態躍遷皆被持久化
+
+圖狀態躍遷指的是將工作流程從一個具名狀態推進至另一個具名狀態的任何步驟。陽春的實作僅會在特定的 commit 點進行持久化；而正式環境等級的實作則會對每一次躍遷皆落盤儲存。相較於其換取的巨大可靠度收益（重播可精準定位至任意斷點、租約復原極其精確），其額外增加的微小寫入開銷微不足道。
+
+### 租約過期與無縫復原（Lease Recovery）
+
+當一個工作節點（worker）當機時，工作流程絕不會遺失；該 worker 所持有的租約（即宣稱「此 worker 正在執行該任務」的短暫聲明憑證）只會自然逾時過期。另一個健康的 worker 會立即捕獲最新的檢查點並平滑接棒繼續運作。這套租約機制是正式環境系統得以安然度過滾動部署（rolling deploy）且完全不丟失在途任務的核心功臣。
+
+### 冪等性加上前置條件檢查（Preconditions）
+
+單純依賴冪等性本身依然不夠充分。思考以下情境：一個工作流程獲得核准執行「當帳戶餘額大於 1,000 美元時，從 A 轉帳 100 美元至 B」。動作已 commit，但在執行到一半時系統崩潰並隨後復原。如果系統僅檢查冪等性金鑰，重啟後的執行確實只會轉帳一次（正確）。但假設在當機與重啟的空檔期間，帳戶 A 的餘額被另一個獨立流程扣減至僅剩 500 美元。此時冪等性檢查依然判定通過；然而前置條件已經實質破壞。若缺乏前置條件檢查，系統就會發出一筆透支交易。
+
+因此，每一個具實質後果的動作皆必須同時配備兩者：
+
+- **冪等性金鑰**：防止意外的重複二次執行。
+- **前置條件檢查**：確認當前的環境狀態依然與當初核准時的假定完全一致。
+
+### 動作後驗證（Post-Action Verification）
+
+「工具回傳了 HTTP 200」絕不代表驗證完畢。真實嚴謹的驗證必須主動重新讀取目標系統的最終狀態，並確實核對外部副作用是否如實生效。常見實踐模式包括：
+
+- 資料庫更新：執行 `UPDATE ... RETURNING *`，接著斷言回傳的資料列完全符合預期變更。
+- 電子郵件發送：在送出後主動查詢寄件匣中是否存在該訊息 ID。
+- 檔案寫入：重新讀取該檔案並計算校驗雜湊值。
+- 呼叫外部 API：對目標資源發起後續的 `GET` 請求核實狀態。
+
+一旦驗證步驟失敗，即意味著工作流程陷入了已知的異常損壞狀態。回滾機制必須立即介入接管。
+
+### 完備的回滾方案設計（Rollback Plans）
+
+先提議後確認寫入（第 15 課）中的每一個具備實質後果的動作，都必須強制攜帶回滾方案。常見類型包括：
+
+- **頻內回滾（In-band rollback）**：直接以逆向操作消除副作用（例如 `INSERT` 之後執行 `DELETE`，或在發送郵件後呼叫 `Send-correction-email`）。
+- **補償交易（Compensating transaction）**：發起一項新的動作以抵消原動作的影響（經典的 SAGA 分散式事務模式）。
+- **頻外回滾（Out-of-band rollback）**：向人類發送緊急警報、暫停工作流程，保留現場異常狀態供專家介入調查。
+
+若屬於無操作回滾（即「此動作在物理上無法被撤銷」），則必須在提議階段明確標註。對於完全無法回滾的動作，在 commit 時期必須施加更為嚴苛的人工審查門檻（第 15 課的質詢應答核對清單）。
+
+### 歐盟 AI 法案第 14 條的實務工程解讀
+
+第 14 條強制要求高風險系統必須配備「有效的人類監督」。在維運與工程落地層面，實作者對其標準解讀如下：
+
+- 稽核員必須隨時能夠查詢檢查點的完整歷史。
+- 回滾方案必須經過正式演練（至少端到端完整測試過一次）。
+- 稽核軌跡必須能安然度過服務重新部署（檢查點後端嚴禁使用暫態儲存）。
+- 對於驗證失敗事件必須強制觸發告警，絕不允許被無聲記錄掩蓋。
+
+一個在 commit 中途當機、重啟後直接草率完成副作用但缺乏「驗證 + 回滾」防護機制的系統，絕對無法通過歐盟法案第 14 條的合規檢驗。
+
+### 尖銳的真實失效模式：重複執行（Double-Execute）
+
+正式環境中最為常見的災難性事故場景：
+
+1. 動作獲得核准，取得唯一冪等性金鑰 k。
+2. 開始執行 commit，底層動作順利完成，回傳 200。
+3. 工作流程在將「已 commit」狀態落盤寫入之前突發崩潰。
+4. 工作流程重新喚醒；讀取歷史狀態發現處於「已核准但尚未 commit」；遂再次觸發執行。
+5. 外部副作用被慘痛地執行了兩次。
+
+最佳緩解架構：在正式執行前，先將「在途意圖（in-flight）」持久化落盤；帶著冪等性金鑰發起執行；最後唯有在動作後驗證確認成功之後，才正式將狀態標記為「已 commit」。若動作執行完畢但狀態寫入失敗，復原路徑能透過驗證獲知真相；若狀態已持久化但動作失敗，系統能透過復原路徑有條不紊地僅補發精確的一次。
+
+```figure
+checkpoint-replay
+```
+
+## Use It｜實際應用
+
+`code/main.py` 實現了一個整合檢查點、冪等性、前置條件檢查、狀態驗證與自動回滾的完整工作流程。驅動程式模擬了四種真實業務情境：乾淨無暇的正常執行；崩潰重啟後被冪等性安全攔截的防重跑流程；前置條件檢查失敗導致工作流程主動中斷的保護流程；以及動作後驗證失敗自動引發回滾補償的完整流程。
+
+## Ship It｜交付成果
+
+`outputs/skill-rollback-rehearsal.md` 能為所提議的工作流程設計一套完整的回滾演練測試，並全面稽核其檢查點後端是否滿足稽核軌跡持久化的合規要求。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。驗證這四種情境的運作細節。特別針對在 commit 期間當機的情境，確認在多次重試中該動作是否確實僅被精確執行了一次。
+
+2. 修改「先標記為完成、再實際執行」的狀態更新順序，改為在動作完成後才寫入狀態。重新執行崩潰模擬，量化測量會引發多少次重複執行的異常。
+
+3. 為一項真實正式環境動作（例如「向 Slack 群組推播重要訊息」）設計一套完備的回滾方案。將其明確歸類為頻內回滾、補償交易或頻外回滾，並論證你的架構選擇。
+
+4. 檢視你團隊熟悉的一套現有工作流程。梳理其所有的狀態躍遷點。為每個躍遷標註持久化需求等級（必須落盤／無需落盤）。統計目前有多少關鍵躍遷實際上處於未持久化的危險狀態。
+
+5. 回滾實戰演練：設計一套端到端測試，執行真實的工作流程、人為注入崩潰，並驗證系統是否能自動觸發回滾路徑。此測試的核心斷言（assertions）應包含哪些條件？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|---|---|---|
+| Checkpoint | "Save point" | Every graph-state transition persists to a durable store |
+| Lease | "Worker claim" | Short-lived claim that a worker is executing a run; expires on crash |
+| Precondition | "State gate" | Assertion that the state is still consistent with the approved action |
+| Post-action verify | "Re-read check" | Confirm the side effect actually happened in the target system |
+| In-band rollback | "Direct undo" | Reverse the side effect with the inverse operation |
+| Compensating transaction | "SAGA undo" | A new action that neutralizes the original |
+| Mark-as-done-first | "Status write order" | Persist the committed status before returning from commit |
+| Article 14 | "EU AI Act human oversight" | Operational: queryable checkpoints, rehearsed rollbacks, auditable trail |
+
+## Further Reading｜延伸閱讀
+
+- [Microsoft Agent Framework — Checkpointing and HITL](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 檢查點原語與租約復原機制。
+- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — 將 Durable Objects 作為分散式狀態底座。
+- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/) — 高風險系統的人類監督法規基準。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 長時程工作流程的可靠度分析框架。
+- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop) — Claude Code Routines 的工作流程架構設計。
