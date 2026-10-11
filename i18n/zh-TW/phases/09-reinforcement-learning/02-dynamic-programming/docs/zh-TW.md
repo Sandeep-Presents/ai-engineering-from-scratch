@@ -46,7 +46,7 @@ value-iteration-gamma
 
 ### 步驟 1：建立 GridWorld 的 MDP 模型
 
-用第 01 課同一個 4×4 GridWorld。我們加一個隨機變體（stochastic variant）：以 `0.1` 的機率，agent 會滑向隨機的垂直方向。
+用第 01 課同一個 4×4 GridWorld。我們加一個隨機變體（stochastic variant）：以 `0.1` 的機率，agent 會滑向與原動作垂直的隨機方向。
 
 ```python
 SLIP = 0.1
