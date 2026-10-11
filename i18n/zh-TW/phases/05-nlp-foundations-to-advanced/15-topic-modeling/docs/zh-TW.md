@@ -1,6 +1,6 @@
 # 主題模型（topic modeling）——LDA 與 BERTopic
 
-> LDA：文件是主題的混合，主題是詞上的分布。BERTopic：文件在 embedding 空間裡分群，群集就是主題。目標相同，分解不同。
+> LDA：文件是主題的混合，主題是詞上的分布。BERTopic：文件在 embedding 空間裡分群（cluster），群集就是主題。目標相同，分解不同。
 
 **Type:** Learn
 **Languages:** Python
@@ -15,7 +15,7 @@
 
 兩族演算法（algorithm）佔主導。LDA（2003）把每份文件看成潛在主題的混合，每個主題是詞上的分布。推論（inference）是貝氏的。當你需要多重主題歸屬、以及可解釋的詞級機率分布時，它仍在正式環境（production）交付。
 
-BERTopic（2020）用 BERT 把文件編碼，用 UMAP 降維，用 HDBSCAN 分群，再用類別式 TF-IDF 抽出主題詞。它在短文、社群媒體、以及語意相似度比詞重疊更要緊的地方贏。一份文件只得一個主題，對長文是限制。
+BERTopic（2020）用 BERT 把文件編碼，用 UMAP 降維（dimensionality reduction），用 HDBSCAN 分群，再用類別式 TF-IDF 抽出主題詞。它在短文、社群媒體、以及語意相似度比詞重疊更要緊的地方贏。一份文件只得一個主題，對長文是限制。
 
 這一課為兩者建立直覺，並點名給定語料庫該選哪一個。
 
