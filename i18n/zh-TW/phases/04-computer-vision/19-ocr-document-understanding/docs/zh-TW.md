@@ -251,7 +251,7 @@ model = VisionEncoderDecoderModel.from_pretrained("naver-clova-ix/donut-base-fin
 |------|----------------|----------------------|
 | OCR | 「從像素拿文字」 | 把影像區域變成字元序列 |
 | CTC | 「不用對齊的損失」 | 訓練序列模型時不用每個時間步的標籤。把所有對齊加總 |
-| CRNN | 「傳統 OCR 模型」 | 卷積（convolution）特徵萃取器加 BiLSTM 加 CTC。2015 的基準（baseline），正式環境仍在用 |
+| CRNN | 「傳統 OCR 模型」 | 卷積（convolution）特徵萃取器加 BiLSTM 加 CTC。2015 的基準模型，正式環境仍在用 |
 | Donut | 「端到端 OCR」 | ViT 編碼器加文字解碼器。直接從影像吐出 JSON |
 | 版面解析 | 「找出區域」 | 偵測並標出文件裡的標題、表格、圖、段落 |
 | 閱讀順序 | 「文字序列」 | 把辨識出的區域排成句子。拉丁文字的閱讀順序較簡單，混合版面則複雜得多 |
