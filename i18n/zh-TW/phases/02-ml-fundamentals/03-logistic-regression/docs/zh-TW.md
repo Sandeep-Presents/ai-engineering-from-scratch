@@ -102,7 +102,7 @@ dL/db = (1/n) * sum(p - y)
 ```mermaid
 flowchart TD
     A[初始化 w=0, b=0] --> B[前向傳遞：z = wx+b, p = sigmoid z]
-    B --> C[計算損失：binary cross-entropy]
+    B --> C[計算損失：二元交叉熵]
     C --> D["計算梯度：dw = (1/n) * sum((p-y)*x)"]
     D --> E[更新：w = w - lr*dw, b = b - lr*db]
     E --> F{收斂？}
