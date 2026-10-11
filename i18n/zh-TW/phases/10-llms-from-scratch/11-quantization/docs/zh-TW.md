@@ -56,14 +56,14 @@ INT4:  [1 sign] [3 value]                   = 4  bits (16 levels total)
 
 ```mermaid
 graph LR
-    subgraph Formats["Number Format Landscape"]
+    subgraph Formats["數值格式概況"]
         direction TB
-        FP32["FP32\n32 bits\n4 bytes/param\nTraining gold standard"]
-        BF16["BF16\n16 bits\n2 bytes/param\nTraining default"]
-        FP16["FP16\n16 bits\n2 bytes/param\nInference baseline"]
-        FP8["FP8\n8 bits\n1 byte/param\n30-50% faster"]
-        INT8["INT8\n8 bits\n1 byte/param\n2x throughput"]
-        INT4["INT4\n4 bits\n0.5 bytes/param\n4x compression"]
+        FP32["FP32\n32 位元\n每個參數 4 位元組\n訓練的黃金標準"]
+        BF16["BF16\n16 位元\n每個參數 2 位元組\n訓練預設"]
+        FP16["FP16\n16 位元\n每個參數 2 位元組\n推論基準"]
+        FP8["FP8\n8 位元\n每個參數 1 位元組\n快 30-50%"]
+        INT8["INT8\n8 位元\n每個參數 1 位元組\n吞吐量提升 2 倍"]
+        INT4["INT4\n4 位元\n每個參數 0.5 位元組\n壓縮 4 倍"]
     end
 
     FP32 -->|"training"| BF16
@@ -103,7 +103,7 @@ quantized = clamp(round(tensor / scale), -128, 127)
 
 誤差即為捨入誤差。每個數值的誤差最大不超過 `scale / 2`。整層的總誤差取決於你有多少個模型權重，以及模型對這些模型權重擾動的敏感程度。
 
-**逐張量（Per-tensor）vs 逐通道（Per-channel）量化。** 逐張量量化為整個模型權重矩陣使用單一縮放因子。實作簡單但損耗較大：如果一欄的數值較大、另一欄的數值較小，數值較小的那一欄就會失去大部分精度。逐通道量化為每個輸出通道（模型權重矩陣的每一列或每一行）使用獨立的縮放因子。雖然增加了少量額外開銷（必須儲存 N 個縮放因子而非 1 個），但品質有著飛躍性的提升。所有正式環境的量化方法皆採用逐通道或更細粒度的縮放。
+**逐張量（Per-tensor）vs 逐通道（Per-channel）量化。** 逐張量量化為整個模型權重矩陣使用單一縮放因子。實作簡單但損耗較大：如果一欄的數值較大、另一欄的數值較小，數值較小的那一欄就會失去大部分精度。逐通道量化為每個輸出通道（模型權重矩陣的每一列或每一欄）使用獨立的縮放因子。雖然增加了少量額外開銷（必須儲存 N 個縮放因子而非 1 個），但品質有著飛躍性的提升。所有正式環境的量化方法皆採用逐通道或更細粒度的縮放。
 
 **非對稱量化（Asymmetric quantization）** 加入了零點（zero-point）偏移：`quantized = round(tensor / scale) + zero_point`。這能妥善處理未以零為中心的分布。例如 ReLU 活化值永遠為非負數。對稱量化會將整整一半的整數範圍浪費在永遠不會出現的負數上。非對稱量化則將實際的 [min, max] 區間完整映射到整個整數範圍。
 
@@ -121,12 +121,12 @@ quantized = clamp(round(tensor / scale), -128, 127)
 
 ```mermaid
 graph TD
-    subgraph Sensitivity["Quantization Sensitivity (Low to High)"]
+    subgraph Sensitivity["量化敏感度（由低至高）"]
         direction LR
-        W["Weights\nGaussian, near zero\nINT4 works well"]
-        A["Activations\nWider range, outliers\nINT8 with care"]
-        KV["KV Cache\nErrors compound\nFP8 or INT8"]
-        ATT["Attention Logits\nSoftmax amplifies error\nKeep in FP16"]
+        W["權重\n近似零均值的高斯分布\n適合使用 INT4"]
+        A["活化值\n範圍較廣、有離群值\n謹慎使用 INT8"]
+        KV["KV cache\n誤差會累積\nFP8 或 INT8"]
+        ATT["注意力 logits\nsoftmax 會放大誤差\n維持 FP16"]
     end
 
     W -->|"safe"| A
@@ -156,7 +156,7 @@ graph TD
 
 ### GPTQ、AWQ、GGUF
 
-**GPTQ（GPT Quantization）** 是一種單次（one-shot）PTQ 方法。它逐層量化模型權重，使用小型校準資料集（通常為 128 個範例）來測量 Hessian 矩陣（二階曲率資訊，反映輸出對每個模型權重的敏感程度）。Hessian 判定為重要的模型權重會被更謹慎地量化。GPTQ 是第一個讓 LLM 的 INT4 量化具備實用可行性的演算法。Hugging Face 上的 TheBloke 透過發布數百個模型的 GPTQ 版本將其發揚光大。
+**GPTQ（GPT Quantization）** 是一種單次（one-shot）PTQ 方法。它逐層量化模型權重，使用小型校準資料集（通常為 128 個範例）來測量海森矩陣（Hessian）（二階曲率資訊，反映輸出對每個模型權重的敏感程度）。海森矩陣判定為重要的模型權重會被更謹慎地量化。GPTQ 是第一個讓 LLM 的 INT4 量化具備實用可行性的演算法。Hugging Face 上的 TheBloke 透過發布數百個模型的 GPTQ 版本將其發揚光大。
 
 **AWQ（Activation-Aware Weight Quantization）** 觀察到極少數模型權重（約 1%）因與龐大的活化值相乘而顯得格外重要。AWQ 利用校準資料辨識出這些顯著模型權重（salient weights），並在量化前將其放大（同時等比縮小相應的活化值）。這將重要模型權重保護在 INT4 能準確量化的數值範圍內。AWQ 的品質通常打平或略勝 GPTQ，且執行速度快 1.5 到 2 倍。
 
@@ -164,16 +164,16 @@ graph TD
 
 ```mermaid
 graph TD
-    subgraph Methods["Quantization Methods"]
+    subgraph Methods["量化方法"]
         direction TB
-        GPTQ_["GPTQ\nHessian-guided\nPer-layer optimization\nPopular on HuggingFace"]
-        AWQ_["AWQ\nActivation-aware\nSalient weight scaling\n1.5-2x faster than GPTQ"]
-        GGUF_["GGUF\nMixed precision\nCPU + Metal optimized\nllama.cpp ecosystem"]
+        GPTQ_["GPTQ\n海森矩陣引導\n逐層最佳化\n在 Hugging Face 上廣受歡迎"]
+        AWQ_["AWQ\n活化值感知\n顯著權重縮放\n比 GPTQ 快 1.5-2 倍"]
+        GGUF_["GGUF\n混合精度\n針對 CPU + Metal 最佳化\nllama.cpp 生態系"]
     end
 
-    subgraph Use["Best For"]
-        GPU["GPU inference\n(CUDA, ROCm)"]
-        EDGE["Edge / Laptop\n(CPU, Metal)"]
+    subgraph Use["適用情境"]
+        GPU["GPU 推論\n（CUDA、ROCm）"]
+        EDGE["邊緣裝置／筆電\n（CPU、Metal）"]
     end
 
     GPTQ_ --> GPU
@@ -526,7 +526,7 @@ def sensitivity_experiment(batch_size=2, seq_len=16, d_model=64, num_bits=8):
 
 ### 步驟 6：模擬 GPTQ
 
-GPTQ 一次量化一欄，利用 Hessian 矩陣決定如何分散捨入誤差。這是捕捉其核心思想的簡化版本：使用校準資料衡量模型權重重要性，隨後更積極地量化次要模型權重。
+GPTQ 一次量化一欄，利用海森矩陣決定如何分散捨入誤差。這是捕捉其核心思想的簡化版本：使用校準資料衡量模型權重重要性，隨後更積極地量化次要模型權重。
 
 ```python
 def simulated_gptq(weight_matrix, calibration_inputs, num_bits=4):
@@ -867,7 +867,7 @@ vLLM 原生支援 AWQ 與 GPTQ 模型，並從 checkpoint 的 config 自動讀�
 | INT8 | 「八位元整數」 | 從 -128 到 127 的 256 個等距數值，需要縮放因子將浮點數映射進來 |
 | INT4 | 「四位元整數」 | 總共 16 個離散等級，需要精密方法（GPTQ、AWQ）來維持模型品質 |
 | 逐通道量化（Per-channel quantization） | 「每列一個縮放因子」 | 為每個輸出通道使用獨立的縮放因子，而非整個張量共用一個，大幅降低誤差 |
-| GPTQ | 「Hessian 方法」 | 逐層使用二階曲率資訊最小化輸出誤差的訓練後量化方法 |
+| GPTQ | 「海森矩陣方法」 | 逐層使用二階曲率資訊最小化輸出誤差的訓練後量化方法 |
 | AWQ | 「活化值感知」 | 在量化前放大顯著模型權重（與大型活化值相乘者）以保護它們不受損 |
 | GGUF | 「llama.cpp 格式」 | 自給自足的模型檔案，具備混合精度層，專為 CPU 與 Apple Silicon 推論最佳化 |
 | PTQ | 「訓練後量化」 | 在不重新訓練的情況下將訓練好的模型權重轉換為較低精度，速度快但在極端壓縮下受限 |
