@@ -38,11 +38,11 @@ MMLU 於 2020 年發布，包含涵蓋 57 個學科的 15,908 道題目。短短
 
 ```mermaid
 graph TD
-    subgraph Eval["Evaluation Landscape"]
+    subgraph Eval["評估概況"]
         direction LR
-        B["Benchmarks\n(MMLU, HumanEval)\nCheap, standardized\nGameable, stale"]
-        C["Custom Evals\nYour task, your data\nHighest signal\nExpensive to build"]
-        H["Human Evals\n(Chatbot Arena)\nGold standard\nSlow, costly"]
+        B["基準測試\n（MMLU、HumanEval）\n便宜、標準化\n容易被操弄、過時"]
+        C["自訂評估\n你的任務、你的資料\n訊號最強\n建置成本高"]
+        H["人工評估\n（Chatbot Arena）\n黃金標準\n耗時、昂貴"]
     end
 
     B -->|"rough model selection"| C
@@ -91,14 +91,14 @@ ELO 的優點：相對排名比絕對打分更為可靠、能優雅處理平手�
 
 ```mermaid
 graph LR
-    subgraph ELO["ELO Rating Pipeline"]
+    subgraph ELO["ELO 評分管線"]
         direction TB
-        P["Prompt"] --> MA["Model A Output"]
-        P --> MB["Model B Output"]
-        MA --> J["Judge\n(Human or LLM)"]
+        P["Prompt"] --> MA["模型 A 輸出"]
+        P --> MB["模型 B 輸出"]
+        MA --> J["評判者\n（人工或 LLM）"]
         MB --> J
-        J --> W["A Wins / B Wins / Tie"]
-        W --> E["ELO Update\nK=32"]
+        J --> W["A 獲勝／B 獲勝／平手"]
+        W --> E["更新 ELO 評分\nK=32"]
     end
 
     style P fill:#1a1a2e,stroke:#0f3460,color:#fff
