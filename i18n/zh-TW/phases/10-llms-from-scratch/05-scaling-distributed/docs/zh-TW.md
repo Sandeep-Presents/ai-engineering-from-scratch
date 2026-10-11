@@ -57,17 +57,17 @@ Llama 3 405B 是在 16,384 張 NVIDIA H100 GPU 上訓練完成的，該次訓練
 
 ```mermaid
 graph TD
-    subgraph DataParallel["Data Parallelism (N=4 GPUs)"]
-        B["Full Batch\n(1024 samples)"] --> S["Split"]
-        S --> G1["GPU 1\nFull Model Copy\n256 samples"]
-        S --> G2["GPU 2\nFull Model Copy\n256 samples"]
-        S --> G3["GPU 3\nFull Model Copy\n256 samples"]
-        S --> G4["GPU 4\nFull Model Copy\n256 samples"]
-        G1 --> AR["AllReduce\nAverage Gradients"]
+    subgraph DataParallel["資料平行（N=4 個 GPU）"]
+        B["完整批次\n（1024 個樣本）"] --> S["切分"]
+        S --> G1["GPU 1\n完整模型複本\n256 個樣本"]
+        S --> G2["GPU 2\n完整模型複本\n256 個樣本"]
+        S --> G3["GPU 3\n完整模型複本\n256 個樣本"]
+        S --> G4["GPU 4\n完整模型複本\n256 個樣本"]
+        G1 --> AR["AllReduce\n平均梯度"]
         G2 --> AR
         G3 --> AR
         G4 --> AR
-        AR --> U["Update\n(identical on all GPUs)"]
+        AR --> U["更新\n（所有 GPU 上皆相同）"]
     end
 
     style B fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -122,26 +122,26 @@ FSDP 結合了資料平行的可擴展性與分片的記憶體效率。與其每
 
 ```mermaid
 graph TD
-    subgraph FSDP["FSDP: Fully Sharded Data Parallel (4 GPUs)"]
+    subgraph FSDP["FSDP：全分片資料平行（4 個 GPU）"]
         direction TB
-        S["Model: 4 layers, sharded"]
+        S["模型：4 層，已分片"]
 
         subgraph GPU1["GPU 1"]
-            G1S["Shard: 1/4 params\n1/4 optimizer\n1/4 gradients"]
+            G1S["分片：1/4 參數\n1/4 最佳化器狀態\n1/4 梯度"]
         end
         subgraph GPU2["GPU 2"]
-            G2S["Shard: 1/4 params\n1/4 optimizer\n1/4 gradients"]
+            G2S["分片：1/4 參數\n1/4 最佳化器狀態\n1/4 梯度"]
         end
         subgraph GPU3["GPU 3"]
-            G3S["Shard: 1/4 params\n1/4 optimizer\n1/4 gradients"]
+            G3S["分片：1/4 參數\n1/4 最佳化器狀態\n1/4 梯度"]
         end
         subgraph GPU4["GPU 4"]
-            G4S["Shard: 1/4 params\n1/4 optimizer\n1/4 gradients"]
+            G4S["分片：1/4 參數\n1/4 最佳化器狀態\n1/4 梯度"]
         end
 
-        AG["All-Gather\n(reconstruct full params\nbefore each layer)"]
-        FW["Forward Pass\n(full params temporarily)"]
-        RS["Reduce-Scatter\n(distribute gradient shards\nafter backward)"]
+        AG["全域收集（All-Gather）\n（重建完整參數\n每一層之前）"]
+        FW["前向傳遞\n（暫時使用完整參數）"]
+        RS["歸約散佈（Reduce-Scatter）\n（反向傳遞後\n分配梯度分片）"]
 
         S --> GPU1
         S --> GPU2
@@ -218,20 +218,20 @@ DeepSeek V3 採取了不同策略。他們的混合專家架構每個 token 僅�
 
 ```mermaid
 graph TD
-    subgraph ThreeD["3D Parallelism (Llama 3 405B)"]
+    subgraph ThreeD["3D 平行（Llama 3 405B）"]
         direction TB
-        subgraph DP["Data Parallel (128-way)\nSplit batch across 128 groups"]
-            subgraph PP["Pipeline Parallel (16-way)\nSplit layers across 16 stages"]
-                subgraph TP["Tensor Parallel (8-way)\nSplit each layer across 8 GPUs"]
-                    G1["GPU 1\nSlice of layers 1-N"]
-                    G2["GPU 2\nSlice of layers 1-N"]
-                    G8["GPU 8\nSlice of layers 1-N"]
+        subgraph DP["資料平行（128 路）\n將批次分到 128 個群組"]
+            subgraph PP["管線平行（16 路）\n將層分到 16 個階段"]
+                subgraph TP["張量平行（8 路）\n將每層分到 8 個 GPU"]
+                    G1["GPU 1\n第 1 到 N 層的切片"]
+                    G2["GPU 2\n第 1 到 N 層的切片"]
+                    G8["GPU 8\n第 1 到 N 層的切片"]
                 end
             end
         end
     end
 
-    N1["Total: 8 x 16 x 128 = 16,384 GPUs"]
+    N1["總計：8 x 16 x 128 = 16,384 個 GPU"]
 
     style G1 fill:#1a1a2e,stroke:#0f3460,color:#fff
     style G2 fill:#1a1a2e,stroke:#0f3460,color:#fff
