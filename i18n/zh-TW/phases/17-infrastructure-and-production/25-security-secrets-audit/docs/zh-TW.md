@@ -1,6 +1,6 @@
 # 安全工程——金鑰管理、API 金鑰輪換、稽核日誌與防護欄（Security — Secrets, API Key Rotation, Audit Logs, Guardrails）
 
-> 透過集中化保險庫（HashiCorp Vault、AWS Secrets Manager、Azure Key Vault）徹底消滅金鑰擴散（Secret sprawl）。嚴禁將機密憑證散落在設定檔、Git 版本控制系統中的環境變數檔，或是試算表之中。全面採用動態 IAM 角色取代傳統靜態金鑰；CI/CD 管線強制透過 OIDC 進行無金鑰身分鑑別。AI Gateway 閘道架構是 2026 年的正式環境標準解法：微服務應用 → 智慧閘道 → 底層模型供應商，閘道在執行時期直接從 Vault 保險庫動態提取最新憑證。只需在保險庫中完成一次金鑰輪換，全線應用程式便會在數分鐘內自動無感生效——無需重新編譯容器、無需重新部署，更無需在 Slack 群組中焦急呼喊「誰拿到了新金鑰」。強制金鑰輪換週期不得超過 90 天；在每一次 commit 時透過 TruffleHog / GitGuardian / Gitleaks 進行強制掃描。落實零信任架構：MFA 多因素驗證、SSO 單一登入、RBAC/ABAC 細粒度授權、短時效 Token 以及終端裝置合規態勢校驗。敏感資訊脫敏（PII scrubbing）利用實體辨識技術在請求轉發前即時遮罩 PHI/PII；一致性 Token 化（Consistent tokenization，如 Mesh 方案）將敏感數值映射至穩定的佔位符，使 LLM 能完美保留程式碼語法與業務關聯語意。網路出站限制：推論服務必須長駐於專屬 VPC/VNet 子網內部，嚴格僅將 `api.openai.com`、`api.anthropic.com` 等白名單網域放行，徹底封殺一切非授權出站連線。2026 年標誌性資安事件：Vercel 供應鏈遭受攻擊，攻擊者透過被外洩的 CI/CD 憑證盜取了數千個客戶部署的環境變數。
+> 透過集中化保險庫（HashiCorp Vault、AWS Secrets Manager、Azure Key Vault）徹底消滅金鑰擴散（Secret sprawl）。嚴禁將機密憑證散落在設定檔、Git 版本控制系統中的環境變數檔，或是試算表之中。全面採用動態 IAM 角色取代傳統靜態金鑰；CI/CD 管線強制透過 OIDC 進行無金鑰身分鑑別。AI Gateway 閘道架構是 2026 年的正式環境標準解法：微服務應用 → 智慧閘道 → 底層模型供應商，閘道在執行時期直接從 Vault 保險庫動態提取最新憑證。只需在保險庫中完成一次金鑰輪換，全線應用程式便會在數分鐘內自動無感生效——無需重新部署，更無需在 Slack 群組中焦急呼喊「誰拿到了新金鑰」。強制金鑰輪換週期不得超過 90 天；在每一次 commit 時透過 TruffleHog / GitGuardian / Gitleaks 進行強制掃描。落實零信任架構：MFA 多因素驗證、SSO 單一登入、RBAC/ABAC 細粒度授權、短時效 Token 以及終端裝置合規態勢校驗。敏感資訊脫敏（PII scrubbing）利用實體辨識技術在請求轉發前即時遮罩 PHI/PII；一致性 tokenization（Consistent tokenization，如 Mesh 方案）將敏感數值映射至穩定的佔位符，使 LLM 能完美保留程式碼語法與業務關聯語意。網路出站限制：推論服務必須長駐於專屬 VPC/VNet 子網內部，嚴格僅將 `api.openai.com`、`api.anthropic.com` 等白名單網域放行，徹底封殺一切非授權出站連線。2026 年標誌性資安事件：Vercel 供應鏈遭受攻擊，攻擊者透過被外洩的 CI/CD 憑證盜取了數千個客戶部署的環境變數。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy PII-scrubber + audit-log writer)
@@ -11,12 +11,12 @@
 
 - 列出四大常見的金鑰管理反模式（版本庫包含設定檔、程式碼硬編碼環境變數、試算表共享、靜態長期金鑰），並給出標準的現代防禦架構。
 - 深刻理解「AI 閘道在執行時期從保險庫動態拉取憑證」為何是 2026 年正式環境的黃金解法。
-- 實作具備一致性 Token 化能力的 PII 脫敏處理器（相同真實值映射至相同佔位符），確保語意關聯在脫敏後依然完好無損。
+- 實作具備一致性 tokenization 能力的 PII 脫敏處理器（相同真實值映射至相同佔位符），確保語意關聯在脫敏後依然完好無損。
 - 剖析 2026 年 Vercel 供應鏈資安大案，並汲取關於 CI/CD 憑證安全衛生的深刻教訓。
 
 ## The Problem｜問題
 
-一名實習生不小心將包含生產金鑰的 `.env` 檔案 commit 進了 Git。雖然他火速執行了刪除操作，但金鑰早已永遠烙印在 Git 的歷史 commit 節點中——GitGuardian 監控警報狂響，而你們團隊的應急流程卻停留在最原始的石器時代：「在 Slack 群組瘋狂通知全員、手動修改 40 多個設定檔、將所有微服務全量重新編譯發布」。整整 8 個小時過去，線上有一半的服務已經生效，另一半依然在焦急等待維護窗口。
+一名實習生將含有 API 金鑰的 `.env` 檔案 commit 進 Git。雖然他很快就刪除了檔案，但金鑰早已留在 Git 歷史中——GitGuardian 掃描發現了它，而你們的輪換流程是「在 Slack 通知團隊、更新 40 個設定檔、重新部署所有服務」。8 小時後，一半服務已上線，另一半仍在等待部署時段。
 
 在另一個維度，使用者的輸入 Prompt 中包含了「我的社會安全碼是 123-45-6789」。這段文字被直接發送給了 OpenAI。雖然貴公司簽署了 BAA，但內部政策要求在轉送前遮罩 PII。然而你們的系統完全沒有做。
 
@@ -32,11 +32,11 @@
 
 **IAM 角色**：應用程式或閘道透過其 IAM 身分進行驗證，而非使用靜態金鑰。Vault 會在 token 有效期間回傳 secret。
 
-**AI 閘道模式**：AI 閘道在接收到外部請求的瞬間，在執行時期動態從 Vault 提取 `OPENAI_API_KEY`。當在保險庫中完成金鑰輪換後，下一個抵達的請求自動享用新金鑰。全系統零部署、零中斷。
+**AI 閘道模式**：AI 閘道在接收到外部請求的瞬間，在執行時期動態從 Vault 提取 `OPENAI_API_KEY`。當在保險庫中完成金鑰輪換後，下一個抵達的請求自動享用新金鑰。不需要重新部署。
 
 ### 輪換週期小於等於 90 天（Rotation policy ≤ 90 days）
 
-所有模型 API 金鑰、保險庫 Root Token 與 CI/CD 憑證，強制設定 90 天以內的輪換硬約束。盡可能採用自動化無感輪換；手動輪換必須留存不可篡改的操作記錄。
+所有模型 API 金鑰、保險庫 Root Token 與 CI/CD 憑證，強制設定 90 天以內的輪換硬約束。盡可能採用自動化無感輪換；手動輪換須記錄並追蹤。
 
 ### 原始碼金鑰掃描（Secret scanning）
 
@@ -54,20 +54,20 @@
 - 簽發短時效存取憑證（時效以小時計，絕不可長達數天）。
 - 裝置合規性校驗——僅允許硬碟全盤加密且受控的企業裝置接入。
 
-### 個資 PII / PHI 去識別化過濾（PII / PHI scrubbing）
+### PII／PHI 脫敏（PII / PHI scrubbing）
 
 在 Prompt 跨出內部安全邊界之前：
 
 1. 命名實體辨識（spaCy NER、微軟 Presidio 或商業級專案）。
 2. 對命中實體進行安全遮罩：`"My SSN is 123-45-6789"` → `"My SSN is [SSN_TOKEN_A3F]"`。
-3. 一致性 Token 化（Consistent tokenization，Mesh 模式）：完全相同的原始數值必須精確映射至完全相同的佔位符，確保大模型能理解上下文中的代名詞指代與業務關聯。
+3. 一致性 tokenization（Consistent tokenization，Mesh 模式）：完全相同的原始數值必須精確映射至完全相同的佔位符，確保大模型能理解上下文中的代名詞指代與業務關聯。
 4. 在模型吐出最終回應後，選擇性將真實數值反向還原回傳給使用者。
 
 純靜態正規表示式僅能攔截固定格式；NER 能理解上下文隱含意圖。兩者必須雙重疊加。
 
 ### 輸入與輸出雙向安全防護欄（Input + output guardrails）
 
-輸入端：主動攔截已知的 Prompt 越獄注入、過濾法律禁止的敏感話題、依據使用者 ID 實施嚴格限流。
+輸入端：主動攔截已知的 Prompt 越獄注入、過濾禁止的話題、依據使用者 ID 實施嚴格限流。
 
 輸出端：以正則掃描模型輸出，檢查是否意外洩漏內部 API Key、敏感憑證，或拒答情境中的電子郵件格式；並由輕量分類器審查是否違背合規規範。
 
@@ -109,7 +109,7 @@ i4-vault-rotation
 
 ## Use It｜實際應用
 
-`code/main.py` 實作了一套具備一致性 Token 化能力的微型 PII 脫敏處理器，以及一個嚴格追加寫入（Append-only）的不可篡改稽核日誌記錄器。
+`code/main.py` 實作了一套具備一致性 tokenization 能力的微型 PII 脫敏處理器，以及一個嚴格追加寫入（Append-only）的不可篡改稽核日誌記錄器。
 
 ## Ship It｜交付成果
 
@@ -119,9 +119,9 @@ i4-vault-rotation
 
 1. 執行 `code/main.py`。連續發送兩條引用同一組 SSN 的 Prompt。確認兩者是否被精準替換為了完全相同的佔位符。
 2. 為一個在 EKS 上運作、需要同時存取 OpenAI、Anthropic 與 Weaviate 向量資料庫的推論微服務，設計一套嚴密的網路出站安全政策（NetworkPolicy）。
-3. 你在 Git 歷史 commit 紀錄中偶然翻出了一枚兩年前遺留的舊 API 金鑰。標準且合規的應急應變流程是什麼——立即在供應商後台吊銷金鑰、透過 git-filter-repo 清理歷史，還是兩者同步執行？給出嚴密論證。
+3. 你在 Git 歷史中發現一把兩年前的金鑰。正確的回應是什麼——輪換金鑰、清理歷史，還是兩者都做？請說明理由。
 4. 企業的推論稽核日誌每日以 10 GB 的速度暴增。設計一套標準的生命週期分層階梯儲存方案（熱資料長駐 30 天、溫資料長駐 12 個月、冷資料歸檔 6 年）。
-5. 深入辯論「反向 Token 化（將真實數值重新替換回模型回應中）」相較於直接向終端使用者呈現安全佔位符，其所增加的架構複雜度是否真正值得？
+5. 深入辯論「反向 tokenization（將真實數值重新替換回模型回應中）」相較於直接向終端使用者呈現安全佔位符，其所增加的架構複雜度是否真正值得？
 
 ## Key Terms｜關鍵術語
 
@@ -132,17 +132,17 @@ i4-vault-rotation
 | OIDC for CI/CD | 「雲端簽發的 token」 | CI 不使用靜態金鑰，改以 OIDC 驗證身分 |
 | TruffleHog / GitGuardian / Gitleaks | 「機密掃描器」 | 在 commit 時偵測機密 |
 | RBAC / ABAC | 「存取控制」 | 以角色為基礎與以屬性為基礎的控制方式 |
-| PII scrubbing | 「資料遮罩」 | 移除或 token 化敏感實體 |
+| PII scrubbing | 「資料遮罩」 | 移除或套用 tokenization |
 | Consistent tokenization | 「穩定佔位符」 | 同一個值每次都映射到相同 token |
-| Mesh approach | 「Mesh token 化」 | 保留語意的 token 化模式 |
+| Mesh approach | 「Mesh tokenization」 | 保留語意的 tokenization 模式 |
 | Egress whitelist | 「出站允許清單」 | 僅允許連線至核准網域 |
 | Audit log | 「不可變歷史記錄」 | 僅追加寫入的合規記錄 |
 
 ## Further Reading｜延伸閱讀
 
-- [Doppler — Advanced LLM Security](https://www.doppler.com/blog/advanced-llm-security) — 進階大模型資安防護手冊。
-- [Portkey — Manage LLM API keys with secret references](https://portkey.ai/blog/secret-references-ai-api-key-management/) — 透過機密參照管理大模型金鑰。
-- [Datadog — LLM Guardrails Best Practices](https://www.datadoghq.com/blog/llm-guardrails-best-practices/) — 安全防護欄最佳工程實踐。
-- [JumpServer — Secrets Management Best Practices 2026](https://www.jumpserver.com/blog/secret-management-best-practices-2026) — 2026 金鑰安全治理指南。
-- [Microsoft Presidio](https://github.com/microsoft/presidio) — 微軟開源 PII 識別與匿名化框架。
-- [HashiCorp Vault docs](https://developer.hashicorp.com/vault/docs) — Vault 官方架構指南。
+- [Doppler — Advanced LLM Security](https://www.doppler.com/blog/advanced-llm-security)
+- [Portkey — Manage LLM API keys with secret references](https://portkey.ai/blog/secret-references-ai-api-key-management/)
+- [Datadog — LLM Guardrails Best Practices](https://www.datadoghq.com/blog/llm-guardrails-best-practices/)
+- [JumpServer — Secrets Management Best Practices 2026](https://www.jumpserver.com/blog/secret-management-best-practices-2026)
+- [Microsoft Presidio](https://github.com/microsoft/presidio)
+- [HashiCorp Vault docs](https://developer.hashicorp.com/vault/docs)

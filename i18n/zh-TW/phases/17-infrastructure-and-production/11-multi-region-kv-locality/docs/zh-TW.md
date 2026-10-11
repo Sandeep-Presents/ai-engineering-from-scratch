@@ -61,7 +61,7 @@ AWS Bedrock 的跨區域推論（Cross-Region Inference, CRI）能夠在某個�
 
 ### 災難復原紀律——致命的 32% 設定缺漏問題（DR hygiene — the 32% missing-files problem）
 
-常被引用的 2026 年統計：32% 的大模型災難復原演練之所以遭遇慘痛失敗，純粹是因為工程團隊只備份了龐大的權重，卻將以下關鍵檔案拋諸腦後：
+常被引用的 2026 年統計：32% 的 LLM 災難復原失敗，是因為工程團隊只備份了權重，卻忘了以下關鍵檔案：
 
 - `tokenizer.json` 或 `tokenizer.model` 字典檔案。
 - 量化配置描述檔（`quantize_config.json`、AWQ 縮放矩陣、GPTQ 零點檔案）。
@@ -74,7 +74,7 @@ AWS Bedrock 的跨區域推論（Cross-Region Inference, CRI）能夠在某個�
 2. 推論服務引擎專屬的組態配置檔。
 3. 容器部署清單（K8s 宣告式 YAML、Dockerfile、相依套件精確鎖定檔）。
 
-此外：每季度強制發起一次全流程無預警災備切換演練。摩根大通在 2024 年 11 月之所以能在 22 分鐘內完成 us-east-1 的全量切換，只因 playbook 曾經演練過。
+此外：每季度強制發起一次全流程災備切換演練。摩根大通在 2024 年 11 月之所以能在 22 分鐘內完成 us-east-1 的全量切換，只因 playbook 曾經演練過。
 
 ### 資料落地合規與快取路由完全正交（Data residency is orthogonal）
 

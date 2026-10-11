@@ -1,6 +1,6 @@
 # LLM API 的壓力負載測試——為何 k6 與 Locust 會向你說謊（Load Testing LLM APIs — Why k6 and Locust Lie）
 
-> 傳統的負載壓測工具並非為文字串流傳輸（Streaming）、動態輸出長度、Token 級微度量以及 GPU 飽和特性而設計。兩大經典陷阱常讓團隊慘遭誤導。GIL 鎖定陷阱：Locust 的 Token 級計時在 Python 全域直譯器鎖（GIL）下執行 Tokenize，在極限並行下用戶端自身的運算瓶頸與請求發送激烈爭奪 CPU，Tokenize 積壓會嚴重虛胖呈報的 Token 間延遲——此時真正的效能瓶頸在你的測試用戶端，而非後端推論伺服器。Prompt 同質化陷阱：在迴圈中使用單一固定 Prompt 僅僅測試了 Token 分佈空間上的孤立單點；真實業務流量長度多變，且有多樣的前綴匹配。LLMPerf 透過 `--mean-input-tokens` 與 `--stddev-input-tokens` 改善了這個問題。2026 年壓測工具矩陣：專用型工具（GenAI-Perf、LLMPerf、LLM-Locust、guidellm）守護 Token 級精確度；**k6 v2026.1.0** 搭配 **k6 Operator 1.0 GA（2025 年 9 月發布）** 支援原生串流感知，透過 TestRun 與 PrivateLoadZone 等 CRD 原生融入 Kubernetes 分散式測試，是 CI/CD 發布閘門的最佳首選；Vegeta 適用於 Go 語言極致恆定速率 HTTP 飽和壓測；原生 Locust 2.43.3 唯有掛載 LLM-Locust 擴充套件後才具備合法串流度量能力。四大標準壓測模式：平穩穩態（Steady-state）、漸進遞增（Ramp）、突發尖峰（Spike，檢驗自動擴縮）、長時浸泡（Soak，檢驗記憶體洩漏）。
+> 傳統的負載壓測工具並非為文字串流傳輸（Streaming）、動態輸出長度、Token 級微度量以及 GPU 飽和特性而設計。兩大經典陷阱常讓團隊慘遭誤導。GIL 鎖定陷阱：Locust 的 Token 級計時在 Python 全域直譯器鎖（GIL）下執行 tokenization，在極限並行下用戶端自身的運算瓶頸與請求發送激烈爭奪 CPU，tokenization 積壓會嚴重虛胖呈報的 Token 間延遲——此時真正的效能瓶頸在你的測試用戶端，而非後端推論伺服器。Prompt 同質化陷阱：在迴圈中使用單一固定 Prompt 僅僅測試了 Token 分佈空間上的孤立單點；真實業務流量長度多變，且有多樣的前綴匹配。LLMPerf 透過 `--mean-input-tokens` 與 `--stddev-input-tokens` 改善了這個問題。2026 年壓測工具矩陣：專用型工具（GenAI-Perf、LLMPerf、LLM-Locust、guidellm）守護 Token 級精確度；**k6 v2026.1.0** 搭配 **k6 Operator 1.0 GA（2025 年 9 月發布）** 支援原生串流感知，透過 TestRun 與 PrivateLoadZone 等 CRD 原生融入 Kubernetes 分散式測試，是 CI/CD 發布閘門的最佳首選；Vegeta 適用於 Go 語言極致恆定速率 HTTP 飽和壓測；原生 Locust 2.43.3 唯有掛載 LLM-Locust 擴充套件後才具備合法串流度量能力。四大標準壓測模式：平穩穩態（Steady-state）、漸進遞增（Ramp）、突發尖峰（Spike，檢驗自動擴縮）、長時浸泡（Soak，檢驗記憶體洩漏）。
 
 **Type:** Build
 **Languages:** Python (stdlib, toy realistic-prompt generator + latency collector)
@@ -16,19 +16,19 @@
 
 ## The Problem｜問題
 
-你在 500 個並行使用者壓力下使用 k6 對自建 LLM 端點進行了全量壓測。指標全部綠燈，系統平穩抗壓。你放心地全量上線發布。然而在正式環境中，僅僅湧入 200 位真實使用者，推論服務便全面雪崩癱瘓——P99 TTFT 首字延遲暴增，GPU 算力被死死卡在飽和紅線。
+你用 k6 在 500 個並行使用者下測試 LLM 端點。撐住了。你便上線了。到了正式環境，實際使用者只有 200 人，服務卻垮了——P99 TTFT 暴增，GPU 滿載。
 
 兩個致命盲區同時爆發。首先，你的 k6 腳本在迴圈中向伺服器發送了 500 個完全相同的 Prompt——後端推論引擎的請求合併（Request coalescing）與前綴快取機制（Prefix caching）被極致觸發，讓你誤以為自己正在處理 500 個並行解碼，實質上 GPU 僅僅在運作 1 個單獨序列。其次，傳統 k6 並未在串流回應內部逐 Token 記錄吐字間隔；在它眼裡這僅僅是一條耗時數秒的普通 HTTP 長連線，完全無法感知 500 個 Token 在使用者眼前斷斷續續、忽快忽慢的嚴重卡頓。
 
-針對大語言模型的壓力測試，是一門擁有獨立物理法則的專業工程學科。
+針對大語言模型的負載測試，是一門獨立的專業領域。
 
 ## The Concept｜核心概念
 
 ### GIL 鎖定陷阱（Locust）（The GIL trap (Locust)）
 
-Locust 完全基於 Python 開發，其用戶端的 Token 級計時必須在 Python 的全域直譯器鎖（GIL）約制下執行本地 Tokenize。在超高並行壓力下，用戶端的 Tokenizer 會與底層的非同步請求生成機制爆發激烈的 CPU 爭搶。呈報的 Token 間延遲（ITL）實質上混入了用戶端本身的排隊積壓。你誤以為是伺服器吐字太慢，實質上是測試機自己早已不堪重負。
+Locust 完全基於 Python 開發，其用戶端的 Token 級計時必須在 Python 的全域直譯器鎖（GIL）約制下執行本地 tokenization。在超高並行壓力下，用戶端的 Tokenizer 會與底層的非同步請求生成機制爆發激烈的 CPU 爭搶。呈報的 Token 間延遲（ITL）實質上混入了用戶端本身的排隊積壓。你誤以為是伺服器吐字太慢，實質上是測試機自己早已不堪重負。
 
-標準解決之道：採用 LLM-Locust 擴充套件將 Tokenize 運算剝離至獨立的外部行程，或直接擁抱無 GIL 約制的編譯型壓測工具（基於 Go 的 k6，或是整合了 Rust 核心 tokenizers.rs 的 LLMPerf）。
+標準解決之道：採用 LLM-Locust 擴充套件將 tokenization 運算剝離至獨立的外部行程，或直接擁抱無 GIL 約制的編譯型壓測工具（基於 Go 的 k6，或是整合了 Rust 核心 tokenizers.rs 的 LLMPerf）。
 
 ### 單一 Prompt 同質化陷阱（The prompt-uniformity trap）
 
@@ -45,7 +45,7 @@ Locust 完全基於 Python 開發，其用戶端的 Token 級計時必須在 Pyt
 
 ### 2026 年主流壓測工具選型全貌（2026 tool mapping）
 
-**LLMPerf**（Anyscale 出品）——雖然基於 Python，但底層 Tokenize 完全交由 Rust 高效能核心接管。原生支援基於均值/標準差的動態文本生成與串流計時。是目前推論效能基準測試的最佳首選。
+**LLMPerf**（Anyscale 出品）——雖然基於 Python，但底層 tokenization 完全交由 Rust 高效能核心接管。原生支援基於均值/標準差的動態文本生成與串流計時。是目前推論效能基準測試的最佳首選。
 
 **NVIDIA GenAI-Perf**——NVIDIA 官方出品的權威參考實作。原生支援 Triton 用戶端，具備極致全方位的指標覆蓋。注意其計算 ITL 時排除了首字 TTFT；兩者對同一伺服器回報的 TPOT 不同：GenAI-Perf 計算 ITL 時排除 TTFT，而 LLMPerf 的定義包含 TTFT。
 
@@ -64,7 +64,7 @@ Locust 完全基於 Python 開發，其用戶端的 Token 級計時必須在 Pyt
 
 ### CI/CD 中的自動化 SLA 閘門（SLA gate in CI）
 
-在每個發起核心改動的 Pull Request 中，自動化觸發微型 k6 壓測：
+在 Pull Request 上執行微型 k6 壓測：
 
 - 在基準 RPS 下連續執行 30 至 50 次迭代。
 - 硬性發布閘門：P50/P95 TTFT 必須達標、5xx 錯誤率嚴格低於 5%、TPOT 吐字間隔嚴格落在閾值之內。
@@ -120,9 +120,9 @@ load-pattern-waves
 
 ## Further Reading｜延伸閱讀
 
-- [TianPan — Load Testing LLM Applications](https://tianpan.co/blog/2026-03-19-load-testing-llm-applications) — LLM 負載測試架構指南。
-- [PremAI — Load Testing LLMs 2026](https://blog.premai.io/load-testing-llms-tools-metrics-realistic-traffic-simulation-2026/) — 2026 最新壓測工具與指標體系解析。
-- [NVIDIA NIM — Introduction to LLM Inference Benchmarking](https://docs.nvidia.com/nim/large-language-models/1.0.0/benchmarking.html) — 官方基準測試手冊。
-- [TrueFoundry — LLM-Locust](https://www.truefoundry.com/blog/llm-locust-a-tool-for-benchmarking-llm-performance) — 專門為 LLM 調優的 Locust 擴充專案。
-- [LLMPerf](https://github.com/ray-project/llmperf) — Anyscale 開源推論壓測儲存庫。
-- [k6 Operator](https://github.com/grafana/k6-operator) — Kubernetes 雲原生分散式壓測控制器。
+- [TianPan — Load Testing LLM Applications](https://tianpan.co/blog/2026-03-19-load-testing-llm-applications)
+- [PremAI — Load Testing LLMs 2026](https://blog.premai.io/load-testing-llms-tools-metrics-realistic-traffic-simulation-2026/)
+- [NVIDIA NIM — Introduction to LLM Inference Benchmarking](https://docs.nvidia.com/nim/large-language-models/1.0.0/benchmarking.html)
+- [TrueFoundry — LLM-Locust](https://www.truefoundry.com/blog/llm-locust-a-tool-for-benchmarking-llm-performance)
+- [LLMPerf](https://github.com/ray-project/llmperf)
+- [k6 Operator](https://github.com/grafana/k6-operator)

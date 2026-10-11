@@ -1,6 +1,6 @@
 # AI Gateways 閘道技術——LiteLLM、Portkey、Kong AI Gateway、Bifrost（AI Gateways — LiteLLM, Portkey, Kong AI Gateway, Bifrost）
 
-> AI 閘道（Gateway）位處你的應用程式與底層模型供應商之間。其核心能力涵蓋供應商智慧路由、故障容錯移轉、指數退避重試、速率限制、機密憑證安全參照、全鏈路可觀測性以及安全性 Guardrails 防護欄。2026 年的市場技術格局清晰分立：**LiteLLM** 採 MIT 授權開源，相容 100 多家模型供應商並全面封裝 OpenAI 介面，但在公開壓測中約在 2,000 RPS 時遭遇效能崩潰（記憶體使用量約 8 GB，並引發連鎖故障）；最適配 Python 技術堆疊、500 RPS 以下或研發測試原型。**Portkey** 主打企業級控制平面定位（防護欄、PII 去識別化、越獄偵測、合規稽核追蹤），於 2026 年 3 月全面轉為 Apache 2.0 開源，單請求引入約 20 至 40 ms 延遲，提供每月 49 美元的正式環境方案。**Kong AI Gateway** 則直接生長於成熟的 Kong Gateway 企業級底座之上——Kong 官方在等價 12 核心 CPU 上的實測顯示：其吞吐量比 Portkey 快 228%，比 LiteLLM 更是狂飆 859%；採每模型每月 100 美元計價（Plus 層級上限 5 款模型）；若企業已深度採用 Kong 則堪稱最佳歸宿。**Bifrost**（Maxim AI 出品）主打具備動態退避的自動化重試，以及在 OpenAI 回應 429 時自動改用 Anthropic。**Cloudflare 與 Vercel AI Gateways** 則提供邊緣端零維運的全託管基礎重試能力。資料落地合規要求直接驅動了企業是否私有化自建的決策；Portkey 與 Kong 則憑藉開源加可選託管的混合架構穩居中流砥柱。
+> AI 閘道（Gateway）位處你的應用程式與底層模型供應商之間。其核心能力涵蓋供應商智慧路由、故障容錯移轉、指數退避重試、速率限制、機密憑證參照、全鏈路可觀測性以及安全性 Guardrails 防護欄。2026 年的市場技術格局清晰分立：**LiteLLM** 採 MIT 授權開源，相容 100 多家模型供應商並全面封裝 OpenAI 介面，但在公開壓測中約在 2,000 RPS 時遭遇效能崩潰（記憶體使用量約 8 GB，並引發連鎖故障）；最適配 Python 技術堆疊、500 RPS 以下或研發測試原型。**Portkey** 主打企業級控制平面定位（防護欄、PII 個資遮罩、越獄偵測、合規稽核追蹤），於 2026 年 3 月全面轉為 Apache 2.0 開源，單請求引入約 20 至 40 ms 延遲，提供每月 49 美元的正式環境方案。**Kong AI Gateway** 則直接生長於成熟的 Kong Gateway 企業級底座之上——Kong 官方在等價 12 核心 CPU 上的實測顯示：其吞吐量比 Portkey 快 228%，比 LiteLLM 更是狂飆 859%；採每模型每月 100 美元計價（Plus 層級上限 5 款模型）；若企業已深度採用 Kong 則堪稱最佳歸宿。**Bifrost**（Maxim AI 出品）主打具備動態退避的自動化重試，以及在 OpenAI 回應 429 時自動改用 Anthropic。**Cloudflare 與 Vercel AI Gateways** 則提供邊緣端零維運的全託管基礎重試能力。資料落地合規要求直接驅動了企業是否私有化自建的決策；Portkey 與 Kong 則憑藉開源加可選託管的混合架構穩居中流砥柱。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy gateway-routing simulator)
@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 列出 AI 閘道的六項核心功能（智慧路由、容錯移轉、自動重試、速率限制、金鑰隔離、可觀測性、安全防護欄；原文清單實列七項）。
+- 列出 AI 閘道的六項核心功能（智慧路由、容錯移轉、自動重試、速率限制、機密憑證參照、可觀測性、安全防護欄）。
 - 梳理 2026 年四大主流閘道（LiteLLM、Portkey、Kong AI、Bifrost）的規模與效能上限及適用場景。
 - 引用 Kong 官方權威跑分結論（相較於 Portkey 快 228%，相較於 LiteLLM 快 859%），並深刻解釋為何這項落差在突破 500 RPS 門檻後具備生死攸關的意義。
 - 立足於資料落地法律約束與工程維運預算，理性在私有化自建與雲端全託管之間做出架構決策。
@@ -41,8 +41,8 @@
 
 ### Portkey——控制平面戰略定位（Portkey — control plane positioning）
 
-- 自 2026 年 3 月起全面轉為 Apache 2.0 開源協議。主打強大的企業級安全防護欄、個資 PII 去識別化、Prompt 越獄防禦與防篡改稽核軌跡。
-- 單次請求引入約 20 至 40 ms 的固定轉發延遲。
+- 自 2026 年 3 月起全面轉為 Apache 2.0 開源協議。主打強大的企業級安全防護欄、PII 個資遮罩、Prompt 越獄防禦與防篡改稽核軌跡。
+- 每次請求增加約 20 至 40 ms 延遲。
 - 正式環境託管版起跳價每月 49 美元，提供完整的資料保留承諾與企業級 SLA。
 - 最優適配：高度受監管的金融科技與醫療行業，強烈要求將安全防護欄與可觀測性一體化整合的場景。
 
@@ -57,7 +57,7 @@
 
 - 主打具備精細化動態退避演算法的自動重試機制。
 - 當遭遇 OpenAI 429 速率限制時，自動靜默降級至 Anthropic 是其標誌性的經典配方。
-- 業界新興商業產品，主打全託管體驗。
+- 較新的商業產品。
 
 ### Cloudflare AI Gateway / Vercel AI Gateway
 

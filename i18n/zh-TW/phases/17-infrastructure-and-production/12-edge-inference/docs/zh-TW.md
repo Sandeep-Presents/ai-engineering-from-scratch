@@ -16,9 +16,9 @@
 
 ## The Problem｜問題
 
-某客戶要求打造一款在裝置上運作的聊天機器人：語音優先、預設保護隱私、可離線使用。在配備 M3 Max 的 MacBook Pro 上，Llama 3.1 8B Q4 模型的吐字速度約為 55 tok/s——體驗極其流暢。然而在 iPhone 16 Pro 上，相同模型退化至 3 tok/s——表現不佳。在搭載 Snapdragon 8 Gen 3 的中高階 Android 手機上，實測約 7 tok/s。而在 Chrome Android v121+ 的行動瀏覽器中透過 WebGPU 執行，速度落在 4 至 8 tok/s 之間。
+某客戶要求打造一款在裝置上運作的聊天機器人：語音優先、預設保護隱私、可離線使用。在配備 M3 Max 的 MacBook Pro 上，Llama 3.1 8B Q4 模型的 token 生成速度約為 55 tok/s——體驗極其流暢。然而在 iPhone 16 Pro 上，相同模型退化至 3 tok/s——表現不佳。在搭載 Snapdragon 8 Gen 3 的中高階 Android 手機上，實測約 7 tok/s。而在 Chrome Android v121+ 的行動瀏覽器中透過 WebGPU 執行，速度落在 4 至 8 tok/s 之間。
 
-如此劇烈的吞吐量差異絕非單純的軟體移植不良。它是物理記憶體頻寬差距 × 模型量化格式 × NPU 是否開放使用者空間直接存取的三重綜合體現。2026 年的邊緣端推論是由四種不同的問題構成。
+如此劇烈的吞吐量差異絕非單純的軟體移植不良。它是物理記憶體頻寬差距 × 模型量化格式 × NPU 是否開放使用者空間直接存取的三重綜合體現。2026 年的邊緣端推論包含四種不同的問題，各自有不同的解決方案。
 
 ## The Concept｜核心概念
 
@@ -44,19 +44,19 @@
 ### Intel / AMD NPU（Lunar Lake、Ryzen AI 300）
 
 - 算力落在 40 至 50 TOPS 區間。上層軟體堆疊成熟度略微落後於 Apple 與高通；Intel OpenVINO 持續改良但依然偏小眾。
-- 最佳適配場景：Windows ARM Copilot+ PC 生態應用，以及追求資料絕對本機私有的桌機端離線輔助工具。
+- 最佳適配場景：Windows ARM 上的 Copilot 應用，以及追求資料絕對本機私有的桌機端離線輔助工具。
 
 ### WebGPU + WebLLM
 
 - 透過瀏覽器的 WebGPU 運算著色器（Compute Shader）在使用者裝置上直接驅動本機硬體運算；完全免安裝。
 - 在 M3 Max 晶片上透過 WebLLM 運作 Llama 3.1 8B Q4 能達到約 41 tok/s——約為同一後端原生執行效能的 70% 至 80%。
 - WebLLM 在 GitHub 上有 1.76 萬顆星；提供完全相容 OpenAI 的 JavaScript 用戶端 API；採商業友善的 Apache 2.0 開源協議。
-- 2026 年瀏覽器相容覆蓋率：Chrome Android v121+、Safari iOS 26 全面正式就緒，Firefox Android 仍在全力追趕。行動端整體裝置覆蓋率約達 70% 至 75%。
+- 2026 年瀏覽器相容覆蓋率：Chrome Android v121+、Safari iOS 26 已正式推出（GA），Firefox Android 仍在全力追趕。行動端整體裝置覆蓋率約達 70% 至 75%。
 
 ### NVIDIA Jetson 家族（NVIDIA Jetson family）
 
-- Orin Nano Super（8GB）：可容納 Llama 3.2 3B 與 Phi-3。
-- AGX Orin：透過 vLLM 運作 gpt-oss-20b 等中型模型，穩定維持在約 40 tok/s。
+- Orin Nano Super（8GB）：可容納 Llama 3.2 3B 與 Phi-3，並有不錯的 tok/s 表現。
+- AGX Orin：透過 vLLM 運作 gpt-oss-20b，約 40 tok/s。
 - Thor / T4000（搭載 JetPack 7.1）：效能達到 AGX Orin 的 2 倍，且硬體原生支援 EAGLE-3 與 NVFP4。
 - TensorRT Edge-LLM（2026 年發布）：將雲端資料中心的頂級特化技術（EAGLE-3 推測解碼、NVFP4 權重壓縮、分塊 Prefill）完整下沉移植至邊緣端內嵌式晶片。
 
@@ -76,7 +76,7 @@ Llama 3.1 宣稱的 128k 超長上下文是一項專屬資料中心的旗艦特�
 
 ### 語音是邊緣端最具爆發力的殺手級應用（Voice is the killer app）
 
-語音 Agent 是典型的延遲極度敏感型業務（要求首字回應低於 500 ms）。邊緣端本機推論徹底消除了跨國跨網的實體網路傳輸延遲。結合語音轉文字（Whisper Turbo 變體可在邊緣端執行），邊緣推論便能形成正式環境品質的語音互動迴圈。
+語音 Agent 是典型的延遲極度敏感型業務（第一個 token < 500 ms）。邊緣端本機推論徹底消除了跨國跨網的實體網路傳輸延遲。結合語音轉文字（Whisper Turbo 變體可在邊緣端執行），邊緣推論便能形成正式環境品質的語音互動迴圈。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 

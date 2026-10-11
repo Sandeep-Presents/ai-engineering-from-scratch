@@ -1,6 +1,6 @@
 # 合規框架——SOC 2、HIPAA、GDPR、PCI-DSS、歐盟 AI 法案、ISO 42001（Compliance — SOC 2, HIPAA, GDPR, PCI-DSS, EU AI Act, ISO 42001）
 
-> 覆蓋多套合規框架是 2026 年敲定任何企業級大單的必備入場券。**歐盟 AI 法案（EU AI Act）**：自 2024 年 8 月 1 日起正式生效。絕大多數高風險系統的合規要求將於 2026 年 8 月 2 日強制執行。違背高風險系統法定義務最高可處以 1,500 萬歐元或全球年度營業額 3% 的巨額罰鍰（第 99(4) 條）；運作違禁 AI 行為的罰鍰上限更是高達 3,500 萬歐元或 7%（第 99(3) 條）。只要為歐盟境內使用者提供服務，即具有全球管轄效力。**科羅拉多州 AI 法案（Colorado AI Act）**：於 2026 年 6 月 30 日正式施行（經 SB25B-004 修正案自原定 2026 年 2 月順延）——強制要求對高風險系統實施演算法影響評估，並賦予使用者對 AI 裁決提出申訴抗辯的法定權利。維吉尼亞州亦在信用、就業、住房與教育領域落實了類似規範。**SOC 2 Type II**：B2B AI 產品的事實標準門檻（金融科技領域強制要求 Type II，而非初級的 Type I）。**GDPR**：目前有據可查的最大一筆 AI 專屬罰單是荷蘭資料保護局（DPA）於 2024 年 9 月對 Clearview AI 開出的 3,050 萬歐元；義大利 Garante 亦曾於 2024 年 12 月對 OpenAI 祭出 1,500 萬歐元罰鍰（後於 2026 年 3 月經上訴被撤銷裁決，目前仍待進一步審查）。在推論執行時期進行**即時 PII 脫敏**是較站得住腳的作法；事後補救清理在稽核時根本站不住腳。**HIPAA**：美國醫療鐵律——在未簽署 BAA 商業夥伴協議之前，嚴禁向任何外部 AI 服務傳輸受保護健康資訊（PHI）。**PCI-DSS**：AI 互動層對支付資料的合規覆蓋需要嚴格的系統配置與商業合約，絕非自動達成。**ISO 42001**：新興的 AI 人工智慧治理體系國際標準，正迅速與 ISO 27001 並列為大企業採購的剛性要求。業界標準範本：OpenAI 官方同時維持 SOC 2 Type 2、ISO/IEC 27001:2022、ISO/IEC 27701:2019、GDPR/CCPA/HIPAA (BAA)/FERPA，以及 ChatGPT 支付元件專屬的 PCI-DSS 認證。落實跨框架控制項映射（Cross-framework mapping）能大幅減輕稽核疲勞：單一存取控制政策可同時映射並滿足 ISO 27001 A.5.15-5.18、GDPR 第 32 條以及 HIPAA §164.312(a) 的要求。
+> 覆蓋多套合規框架是 2026 年敲定任何企業級大單的必備入場券。**歐盟 AI 法案（EU AI Act）**：自 2024 年 8 月 1 日起正式生效。絕大多數高風險系統的合規要求將於 2026 年 8 月 2 日強制執行。違背高風險系統法定義務最高可處以 1,500 萬歐元或全球年度營業額 3% 的巨額罰鍰（第 99(4) 條）；運作違禁 AI 行為的罰鍰上限更是高達 3,500 萬歐元或 7%（第 99(3) 條）。只要為歐盟境內使用者提供服務，即具有全球管轄效力。**科羅拉多州 AI 法案（Colorado AI Act）**：於 2026 年 6 月 30 日正式施行（經 SB25B-004 修正案自原定 2026 年 2 月順延）——強制要求對高風險系統實施演算法影響評估，並賦予使用者對 AI 裁決提出申訴抗辯的法定權利。維吉尼亞州亦在信用、就業、住房與教育領域落實了類似規範。**SOC 2 Type II**：B2B AI 產品的事實標準門檻（金融科技領域強制要求 Type II，而非初級的 Type I）。**GDPR**：目前有據可查的最大一筆 AI 專屬罰單是荷蘭資料保護局（DPA）於 2024 年 9 月對 Clearview AI 開出的 3,050 萬歐元；義大利 Garante 亦曾於 2024 年 12 月對 OpenAI 祭出 1,500 萬歐元罰鍰（後於 2026 年 3 月經上訴被撤銷裁決，目前仍待進一步審查）。在推論執行時期進行**即時 PII 脫敏**是較站得住腳的作法；事後補救清理在稽核時根本站不住腳。**HIPAA**：美國醫療鐵律——在未簽署 BAA 商業夥伴協議之前，嚴禁向任何外部 AI 服務傳輸受保護健康資訊（PHI）。**PCI-DSS**：AI 互動層對支付資料的合規覆蓋需要嚴格的系統配置與商業合約，絕非自動達成。**ISO 42001**：新興的 AI 人工智慧治理體系國際標準，正迅速與 ISO 27001 並列為大企業採購的剛性要求。業界標準範本：OpenAI 官方同時維持 SOC 2 Type 2、ISO/IEC 27001:2022、ISO/IEC 27701:2019、GDPR/CCPA/HIPAA (BAA)/FERPA，以及適用於 ChatGPT 支付元件的 PCI-DSS。落實跨框架控制項映射（Cross-framework mapping）能大幅減輕稽核疲勞：單一存取控制政策可同時映射並滿足 ISO 27001 A.5.15-5.18、GDPR 第 32 條以及 HIPAA §164.312(a) 的要求。
 
 **Type:** Learn
 **Languages:** (Python optional — compliance is policy + process, not code)
@@ -18,7 +18,7 @@
 
 某大型企業客戶的採購部門向你寄來了一份合規問卷，要求同時附上 SOC 2 Type II、GDPR 落地報告、HIPAA BAA 協議、ISO 27001 證書以及「歐盟 AI 法案合規宣告書」。而你的團隊手頭僅有一份一年前草草取得的 SOC 2 Type I。你們距離完成 Type II 審計至少還需 6 個月，且從未梳理過 GDPR 第 30 條所要求的處理活動紀錄（ROPA）。
 
-覆蓋多套法規框架絕非大模型獨有的孤立問題——它是所有現代企業級 SaaS 共同面對的考驗，只不過大模型的非確定性與資料隱私將這些要求推向了極致。2026 年的跨國採購與法務團隊需要的不是一份空泛的承諾 PDF，而是一張每一行對應一項法規、每一列對應一項實體架構控制項的嚴密映射矩陣。
+覆蓋多套法規框架絕非大模型獨有的孤立問題——它是所有現代企業級 SaaS 共同面對的考驗，只不過大模型的非確定性與資料隱私將這些要求推向了極致。2026 年的跨國採購與法務團隊需要的不是一份空泛的承諾 PDF，而是一張每一行對應一項法規、每一列對應一項控制項的嚴密映射矩陣。
 
 ## The Concept｜核心概念
 
@@ -50,7 +50,7 @@
 事後清理（在 LLM 看過 PII 後才遮罩）並非可辯護的作法——模型已經看過資料。即時推論層遮罩是 2026 年的標準：
 
 - 在發起外部 LLM 網路呼叫之前，先在地端完成實體辨識（NER）。
-- 採用一致性 Token 化（如 Mesh 模式），既去識別化個資，又完整保留上下文語意。
+- 採用一致性 tokenization（如 Mesh 模式），既去識別化個資，又完整保留上下文語意。
 - 內部日誌僅落盤已脫敏的文本；原始明文僅在獲得使用者明確授權（Opt-in）時才加密存檔。
 
 近年重磅執法判例：荷蘭資料保護局於 2024 年 9 月對 Clearview AI 重罰 3,050 萬歐元，創下迄今有據可查的最大一筆 AI 專屬 GDPR 罰單；義大利隱私監管機構 Garante 亦曾於 2024 年 12 月對 OpenAI 開出 1,500 萬歐元罰鍰（後於 2026 年 3 月經上訴成功撤銷原裁決，該案目前仍處於進一步司法審查中）。事後處理的主張曾在稽核中失敗。
@@ -134,9 +134,9 @@ i4-control-matrix
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI Security and Privacy](https://openai.com/security-and-privacy/) — OpenAI 官方權威合規體系全景檔案。
-- [GuardionAI — LLM Compliance 2026: ISO 42001, EU AI Act, SOC 2, GDPR](https://guardion.ai/blog/llm-compliance-guide-iso-42001-eu-ai-act-soc2-gdpr-2026) — 2026 最新大模型合規全解。
-- [Dsalta — SOC 2 Type 2 Audit Guide 2026: 10 AI Controls](https://www.dsalta.com/resources/ai-compliance/soc-2-type-2-audit-guide-2026-10-ai-powered-controls-every-saas-team-needs) — 專為 SaaS 團隊打造的 10 大 AI 控制項審計手冊。
-- [EU AI Act official text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) — 歐盟 AI 法案官方一手立法文本。
-- [Colorado AI Act](https://leg.colorado.gov/bills/sb24-205) — 科羅拉多州 AI 法案法定條文。
-- [ISO/IEC 42001:2023](https://www.iso.org/standard/81230.html) — 人工智慧管理體系國際標準官方頁面。
+- [OpenAI Security and Privacy](https://openai.com/security-and-privacy/)
+- [GuardionAI — LLM Compliance 2026: ISO 42001, EU AI Act, SOC 2, GDPR](https://guardion.ai/blog/llm-compliance-guide-iso-42001-eu-ai-act-soc2-gdpr-2026)
+- [Dsalta — SOC 2 Type 2 Audit Guide 2026: 10 AI Controls](https://www.dsalta.com/resources/ai-compliance/soc-2-type-2-audit-guide-2026-10-ai-powered-controls-every-saas-team-needs)
+- [EU AI Act official text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
+- [Colorado AI Act](https://leg.colorado.gov/bills/sb24-205)
+- [ISO/IEC 42001:2023](https://www.iso.org/standard/81230.html)

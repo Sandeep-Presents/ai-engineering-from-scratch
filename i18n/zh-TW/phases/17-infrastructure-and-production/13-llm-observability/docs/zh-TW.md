@@ -1,6 +1,6 @@
 # LLM 可觀測性技術堆疊選型（LLM Observability Stack Selection）
 
-> 2026 年的大模型可觀測性市場清晰分化為兩大陣營。研發一體化平台（LangSmith、Langfuse、Comet Opik）將指標監控與 Eval 評測、Prompt 版本管理以及 Session 對話重放深度捆綁。Gateway 與遙測工具（Helicone、SigNoz、OpenLLMetry、Phoenix）則專注於極簡高吞吐的追蹤（Trace）收集。Langfuse 核心採 MIT 授權開源，在社群與企業級功能間取得了最佳平衡（雲端版每月免費 5 萬事件）。Phoenix 則在 Elastic License 2.0 下原生擁抱 OpenTelemetry——在 RAG 檢索管線視覺化與資料漂移排查上表現極其驚豔，但並非專為長久儲存的正式環境後端而設計。Arize AX 則透過零拷貝的 Iceberg/Parquet 資料湖整合，宣稱在大規模流量下成本比傳統單體可觀測性平台低 100 倍。LangSmith 在 LangChain/LangGraph 生態中領先，每使用者每月 39 美元，私有自建僅限頂級企業版。Helicone 採反向代理架構，15 至 30 分鐘即可極速接入，每月提供 10 萬次免費請求，但在多步驟 Agent 複雜鏈路上深度略顯不足。常見的 production pattern：前端 Gateway（Helicone/Portkey）+ 評測平台（Phoenix/TruLens），兩者透過 OpenTelemetry 協定連接。
+> 2026 年的大模型可觀測性市場清晰分化為兩大陣營。研發一體化平台（LangSmith、Langfuse、Comet Opik）將指標監控與 Eval 評測、Prompt 版本管理以及 Session 對話重放深度捆綁。Gateway 與遙測工具（Helicone、SigNoz、OpenLLMetry、Phoenix）則專注於遙測資料。Langfuse 核心採 MIT 授權開源，在社群與企業級功能間取得了最佳平衡（雲端版每月免費 5 萬事件）。Phoenix 則在 Elastic License 2.0 下原生擁抱 OpenTelemetry——在 RAG 檢索管線視覺化與資料漂移排查上表現極其驚豔，但並非專為長久儲存的正式環境後端而設計。Arize AX 則透過零拷貝的 Iceberg/Parquet 資料湖整合，宣稱在大規模流量下成本比傳統單體可觀測性平台低 100 倍。LangSmith 在 LangChain/LangGraph 生態中領先，每使用者每月 39 美元，私有自建僅限頂級企業版。Helicone 採反向代理架構，15 至 30 分鐘即可極速接入，每月提供 10 萬次免費請求，但在多步驟 Agent 複雜鏈路上深度略顯不足。常見的 production pattern：前端 Gateway（Helicone/Portkey）+ 評測平台（Phoenix/TruLens），兩者透過 OpenTelemetry 協定連接。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy trace-sampling simulator)
@@ -18,7 +18,7 @@
 
 你剛剛交付了一項核心 LLM 功能。它運作正常。但你對背後的真實情況一無所知：Prompt 為何偶發報錯？工具呼叫是否陷入死循環？P99 延遲為何暗中惡化？Token 帳單為何突發暴增？前綴快取命中率究竟是多少？你在 Google 上搜尋「LLM 可觀測性」，跳出了八種工具，每家都宣稱能解決完全相同的痛點，背後卻標著三種天壤之別的價格矩陣。
 
-它們解決的根本不是同一個問題。LangSmith 專門解答「這一次 LangGraph 運作究竟為什麼崩潰？」Phoenix 專門回答「我的 RAG 檢索向量分佈是否發生了動態漂移？」Helicone 專門揪出「後台究竟是哪一款 App 在瘋狂吞噬 Token？」而 Langfuse 則解答「我們能否自行託管整套系統？」工具不同，面對的目標受眾亦截然不同。
+它們解決的根本不是同一個問題。LangSmith 專門解答「這一次 LangGraph 運作究竟為什麼崩潰？」Phoenix 專門回答「我的 RAG pipeline 是否正在漂移？」Helicone 專門揪出「後台究竟是哪一款 App 在瘋狂吞噬 Token？」而 Langfuse 則解答「我們能否自行託管整套系統？」工具不同，面對的目標受眾亦截然不同。
 
 理性選型必須立足於四大維度：技術堆疊（依賴 LangChain？純原生 SDK？跨多供應商？）、開源授權容忍度（僅接受 MIT？接受 Elastic？純商業版無所謂？）、財務預算（免費版？每月 100 美元？每月 1000 美元？），以及自建需求（絕對剛需？加分項？絕不考慮？）。
 
@@ -114,11 +114,11 @@ i4-otel-glue
 
 ## Exercises｜練習
 
-1. 某團隊全面採用 LangChain 打造應用，但公司法規強制要求必須採用開源且私有化自建的可觀測性方案。在 Langfuse 與 Opik 之間做出抉擇並給出充分論證。
+1. 採用 LangChain 的團隊希望使用開源且可自行託管的可觀測性方案。在 Langfuse 與 Opik 之間做出抉擇並給出充分論證。
 2. 某系統每天產生 500 萬筆 trace，Datadog 報價為每月 15 萬美元。計算 Arize AX 的損益平衡點。
 3. 為你的組織設計一組 OpenTelemetry GenAI 屬性，作為 guideline，規定每次 LLM 呼叫都應包含。
 4. 討論 Phoenix 單獨用於正式環境是否足夠；在什麼情況下會不足？
-5. Helicone 的代理架構引入了約 20 ms 的網路轉發延遲。若你服務的 P99 TTFT 預算為 300 ms，該開銷是否在可接受範圍內？若 SLA 門檻嚴格收緊至 100 ms 呢？
+5. Helicone 的代理額外開銷約 20 ms。若你服務的 P99 TTFT 預算為 300 ms，該開銷是否在可接受範圍內？若 SLA 門檻嚴格收緊至 100 ms 呢？
 
 ## Key Terms｜關鍵術語
 

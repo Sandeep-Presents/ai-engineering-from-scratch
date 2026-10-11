@@ -1,6 +1,6 @@
 # 正式環境推論服務堆疊——KV 卸載與快取感知路由（Production Serving Stack — KV Offloading and Cache-Aware Routing）
 
-> 一套工業級的正式環境推論服務堆疊，能將智慧路由器、多個推論引擎與全鏈路可觀測性緊密咬合進單一 Kubernetes 部署體系——並將 KV 快取視為一種能夠隨時跨出 GPU 顯示記憶體邊界的共享資源。KV 快取卸載（KV Offloading）技術將 KV 快取從昂貴的 GPU 顯示記憶體中即時析出，並在跨請求與跨推論引擎之間重複利用（優先溢流至主機 CPU DRAM，隨後落盤至本機磁碟或 Ceph 分散式儲存）。vLLM 的 production-stack 是該架構的參考部署；LMCache 則是其中的核心卸載中樞。vLLM 0.11.0 推出的 KV Offloading Connector（2026 年 1 月）藉由 Connector API（v0.9.0+）使該機制徹底實現非同步化與隨插即用。卸載路徑在常規情況下被優雅隱藏於請求鏈路背後，但快取未命中與提升搬移仍可能微幅影響端到端延遲。即便在缺乏長前綴共享的業務中，LMCache 依然價值連城——當某張 GPU 遭遇突發 GPU 顯示記憶體耗盡時，被搶佔（Preempted）的在途請求可直接從 CPU 主記憶體中極速還原，而無需在 GPU 上狼狽重新運算完整的 Prefill。在跨 4 台 a3-highgpu-4g 實體機、共 16 張 H100（80GB HBM）上的已發表評測顯示：當 KV 快取總體積超越 GPU 實體顯示記憶體上限時，原生 CPU 卸載與 LMCache 皆能實質巨幅提升吞吐量；而在 KV 佔用極微小時，所有配置表現與基準線完全一致，僅引入微小的額外開銷。
+> 一套工業級的正式環境推論服務堆疊，能將智慧路由器、多個推論引擎與全鏈路可觀測性緊密咬合進單一 Kubernetes 部署體系——並將 KV 快取視為一種能夠隨時跨出 GPU 顯示記憶體邊界的共享資源。KV 快取卸載（KV Offloading）技術將 KV 快取從昂貴的 GPU 顯示記憶體中即時析出，並在跨請求與跨推論引擎之間重複利用（優先溢流至主機 CPU DRAM，隨後落盤至本機磁碟或 Ceph 分散式儲存）。vLLM 的 production-stack 是該架構的參考部署；LMCache 則是其中的核心卸載中樞。vLLM 0.11.0 推出的 KV Offloading Connector（2026 年 1 月）藉由 Connector API（v0.9.0+）使卸載路徑支援非同步處理與可插拔介面。卸載路徑在常規情況下被優雅隱藏於請求鏈路背後，但快取未命中與提升搬移仍可能微幅影響端到端延遲。即便在缺乏長前綴共享的業務中，LMCache 依然價值連城——當某張 GPU 遭遇突發 GPU 顯示記憶體耗盡時，被搶佔（Preempted）的在途請求可直接從 CPU 主記憶體中還原，而無需在 GPU 上狼狽重新運算完整的 Prefill。在跨 4 台 a3-highgpu-4g 實體機、共 16 張 H100（80GB HBM）上的已發表評測顯示：當 KV 快取總體積超越 GPU 實體顯示記憶體上限時，原生 CPU 卸載與 LMCache 皆能實質巨幅提升吞吐量；而在 KV 佔用極微小時，所有配置表現與基準線完全一致，僅引入微小的額外開銷。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy KV-spill simulator)
@@ -56,7 +56,7 @@ vLLM 0.11.0（2026 年 1 月）進一步加入非同步卸載路徑——卸載�
 
 - 低 KV 佔用（短 Prompt、低並行）：所有方案表現與官方基準線無異，LMCache 額外引入約 3% 至 5% 的微弱系統負擔。
 - 中等佔用：LMCache 透過跨節點的前綴複用，開始展現出正向效能收益。
-- KV 總量大幅超越 HBM 顯示記憶體：原生 CPU 卸載與 LMCache 皆展現出爆發性的吞吐量增長；其中 LMCache 憑藉跨節點的快取共享能力斬獲了最巨大的領先優勢。
+- KV 總量大幅超越 HBM 顯示記憶體：原生 CPU 卸載與 LMCache 皆能實質提升吞吐量；其中 LMCache 憑藉跨節點的快取共享能力，增益較大。
 
 ### 何時 LMCache 具備決定性優勢（When LMCache is decisive）
 

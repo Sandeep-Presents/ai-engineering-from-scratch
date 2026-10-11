@@ -1,6 +1,6 @@
 # LLM FinOps 財務維運——單位經濟學與多租戶成本歸因（FinOps for LLMs — Unit Economics and Multi-Tenant Attribution）
 
-> 傳統的雲端財務維運（FinOps）面對大模型推論支出時全面失效。大模型的費用本質上是離散的 Token 事務交易，而非伺服器資源的實體運作時數。標籤無法直接對應——一次 API 呼叫是一筆交易，而非一項資產。工程架構決策（Prompt 模板設計、上下文視窗大小、最大輸出長度限制）直接等價於企業的財務決策。2026 年的成熟操作手冊要求從上線第一天起強制埋點三大歸因維度：按使用者維度（`user_id`）服務於席位定價與帳戶擴展、按任務維度（`task_id` + `route`）服務於產品功能成本拆解與研發優先權、按租戶維度（`tenant_id`）服務於單位經濟效益核算與合約續約談判。精細劃分四大 Token 成本層次——Prompt 輸入、工具呼叫、長程記憶、模型回應——將它們混為一談只會讓成本黑洞徹底隱形。面向多租戶 SaaS 產品的三級強制執行階梯：按租戶實施速率限制（預期峰值的 2 至 3 倍，嚴格回傳 429 與 Retry-After）；每日支出上限（合約額度的 1.5 至 3 倍，觸發速率收緊並警報客戶成功團隊）；終極熔斷斷路器（當單日支出 Z-score > 4 時自動凍結租戶並呼叫值班工程師）。六大歸因架構模式：打標聚合、遙測連接（基於 Trace-ID 關聯帳單，精度最高）、隨機採樣推估、模型回歸推導、事件溯源、即時串流儀表板。衡量單位指標：每個已解決查詢的成本、每件生成產物的成本——絕非單純供應商術語中的「每百萬 Token 美元」。事後溯源打標永遠存在死角；必須在請求建立的發起點強制注入中繼資料。
+> 傳統的雲端財務維運（FinOps）面對大模型推論支出時全面失效。大模型的費用本質上是離散的 Token 事務交易，而非伺服器資源的實體運作時數。標籤無法直接對應——一次 API 呼叫是一筆交易，而非一項資產。工程架構決策（Prompt 模板設計、上下文視窗大小、最大輸出長度限制）直接等價於企業的財務決策。2026 年的成熟操作手冊要求從上線第一天起強制埋點三大歸因維度：按使用者維度（`user_id`）服務於席位定價與帳戶擴展、按任務維度（`task_id` + `route`）服務於產品功能成本拆解與研發優先權、按租戶維度（`tenant_id`）服務於單位經濟效益核算與合約續約談判。精細劃分四大 Token 成本層次——Prompt 輸入、工具呼叫、長程記憶、模型回應——將它們混為一談只會讓成本黑洞徹底隱形。面向多租戶 SaaS 產品的三級強制執行階梯：按租戶實施速率限制（預期峰值的 2 至 3 倍，嚴格回傳 429 與 Retry-After）；每日支出上限（合約額度的 1.5 至 3 倍，觸發速率收緊並警報客戶成功團隊）；終極熔斷斷路器（當支出相對於租戶基準的 z-score > 4 時自動暫停租戶、通知值班人員，並升級至 ops 與 CS）。六大歸因架構模式：打標聚合、遙測連接（基於 Trace-ID 關聯帳單，精度最高）、隨機採樣推估、模型回歸推導、事件溯源、即時串流儀表板。衡量單位指標：每個已解決查詢的成本、每件生成產物的成本——絕非單純供應商術語中的「$/M tokens」。事後溯源打標永遠存在死角；必須在請求建立的發起點強制注入中繼資料。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy cost-attribution simulator with kill switch)
@@ -12,7 +12,7 @@
 - 深刻解釋為何傳統基於標籤與資源層級的 FinOps 在 LLM 支出面前全面失效，並精準指出三大全新的業務歸因維度。
 - 梳理大模型成本的四大 Token 層次（Prompt 輸入、工具回填、長程記憶、最終回應），並剖析為何單一黑盒計費會掩蓋真實成本殺手。
 - 為多租戶 SaaS 產品設計一套嚴密的三級強制執行階梯（速率限制 → 支出上限 → 終極熔斷斷路器）。
-- 學會以「每完成一次業務結果的成本」取代單純的「每百萬 Token 美元」，確立與商業結果深度錨定的北極星單位指標。
+- 學會以「每完成一次業務結果的成本」取代單純的「$/M tokens」，確立與商業結果深度錨定的北極星單位指標。
 
 ## The Problem｜問題
 
@@ -20,7 +20,7 @@
 - 究竟是哪一家企業客戶消耗了這筆巨資？
 - 究竟是哪一項具體的產品功能在瘋狂燃燒經費？
 - 是否存在特定個別使用者在惡意濫用系統？
-- 帳單暴增的元兇究竟是 Prompt 模板過度臃腫、工具呼叫陷入死循環，還是長對話記憶體的無節制放大？
+- 帳單暴增的元兇究竟是 Prompt 模板過度臃腫、工具呼叫成本，還是長對話記憶體的無節制放大？
 
 傳統雲端廠商在主機（EC2、S3）上採用的「打標聚合（Tag-and-aggregate）」機制之所以可行，是因為實體資源的標籤會自然穿透至每一筆帳單細項中。然而大模型 API 呼叫絕不會自動為你標註業務上下文——你必須在程式碼發起呼叫的源頭，親手為其烙印上 user/task/tenant 標籤並全程向下傳遞。事後補救性的資料清洗與猜測，永遠無法覆蓋複雜的邊界情況。
 
@@ -28,7 +28,7 @@
 
 ### 三大核心歸因維度（Three attribution dimensions）
 
-**按使用者維度（`user_id`）**：精準透視每一位終端使用者的實質成本消耗。直接支撐單席位定價策略、指引商業增購談判，並能即時揪出異常高頻的重度使用者。
+**按使用者維度（`user_id`）**：精準透視每一位終端使用者的實質成本消耗。直接支撐單席位定價策略、指引商業增購談判，並能識別高用量使用者。
 
 **按任務維度（`task_id` + `route`）**：精確量化每一處產品功能介面的真實開銷。為產品功能的優先權排期提供客觀財務依據，並為「是否應當壯士斷腕砍掉昂貴邊緣功能」提供確鑿論據。
 
@@ -41,8 +41,8 @@
 | 成本層次 | 具體構成範例 | 佔總支出典型比例 |
 |-------|---------|---------------------|
 | Prompt 輸入層 | 靜態系統提示 + 使用者即時輸入 | 40% 至 60% |
-| 工具呼叫層 | 外部 API 工具回傳的 JSON 資料結構 | 20% 至 40%（Agent 業務） |
-| 長程記憶層 | 歷史對話摘要 + 向量資料庫檢索到的參照文件 | 10% 至 30% |
+| 工具呼叫層 | 工具呼叫結果回填 | 20% 至 40%（Agent 業務） |
+| 長程記憶層 | 先前對話／檢索文件 | 10% 至 30% |
 | 最終回應層 | 大模型生成的解答文字 | 10% 至 30% |
 
 將這四大層次的 Token 混為一談打包計費，會使一切成本最佳化變得盲人摸象。必須在你的歸因 Schema 中將它們清晰切分獨立核算。
@@ -53,7 +53,7 @@
 
 2. **租戶級每日支出上限（Daily spend cap）**：門檻設定為合約約定額度的 1.5 至 3 倍。觸發時：收緊速率限制並通知客戶成功團隊。
 
-3. **終極熔斷斷路器（Kill switch）**：當該租戶當日的即時支出相對於其歷史基準線的 Z-score 統計分數大於 4 時強制觸發。系統自動暫停該租戶的推論服務；秒級向值班工程師（On-call）發送 PagerDuty 警報；立即升級至維運與商務團隊介入調查。
+3. **終極熔斷斷路器（Kill switch）**：當支出相對於租戶基準的 z-score > 4 時，自動暫停租戶、通知值班人員，並升級至 ops 與 CS。
 
 ### 六大成本歸因架構模式（Attribution patterns）
 
@@ -66,7 +66,7 @@
 
 ### 「每單位 X 成本」才是真正的北極星指標（Cost per X is the unit metric）
 
-「每百萬 Token 美元」是雲端供應商用來促銷的行銷黑話。產品團隊真正在意的單位經濟學指標應當與真實商業結果深度綁定：
+「$/M tokens」是雲端供應商用來促銷的行銷黑話。產品團隊真正在意的單位經濟學指標應當與真實商業結果深度綁定：
 
 - 每解決一起客服工單的實質成本（Cost per resolved support ticket）。
 - 每生成一篇合格行銷文章的實質成本（Cost per generated article）。
@@ -110,7 +110,7 @@ trace_id: abc123
 - 核心歸因三維度：按使用者（User）、按任務（Task）、按租戶（Tenant）。
 - 四大 Token 成本劃分：Prompt 輸入、工具呼叫、長程記憶、最終回應。
 - 終極斷路器標準：支出異常偏離值 Z-score > 4 自動觸發熔斷。
-- 北極星單位指標：每完成一次商業結果的成本，絕非單純 Token 單價。
+- 北極星單位指標：每完成一次商業結果的成本，而非 $/M tokens。
 - 四合一全端最佳化潛力：可將總體推論支出壓縮至原始基準線的 5% 至 10%。
 
 ```figure
@@ -150,7 +150,7 @@ i4-spend-ladder
 
 ## Further Reading｜延伸閱讀
 
-- [FinOps Foundation — FinOps for AI Overview](https://www.finops.org/wg/finops-for-ai-overview/) — 官方 AI 財務維運概論白皮書。
-- [FinOps School — Cost per Unit 2026 Guide](https://finopsschool.com/blog/cost-per-unit/) — 單位成本度量全解。
-- [Digital Applied — LLM Agent Cost Attribution 2026](https://www.digitalapplied.com/blog/llm-agent-cost-attribution-guide-production-2026) — 智慧代理成本歸因實戰指南。
-- [PointFive — Managed LLMs in Azure OpenAI](https://www.pointfive.co/blog/finops-for-ai-economics-of-managed-llms-in-azure-open-ai) — Azure OpenAI 推論經濟學解析。
+- [FinOps Foundation — FinOps for AI Overview](https://www.finops.org/wg/finops-for-ai-overview/)
+- [FinOps School — Cost per Unit 2026 Guide](https://finopsschool.com/blog/cost-per-unit/)
+- [Digital Applied — LLM Agent Cost Attribution 2026](https://www.digitalapplied.com/blog/llm-agent-cost-attribution-guide-production-2026)
+- [PointFive — Managed LLMs in Azure OpenAI](https://www.pointfive.co/blog/finops-for-ai-economics-of-managed-llms-in-azure-open-ai)

@@ -1,6 +1,6 @@
 # 正式環境中的 LLM 混沌工程（Chaos Engineering for LLM Production）
 
-> 針對大語言模型系統的混沌工程在 2026 年已獨立演進為一門專門學科。在正式環境中展開主動破壞性實驗前，必須嚴格具備五大先決條件：明確的 SLI/SLO 目標、覆蓋 Trace+Metric+Log 的全鏈路可觀測性、秒級自動化回滾機制、標準化維運手冊（Runbook）以及專職值班人員。完整架構橫跨四大平面：控制平面（實驗排程調度器）、目標平面（微服務、實體架構、資料儲存層）、安全平面（防護欄 + 緊急終止按鈕 + 流量過濾器）、可觀測性平面（指標 + 追蹤 + 日誌），並形成反哺 SLO 動態調整的回饋閉環。安全防護欄是不可妥協的硬約束：燃盡率（Burn-rate）警報在單日錯誤預算消耗速度超過預期 2 倍時強制自動暫停實驗；靜默窗口會抑制爆炸半徑內的非實驗告警，並以 Trace-ID 關聯去重。推薦實施節奏：每週進行小規模金絲雀驗證與 SLO 覆盤；每月舉行跨團隊防災演練日（Game Day）並產出故障覆盤檢討報告；每季度展開跨團隊系統韌性稽核與依賴圖譜梳理。大模型專屬五大經典混沌實驗：顯示記憶體超載、網路中斷、模型供應商大面積癱瘓、惡意畸形 Prompt 炸彈、KV 快取驅逐風暴。主流工具鏈：Harness Chaos Engineering（AI 輔助推薦、爆炸半徑自動降級、MCP 工具鏈原生整合）、LitmusChaos（CNCF 畢業級專案）、Chaos Mesh（CNCF 雲原生專案）。
+> 針對大語言模型系統的混沌工程在 2026 年已獨立演進為一門專門學科。在正式環境中展開主動破壞性實驗前，必須嚴格具備五大先決條件：明確的 SLI/SLO 目標、覆蓋 Trace+Metric+Log 的全鏈路可觀測性、自動回滾、標準化維運手冊（Runbook）以及專職值班人員。完整架構橫跨四個架構平面：控制平面（實驗排程調度器）、目標平面（微服務、實體架構、資料儲存層）、安全平面（防護欄 + 緊急終止按鈕 + 流量過濾器）、可觀測性平面（指標 + 追蹤 + 日誌），並形成反哺 SLO 動態調整的回饋閉環。安全防護欄是不可妥協的硬約束：燃盡率（Burn-rate）警報在單日錯誤預算消耗速度超過預期 2 倍時強制自動暫停實驗；靜默窗口會抑制爆炸半徑內的非實驗告警，並以 Trace-ID 關聯去重。推薦實施節奏：每週進行小規模金絲雀驗證與 SLO 覆盤；每月舉行跨團隊防災演練日（Game Day）並產出故障覆盤檢討報告；每季度展開跨團隊系統韌性稽核與依賴圖譜梳理。大模型專屬五大經典混沌實驗：顯示記憶體超載、網路中斷、模型供應商大面積癱瘓、惡意畸形 Prompt 炸彈、KV 快取驅逐風暴。主流工具鏈：Harness Chaos Engineering（AI 輔助推薦、爆炸半徑自動降級、MCP 工具鏈原生整合）、LitmusChaos（CNCF 畢業級專案）、Chaos Mesh（CNCF 雲原生專案）。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy chaos experiment runner)
@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 列出正式環境混沌工程的五大必備先決條件（SLI/SLO、可觀測性、自動回滾、維運手冊、值班制度），並深刻解釋跳過任何一項為何會讓混沌實驗直接退化為真實生產事故。
-- 精準繪製四大控制平面（控制、目標、安全、可觀測性）以及回饋至 SLO 動態校準的完整架構閉環圖。
+- 精準繪製四個架構平面（控制、目標、安全、可觀測性）以及回饋至 SLO 動態校準的完整架構閉環圖。
 - 熟練設計大模型專屬的五大經典混沌實驗（顯示記憶體爆滿、網路阻斷、供應商斷連、惡意畸形 Prompt、KV 驅逐風暴）。
 - 依據團隊現有基礎架構技術堆疊，理性在 Harness、LitmusChaos 與 Chaos Mesh 之間做出選型。
 
@@ -28,13 +28,13 @@
 
 1. **SLI/SLO**——擁有清晰量化的服務等級指標與目標。
 2. **可觀測性體系**——Trace 追蹤、Metric 指標、Log 日誌全鏈路打通，並在儀表板上即時視覺化。
-3. **秒級自動化回滾**——第 17 課第 20 節所確立的基於動態策略開關的秒級自癒能力。
+3. **自動回滾**——第 17 課第 20 節的策略旗標回滾。
 4. **結構化 Runbook**——第 17 課第 23 節所確立的標準化維運處方手冊。
 5. **值班制度（On-call）**——必須有真實的工程師隨時待命響應突發狀況。
 
 遺漏上述任何一環，你的混沌實驗將直接演變為一場無可挽回的正式環境災難。
 
-### 四大控制平面與回饋閉環（Four planes + feedback）
+### 四個架構平面與回饋閉環（Four planes + feedback）
 
 **控制平面（Control plane）**——實驗調度排程核心（Litmus Workflow、Chaos Mesh Schedule、Harness UI 控制台）。
 
@@ -66,7 +66,7 @@
 
 ### 實施節奏（Cadence）
 
-- **每週常態**——在測試環境（Staging）進行小規模金絲雀演練，或在正式環境中嚴格限制在 5% 的微弱流量上試驗。
+- **每週常態**——在測試環境（Staging）進行小規模金絲雀演練；也可考慮在正式環境使用 5% 流量。
 - **每月演練日（Game Day）**——針對特定預設的重大故障場景舉行全流程實戰演習；跨部門研發與維運全員參會；演習後強制召開覆盤檢討會。
 - **每季度大審**——展開跨團隊系統韌性全面稽核；重新梳理並更新全鏈路服務依賴圖譜。
 
@@ -80,13 +80,13 @@
 
 ### 從微小起步（Starting small）
 
-團隊的第一個混沌實驗：在平穩流量下，隨機殺死一個正在運作的 Decode 推論節點 Pod。觀測智慧路由的流量重分發與自癒還原耗時。若一切平穩且安全可控，再進一步進階至網路層故障注入。
+團隊的第一個混沌實驗：在平穩流量下對一個 decode 副本執行 pod-kill。觀察重新導流與復原。若此實驗運作正常且看起來安全，再進階至網路層故障注入。
 
 團隊的第一個大模型專屬實驗：主動向某家供應商注入持續 5 分鐘的 HTTP 429 故障。即時驗收系統的容錯移轉機制。絕大多數團隊往往在此時才猛然發現，自家的備援切換邏輯從未真正被線下實測驗證過。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
-- 混沌四大平面：控制平面、目標平面、安全平面、可觀測性平面。
+- 混沌的四個架構平面：控制平面、目標平面、安全平面、可觀測性平面。
 - 燃盡率熔斷閾值：當日錯誤預算消耗率超過基準值 2 倍立即強制中止。
 - 推薦演進節奏：每週金絲雀演練、每月 Game Day 演習、每季深度韌性稽核。
 - 五大 LLM 專屬維度：顯示記憶體超載、網路阻斷、供應商斷線、畸形 Prompt、KV 快取風暴。
@@ -127,9 +127,9 @@ i4-chaos-guard
 
 ## Further Reading｜延伸閱讀
 
-- [DevSecOps School — Chaos Engineering 2026 Guide](https://devsecopsschool.com/blog/chaos-engineering/) — 2026 混沌工程架構指南。
-- [Ankush Sharma — Observability for Large Language Models (Apress, 2026)](https://link.springer.com/book/10.1007/979-8-8688-2827-0) — 大型語言模型可觀測性與系統韌性專著。
-- [LitmusChaos (CNCF)](https://litmuschaos.io/) — 官方網站與架構手冊。
-- [Chaos Mesh (CNCF)](https://chaos-mesh.org/) — 雲原生混沌網格專案主頁。
-- [Harness Chaos Engineering](https://www.harness.io/products/chaos-engineering) — 商業級智慧混沌工程平台。
-- [AWS FIS](https://aws.amazon.com/fis/) — AWS 故障注入模擬服務指南。
+- [DevSecOps School — Chaos Engineering 2026 Guide](https://devsecopsschool.com/blog/chaos-engineering/)
+- [Ankush Sharma — Observability for Large Language Models (Apress, 2026)](https://link.springer.com/book/10.1007/979-8-8688-2827-0)
+- [LitmusChaos (CNCF)](https://litmuschaos.io/)
+- [Chaos Mesh (CNCF)](https://chaos-mesh.org/)
+- [Harness Chaos Engineering](https://www.harness.io/products/chaos-engineering)
+- [AWS FIS](https://aws.amazon.com/fis/)

@@ -1,6 +1,6 @@
 # AI SRE 架構——多 Agent 事故響應、維運手冊與預測性偵測（SRE for AI — Multi-Agent Incident Response, Runbooks, Predictive Detection）
 
-> AI SRE 透過 RAG 以基礎架構資料（日誌、runbook、服務拓撲）為 LLM 提供依據，自動化調查、文件記錄與協調階段。2026 年的架構模式是多 Agent 編排——專門處理日誌、指標、runbook 的 agent 由 supervisor 協調；AI 提出假說與查詢，人類批准需要判斷的決策。Datadog Bits AI 與 Azure SRE Agent 以託管產品形式提供。Runbook 維運手冊亦在深刻演進：NeuBird Hawkeye 引入了對抗式雙模型交叉評估（兩個獨立模型分析同一起事故；意見一致 = 高信心，意見分歧 = 存在不確定性需升級審批）；系統運維組織記憶可跨越人員離職交接而持久留存。自動自癒（Auto-remediation）依然嚴格維持審慎原則：AI 負責給出建議，人類最終簽字授權。完全自主的閉環操作被嚴格限制在極狹窄的安全集合中（重啟 Pod、回滾特定版本部署），並受限於硬性防護欄——任何向你兜售「完全放手全自動運維」的廠商皆屬於過度誇大。新興技術前沿：事故前預測性偵測。MIT 2025 年最新研究指出，基於歷史日誌、GPU 溫度時序與 API 錯誤特徵專門訓練的 LLM，能在正式事故爆發前 10 至 15 分鐘精確預警 89% 的雲端中斷。預測到 2026 年底，95% 的企業級 LLM 將具備自動容錯移轉能力。
+> AI SRE 透過 RAG 以基礎架構資料（日誌、runbook、服務拓撲）為 LLM 提供依據，自動化調查、文件記錄與協調階段。2026 年的架構模式是多 Agent 編排——專門處理日誌、指標、runbook 的 agent 由 supervisor 協調；AI 提出假說與查詢，人類批准需要判斷的決策。Datadog Bits AI 與 Azure SRE Agent 以託管產品形式提供。Runbook 維運手冊亦在深刻演進：NeuBird Hawkeye 引入了對抗式雙模型交叉評估（兩個獨立模型分析同一起事故；意見一致 = 高信心，意見分歧 = 存在不確定性需升級審批）；系統運維組織記憶可跨越人員離職交接而持久留存。自動自癒（Auto-remediation）依然嚴格維持審慎原則：AI 負責給出建議，人類最終簽字授權。完全自主的閉環操作被嚴格限制在極狹窄的安全集合中（重啟 Pod、回滾特定部署），並受限於硬性防護欄——任何向你兜售「完全放手全自動運維」的廠商皆屬於過度誇大。新興技術前沿：事故前預測性偵測。MIT 2025 年最新研究指出，基於歷史日誌、GPU 溫度時序與 API 錯誤特徵專門訓練的 LLM，能在正式事故爆發前 10 至 15 分鐘精確預警 89% 的雲端中斷。預測到 2026 年底，95% 的企業級 LLM 將具備自動容錯移轉能力。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy multi-agent incident triage simulator)
@@ -51,9 +51,9 @@ Supervisor 將事故拆成子查詢。專門的 agent 可使用工具（日誌�
 
 ### 自動自癒的受限範圍（Auto-remediation scope）
 
-**安全操作集合（狹窄受控）**：重啟特定 Pod、回滾至上一版本二進位部署、在預先批准的硬性配額內動態彈性擴縮 GPU 節點池、秒級啟動預先配置的 Feature Flag 降級開關。
+**安全操作集合（狹窄受控）**：重啟特定 Pod、回滾特定部署、在預先批准的硬性配額內動態彈性擴縮 GPU 節點池、秒級啟動預先配置的 Feature Flag 降級開關。
 
-**危險操作集合（寬泛高危，堅決禁止）**：擅自變更微服務拓撲架構、動態調高全域資源配額上限、自動向正式環境送出修改後的應用程式碼、擅自修改 IAM 權限角色、直接執行資料庫 DDL 變更。
+**危險操作集合（寬泛高危，堅決禁止）**：擅自變更微服務拓撲架構、修改資源限制、自動向正式環境送出修改後的應用程式碼、擅自修改 IAM 權限角色、直接執行資料庫 DDL 變更。
 
 任何宣稱「配置完成即可徹底高枕無憂全自動運維」的供應商皆屬於不負責任的過度行銷。隨著 AI SRE 的持續演進，安全集合的邊界會逐步拓展，但嚴密的權限圍欄永遠不會消失。
 
@@ -87,7 +87,7 @@ MIT 2025 年最新科研成果：針對歷史系統日誌、實體 GPU 晶片溫
 
 - MIT 事故預警模型：在測試集中提前 10 至 15 分鐘預測了 89% 的服務中斷。
 - 多 Agent 事故響應標準架構：Supervisor 統籌者 + (日誌、指標、手冊專職 Agent) + 人類審核閘門。
-- 允許自動自癒的安全操作範疇：重啟 Pod、回滾特定版本部署、在預先核准範圍內自動擴縮。
+- 允許自動自癒的安全操作範疇：重啟 Pod、回滾特定部署、在預先核准範圍內自動擴縮。
 - 對抗式交叉驗證模式：雙模型背靠背獨立推導；結論一致 = 高信心。
 
 ```figure
@@ -96,7 +96,7 @@ i4-incident-agents
 
 ## Use It｜實際應用
 
-`code/main.py` 模擬了一套多 Agent 事故會診流程：日誌 Agent 迅速定位異常堆疊、指標 Agent 捕捉到 CPU 暴增軌跡、手冊 Agent 精準匹配至歷史已知事故處方。Supervisor 統籌各方證據，給出權重排序後的根因診斷與修復建議。
+`code/main.py` 模擬了一套多 Agent 事故會診流程：日誌 Agent 迅速定位異常堆疊、指標 Agent 捕捉到 CPU 暴增軌跡、手冊 Agent 精準匹配至歷史已知事故處方。Supervisor 統籌各方證據，為假說排序。
 
 ## Ship It｜交付成果
 
@@ -126,9 +126,9 @@ i4-incident-agents
 
 ## Further Reading｜延伸閱讀
 
-- [incident.io — AI SRE Complete Guide 2026](https://incident.io/blog/what-is-ai-sre-complete-guide-2026) — 2026 年大模型智慧維運完整指南。
-- [InfoQ — Human-Centred AI for SRE](https://www.infoq.com/news/2026/01/opsworker-ai-sre/) — 以人為核心的 AI SRE 架構實踐。
-- [DZone — AI in SRE 2026](https://dzone.com/articles/ai-in-sre-whats-actually-coming-in-2026) — SRE 領域最新自動化演進手冊。
-- [Datadog Bits AI](https://www.datadoghq.com/product/bits-ai/) — Datadog 官方智能維運產品。
-- [NeuBird Hawkeye](https://www.neubird.ai/) — 對抗式雙模型 SRE 架構。
-- [awesome-ai-sre](https://github.com/agamm/awesome-ai-sre) — 全球精選 AI SRE 開源工具與論文清單。
+- [incident.io — AI SRE Complete Guide 2026](https://incident.io/blog/what-is-ai-sre-complete-guide-2026)
+- [InfoQ — Human-Centred AI for SRE](https://www.infoq.com/news/2026/01/opsworker-ai-sre/)
+- [DZone — AI in SRE 2026](https://dzone.com/articles/ai-in-sre-whats-actually-coming-in-2026)
+- [Datadog Bits AI](https://www.datadoghq.com/product/bits-ai/)
+- [NeuBird Hawkeye](https://www.neubird.ai/)
+- [awesome-ai-sre](https://github.com/agamm/awesome-ai-sre)

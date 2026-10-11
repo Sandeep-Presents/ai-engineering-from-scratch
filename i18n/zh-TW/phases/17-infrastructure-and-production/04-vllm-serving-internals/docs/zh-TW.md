@@ -26,7 +26,7 @@ vLLM 同時解決了這三大核心痛點。PagedAttention 徹底終結了傳統
 
 ### PagedAttention 作為虛擬記憶體系統（PagedAttention as a virtual memory system）
 
-對於單一序列而言，KV 快取所需的 GPU 記憶體用量為 `num_layers × 2 × num_heads × head_dim × seq_len × bytes_per_element`。以 Llama 3.3 70B 模型在 8,192 Token 長度下的 BF16 精度為例，單一序列便需消耗約 1.25 GB GPU 記憶體。若你為每個請求皆預先固定預留 8,192 個位置，而使用者的平均真實請求僅產生 1,500 Token，你將白白浪費所預留高頻寬記憶體（HBM）的約 82%。傳統靜態批次處理必須默默承受這項驚人的記憶體浪費。
+對於單一序列而言，KV 快取所需的 GPU 記憶體用量為 `num_layers × 2 × num_heads × head_dim × seq_len × bytes_per_element`。以 Llama 3.3 70B 模型在 8,192 Token 長度下的 BF16 精度為例，單一序列便需消耗約 1.25 GB GPU 記憶體。若你為每個請求皆預先固定預留 8,192 個位置，而平均每個請求實際使用 1,500 Token，你將白白浪費所預留高頻寬記憶體（HBM）的約 82%。傳統靜態批次處理必須默默承受這項驚人的記憶體浪費。
 
 PagedAttention 巧妙借鑑了作業系統的虛擬分頁記憶體思想。它打破了 KV 快取必須連續分佈於實體 GPU 記憶體中的硬性枷鎖，將其劃分為固定大小的微小 Block 區塊（預設大小為 16 Token）。每個序列皆維護一張專屬的 Block 表（Block table），精準將邏輯 Token 位置映射至實體 Block 索引。當序列長度超越當前配置的 Block 時，系統動態追加一個新 Block；當該序列推論完畢時，對應的 Block 立即釋放回全域資源池。
 

@@ -121,7 +121,7 @@ prefill-decode-split
 
 1. 執行 `code/main.py`。在輸入 Prompt 達到多少 Token 以上時，拆解式服務的端到端表現才開始全面碾壓傳統混部架構？
 2. 針對 P99 前綴長度為 8k、輸出 300 Token 的企業級 RAG 檢索服務，精準設計其 Prefill 池與 Decode 池的實體 GPU 數量配比。
-3. 深入對比 Dynamo 與 llm-d：針對一支只使用 Kubernetes、且不偏好特定 Python 執行環境的雲原生團隊，哪一款工具是唯一理性的選型？
+3. 深入對比 Dynamo 與 llm-d：針對一支只使用 Kubernetes、且不偏好特定 Python 執行環境的雲原生團隊，哪一款工具較適合？說明你的選擇。
 4. 精算 KV 快取跨節點傳輸開銷：在 70B FP8 模型下，4k Token 的 Prefill 將產出約 500 MB 的 KV 快取。在 100 GB/s 的 RDMA 網格下傳輸僅需 5 ms；而在 10 GB/s 的傳統 TCP 網路下需要 50 ms。這 45 ms 的落差對你的業務 SLA 會產生何種影響？
 5. MoE 混合專家架構的路由會改變 KV 存取模式。當每個 Token 會啟用不同專家時，拆解式服務會如何運作？
 

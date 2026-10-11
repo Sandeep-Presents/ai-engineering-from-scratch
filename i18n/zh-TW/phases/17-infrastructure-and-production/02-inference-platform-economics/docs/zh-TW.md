@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你評估過各大超大規模雲端平台後，得出結論：你需要更聚焦、推論延遲更低的專業服務商——追求極致延遲選 Fireworks、追求全模型覆蓋選 Together、部署自研 fine-tuning 模型選 Baseten。然而當你面對六家真實廠商的定價頁面時，卻發現維度完全無法對齊：各家定價頁的標示單位分別為「Fireworks shows $/M tokens; Baseten shows $/minute; Modal shows $/second; Replicate shows $/prediction」。 在不對真實負載建立數學模型的前提下，你根本無法將它們放在同一個基準上橫向對比。
+你評估過各大超大規模雲端平台後，得出結論：你需要更聚焦、推論延遲更低的專業服務商——追求極致延遲選 Fireworks、追求全模型覆蓋選 Together、部署自研 fine-tuning 模型選 Baseten。然而當你面對六家真實廠商的定價頁面時，卻發現維度完全無法對齊：各家定價頁的標示單位分別為：Fireworks 以 $/M tokens; Baseten shows $/minute；Modal 以 $/second; Replicate shows $/prediction。 在不對真實負載建立數學模型的前提下，你根本無法將它們放在同一個基準上橫向對比。
 
 更棘手的是，每份定價頁面背後的商業邏輯截然不同。Fireworks 在共享 GPU 上運作自研的 FireAttention 專屬推論引擎，其每 Token 費率直接反映了其算力利用率曲線；Baseten 提供 Truss 打包框架與獨佔專屬 GPU，其按分鐘計費反映的是資源專有權；Modal 則是徹底的 Python 無伺服器（Serverless）架構——提供按秒計費與亞秒級的冷啟動體驗。產出完全相同的文字（一段 LLM 回應），背後卻對應三種本質迥異的成本函數。
 
@@ -26,7 +26,7 @@
 
 ### 三大市場區塊（The three segments）
 
-**專屬客製化晶片（Custom silicon）**——Groq（LPU）、Cerebras（WSE）、SambaNova（RDU）。在相同模型下，解碼速度通常比基於常規 GPU 的叢集快 5 至 10 倍。雖然每 Token 單價相對較高（2025 年底 Groq 在 Llama-70B 上的報價約為 0.99 美元/百萬 Token），但在延遲極度敏感的場景下具備無可爭議的統治地位。Groq 是目前語音 Agent 與即時語意翻譯領域的正式環境首選。
+**專屬客製化晶片（Custom silicon）**——Groq（LPU）、Cerebras（WSE）、SambaNova（RDU）。在相同模型下，解碼速度通常比基於常規 GPU 的叢集快 5 至 10 倍。雖然每 Token 單價相對較高（2025 年底 Groq 在 Llama-70B 上的報價為 ~$0.99/M），但在延遲極度敏感的場景下具備無可爭議的統治地位。Groq 是目前語音 Agent 與即時語意翻譯領域的正式環境首選。
 
 **GPU 算力平台（GPU platforms）**——Baseten、Together、Fireworks、Modal、Anyscale。基於 NVIDIA（2026 年廣泛部署 H100、H200、B200）或部分 AMD GPU 運作。它們是介於「純裸金屬 GPU 租賃（RunPod、Lambda）」與「超大廠託管服務（Bedrock）」之間的黃金經濟層。
 
@@ -48,14 +48,14 @@
 
 ### Baseten——企業級成熟度最佳化（Baseten — enterprise-polish-optimized）
 
-- 推出 Truss 開源框架：在單一宣告式資訊清單內部完整封裝模型相依套件、機密憑證與 Serving 配置。
+- 推出 Truss 框架：在單一宣告式資訊清單內部完整封裝模型相依套件、機密憑證與 Serving 配置。
 - 硬體覆蓋從 T4 直至 B200。按分鐘計費，並具備優秀的冷啟動抑制機制。
-- 全面通過 SOC 2 Type II 認證，符合 HIPAA 標準。是金融科技與醫療領域的熱門首選。
+- 全面通過 SOC 2 Type II 認證，已做好符合 HIPAA 要求的準備。是金融科技與醫療領域的熱門首選。
 - 估值達 50 億美元，2026 年 1 月完成 3 億美元 E 輪融資（由 CapitalG、IVP 與 NVIDIA 聯合注資）。
 
 ### Modal——Python 原生體驗最佳化（Modal — Python-native-optimized）
 
-- 以純 Python 實踐基礎架構即程式碼（IaC）。僅需透過 `@modal.function(gpu="A100")` 裝飾器修飾常規函式，即可透過單一指令完成全球部署。
+- 以純 Python 實踐基礎架構即程式碼（IaC）。僅需透過 `@modal.function(gpu="A100")` 裝飾器修飾常規函式，即可透過單一指令部署。
 - 精確到秒的微粒度計費。搭配預熱機制冷啟動耗時僅需 2 至 4 秒；輕量級模型甚至小於 1 秒。
 - 2025 年以 11 億美元估值完成 8,700 萬美元 B 輪融資。在各類獨立開發者調查中，開發者體驗（DX）評分最高。
 
@@ -96,7 +96,7 @@ cost-per-token
 
 ## Use It｜實際應用
 
-`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出 $/day and effective $/M tokens（每日成本及每百萬 Token 有效成本）。 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
+`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出 $/day and effective $/M tokens。 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
 
 ## Ship It｜交付成果
 
@@ -106,7 +106,7 @@ cost-per-token
 
 1. 執行 `code/main.py`。針對部署在單張 H100 上的 70B 模型，持續利用率必須達到多少時，Baseten（按分鐘計費）的總成本才會低於 Fireworks（按 Token 計費）？親手推導出該交會點並與 30% 經驗法則進行比對。
 2. 你的產品功能同時整合了影像生成、文字對話與語音辨識（STT）。為這三種不同模態分別挑選最適託管平台，並指出能在前端將它們統一抽象整合的 Gateway 設計模式。
-3. Fireworks 針對你所採用的主力模型將每小時單價上調 1 美元。若你將 40% 的非即時背景流量切換至其 5 折優惠的 Batch 批次層級，精確建模推導出整體混合成本的淨變動幅度。
+3. Fireworks 針對你所採用的主力模型將每小時單價上調 1 美元。若你將 40% 的流量切換至其 5 折優惠的 Batch 批次層級，精確建模推導出整體混合成本的淨變動幅度。
 4. 某強監管企業客戶要求系統必須具備 SOC 2 Type II 認證、符合 HIPAA 規範，且必須使用專屬獨立 GPU。哪三家平台具備合格入場資格？其中哪一家在 FinOps 成本控制上最具優勢？
 5. 針對 Llama 3.1 70B 模型，橫向比對 Fireworks 無伺服器、Together 隨需、Baseten 專屬與 Replicate API 處理每 1,000 次預測的單價。當每日呼叫量僅有 10 次時，哪家最便宜？當每日呼叫量暴增至 10,000 次時，局面會如何逆轉？
 

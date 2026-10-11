@@ -26,7 +26,7 @@
 
 ### 三大核心戰略（Three strategies）
 
-**AWS Bedrock**——開放市集模式。容納 Claude（Anthropic）、Llama（Meta）、Titan（AWS 第一方自研）、Stability（影像生成）、Cohere（向量 Embedding）、Mistral，以及龐大的多模態子型錄。提供單一統一 API、統一的 IAM 權限介面以及開箱即用的 CloudWatch 指標匯出。Bedrock 的戰略押注在於：企業客戶對「選擇的自由度與彈性」之渴望，遠勝於對單一特定模型的依賴。
+**AWS Bedrock**——開放市集模式。容納 Claude（Anthropic）、Llama（Meta）、Titan（AWS 第一方自研）、Stability（影像生成）、Cohere（向量 Embedding）、Mistral，另有影像與 Embedding 子型錄。提供單一統一 API、統一的 IAM 權限介面以及開箱即用的 CloudWatch 指標匯出。Bedrock 的戰略押注在於：企業客戶對「選擇的自由度與彈性」之渴望，遠勝於對單一特定模型的依賴。
 
 **Azure OpenAI**——獨家深度結盟。你能在微軟的全球資料中心內部，享有 GPT-4 / 4o / 5 / o 系列、DALL·E、Whisper，以及 OpenAI 模型的 fine-tuning。在標準的「Azure OpenAI 服務」型錄中完全不包含非 OpenAI 模型——這些模型列於獨立產品 Azure AI Foundry。Azure 的戰略押注在於：OpenAI 始終代表著最尖端的前沿能力，而大型企業需要在此特定關係上獲得企業級控制。
 

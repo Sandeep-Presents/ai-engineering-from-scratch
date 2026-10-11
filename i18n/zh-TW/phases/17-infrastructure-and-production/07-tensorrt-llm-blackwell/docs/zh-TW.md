@@ -1,6 +1,6 @@
 # 硬體特化推論編譯——Blackwell 上的 FP8 與 NVFP4（Hardware-Specialized Inference Compilation — FP8 and NVFP4 on Blackwell）
 
-> 針對專屬硬體進行極限特化的推論編譯，是以犧牲跨平台可移植性為代價換取登峰造極的吞吐量，而專為 Blackwell 架構深度調校的 NVIDIA 獨佔套件 TensorRT-LLM，正是該權衡大獲全勝的最極致範例。在 GB200 NVL72 叢集搭配 Dynamo 編排架構下，SemiAnalysis InferenceX 實測 2026 年第一至第二季運作 120B 模型的成本僅為每百萬 Token 0.012 美元，相對於 H100 搭配 vLLM 的 0.09 美元——創造了高達 7 倍的驚人經濟落差。其底層技術堆疊是三種浮點精度的精妙複合：FP8 對於 KV 快取與注意力核心始終不可或缺，因其具備無可替代的動態範圍；NVFP4（4 位元微縮放 Microscaling）負責承載權重與暫態活化值；疊加多 Token 預測（MTP）與 Prefill/Decode 拆解架構又在此基礎上額外貢獻了 2 至 3 倍增益。首日發布（Day-0）的模型直接提供原生 FP4 權重，徹底省去了耗時的後訓練量化轉換。2026 年研發團隊必須面對的現實是：TRT-LLM 雖開源但深度綁定 NVIDIA——高度專精於 CUDA 與 Blackwell——採納它意味著以架構鎖定換取極限經濟效益。在簽字立項前，務必對你自身的模型組合與硬體資產展開嚴密精算。
+> 針對專屬硬體進行極限特化的推論編譯，是以犧牲跨平台可移植性為代價換取登峰造極的吞吐量，而專為 Blackwell 架構深度調校的 NVIDIA 獨佔套件 TensorRT-LLM，正是該權衡大獲全勝的最極致範例。在 GB200 NVL72 叢集搭配 Dynamo 編排架構下，SemiAnalysis InferenceX 實測 2026 年第一至第二季運作 120B 模型的成本僅為 $0.012/M，相較於 H100 搭配 vLLM 的 $0.09/M——創造了高達 7 倍的驚人經濟落差。其底層技術堆疊是三種浮點精度的精妙複合：FP8 對於 KV 快取與注意力核心始終不可或缺，因其具備無可替代的動態範圍；NVFP4（4 位元微縮放 Microscaling）負責承載權重與暫態活化值；疊加多 Token 預測（MTP）與 Prefill/Decode 拆解架構又在此基礎上額外貢獻了 2 至 3 倍增益。首日發布（Day-0）的模型直接提供原生 FP4 權重，徹底省去了耗時的後訓練量化轉換。2026 年研發團隊必須面對的現實是：TRT-LLM 雖開源但深度綁定 NVIDIA——高度專精於 CUDA 與 Blackwell——採納它意味著以架構鎖定換取極限經濟效益。在簽字立項前，務必對你自身的模型組合與硬體資產展開嚴密精算。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy FP8/NVFP4 memory and cost calculator)
@@ -18,7 +18,7 @@
 
 2026 年推論經濟學的終極衡量維度只有一個：「每一美元究竟能買到多少 Token」。這個問題的答案取決於四層架構決策的層層疊加：硬體代際（Hopper H100/H200 vs Blackwell B200/GB200）、計算精度（BF16 → FP8 → NVFP4）、推論服務引擎（vLLM vs SGLang vs TRT-LLM），以及叢集編排模式（單體傳統 vs Prefill/Decode 拆解 vs Dynamo 智慧調度）。
 
-在 Hopper 叢集上使用 vLLM 運作 120B MoE 模型，推論成本約為每百萬 Token 0.09 美元。而在 Blackwell 叢集上使用 TRT-LLM 搭配 Dynamo，相同模型的成本直接驟降至約 0.012 美元——足足便宜了 7 倍。這項巨大落差一部分歸功於底層硬體突破（Blackwell 的每 GPU LLM 吞吐量是 Hopper 的 11 至 15 倍）；另一部分則完全源自全端技術堆疊的精準咬合：FP4 權重、MTP 推測解碼、Prefill/Decode 物理拆解，以及 NVLink 5 專為 MoE 專家通訊設計的極速 All-to-All 通訊。
+在 Hopper 叢集上使用 vLLM 運作 120B MoE 模型，推論成本約為 $0.09/M。而在 Blackwell 叢集上使用 TRT-LLM 搭配 Dynamo，相同模型的成本直接驟降至約 $0.012/M——足足便宜了 7 倍。這項巨大落差一部分歸功於底層硬體突破（Blackwell 的每 GPU LLM 吞吐量是 Hopper 的 11 至 15 倍）；另一部分則完全源自全端技術堆疊的精準咬合：FP4 權重、MTP 推測解碼、Prefill/Decode 物理拆解，以及 NVLink 5 專為 MoE 專家通訊設計的極速 All-to-All 通訊。
 
 然而你完全無法在 NVIDIA 以外的任何硬體生態中複製這套奇蹟。這是一場嚴肅的工程取捨——以架構可移植性換取極致的財務回報。看清技術堆疊中每一項抉擇究竟分別貢獻了多少比例的成本差距，是本課的核心主旨。
 
@@ -40,23 +40,23 @@ NVFP4（2025-2026 年成熟）專門適用於模型靜態權重與動態活化�
 ### TRT-LLM 善用的 Blackwell 專屬硬體原語（The Blackwell-specific primitives TRT-LLM uses）
 
 - **首日發布原生 FP4 權重（Day-0 FP4 weights）**：頂級開源模型發行方直接開箱釋出原生 FP4 格式的權重檔案；TRT-LLM 原生支援直接載入，徹底省去了傳統後訓練量化（AWQ / GPTQ）的冗長轉檔管線。
-- **多 Token 預測（Multi-token prediction, MTP）**：底層思維與 EAGLE（第 17 課第 05 節）一致，但其草稿產生核心被直接緊密編譯進 TRT-LLM 的底層二進位中。
+- **多 Token 預測（Multi-token prediction, MTP）**：底層思維與 EAGLE（第 17 課第 05 節）一致，但其草稿生成核心整合至 TRT-LLM 的建置中。
 - **拆解式服務（Disaggregated serving）**：將 Prefill 與 Decode 物理切分至完全獨立的專屬 GPU 資源池，兩者之間的 KV 快取透過 NVLink 或 InfiniBand 傳遞。設計哲學與 Dynamo（第 17 課第 20 節）一脈相承。
 - **All-to-All 集合通訊原語**：NVLink 5 將 MoE 架構下跨卡路由 Token 至各專家 GPU 的通訊延遲相較於 Hopper 降低了 3 倍。TRT-LLM 的 MoE 核心針對此硬體原語進行了極限手工調優。
 - **NVFP4 + MXFP8 微縮放硬體指令**：Blackwell Tensor Core 提供原生硬體加速的動態縮放因子運算。
 
 ### 務必銘記的核心關鍵數字（The numbers you should memorize）
 
-- HGX B200 在 GPT-OSS-120B 模型上透過 TRT-LLM 測得的成本：約 0.02 美元/百萬 Token。
-- GB200 NVL72 叢集在 Dynamo 編排調度 TRT-LLM 下測得的極限成本：0.012 美元/百萬 Token。
-- H100 搭配 vLLM 在等價負載下的基準成本：約 0.09 美元/百萬 Token。
+- HGX B200 在 GPT-OSS-120B 模型上透過 TRT-LLM 測得的成本：約 $0.02/M。
+- GB200 NVL72 叢集在 Dynamo 編排調度 TRT-LLM 下測得的極限成本：$0.012/M。
+- H100 搭配 vLLM 在等價負載下的基準成本：約 $0.09/M。
 - 僅在 2026 年初的三個月內，TRT-LLM 透過底層編譯器更新便累計帶來了 2.8 倍的額外吞吐量增益。
 - Blackwell 相較於 Hopper 在單 GPU LLM 吞吐量上的硬體提升：高達 11 至 15 倍。
 - MLPerf Inference v6.0（2026 年 4 月發布）：Blackwell 在所有送測的資料中心基準測試項目中全面橫掃霸榜。
 
 ### FP4 在生成品質上的實質代價（What FP4 actually costs in quality）
 
-NVFP4 是一項極其激進的壓縮技術。在高度依賴嚴密邏輯推理的業務負載上（思維鏈 CoT、高難度數學競賽、超長上下文程式碼生成），FP4 權重會產生肉眼可見的品質劣化。即便採用逐區塊校準（Per-block calibration）能大幅緩解，亦無法完全抹平數學精度的物理損失。在正式環境中交付強推理模型的頂尖團隊，通常會退守「FP8 權重 + FP4 活化值」的折衷架構，或乾脆選用配備更大容量 HBM3e 的 H200 並全程嚴格鎖定 FP8 精度。
+NVFP4 是一項極其激進的壓縮技術。在高度依賴嚴密邏輯推理的業務負載上（思維鏈 CoT、高難度數學競賽、超長上下文程式碼生成），FP4 權重會產生肉眼可見的品質劣化。即便採用逐區塊校準（Per-block calibration）能大幅緩解，亦無法完全抹平數學精度的物理損失。在正式環境中交付強推理模型的頂尖團隊，通常會退守「FP8 權重 + FP4 活化值」的折衷架構，或選擇 H200 並全程使用 FP8。
 
 鐵律：在正式將系統切換至 NVFP4 權重之前，必須在團隊內部的專屬驗證集上對模型端到端輸出品質展開嚴格的全量評測。
 
