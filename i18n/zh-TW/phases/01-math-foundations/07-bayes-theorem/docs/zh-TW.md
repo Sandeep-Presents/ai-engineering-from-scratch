@@ -393,9 +393,9 @@ Posterior: Beta(a + s, b + f)
 
 ```mermaid
 graph LR
-    A["Prior<br/>Beta(1,1)<br/>mean = 0.50"] -->|"7H, 3T"| B["Posterior 1<br/>Beta(8,4)<br/>mean = 0.67"]
-    B -->|"becomes prior"| C["Prior 2<br/>Beta(8,4)"]
-    C -->|"5H, 5T"| D["Posterior 2<br/>Beta(13,9)<br/>mean = 0.59"]
+    A["先驗分布<br/>Beta(1,1)<br/>平均值 = 0.50"] -->|"7H, 3T"| B["後驗分布 1<br/>Beta(8,4)<br/>平均值 = 0.67"]
+    B -->|"becomes prior"| C["先驗分布 2<br/>Beta(8,4)"]
+    C -->|"5H, 5T"| D["後驗分布 2<br/>Beta(13,9)<br/>平均值 = 0.59"]
 ```
 
 觀察順序無所謂：Beta(1,1) 一次更新全部 12 正面、8 反面得到 Beta(13, 9)——結果相同。循序更新和批次更新在數學上等價，但循序更新讓你每一步都能做決策，不必儲存原始資料。
