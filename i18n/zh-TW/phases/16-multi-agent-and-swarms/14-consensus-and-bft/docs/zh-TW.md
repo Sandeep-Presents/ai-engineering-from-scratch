@@ -1,0 +1,155 @@
+# 共識機制與拜占庭容錯（Consensus and Byzantine Fault Tolerance for Agents）
+
+> 古典分散式系統的拜占庭容錯（BFT）在此遇上了隨機性的 LLM。在 2025 至 2026 年間，學界湧現了三大前沿研究方向：**CP-WBFT**（arXiv:2511.10400）透過信心探針（confidence probe）對每張選票進行加權；**DecentLLMs**（arXiv:2507.14928）則走向無領袖架構，由工作者平行提出候選解，並透過幾何中位數（geometric-median）進行聚合；**WBFT**（arXiv:2505.05103）結合加權投票與階層式結構分群，劃分核心節點與邊緣節點。而來自權威實證論文《Can AI Agents Agree?》（arXiv:2603.01213）的清醒結論指出：當前的純量共識極其脆弱——單一惡意偽裝的 Agent 就足以將整個 Agent 混合體（Mixture-of-Agents）徹底拉偏。BFT 是必不可少的基礎防線，但絕非萬全之策。本課將親手建構一個最小可行 BFT 協定、注入三種 Agent 專屬的對抗攻擊（拜占庭說謊、諂媚盲從、同質相關性誤差），並量化衡量各共識變體的防禦表現。
+
+**Type:** Learn + Build
+**Languages:** Python (stdlib)
+**Prerequisites:** Phase 16 · 07 (Society of Mind and Debate), Phase 16 · 13 (Shared Memory)
+**Time:** ~75 minutes
+
+## Problem｜問題
+
+你擁有 N 個各自產出答案的 LLM Agent。它們的意見產生了分歧。單純的多數決投票挑選出了一個徹底錯誤的結論，原因在於其中兩個 Agent 存在高度相關性（採用相同的基底模型、完全相同的訓練資料、繼承了完全相同的系統性盲點）。而第三個 Agent 碰巧以另一種新奇的方式出錯——最終多數決產出的只是一場虛假的勝利。
+
+現在再引入一個蓄意欺騙的 Agent：它開始處心積慮地故意說謊。抑或引入一個毫無主見的諂媚 Agent：它只是一味盲從最後一位發言者的論點。在古典 BFT 領域中，核心假設是拜占庭節點的比例滿足 `f < n/3` 且行為完全任意隨機。然而 2026 年的客觀現實是：LLM 節點即便在主觀「誠實」的前提下也充滿隨機性，跨模型之間存在嚴重的同質相關性，且極易受到彼此輸出的強烈心理暗示。你絕對無法將它們簡單視為統計上相互獨立的白努利選民。
+
+古典 BFT（如 PBFT，1999 年）並非錯誤——它只是不完整。它能優雅應對任意的位元翻轉惡意篡改；但它完全無法處理「三個誠實的 Agent 因為共享相同的預訓練語料，而集體產生了完全相同的幻覺共識」。本課將立足於 PBFT 的經典底座，疊加 2025–2026 年的三大現代調適創新。
+
+## Concept｜核心概念
+
+### 古典 BFT 能賦予什麼
+
+實用拜占庭容錯（Practical Byzantine Fault Tolerance, Castro & Liskov, OSDI 1999）能夠容忍比例小於 `f < n/3` 的惡意拜占庭節點。該協定由三個經典階段構成（預準備 pre-prepare、準備 prepare、確認寫入 commit），並依賴兩大底層原語（數位簽章訊息、法定人數證書 quorum certificates）。它能確保在總數 `n >= 3f + 1` 的誠實與惡意混合節點群體中，對單一具體數值達成嚴密的數學共識。
+
+這套保證無比強大，但建立在三大嚴苛假設之上：
+
+1. **故障相互獨立。** 拜占庭惡意節點彼此之間不會展開跨節點的精準協同。
+2. **誠實節點在客觀上確實誠實無誤。** 誠實節點產出的正確性被視為天經地義；協定唯一的任務只是弭平分歧。
+3. **問題客觀存在唯一的基準真相（Ground truth）。** 哪怕全體對一個錯誤的客觀事實達成了一致共識，在協定眼裡依然算作成功的共識。
+
+而當代的 LLM Agent 將這三大假設徹底粉碎殆盡。兩個執行相同基底模型的 Agent，其內在盲點天生高度相關。一個主觀上絕對「誠實」的 LLM，依然會言之鑿鑿地胡說八道。而在充滿歧義的開放性問題上，所謂的「真相」本質上僅取決於各 Agent 最終妥協出何種裁定——根本不存在客觀的外部全知全能的神諭（Oracle）。
+
+### 三大 LLM 專屬的對抗攻擊
+
+**拜占庭蓄意說謊（Byzantine lie）。** 某個 Agent 處心積慮地輸出一個經過偽裝的致命錯誤答案。若滿足 `f < n/3`，古典 BFT 能夠從容化解此威脅。
+
+**諂媚附和盲從（Sycophantic conformity）。** 某個 Agent 在正式投票前偷看了其他人的論述，隨後毫無原則地向最後一位（或聲音最大）的發言者看齊。這並非出於惡意破壞，但會導致群體意見迅速被強勢節點所綁架。古典 BFT 對此完全束手無策，因為該 Agent 在流程上完全通過了所有的密碼學簽章檢驗。
+
+**同質單一文化相關性誤差（Correlated-error monoculture）。** 三個 Agent 共享完全相同的基底模型。它們集體在同一個問題上產生了完全一致的幻覺錯誤答案。此時多數決徹底走向災難性的覆滅。古典 BFT 完全無法防禦此漏洞，因為這三位節點全都是主觀上絕對「誠實」地達成了一致。
+
+### 2025-2026 年的前沿應對方案
+
+**CP-WBFT**（arXiv:2511.10400）——信心探針加權拜占庭容錯（Confidence-Probed Weighted BFT）。每位投票者在交付答案時，必須強制附加一個信心探針評分（可為自主回報的機率值，或由專屬校準模型預測的信賴度）。投票權重與信心評分呈正比動態縮放。實測報告指出在完全圖拓撲上實現了 +85.71% 的 BFT 效能躍升。專門精準剋制：諂媚盲從（因為盲從妥協的 Agent 對自身非自發的立場通常伴隨著極低的置信評分）。
+
+**DecentLLMs**（arXiv:2507.14928）——無領袖對等共識架構。工作者 Agent 平行提出各自的候選解，評估者 Agent 對各項提議進行客觀評分，最終共識數值收斂為經評分位置的**幾何中位數（Geometric median）**。在滿足 `f < n/2` 的條件下展現出強大的穩健性。專門防禦：拜占庭惡意說謊與同質相關性誤差（幾何中位數對離群值極度不敏感，能強行將共識拉向最密集的健康群集，而非落入被模型偏見人為拉偏的算術平均數）。
+
+**WBFT**（arXiv:2505.05103）——基於階層式結構分群的加權拜占庭容錯。投票權重由回應品質結合歷史累積的動態信任分共同裁定。將全網 Agent 分群為「核心節點（Core）」與「邊緣節點（Edge）」；核心節點群體必須先行達成內部共識，邊緣節點隨後跟進對齊。專門防禦：規模擴展性瓶頸（核心節點規模小、達成共識極速飛快），並能在一定程度上防範單一文化（核心節點可刻意挑選異質模型以保證多樣性）。
+
+### 實證研究：《Can AI Agents Agree?》（arXiv:2603.01213）
+
+該論文針對多個頂尖前沿模型，精準測量了純量共識（即多個 LLM Agent 能否在單一數值結論上達成完全一致）。研究給出了令人警醒的殘酷結論：
+
+- 即便在完全不存在任何惡意對抗者的純淨環境下，在眾多標準評測基準中，LLM Agent 在純量問題上的意見分歧率依然穩定高於 30%。
+- 單一採用了欺騙性人格設定（Deceptive persona）的惡意 Agent，就足以將整個 Agent 混合體（Mixture-of-Agents）的最終共識拉偏基準線高達 40 個百分點以上。
+- 分歧率與模型多樣性呈正相關——異質混合群體的分歧率顯著高於同質單一模型群體（優勢：誤差彼此完全解耦；劣勢：達成一致所需的時間顯著更長）。
+
+核心啟示：BFT 賦予你的是對齊多方輸出的嚴謹工程機制，但它無法在物理上保證對齊後的最終輸出就是客觀真理。必須將共識機制與客觀驗證者（第 16 課第 08 節角色專門化）、模型多樣性（第 16 課第 15 節辯論拓撲）以及專屬評估者 Agent（第 16 課第 24 節評測基準）深度疊加結合。
+
+### 極簡核心協定流程
+
+專為 LLM Agent 量身設計的最小可行 BFT 單輪流程：
+
+```
+1. task arrives; each agent i produces answer a_i
+2. each agent attaches confidence probe c_i in [0, 1]
+3. aggregator collects (a_i, c_i) from all n agents
+4. aggregator groups by semantic cluster (equivalent answers)
+5. aggregator computes weight for each cluster C:
+     w(C) = sum_{i in C} c_i
+6. winner = cluster with max weight, if max > threshold * sum(c_i)
+   else: retry or escalate
+7. minority clusters logged with provenance for post-hoc audit
+```
+
+其中「語意分群（Semantic clustering）」是專屬於 LLM 領域的核心工程特化設計。兩個答案「該研究報告為 4.2%」與「4.2% 的效能提升」在語意上完全屬於同一個群集。單純的字串相等性檢查會徹底漏掉這項等價性。在正式環境中，通常採用廉價的 embedding 模型或明確的正則正規化來完成分群。
+
+### 門檻調校藝術（Threshold Tuning）
+
+參數 `threshold` 決定了系統在何時應當果斷接受共識、何時應當判定無效並重試。設定過低：系統會頻繁接納脆弱的微弱多數；設定過高：系統將永遠無法通過任何裁定。實務建議經驗區間：對於 `n=5-7` 的群體，門檻通常設為 0.5–0.67；對於較小的 `n` 門檻應當更高。一旦加權總分跌破門檻，應當果斷升級轉交人類專家審核，或動態喚醒另一組異質 Agent 群體重審。
+
+### 何時共識機制毫無用武之地
+
+- **充滿主觀歧義的開放問題。** 若問題本身根本不存在客觀的基準真相，共識充其量只是一場主觀觀點的投票。請坦誠對待這一點。
+- **複合型問題。** 「請編寫程式碼並詳細解釋其運作原理」——這本質上包含兩個獨立答案。必須將其拆解為兩個子任務分別獨立投票。
+- **對抗性的多輪交鋒。** 若 Agent 能夠隨意監聽前幾輪的發言並進行策略性模仿（如 Du 2023 辯論模式），它們往往會迅速為了迎合而達成共識，而徹底無視真相。交鋒輪次必須施加硬性約束（通常為 2-3 輪）。
+
+```figure
+swarm-consensus-wave
+```
+
+## Build It｜動手實作
+
+`code/main.py` 完整實作了以下核心模組：
+
+- `AgentVoter`——一個具備 (answer, confidence) 自主回報能力的腳本化 Agent。
+- `MajorityVote`——古典簡單相對多數決投票器。
+- `CPWBFT`——結合語意分群與信心探針加權的現代加權 BFT 聚合器。
+- `DecentLLMs`——運作在經評分提議之上的幾何中位數聚合器。
+- `Scenario`——負責在三種對抗攻擊模式下分別檢驗各聚合器的強韌度。
+
+內建實作的三大攻擊模式：
+
+1. `byzantine`：單一 Agent 帶著極高自信蓄意說謊。
+2. `sycophancy`：單一 Agent 毫無主見地盲從複製它所看到的第一個答案，並偽造相應的信心分。
+3. `monoculture`：三個 Agent 因底層同質模型偏見，集體給出完全相同的錯誤答案（相關性系統誤差），且帶有中等信賴度。
+
+執行指令：
+
+```
+python3 code/main.py
+```
+
+預期終端輸出：一張橫向對照的 (attack, aggregator) -> 最終答案 矩陣表格，並顯式高亮標註正確解答。你會清晰看見：簡單相對多數決在同質單一文化攻擊下徹底敗下陣來；CP-WBFT 透過信心加權精準瓦解了諂媚盲從；而 DecentLLMs 的幾何中位數機制，在同質錯誤未過半的條件下，能精準將結果拉回誠實節點的密集核心區。
+
+## Use It｜實際應用
+
+`outputs/skill-consensus-designer.md` 能為多 Agent 整合群體量身打造最適共識協定：精準設計語意分群演算法、動態權重配置公式、安全門檻數值，以及在未達門檻時觸發的升級兜底策略。
+
+## Ship It｜交付成果
+
+任何共識機制推向正式環境前的必備檢查清單：
+
+- **必須通過上述至少三大攻擊模式的嚴格對抗測試。** 你的協定在面臨極限故障時必須以可預測的方式優雅失敗，絕不允許產生無聲的欺騙性放行。
+- **完整保留每一個少數派群集的溯源中繼資料。** 少數派群集絕非無用垃圾，它們是整個系統感知同質相關性誤差的關鍵早期預警哨兵。
+- **強制約束對話輪次邊界。** 嚴禁設計「持續辯論直到達成共識為止」的死迴圈——這是在以系統機制獎勵諂媚盲從。
+- **嚴格割裂「達成共識」與「客觀正確」的邏輯等價。** 共識的產出結果必須直接導向獨立的客觀驗證者；驗證者在架構上必須完全獨立於投票群體之外。
+- **即時監控群體共識達成率指標。** 該指標的異常陡增意味著群體內部滋生了嚴重的盲從偏見；而異常暴跌則意味著底層模型發生了嚴重的分布漂移。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。確認簡單相對多數決是否在同質攻擊下慘遭淪陷，並觀察當同質錯誤群集的信心低於 0.7 時，CP-WBFT 是如何成功實現局部防禦的。
+2. 追加第四種攻擊模式：**無聲棄權（Silent abstention）**——某個 Agent 堅決拒絕給出實質答案（回傳「我不知道」）。各聚合器應當如何合理處置棄權票？動手編寫程式碼實現你的決策。
+3. 將原本基於字串正規化的語意分群機制，替換為基於 embedding 相似度的動態分群（可選用任何開源 embedding 模型）。觀察這對防禦諂媚盲從攻擊產生了何種實質影響？
+4. 閱讀 CP-WBFT 論文（arXiv:2511.10400）。實現其信心探針校準步驟（引入一個獨立的外部校準模型來嚴格審查各 Agent 自行申報的信心分）。量化測量校準機制在同質單一文化攻擊情境下所帶來的準確率提升。
+5. 閱讀論文《Can AI Agents Agree?》（arXiv:2603.01213）。嘗試復現一個簡化的純量共識對抗實驗：三位 Agent、一個數值估算任務、注入惡意欺騙人格 prompt。檢驗 CP-WBFT 或 DecentLLMs 是否能精準捕捉並中和該欺騙行為？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| BFT | "Byzantine fault tolerance" | Castro-Liskov 1999 protocol for consensus with `f < n/3` arbitrary faults. |
+| Byzantine | "Any bad behavior" | A node that can lie, drop messages, fail silently — anything but crash safely. |
+| Confidence probe | "How sure are you?" | Self-reported or calibrator-predicted probability attached to a vote. |
+| Semantic clustering | "Same answer, different words" | Grouping equivalent answers before counting votes. |
+| Geometric median | "Robust center" | The point minimizing sum of distances to sample points. Robust to outliers, unlike the mean. |
+| Monoculture | "Same model, same failures" | Correlated errors when agents share training data or base model. |
+| Sycophantic conformity | "Agreeing with the loud voice" | An agent's vote biases toward whoever spoke first/loudest. |
+| Core/Edge | "Hierarchical BFT" | WBFT split: small Core consensus first, Edge nodes follow. Bounds latency. |
+
+## Further Reading｜延伸閱讀
+
+- [Castro & Liskov — Practical Byzantine Fault Tolerance (OSDI 1999)](https://pmg.csail.mit.edu/papers/osdi99.pdf) — 分散式系統拜占庭容錯的歷史奠基論文。
+- [CP-WBFT — Confidence-Probe Weighted BFT](https://arxiv.org/abs/2511.10400) — 基於信心探針動態加權的拜占庭容錯協定。
+- [DecentLLMs — leaderless multi-agent consensus](https://arxiv.org/abs/2507.14928) — 基於幾何中位數聚合的無領袖多 Agent 共識機制。
+- [WBFT — Weighted BFT with Hierarchical Structure Clustering](https://arxiv.org/abs/2505.05103) — 核心／邊緣分群以約束延遲的加權 BFT 規範。
+- [Can AI Agents Agree?](https://arxiv.org/abs/2603.01213) — 揭示純量共識脆弱性與欺騙性人格攻擊實證的權威論文。
