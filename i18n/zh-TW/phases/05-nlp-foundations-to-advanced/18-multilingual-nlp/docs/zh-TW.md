@@ -11,7 +11,7 @@
 
 英文有數十億筆有標籤（label）的例子。烏爾都語有幾千筆。邁蒂利語幾乎沒有。任何要服務全球受眾的實務 NLP 系統，都得在任務專用訓練資料不存在的語言長尾上運作。
 
-多語模型的解法是同時在很多語言上訓練一個模型。共享的表示讓模型把高資源語言學到的能力，遷移到低資源語言。在英文情感分析（sentiment analysis）上 fine-tune 這個模型，它開箱就能在烏爾都語上給出好得出人意料的情感預測。那就是零樣本（zero-shot）跨語言遷移（cross-lingual transfer），它改變了 NLP 推向全球使用者的方式。
+多語模型的解法是同時在很多語言上訓練一個模型。共享的表示（shared representation）讓模型把高資源語言學到的能力，遷移到低資源語言。在英文情感分析（sentiment analysis）上 fine-tune 這個模型，它開箱就能在烏爾都語上給出好得出人意料的情感預測。那就是零樣本（zero-shot）跨語言遷移（cross-lingual transfer），它改變了 NLP 推向全球使用者的方式。
 
 這一課點名取捨、標準模型，以及會絆倒剛做多語的團隊的那個決定：選哪個來源語言來遷移。
 
@@ -21,7 +21,7 @@
 
 **共享詞彙表。** 多語模型用在所有目標語言文本上訓練的 SentencePiece 或 WordPiece tokenizer。詞彙表是共享的：同一個子詞（subword）單位，在親緣語言裡代表同一個語素（morpheme）。英文和義大利文的 `anti-` 得到同一個 token。
 
-**共享表示。** 在很多語言上做遮罩語言建模（masked language modeling）、預訓練過的 transformer，會學到語意相近的句子在不同語言裡產生相近的隱藏狀態。mBERT、XLM-R、NLLB 都有這個現象。「cat」的 embedding 會靠在法文「chat」和西班牙文「gato」附近，整句的 embedding 也一樣。
+**共享表示。** 在很多語言上做遮罩語言建模（masked language modeling）、預訓練過的 transformer，會學到語意相近的句子在不同語言裡產生相近的隱藏狀態（hidden state）。mBERT、XLM-R、NLLB 都有這個現象。「cat」的 embedding 會靠在法文「chat」和西班牙文「gato」附近，整句的 embedding 也一樣。
 
 **零樣本遷移。** 在一種語言（通常是英文）的有標籤資料上 fine-tune 模型。推論（inference）時，在模型支援的任何其他語言上跑。不需要目標語言的標籤。語言類型學上相近的語言結果強，距離遠的較弱。
 
@@ -136,7 +136,7 @@ def few_shot_finetune(base_model, base_tokenizer, examples):
     return base_model
 ```
 
-100 到 500 個目標語言例子時，`num_train_epochs=5` 和 `learning_rate=2e-5` 是安全預設。學習率再高，多語對齊會崩，你會得到一個只會英文的模型。
+100 到 500 個目標語言例子時，`num_train_epochs=5` 和 `learning_rate=2e-5` 是安全預設。學習率（learning rate）再高，多語對齊會崩，你會得到一個只會英文的模型。
 
 ## 真的有用的評估
 
