@@ -11,7 +11,7 @@
 
 2018 年，每一個 NLP 任務——情感（sentiment）、命名實體辨識（named entity recognition）、問答、蘊涵（entailment）——都在自己的有標籤（label）資料上從零訓練自己的模型。沒有一個預訓練（pretraining）好、可以 fine-tune 的「懂英文」checkpoint。ELMo（2018）顯示，你可以用雙向 LSTM 預訓練脈絡 embedding；有幫助，但泛化（generalization）不夠。
 
-BERT（Devlin et al. 2018）問：如果我們拿一個 transformer 編碼器（encoder），在網路上的每一句上訓練，強迫它從兩邊的脈絡預測缺掉的詞呢？然後你在下游任務上 fine-tune 一個頭。參數效率帶來重大啟發。
+BERT（Devlin et al. 2018）問：如果我們拿一個 transformer 編碼器（encoder），在網路上的每一句上訓練，強迫它從兩邊的脈絡預測缺掉的詞呢？然後你在下游任務上 fine-tune 一個頭。參數效率令人驚豔。
 
 結果：18 個月內，BERT 和它的變體（RoBERTa、ALBERT、ELECTRA）主宰了當時存在的每一個 NLP 排行榜。到 2020 年，地球上每一個搜尋引擎、內容審核管線（pipeline）、語意搜尋系統裡都內建了一個 BERT。
 

@@ -25,7 +25,7 @@
 
 ![Constrained decoding masking invalid tokens at each step](../assets/constrained-decoding.svg)
 
-**約束解碼怎麼運作。** 每個生成步驟，LLM 在整個詞彙表（vocabulary）（大約 10 萬個 token）上產出一個 logit 向量。一個 *logit 處理器* 坐在模型和取樣器之間。它依目標文法裡的當前位置——JSON Schema、正規表示式（regex）、上下文無關文法（context-free grammar）——算出哪些 token 合法，再把所有不合法 token 的 logit 設成負無窮。剩下的 logit 做 softmax，機率質量只落在合法的延續上。
+**約束解碼怎麼運作。** 每個生成步驟，LLM 在整個詞彙表（vocabulary）（大約 10 萬個 token）上產出一個 logit 向量。一個 *logit 處理器* 位於模型與取樣器之間。它依目標文法裡的當前位置——JSON Schema、正規表示式（regex）、上下文無關文法（context-free grammar）——算出哪些 token 合法，再把所有不合法 token 的 logit 設成負無窮。剩下的 logit 做 softmax，機率質量只落在合法的延續上。
 
 2026 年的實作：
 

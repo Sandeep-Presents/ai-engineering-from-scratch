@@ -1,6 +1,6 @@
 # 文字前處理（preprocessing）：tokenization、詞幹提取（stemming）、詞形還原（lemmatization）
 
-> 語言是連續的。模型是離散的。前處理是中間那座橋。
+> 語言是連續的。模型是離散的。前處理是連接兩者的橋梁。
 
 **Type:** Build
 **Languages:** Python

@@ -27,7 +27,7 @@ The/DET cats/NOUN were/AUX running/VERB at/ADP 3pm/NOUN ./PUNCT
 
 **句法剖析**產出一棵樹。兩種主要風格：
 
-- **組成剖析（constituency parsing）。** 名詞組、動詞組、介系詞組彼此巢狀。輸出是非終端類別（NP、VP、PP）的樹，詞是葉子。
+- **成分剖析（constituency parsing）。** 名詞組、動詞組、介系詞組彼此巢狀。輸出是非終端類別（NP、VP、PP）的樹，詞是葉子。
 - **依存剖析（dependency parsing）。** 每個詞有一個它依存的中心詞，邊上標著文法關係。輸出是一棵樹，每條邊是（中心、依存項、關係）三元組。
 
 依存剖析在 2010 年代贏了，因為它跨語言泛化（generalize）得乾淨，尤其是詞序自由的語言。

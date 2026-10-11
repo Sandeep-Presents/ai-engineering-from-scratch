@@ -146,7 +146,7 @@ The chief that well shame and hath been his friends,
 2. **在更大的語料庫（corpus）上訓練。** 用 `OpenWebText` 或 `fineweb-edu`（HuggingFace）。單張 A100 上 100 億 token，1.25 億參數的 GPT 大約要 24 小時。
 3. **加上 RoPE、KV cache、Flash Attention。** 下面的練習帶你一個一個做。
 
-最終會得到一個 1.25 億參數的 GPT，生成流暢英文。不是前沿模型。但同一條程式路徑——只是更大——就是 Karpathy、EleutherAI、Allen Institute 在 2026 年拿來訓練研究檢查點（checkpoint）的東西。
+最終會得到一個 1.25 億參數的 GPT，生成流暢英文。不是前沿模型。但同一條程式路徑——只是更大——就是 Karpathy、EleutherAI、Allen Institute 在 2026 年拿來訓練研究模型、產生 model checkpoint 的路徑。
 
 ## Ship It｜交付成果
 

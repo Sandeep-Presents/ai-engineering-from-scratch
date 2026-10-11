@@ -25,7 +25,7 @@
 
 ![DST: dialog history → slot-value state](../assets/dst.svg)
 
-**任務結構。** 綱要（schema）定義領域（domain）（餐廳、旅館、計程車）和它們的槽位（菜系、地區、價位、人數）。每個槽位可以是空的、填上封閉集合裡的一個值（價位：{cheap, moderate, expensive}），或是自由形式的值（名字：「The Copper Kettle」）。
+**任務結構。** 結構描述（schema）定義領域（domain）（餐廳、旅館、計程車）和它們的槽位（菜系、地區、價位、人數）。每個槽位可以是空的、填上封閉集合裡的一個值（價位：{cheap, moderate, expensive}），或是自由形式的值（名字：「The Copper Kettle」）。
 
 **兩種 DST 表述。**
 
@@ -39,8 +39,8 @@
 1. **規則式（槽位的 regex 加關鍵字）。** 窄領域的強基準模型（baseline）。可以除錯。
 2. **TripPy／BERT-DST。** 以 BERT 編碼、以複製為基礎的生成。LLM 之前的標準。
 3. **LDST（LLaMA 加 LoRA）。** 做過 instruction tuning 的 LLM，用依領域與槽位設計 prompt。在 MultiWOZ 2.4 上達到 ChatGPT 的水準。
-4. **不靠本體（ontology-free，2024–26）。** 跳過綱要；直接生成槽位名稱和值。應付開放領域。
-5. **Prompt 加結構化輸出（2024–26）。** LLM 配 Pydantic 綱要，加上約束解碼（constrained decoding）。5 行程式碼，能上正式環境（production）。
+4. **不靠本體（ontology-free，2024–26）。** 跳過結構描述；直接生成槽位名稱和值。應付開放領域。
+5. **Prompt 加結構化輸出（2024–26）。** LLM 配 Pydantic 結構描述，加上約束解碼（constrained decoding）。5 行程式碼，能上正式環境（production）。
 
 ### 經典的失敗模式
 
@@ -121,7 +121,7 @@ Update the state based on the latest user turn. Output only the JSON state."""
     return llm(prompt, response_model=RestaurantState)
 ```
 
-Instructor 加 Pydantic 保證一個合法的狀態物件。沒有 regex、沒有綱要對不上、沒有幻覺（hallucination）出來的槽位。
+Instructor 加 Pydantic 保證一個合法的狀態物件。沒有 regex、沒有結構描述不相符、沒有幻覺（hallucination）出來的槽位。
 
 ### 步驟 4：JGA 評估
 
@@ -147,11 +147,11 @@ def is_correction(utterance):
 
 ## 坑
 
-- **整段歷史重新生成的成本。** 每一輪都讓 LLM 重新生成狀態，總 token 是 O(n²)。把歷史設上限，或摘要較早的對話輪次。
-- **綱要漂移。** 事後加新槽位會弄壞舊的訓練資料。給綱要標版本。
+- **整段歷史重新生成的成本。** 每一輪都讓 LLM 重新生成狀態，累積 token 數量為 O(n²)。把歷史設上限，或摘要較早的對話輪次。
+- **結構描述漂移。** 事後加新槽位會弄壞舊的訓練資料。為結構描述標註版本。
 - **大小寫。** 「Italian」對「italian」對「ITALIAN」——到處都要正規化（normalize）。
 - **槽位值延續。** 使用者先前說過「for 4 people」，新的、換時間的請求不該清掉人數。永遠傳入完整歷史。
-- **自由形式對封閉集合。** 名字、時間、地址要自由形式的槽位；菜系和地區是封閉的。綱要裡兩種都要。
+- **自由形式對封閉集合。** 名字、時間、地址要自由形式的槽位；菜系和地區是封閉的。結構描述裡兩種都要。
 
 ## Use It｜實際應用
 
@@ -160,10 +160,10 @@ def is_correction(utterance):
 | 情境 | 做法 |
 |-----------|----------|
 | 窄領域，一或兩個意圖（intent） | 規則式加 regex |
-| 領域廣、有標好的資料（labeled data） | LDST（在 MultiWOZ 風格的資料上用 LLaMA 加 LoRA） |
-| 領域廣、沒有標籤、能上正式環境 | LLM 加 Instructor 加 Pydantic 綱要 |
+| 領域廣、有標籤資料（labeled data） | LDST（在 MultiWOZ 風格的資料上用 LLaMA 加 LoRA） |
+| 領域廣、沒有標籤、能上正式環境 | LLM 加 Instructor 加 Pydantic 結構描述 |
 | 語音 | ASR 加正規化器加 LLM-DST |
-| 多領域的訂位流程 | 綱要引導的 LLM，每個領域一個 Pydantic 模型 |
+| 多領域的訂位流程 | 結構描述引導的 LLM，每個領域一個 Pydantic 模型 |
 | 對合規敏感 | 規則式為主，LLM 後援加確認流程 |
 
 ## Ship It｜交付成果
@@ -206,7 +206,7 @@ Refuse LLM-only DST for compliance-sensitive slots without a rule-based secondar
 | 領域 | 任務的範圍 | 餐廳、旅館、計程車——各是一組槽位。 |
 | JGA | 聯合目標準確率 | 每一輪裡每個槽位都正確的比例。全對或全錯。 |
 | MultiWOZ | 那個評測 | 多領域的 WOZ 資料集；DST 的標準評估。 |
-| 不靠本體的 DST | 沒有綱要 | 直接生成槽位名稱和值，沒有固定清單。 |
+| 不靠本體的 DST | 沒有固定結構描述 | 直接生成槽位名稱和值，沒有固定清單。 |
 | 修正 | 「Actually...」 | 把先前填好的槽位覆寫掉的那一輪。 |
 
 ## Further Reading｜延伸閱讀

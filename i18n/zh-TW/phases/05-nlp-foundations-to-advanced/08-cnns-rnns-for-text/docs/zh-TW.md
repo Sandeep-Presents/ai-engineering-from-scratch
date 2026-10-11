@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-TF-IDF 和 Word2Vec 產出的是扁平向量，不理會詞序。建在它們上面的分類器（classifier）分不出 `dog bites man` 和 `man bites dog`。詞序有時才是訊號。
+TF-IDF 和 Word2Vec 產出的是扁平向量，不理會詞序。建在它們上面的分類器（classifier）分不出 `dog bites man` 和 `man bites dog`。詞序有時也會傳遞重要訊息。
 
 transformer 出現之前，有兩族架構填上這個缺口。
 

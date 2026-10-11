@@ -1,6 +1,6 @@
 # 音訊 Transformer——Whisper 架構
 
-> 音訊是頻率對時間的一張影像。Whisper 是以梅爾頻譜圖（mel-spectrogram）為輸入並產生語音的 ViT。
+> 音訊是頻率對時間的一張影像。Whisper 是以梅爾頻譜圖（mel-spectrogram）為輸入並輸出轉錄文字的 ViT。
 
 **Type:** Learn
 **Languages:** Python
@@ -189,7 +189,7 @@ for s in segments:
 ## Further Reading｜延伸閱讀
 
 - [Radford et al. (2022). Robust Speech Recognition via Large-Scale Weak Supervision](https://arxiv.org/abs/2212.04356) ——Whisper 論文。
-- [OpenAI Whisper repo](https://github.com/openai/whisper) ——參考程式加模型權重。讀 `whisper/model.py`，從上到下看 Conv1D 莖、編碼器、解碼器，大約 400 行。
+- [OpenAI Whisper repo](https://github.com/openai/whisper) ——參考程式加模型權重。讀 `whisper/model.py`，從上到下看 Conv1D 前端、編碼器、解碼器，大約 400 行。
 - [OpenAI Whisper — `whisper/decoding.py`](https://github.com/openai/whisper/blob/main/whisper/decoding.py) ——步驟 5 到 6 講的集束搜尋加任務 token 邏輯在這裡；500 行，完全讀得完。
 - [Baevski et al. (2020). wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations](https://arxiv.org/abs/2006.11477) ——前身；某些情境下特徵仍然最前沿。
 - [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) ——正式環境包裝，比參考快 4 倍。

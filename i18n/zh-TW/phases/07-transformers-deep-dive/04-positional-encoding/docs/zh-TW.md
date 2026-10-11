@@ -1,6 +1,6 @@
 # 位置編碼（positional encoding）——正弦、RoPE、ALiBi
 
-> 注意力具有排列不變性。「The cat sat on the mat」和「mat the on sat cat the」沒有位置訊號時，會得到同一個輸出。三個演算法（algorithm）修這個——各自對「位置」是什麼下不同的賭注。
+> 注意力具有排列不變性。「The cat sat on the mat」和「mat the on sat cat the」沒有位置訊號時，會得到同一個輸出。三種演算法（algorithm）解決這個問題——各自對「位置」是什麼下不同的賭注。
 
 **Type:** Build
 **Languages:** Python

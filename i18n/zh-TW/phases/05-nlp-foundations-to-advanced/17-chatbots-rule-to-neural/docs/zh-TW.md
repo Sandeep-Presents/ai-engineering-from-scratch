@@ -202,7 +202,7 @@ def is_destructive_action(text):
 - **自信的捏造。** agent 宣稱完成了它沒做的動作。緩解：驗證結果、記錄工具呼叫、沒有成功的工具回傳就不讓模型宣稱做過。
 - **prompt 注入（prompt injection）。** 使用者插入文字，蓋過 system prompt。在 OWASP Top 10 for LLM Applications 2025 裡列為 LLM01。兩種：直接注入（貼進對話）和間接注入（藏在 agent 會讀的文件、電子郵件或工具輸出裡）。
 
-  攻擊成功率隨情境而變。在一般工具使用和程式評測上，前沿模型測到的成功率大約 0.5% 到 8.5%。特定高風險設定（對 AI agent loop 的適應性攻擊、脆弱的編排）達到約 84%。正式環境的 CVE 包括 EchoLeak（CVE-2025-32711，CVSS 9.3）——Microsoft 365 Copilot 裡由攻擊者控制的電子郵件觸發的零點選（zero-click）資料外洩缺陷。
+  攻擊成功率隨情境而變。在一般工具使用和程式評測上，前沿模型測到的成功率大約 0.5% 到 8.5%。特定高風險設定（針對 AI 程式編碼 agent 的適應性攻擊、脆弱的編排）達到約 84%。正式環境的 CVE 包括 EchoLeak（CVE-2025-32711，CVSS 9.3）——Microsoft 365 Copilot 裡由攻擊者控制的電子郵件觸發的零點選（zero-click）資料外洩缺陷。
 
   緩解：在整個迴圈裡把使用者輸入當成不可信；工具呼叫前先清理；把工具輸出和主 prompt 隔離；用規劃–驗證–執行（Plan-Verify-Execute，PVE），agent 先規劃，再對照計畫驗證每個動作才執行（這能阻止工具結果注入新的、計畫外的動作）；破壞性動作要使用者確認；工具範圍用最小權限。
 

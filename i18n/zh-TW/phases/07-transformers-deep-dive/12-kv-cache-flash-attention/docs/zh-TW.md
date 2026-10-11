@@ -1,4 +1,4 @@
-# KV cache、Flash Attention 與推論調校
+# KV cache、Flash Attention 與推論最佳化
 
 > 訓練是平行的、被 FLOP 卡住。推論是序列的、被記憶體（memory）卡住。瓶頸不同，手法不同。
 

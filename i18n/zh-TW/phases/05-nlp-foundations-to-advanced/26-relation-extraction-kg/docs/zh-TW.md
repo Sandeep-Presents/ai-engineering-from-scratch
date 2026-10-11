@@ -1,6 +1,6 @@
 # 關係抽取與知識圖譜建構
 
-> NER 找到實體。實體連結把它們錨定。關係抽取找出它們之間的邊。知識圖譜是節點、邊，和它們的出處（provenance）彙整。
+> NER 找到實體。實體連結把它們錨定。關係抽取找出它們之間的邊。知識圖譜由節點、邊及其來源資訊（provenance）構成。
 
 **Type:** Build
 **Languages:** Python
@@ -138,7 +138,7 @@ def neighbors(node, relation=None):
 print(neighbors("Tim Cook", relation="P108"))    # -> [(P108, Apple)]
 ```
 
-這是每個「在知識圖譜上做 RAG」系統的原子。用 RDF 三元組儲存（Blazegraph、Virtuoso）、屬性圖（Neo4j），或向量增強的圖儲存來放大。
+這是每個「在知識圖譜上做 RAG」系統的原子。可透過 RDF 三元組儲存（Blazegraph、Virtuoso）、屬性圖（Neo4j）或向量增強的圖儲存，擴充這類系統。
 
 ## 坑
 

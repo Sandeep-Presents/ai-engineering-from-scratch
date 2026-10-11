@@ -28,7 +28,7 @@
 
 ![Entity linking pipeline: mention → candidates → disambiguated entity](../assets/entity-linking.svg)
 
-**候選生成。** 給定提及的表面形式（「Jordan」），在別名索引裡查候選。Wikipedia 的別名辭典蓋住大多數命名實體（named entity）：「JFK」→ John F. Kennedy、Jacqueline Kennedy、JFK 機場、電影 JFK。典型索引每個提及回 10 到 30 個候選。
+**候選生成。** 給定提及的表面形式（「Jordan」），在別名索引裡查候選。Wikipedia 的別名辭典涵蓋大多數命名實體（named entity）：「JFK」→ John F. Kennedy、Jacqueline Kennedy、JFK 機場、電影 JFK。典型索引每個提及回 10 到 30 個候選。
 
 **消歧：三種做法。**
 
@@ -36,7 +36,7 @@
 2. **基於 embedding（ESS／REL／Blink）。** 把提及加脈絡編碼。把每個候選的描述編碼。取餘弦相似度（cosine similarity）最大的。2020 到 2024 的預設。
 3. **生成式（GENRE，2021；基於 LLM，2023 以後）。** 一個 token 一個 token 解出實體的標準名稱。約束在合法實體名稱的前綴樹（trie）上，所以輸出保證是合法的知識庫 id。
 
-**端到端架構與管線式架構。** 現代模型（ELQ、BLINK、ExtEnD、GENRE）一次做完 NER、候選生成和消歧。管線系統在正式環境（production）仍佔多數，因為你可以換零件。
+**端到端架構與管線式架構。** 現代模型（ELQ、BLINK、ExtEnD、GENRE）一次做完 NER、候選生成和消歧。管線系統在正式環境（production）仍佔多數，因為你可以更換元件。
 
 ### 兩種量測
 
@@ -133,7 +133,7 @@ AIDA-CoNLL 是標準的實體連結評測：1,393 篇 Reuters 文章、3.4 萬�
 |-----------|------|
 | 通用英文加 Wikipedia | BLINK 或 REL |
 | 跨語言、知識庫是 Wikipedia | mGENRE |
-| 對 LLM 友善、每天提及很少 | 把候選清單 prompt 給 Claude／GPT-4，加上約束的 JSON |
+| 對 LLM 友善、每天提及很少 | 把候選清單 prompt 給 Claude／GPT-4，並使用受約束的 JSON 輸出 |
 | 領域知識庫（醫學、法律） | 自訂 BERT，帶知識庫感知的檢索，並在領域的 AIDA 風格集合上 fine-tune |
 | 極低延遲（latency） | 只用精確相符的先驗，也就是 Milne-Witten 基準模型（baseline） |
 | 研究前沿 | GENRE／ExtEnD／生成式 LLM 實體連結 |

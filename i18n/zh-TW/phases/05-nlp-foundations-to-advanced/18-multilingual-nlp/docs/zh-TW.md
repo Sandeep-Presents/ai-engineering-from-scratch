@@ -82,7 +82,7 @@ print(classify("मुझे यह उत्पाद पसंद है!", ["
 print(classify("J'adore ce produit !", ["positive", "negative", "neutral"]))
 ```
 
-一個模型，三種語言，同一套 API。在 自然語言推論（natural language inference，NLI）上訓練的 XLM-R，藉蘊涵（entailment）技巧，遷移到分類上表現好。
+一個模型，三種語言，同一套 API。在自然語言推論（natural language inference，NLI）上訓練的 XLM-R，藉蘊涵（entailment）技巧，遷移到分類上表現好。
 
 ### 步驟 2：多語 embedding 空間
 
@@ -164,13 +164,13 @@ def few_shot_finetune(base_model, base_tokenizer, examples):
 
 多語模型在所有語言上共享一個 tokenizer。那個詞彙表是在英文、法文、西班牙文、中文、德文佔多數的語料庫上訓練的。對主導集合以外的任何語言，三種稅會悄悄疊加：
 
-- **切分倍率稅（fertility）。** 低資源語言的文本，每個詞切出的 token 比英文多很多。一句印地語可以需要等義英文的 3 到 5 倍 token。這 3 到 5 倍吃掉脈絡視窗、訓練效率和延遲（latency）。
+- **fertility 稅。** 低資源語言的文字，每個詞切出的 token 比英文多很多。一句印地語可以需要等義英文的 3 到 5 倍 token。這 3 到 5 倍吃掉脈絡視窗、訓練效率和延遲（latency）。
 - **變體復原稅。** 每個錯字、附加符號變體、Unicode 正規化（normalization）對不上、或大小寫變化，都變成 embedding 空間裡冷啟動的、不相干的序列。模型學不會母語者覺得理所當然的正字對應。
 - **容量外溢稅。** 前兩種稅吃掉脈絡位置、層的深度和 embedding 維度（dimension）。剩下能拿來真正推理的，系統性地比高資源語言從同一個模型拿到的少。
 
 實務症狀：模型在印地語上訓練看起來正常，損失曲線看起來對，評估困惑度（perplexity）看起來合理，正式環境的輸出卻微妙地錯。構詞在句子中途崩掉。罕見屈折救不回來。**你沒辦法靠把資料做大，逃出一個壞掉的 tokenizer。**
 
-緩解：挑一個對目標語言覆蓋好的 tokenizer（XLM-V 的 100 萬 token 詞彙表就是直接的修法）；訓練前先在留出的目標文本上驗證切分倍率；真正的長尾文字用位元組層級後援（SentencePiece `byte_fallback=True`、GPT-2 風格的位元組層級 BPE），這樣永遠沒有 OOV。
+緩解：挑一個對目標語言覆蓋好的 tokenizer（XLM-V 的 100 萬 token 詞彙表就是直接的修法）；訓練前先在留出的目標文本上驗證 tokenization fertility；真正的長尾文字用位元組層級後援（SentencePiece `byte_fallback=True`、GPT-2 風格的位元組層級 BPE），這樣永遠沒有 OOV。
 
 ## Ship It｜交付成果
 

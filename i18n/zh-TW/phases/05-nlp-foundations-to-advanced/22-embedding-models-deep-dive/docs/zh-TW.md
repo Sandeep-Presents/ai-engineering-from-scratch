@@ -19,7 +19,7 @@
 4. **維度（dimension）預算。** 全精度 3,072 個浮點數（float）是每個向量 12 KB。1 億個向量時，儲存是每月 1,300 美元。Matryoshka 截斷把這砍成四分之一。
 5. **開放對託管。** 開放權重表示你控管整條堆疊和資料。託管表示你用控制權換永遠最新。
 
-這一課把取捨點名，讓你照證據挑，而不是照上季流行什麼挑。
+這一課會列出各項取捨，讓你依據證據做選擇，而不是追逐上季的流行趨勢。
 
 ## The Concept｜核心概念
 
@@ -37,7 +37,7 @@
 
 ### MTEB 排行榜只說了一部分
 
-大規模文本 embedding 評測（Massive Text Embedding Benchmark，MTEB）——推出時（2022）8 類任務共 56 個，MTEB v2 擴到 100 個以上。2026 年初，Gemini Embedding 2 在檢索居前（MTEB-R 67.71）。Cohere embed-v4 在一般任務領先（MTEB 65.2）。BGE-M3 在開放權重多語領先（63.0）。排行榜必要，但不充分——永遠在你的領域上評測。
+大規模文本 embedding 評測（Massive Text Embedding Benchmark，MTEB）——推出時（2022）8 類任務共 56 個，MTEB v2 擴到 100 個以上。2026 年初，Gemini Embedding 2 在檢索居前（MTEB-R 67.71）。Cohere embed-v4 在一般任務領先（MTEB 65.2）。BGE-M3 在開放權重多語領先（63.0）。排行榜只能提供部分資訊，仍須在你的領域評測。
 
 ### 三層模式
 
@@ -47,7 +47,7 @@
 | 拉高召回率（recall） | 稀疏（SPLADE、BGE-M3 稀疏）加 RRF 融合 |
 | 前 50 的精確率（precision） | 多向量（ColBERTv2）或交叉編碼器（cross-encoder）重排器 |
 
-多數正式環境（production）組合三層都用。
+多數正式環境的技術堆疊都會採用這三種模式。
 
 ```figure
 gx-matryoshka
@@ -133,7 +133,7 @@ results = evaluation.run(encoder, output_folder="./mteb-results")
 
 ### 步驟 5：從零實作餘弦相似度
 
-見 `code/main.py`。平均過的雜湊技巧 embedding（只用標準函式庫，library）。打不過 transformer embedding，但露出形狀：tokenize → 向量 → 正規化 → 內積。
+見 `code/main.py`。平均過的雜湊技巧 embedding（只用標準函式庫，library）。打不過 transformer embedding，但展示其運作方式：tokenize → 向量 → 正規化 → 內積。
 
 ## 坑
 

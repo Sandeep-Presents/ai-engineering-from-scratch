@@ -73,7 +73,7 @@ class Decoder(nn.Module):
         return logits, hidden
 ```
 
-解碼器一次叫一步。輸入：一批單 token，以及目前的隱藏狀態。輸出：下一個 token 的詞彙表 logits，以及更新後的隱藏狀態。
+解碼器每次只執行一步。輸入：一批單 token，以及目前的隱藏狀態。輸出：下一個 token 的詞彙表 logits，以及更新後的隱藏狀態。
 
 ### 步驟 3：帶 teacher forcing 的訓練迴圈
 

@@ -1,6 +1,6 @@
 # 子詞 tokenization——位元組對編碼（byte-pair encoding，BPE）、WordPiece、Unigram、SentencePiece
 
-> 詞 tokenizer 會被沒看過的詞卡住。字元 tokenizer 把序列長度炸開。子詞 tokenizer 取中間。每個現代 LLM 都使用其中一種 tokenizer。
+> 以詞為單位的 tokenizer 會被沒看過的詞卡住。字元 tokenizer 把序列長度炸開。子詞 tokenizer 取中間。每個現代 LLM 都使用其中一種 tokenizer。
 
 **Type:** Learn
 **Languages:** Python

@@ -1,4 +1,4 @@
-# 推測解碼（speculative decoding）——草稿、驗證、再來
+# 推測解碼（speculative decoding）——草稿、驗證、重複
 
 > 自迴歸（autoregressive）解碼是序列的。每個 token 都得等待前一個 token。推測解碼把這條鏈拆開：便宜模型起草 N 個 token，大型模型一次前向傳遞驗證全部 N 個。草稿對的時候，你付一次大模型的前向傳遞，換 N 次生成。
 

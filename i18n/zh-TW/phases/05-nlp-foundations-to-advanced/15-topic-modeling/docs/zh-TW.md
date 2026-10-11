@@ -23,7 +23,7 @@ BERTopic（2020）用 BERT 把文件編碼，用 UMAP 降維（dimensionality re
 
 ![LDA mixture model vs BERTopic clustering](../assets/topic-modeling.svg)
 
-**LDA 的生成故事。** 每個主題是詞上的分布。每份文件是主題的混合。要在文件裡生成一個詞，先從該文件的混合抽出一個主題，再從該主題的分布抽出一個詞。推論把這個反過來：給定觀察到的詞，推出每份文件的主題分布，以及每個主題的詞分布。塌縮 Gibbs 取樣（collapsed Gibbs sampling）或變分貝氏（variational Bayes）做這筆數學。
+**LDA 的生成故事。** 每個主題是詞上的分布。每份文件是主題的混合。要在文件裡生成一個詞，先從該文件的混合抽出一個主題，再從該主題的分布抽出一個詞。推論把這個反過來：給定觀察到的詞，推出每份文件的主題分布，以及每個主題的詞分布。塌縮 Gibbs 取樣（collapsed Gibbs sampling）或變分貝氏（variational Bayes）完成這些計算。
 
 LDA 的關鍵輸出：
 

@@ -24,9 +24,9 @@ RNN 一次處理序列裡的一個 token。等你走到第 50 個 token，第 1 
 
 ## The Concept｜核心概念
 
-### 資料庫查找的類比
+### 資料庫查詢的類比
 
-注意力可以看成一次軟性的資料庫查找：
+注意力可以看成一次軟式資料庫查詢：
 
 ```
 Traditional database:
@@ -307,7 +307,7 @@ print(attn_weights[0].detach().numpy().round(3))
 ## Ship It｜交付成果
 
 這一課產出：
-- `outputs/prompt-attention-explainer.md`——一個 prompt，用資料庫查找的類比來解釋注意力
+- `outputs/prompt-attention-explainer.md`——一個 prompt，用資料庫查詢的類比來解釋注意力
 
 ## Exercises｜練習
 
