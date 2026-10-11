@@ -24,10 +24,10 @@
 
 ```mermaid
 graph TD
-    subgraph tmux["tmux 工作階段：training"]
+    subgraph tmux["tmux 工作階段：訓練"]
         subgraph top["上排"]
-            P1["窗格 1：訓練作業<br/>python train.py<br/>Epoch 12/100 ..."]
-            P2["窗格 2：GPU 監控<br/>watch -n1 nvidia-smi<br/>GPU: 78% | Mem: 14/24G"]
+            P1["窗格 1：訓練作業<br/>python train.py<br/>Epoch（訓練週期）12/100 ..."]
+            P2["窗格 2：GPU 監控<br/>watch -n1 nvidia-smi<br/>GPU: 78% | 記憶體：14/24G"]
         end
         P3["窗格 3：日誌與實驗<br/>tail -f logs/train.log | grep loss"]
     end
@@ -107,7 +107,7 @@ python train.py > train_full.log 2>&1
 | `2>&1` | 把標準錯誤送到與標準輸出相同的地方 |
 | `\|` | 把一個指令的標準輸出，當作下一個指令的標準輸入（stdin） |
 
-### 步驟 3：背景行程（process）
+### 步驟 3：背景行程（background process）
 
 訓練動輒數小時，你不會想讓終端機一直開著。
 
