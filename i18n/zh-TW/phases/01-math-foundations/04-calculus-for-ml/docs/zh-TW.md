@@ -329,7 +329,7 @@ p(w | data) = p(data | w) * p(w) / integral of p(data | w) * p(w) dw
 
 ```mermaid
 graph LR
-    x["x (input)"] -->|"*w"| z1["z1 = w*x"]
+    x["x（輸入）"] -->|"*w"| z1["z1 = w*x"]
     z1 -->|"+b"| z2["z2 = w*x + b"]
     z2 -->|"sigmoid"| a["a = sigmoid(z2)"]
     a -->|"loss fn"| L["L = -(y*log(a) + (1-y)*log(1-a))"]
@@ -371,7 +371,7 @@ graph RL
 ```mermaid
 graph LR
     subgraph Forward["前向傳遞（forward pass）"]
-        I["input"] --> W1["W1"] --> R["relu"] --> W2["W2"] --> S["softmax"] --> L["loss"]
+        I["輸入"] --> W1["W1"] --> R["relu"] --> W2["W2"] --> S["softmax"] --> L["損失"]
     end
 ```
 
