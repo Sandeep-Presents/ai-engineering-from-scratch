@@ -26,5 +26,6 @@
   "phases/18-ethics-safety-alignment/25-echoleak-cves-for-ai/docs/en.md": "193ed71dd1b1e94227fa8a44bec5df31eda6ffdab54ec130cd5c51997a581ebb",
   "phases/18-ethics-safety-alignment/26-model-system-dataset-cards/docs/en.md": "ad07f39e9a2754a2f058ee40fa2673b9caa391e13007b2bf2c442a87dd2582ab",
   "phases/18-ethics-safety-alignment/27-data-provenance-training-governance/docs/en.md": "d54fe97d020370049a72763518047b23ebc1a86a62796db68f2780e76c4173e9",
-  "phases/18-ethics-safety-alignment/28-alignment-research-ecosystem/docs/en.md": "43652e0255c4dca0af153c4c29d35002b32c7bef5235637b18e6a4fd95617ee7"
+  "phases/18-ethics-safety-alignment/28-alignment-research-ecosystem/docs/en.md": "43652e0255c4dca0af153c4c29d35002b32c7bef5235637b18e6a4fd95617ee7",
+  "phases/18-ethics-safety-alignment/29-moderation-systems-openai-perspective-llamaguard/docs/en.md": "ad0da963675b3addadb37f2d439e28b60efebcc0dbd4c4292bb4ef57a39820ef"
 }
