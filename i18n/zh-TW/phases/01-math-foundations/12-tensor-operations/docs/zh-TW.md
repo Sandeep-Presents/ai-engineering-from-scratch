@@ -30,10 +30,10 @@
 
 ```mermaid
 graph LR
-    S["Scalar<br/>rank 0<br/>shape: ()"] --> V["Vector<br/>rank 1<br/>shape: (3,)"]
-    V --> M["Matrix<br/>rank 2<br/>shape: (2,3)"]
-    M --> T3["3D Tensor<br/>rank 3<br/>shape: (2,2,2)"]
-    T3 --> T4["4D Tensor<br/>rank 4<br/>shape: (B,C,H,W)"]
+    S["純量<br/>階數 0<br/>形狀：()"] --> V["向量<br/>階數 1<br/>形狀：(3,)"]
+    V --> M["矩陣<br/>階數 2<br/>形狀：(2,3)"]
+    M --> T3["3D 張量<br/>階數 3<br/>形狀：(2,2,2)"]
+    T3 --> T4["4D 張量<br/>階數 4<br/>形狀：(B,C,H,W)"]
 ```
 
 元素總數等於所有軸大小的乘積。形狀為 `(2, 3, 4)` 的張量含有 `2 * 3 * 4 = 24` 個元素。
@@ -44,17 +44,17 @@ graph LR
 
 ```mermaid
 graph TD
-    subgraph Vision
+    subgraph 視覺
         V1["(B, C, H, W)<br/>32, 3, 224, 224"]
     end
     subgraph NLP
         N1["(B, T, D)<br/>16, 128, 768"]
     end
-    subgraph Attention
+    subgraph 注意力
         A1["(B, H, T, D)<br/>16, 12, 128, 64"]
     end
-    subgraph Weights
-        W1["Linear: (out, in)<br/>Conv2D: (out_c, in_c, kH, kW)<br/>Embedding: (vocab, dim)"]
+    subgraph 權重
+        W1["線性層： (out, in)<br/>Conv2D: (out_c, in_c, kH, kW)<br/>Embedding: (vocab, dim)"]
     end
 ```
 
@@ -66,11 +66,11 @@ PyTorch 使用 NCHW（通道在前），TensorFlow 預設使用 NHWC（通道在
 
 ```mermaid
 graph LR
-    subgraph "Row-major (C order)"
-        R["a b c d e f<br/>strides: (3, 1)"]
+    subgraph "列優先（C 順序）"
+        R["a b c d e f<br/>步幅：(3, 1)"]
     end
-    subgraph "Column-major (F order)"
-        C["a d b e c f<br/>strides: (1, 2)"]
+    subgraph "欄優先（F 順序）"
+        C["a d b e c f<br/>步幅：(1, 2)"]
     end
 ```
 
@@ -93,7 +93,7 @@ einsum（Einstein 求和表示法）用字母標記每個軸。出現在輸入�
 
 ```mermaid
 graph LR
-    subgraph "matmul: ik,kj -> ij"
+    subgraph "矩陣乘法：ik,kj -> ij"
         A["A(I,K)"] --> |"sum over k"| C["C(I,J)"]
         B["B(K,J)"] --> |"sum over k"| C
     end
