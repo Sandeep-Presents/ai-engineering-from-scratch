@@ -17,7 +17,7 @@
 
 ## The Problem｜問題
 
-你為客戶服務建構了一款 RAG 聊天機器人。在 Demo 展示時表現很好，於是你將它正式上線。兩週後，有同仁修改了系統提示以降低模型幻覺。這項修改確實奏效——幻覺率（hallucination rate）下降。但回答的完整度也下降了 34%，因為模型現在對任何沒有 100% 把握的問題皆一律拒絕回答。
+你為客戶服務建構了一款 RAG 聊天機器人。在 Demo 展示時表現很好，於是你將它正式上線。兩週後，有同仁修改了 system prompt 以降低模型幻覺。這項修改確實奏效——幻覺率（hallucination rate）下降。但回答的完整度也下降了 34%，因為模型現在對任何沒有 100% 把握的問題皆一律拒絕回答。
 
 11 天之內，全團隊沒有任何人察覺這項衰退。來自自助服務通路的營收下滑，轉由真人處理的客服工單量激增。
 
@@ -35,22 +35,22 @@ LLM 評估包含三大核心類別。每一類皆扮演特定角色，沒有任�
 
 ```mermaid
 graph TD
-    E[LLM Evaluation] --> A[Automated Metrics]
+    E[LLM 評估] --> A[自動化指標]
     E --> L[LLM-as-Judge]
-    E --> H[Human Evaluation]
+    E --> H[人工評估]
 
     A --> A1[BLEU]
     A --> A2[ROUGE]
     A --> A3[BERTScore]
-    A --> A4[Exact Match]
+    A --> A4[完全相符]
 
-    L --> L1[Single Grader]
-    L --> L2[Pairwise Comparison]
+    L --> L1[單一評分者]
+    L --> L2[成對比較]
     L --> L3[Best-of-N]
 
-    H --> H1[Expert Review]
-    H --> H2[User Feedback]
-    H --> H3[A/B Testing]
+    H --> H1[專家審查]
+    H --> H2[使用者回饋]
+    H --> H3[A/B 測試]
 
     style A fill:#e8e8e8,stroke:#333
     style L fill:#e8e8e8,stroke:#333
@@ -113,11 +113,11 @@ graph TD
 
 ```mermaid
 flowchart LR
-    P[Prompt] --> R[Run]
-    R --> C[Collect]
-    C --> S[Score]
-    S --> CM[Compare]
-    CM --> D[Decide]
+    P[prompt] --> R[執行]
+    R --> C[收集]
+    C --> S[評分]
+    S --> CM[比較]
+    CM --> D[決策]
 
     P -->|test cases| R
     R -->|model outputs| C
@@ -196,7 +196,7 @@ flowchart LR
 
 **憑感覺評估（Vibes-based evaluation）**。「我看了 5 個輸出，感覺挺不錯的。」人類大腦無法透過審閱幾個案例察覺 5% 的整體品質回歸，大腦會挑出支持預期的證據。
 
-**拿訓練範例充當測試集**。若評測案例與 prompt 內嵌的少樣本（few-shot）範例或 fine-tuning 資料集重疊，你測量的只是模型的記憶能力，而非泛化能力。請讓測試資料與提示範例保持分離。
+**拿訓練範例充當測試集**。若評測案例與 prompt 內嵌的少樣本（few-shot）範例或 fine-tuning 資料集重疊，你測量的只是模型的記憶能力，而非泛化能力。請讓測試資料與 prompt 範例保持分離。
 
 **單一指標執念**。若只針對「正確性」最佳化而忽視「實用性」，模型會產出簡短、技術上正確但對使用者沒有用的回答。請同時評定多個維度。
 
