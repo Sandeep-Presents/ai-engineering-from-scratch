@@ -1,4 +1,4 @@
-# 從零做一個 transformer——總驗收
+# 從零做一個 transformer——總整專題
 
 > 十三課。一個模型。沒有捷徑。
 
@@ -11,7 +11,7 @@
 
 你每篇論文都讀了。注意力、多頭切分、位置編碼、編碼器和解碼器區塊、BERT 和 GPT 的損失（loss）、MoE、KV cache，你都實作過。現在讓它們在一個真實任務上一起工作。
 
-總驗收：在字元級的語言建模（language modeling）任務上，端到端（end-to-end）訓練一個小的、只有解碼器的 transformer。它讀莎士比亞。它生成新的莎士比亞。小到在筆電上不到 10 分鐘就能訓練。正確到你換上更大的資料集（dataset）、訓練更久，就會得到真正的語言模型。
+總整專題：在字元級的語言建模（language modeling）任務上，端到端（end-to-end）訓練一個小的、只有解碼器的 transformer。它讀莎士比亞。它生成新的莎士比亞。小到在筆電上不到 10 分鐘就能訓練。正確到你換上更大的資料集（dataset）、訓練更久，就會得到真正的語言模型。
 
 這是這門課的「nanoGPT」。它不是原創——Karpathy 2023 年的 nanoGPT 教學是每個學生至少寫一次的參考實作。我們沿用它的架構，再依本課講過的內容調整。
 
@@ -140,7 +140,7 @@ The chief that well shame and hath been his friends,
 
 ## Use It｜實際應用
 
-這個總驗收是一套參考架構。要把它發展成實際應用，有三個延伸：
+這個總整專題是一套參考架構。要把它發展成實際應用，有三個延伸：
 
 1. **換 tokenizer。** 用 BPE（例如 `tiktoken.get_encoding("cl100k_base")`）。詞彙從 65 跳到大約 5 萬。模型容量（capacity）得放大來補。
 2. **在更大的語料庫（corpus）上訓練。** 用 `OpenWebText` 或 `fineweb-edu`（HuggingFace）。單張 A100 上 100 億 token，1.25 億參數的 GPT 大約要 24 小時。
@@ -167,7 +167,7 @@ The chief that well shame and hath been his friends,
 | nanoGPT | 「Karpathy 的教學 repo」 | 最小的只有解碼器 transformer 訓練程式，大約 300 行；標準參考。 |
 | tinyshakespeare | 「標準玩具語料庫」 | 大約 1.1 MB 的文本；2015 年以來每個字元語言模型教學都用它。 |
 | 綁定的 embedding | 「共用輸入／輸出矩陣」 | LM head 的權重等於 token embedding 矩陣的轉置；省參數，品質更好。 |
-| bf16 autocast | 「訓練精度的手法」 | 前向傳遞和反向傳遞用 bf16，調校器狀態留在 fp32；自 2021 年以來的標準做法。 |
+| bf16 autocast | 「訓練精度的手法」 | 前向傳遞和反向傳遞用 bf16，最佳化器狀態留在 fp32；自 2021 年以來的標準做法。 |
 | 梯度裁剪 | 「擋住尖峰」 | 把全域梯度範數頂在 1.0；防止訓練爆掉。 |
 | 餘弦學習率排程（learning-rate schedule） | 「2020 年之後的預設」 | 學習率先線性爬升，這段叫預熱（warmup），再依餘弦形狀衰到峰值的 10%。 |
 | MFU | 「模型 FLOP 利用率」 | 達到的 FLOPs 除以理論峰值；2026 年稠密 40%、MoE 30% 就算強。 |
