@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-遊戲擁有 RL 想要的一切。乾淨的獎勵（贏／輸）。無限回合（自我對弈重設）。完美模擬（遊戲*就是*模擬器）。離散，或很小的連續動作空間。多 agent 結構，能提升對抗環境中的穩健性。
+遊戲擁有 RL 想要的一切。乾淨的獎勵（贏／輸）。無限回合（自我對弈重設）。完美模擬（遊戲*就是*模擬器）。離散，或很小的連續動作空間。多 agent 結構會迫使 agent 在對抗環境中展現穩健性。
 
 而且各項重大的 RL 突破，都以遊戲作為測試場域。TD-Gammon（西洋雙陸棋，1992）。Atari-DQN（2013）。AlphaGo（2016）。AlphaZero（2017）。OpenAI Five（Dota 2，2019）。AlphaStar（StarCraft II，2019）。MuZero（學到的模型，2019）。AlphaTensor（矩陣乘法，2022）。AlphaDev（排序演算法，2023）。DeepSeek-R1（數學推理，2025）——最新一次顯示，遊戲 RL 的技術在文字上能運作。
 
@@ -197,7 +197,7 @@ Refuse AlphaZero on imperfect-info games (route to CFR). Refuse GRPO without a t
 
 1. **簡單。** 在 `code/main.py` 實作 GRPO 多臂老虎機。在 2 個 prompt、各 4 個答案 token 上訓練。用 `G=8`，不到 1 千次更新就收斂。
 2. **中等。** 接上 PPO（截斷版）和原味 REINFORCE。在同一個老虎機上，和 GRPO 比樣本效率與獎勵變異。
-3. **困難。** 擴成長度 2 的「推理鏈」：agent 吐出兩個 token，驗證器獎勵這一對。量 GRPO 怎麼處理兩步序列上的功勞分配。（提示：依*完整序列（full sequence）*算組優勢，再傳回兩個 token 位置。）
+3. **困難。** 擴成長度 2 的「推理鏈」：agent 吐出兩個 token，驗證器獎勵這一對。衡量 GRPO 如何處理兩步序列上的功勞分配。（提示：依*完整序列（full sequence）*算組優勢，再傳回兩個 token 位置。）
 
 ## Key Terms｜關鍵術語
 
