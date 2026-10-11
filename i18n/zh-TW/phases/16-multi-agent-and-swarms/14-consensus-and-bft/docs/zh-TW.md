@@ -148,7 +148,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Castro & Liskov — Practical Byzantine Fault Tolerance (OSDI 1999)](https://pmg.csail.mit.edu/papers/osdi99.pdf) — 基礎
+- [Castro & Liskov — Practical Byzantine Fault Tolerance (OSDI 1999)](https://www.usenix.org/conference/osdi-99/practical-byzantine-fault-tolerance) — 基礎
 - [CP-WBFT — Confidence-Probe Weighted BFT](https://arxiv.org/abs/2511.10400) — 依信賴度加權投票
 - [DecentLLMs — leaderless multi-agent consensus](https://arxiv.org/abs/2507.14928) — 幾何中位數聚合
 - [WBFT — Weighted BFT with Hierarchical Structure Clustering](https://arxiv.org/abs/2505.05103) — Core／Edge 分層以限制延遲
