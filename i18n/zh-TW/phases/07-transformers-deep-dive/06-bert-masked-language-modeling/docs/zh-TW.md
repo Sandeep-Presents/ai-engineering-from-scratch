@@ -48,7 +48,7 @@ target: the  quick brown fox jumps  over  the lazy dog
 
 原始 BERT 也訓練 NSP：給定兩句 A 和 B，預測 B 是否接在 A 後面。RoBERTa（2019）把它消融掉，顯示 NSP 有害、沒有幫助。現代編碼器跳過它。
 
-### 2026 年變了什麼:ModernBERT 
+### 2026 年變了什麼：ModernBERT 
 
 2024 年的 ModernBERT 論文用 2026 年的元件重建了區塊：
 
