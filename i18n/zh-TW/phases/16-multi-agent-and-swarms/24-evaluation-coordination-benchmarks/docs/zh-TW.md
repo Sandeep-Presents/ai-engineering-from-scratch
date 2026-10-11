@@ -1,0 +1,153 @@
+# 評測體系與協同能力基準測試（Evaluation and Coordination Benchmarks）
+
+> 2025 至 2026 年間的五大權威基準測試全面覆蓋了多 Agent 評測空間。**MultiAgentBench / MARBLE**（ACL 2025，arXiv:2503.01935）評估了星狀、鏈狀、樹狀與圖狀拓撲結構並引入里程碑關鍵績效指標（KPI）；**圖狀拓撲在深度科研任務上拔得頭籌**，而認知規劃能帶來約 3% 的里程碑達成率增益。**COMMA** 專攻多模態非對稱資訊協同；實測顯示包含 GPT-4o 在內的前沿頂尖模型在 Agent 間協同上甚至難以擊敗純隨機基準線。**MedAgentBoard**（arXiv:2505.12371）覆蓋四大醫療任務類別，明確發現多 Agent 架構在多數類別中並未超越單一 LLM。**AgentArch**（arXiv:2509.10769）專門評測結合了工具呼叫、記憶體與編排機制的企業級 Agent 架構。**SWE-bench Pro**（[arXiv:2509.16941](https://arxiv.org/abs/2509.16941)）涵蓋橫跨商業應用、B2B 服務與開發者工具的 41 個儲存庫共 1,865 道難題；尖端模型在 Pro 上的得分僅約 23%，相對於 Verified 上的 70%+ 構成了清醒的抗資料污染對照鏡。Claude Opus 4.7（2026 年 4 月）在明確的 Agent 團隊協同下於 Pro 上錄得 **64.3%**（Anthropic 尚未公開一手技術報告——暫作初步對照數字）；Verdent（Agent 鷹架）在 Verified 上達到 **76.1% pass@1**（[Verdent 技術報告](https://www.verdent.ai/blog/swe-bench-verified-technical-report)）。**AAAI 2026 Bridge 計畫 WMAC** (https://multiagents.org/2026/) 則是當前全球學術社群的交匯焦點。本課立足於 MARBLE 指標體系，執行拓撲對照評測掃描，並確立「僅通過 SWE-bench Verified 絕非具備泛化能力證明」的鐵律。
+
+**Type:** Learn
+**Languages:** Python (stdlib)
+**Prerequisites:** Phase 16 · 15 (Voting and Debate Topology), Phase 16 · 23 (Failure Modes)
+**Time:** ~75 minutes
+
+## Problem｜問題
+
+每當一篇論文宣稱「我們的多 Agent 系統表現更優」時，核心問題永遠是：相比於什麼基準？在何種任務上？又是依據什麼指標衡量的？2023 至 2024 年的多 Agent 評測領域充斥著混亂——每個人都在挑選對自己最有利的自定義指標、自定義基準線與封閉任務集。2025 至 2026 年新興的一系列標準化基準測試，終於為該領域確立了嚴格的科學秩序。
+
+若缺乏共享的公認基準測試，你根本無法對兩套不同的多 Agent 系統展開有意義的橫向評比。更致命的是，若缺乏嚴密保留的乾淨基準集，前沿模型極易產生嚴重的資料污染（Contamination）。到了 2025 年中，SWE-bench Verified 已經被大量滲透進各大尖端模型的預訓練語料庫中；排行榜分數虛胖飆升；而 SWE-bench Pro 的誕生，正是作為未受污染的清醒現實照妖鏡。
+
+本課將全面梳理 2026 年的五大標準基準測試，精準指出各自衡量的能力維度，並培養你以審慎批判的視角解讀各類商業宣傳指標。
+
+## Concept｜核心概念
+
+### MultiAgentBench（MARBLE）——ACL 2025
+
+論文 arXiv:2503.01935。在深度科研、程式碼編寫與戰略規劃三大任務領域上，橫向評測星狀、鏈狀、樹狀與圖狀四大協同拓撲。引入了基於里程碑的 KPI 體系，能夠即時追蹤任務執行過程中的階段性進展，而非僅僅機械化判定最終是非。
+
+核心實測結論：
+
+- **圖狀拓撲（Graph）** 在深度科研情境下表現最為優異；原生支援任意節點之間的無死角交叉質詢。
+- **鏈狀拓撲（Chain）** 在分階段漸進精煉的程式碼編寫中表現最佳。
+- **星狀拓撲（Star）** 在需要極速彙整明確事實的任務上最為高效。
+- 在圖狀拓撲中，一旦 Agent 規模超過約 4 位，**協同稅（Coordination tax）** 顯著浮現。
+- 引入**認知規劃（Cognitive planning）** 能夠為各拓撲跨界帶來約 3% 的里程碑達成率增益。
+
+適用時機：當你需要對不同的協同拓撲結構展開公平客觀的橫向對比時。MARBLE 官方儲存庫 (https://github.com/ulab-uiuc/MARBLE) 提供了完整的自動化評估器。
+
+### COMMA——多模態非對稱資訊協同
+
+專門涵蓋各 Agent 擁有不同觀測模態、且必須在未完全共享資訊的前提下展開緊密協同的任務。其回報的實測結果令人如坐針氈：在 COMMA 的 Agent 間協同測試中，包含 GPT-4o 在內的前沿頂尖模型甚至難以擊敗**純隨機的基準線（Random baseline）**。這項震撼訊號揭示出：多模態的多 Agent 協同在底層訓練與架構評測上依然極度匱乏——LLM 在單一模態文字協同上尚可差強人意；然而一旦步入多模態資訊割裂環境，協同體系便會瞬間瓦解。
+
+適用時機：當你的系統涉及多模態資料或非對稱資訊協同場景時。COMMA 的平庸成績是一記警鐘：在對外做出高調宣稱之前，務必親自嚴密實測。
+
+### MedAgentBoard——專業領域壓力測試
+
+論文 arXiv:2505.12371。深度聚焦四大醫療實戰類別：臨床診斷、治療方案規劃、專業報告生成以及醫病對話溝通。全方位對比多 Agent、單一 LLM 以及傳統基於專家規則的系統。
+
+核心發現：在絕大多數醫療類別中，多 Agent 架構**並未**超越單一 LLM。多 Agent 的相對優勢極其狹窄——唯有當各子任務具備清晰割裂的邊界時（例如將診斷與處方分離），任務拆解才能帶來實質收益；而在另一些情境下（例如醫療報告生成），協同開銷會迅速吞噬專業分工所帶來的微弱好處。
+
+適用時機：當你的業務領域具備清晰強悍的單一 LLM 基準線時。若 MedAgentBoard 的規律具有普適性，市場上宣稱的大量多 Agent 系統本質上皆屬於嚴重的過度工程。
+
+### AgentArch——企業級架構評測
+
+論文 arXiv:2509.10769。專門評估將工具呼叫、狀態記憶體與協同編排深度疊加的真實企業級複雜環境。該基準能精準隔離出每一層的實質貢獻度：引入工具能帶來多少提升？引入持久記憶能提升多少？而引入多 Agent 編排又貢獻了多少？
+
+適用時機：當你正在為企業規劃整套 Agent 技術堆疊、且需要為每一層的架構開銷給出充分商業論證時。AgentArch 能有效防止團隊盲目採購或建置無法量化價值的昂貴功能。
+
+### SWE-bench Pro——無污染的現實照妖鏡
+
+論文 arXiv:2509.16941。包含橫跨企業內部業務系統、B2B 雲端服務與底層開發工具等 41 個真實儲存庫的 1,865 道難題。其設計的核心宗旨是**徹底杜絕資料污染**，所有問題皆來自模型預訓練知識截止日期之後的最新程式碼庫。前沿模型在 Pro 上的得分僅約 23%，遠低於其在 Verified 上的 70%+。兩者之間的巨大鴻溝，正是資料污染無可辯駁的客觀實證。
+
+2026 年 4 月權威評測實測數字快照：
+- Claude Opus 4.7 在 Pro 上的得分：**64.3%**（在配備了明確的 Agent 團隊協同鷹架下測得；Anthropic 尚未公開一手技術報告——暫作初步對照數字）。
+- Verdent（專門的 Agent 鷹架）在 Verified 上的得分：**76.1% pass@1**（[技術報告](https://www.verdent.ai/blog/swe-bench-verified-technical-report)）。
+- 前沿裸模型在缺乏專屬 Agent 鷹架時於 Pro 上的原始得分：僅約 23-35%（[SWE-bench Pro 論文](https://arxiv.org/abs/2509.16941)）。
+
+核心戰略結論：「我們在 SWE-bench Verified 上打敗了誰」在當下已徹底喪失作為實質能力的證明力。Pro 是眼下唯一的黃金檢驗閘門。而配備了成熟的 Agent 團隊協同鷹架能在 Pro 上斬獲高達 30-40 個百分點的實質飛躍，這是 2026 年支撐多 Agent 協同具備實質工程價值的最強有力實證。
+
+### AAAI 2026 WMAC
+
+AAAI 2026 Bridge 計畫——多 Agent 協同工作坊 (https://multiagents.org/2026/)。這是 2026 年全球多 Agent AI 研究領域的最權威學術樞紐。其錄取的正式論文與工作坊成果，是評估各類全新前沿架構的權威舞台；在進行重大工程決策時，應當優先採納經 WMAC 評審通過的成熟結論，而非盲信未經同儕審查的 arXiv 預印本。
+
+### 批判性解讀評測宣稱——2026 年自檢清單
+
+每當有人向你推銷某項多 Agent 突破性成果時：
+
+1. **具體是在哪一個基準測試的哪一個切片上跑出來的？** 在 SWE-bench Verified 還是 Pro 上測試具有天壤之別。未標註具體切片的宣稱毫無價值。
+2. **是否存在資料污染？** 該基準測試的發布日期是否晚於受測模型的預訓練截止日期？若非如此，請抱持極度懷疑態度。
+3. **對照的基準線為何？** 是與單一 LLM 基準線對比？與隨機基準線對比？還是與同類頂尖多 Agent 系統對比？若僅僅是「與未經調優的自身劣質版本對比」，該宣稱不具說服力。
+4. **是否具備統計顯著性？** 執行了多少次獨立試驗？p-value 為何？信賴區間多寬？前沿模型的隨機變異數極大，單次執行的展示極具誤導性。
+5. **任務分佈是否具備多樣性？** 是在單一特定任務上反覆調優，還是橫跨多樣化的廣泛領域？正式環境極度在意泛化能力。
+6. **是否坦誠揭露端到端成本？** 解決每個任務消耗了多少 Token？端到端耗時多久？一個需要消耗 20 倍成本才能換取 90% 準確率的系統，本質上是一項嚴肅的商業妥協，而非純粹的能力突破。
+
+### 現有任何基準測試皆尚未妥善衡量的維度
+
+- **超長時程的深層協同。** 跨越數天物理時間的真實互動。目前所有公開基準測試的單次執行時間皆相對短暫。
+- **對抗韌性（Adversarial resilience）。** 當群體中突然潛入一位惡意叛變或遭受污染的 Agent 時，系統會如何崩潰？
+- **真實正式環境下的動態漂移。** 基準測試是完全靜態的；而真實正式環境的資料分佈隨時在發生劇烈位移。
+- **成本正規化後的綜合效能。** 絕大多數基準測試僅回報純粹的準確率數字，而絕口不提「每投入一美元能換取多少精度」。
+
+針對你自身真正在意的核心業務軸向，親手打造一套內部專屬的私有基準測試，往往才是最明智的長遠之策。
+
+```figure
+a5-bench-gap
+```
+
+## Build It｜動手實作
+
+`code/main.py` 是一個非互動式的自動化演練套件：
+
+- 模擬 3 套不同架構的多 Agent 系統攻克玩具任務。
+- 分別為各系統計算 MARBLE 風格的里程碑達成指標。
+- 透過刻意保留未見任務，執行嚴密的資料污染檢驗。
+- 明確將各系統的表現與純隨機基準線進行對抗比對。
+- 最終在終端機中產出一份完整的基準評測計分卡。
+
+執行指令：
+
+```bash
+python3 code/main.py
+```
+
+預期終端輸出：包含原始準確率、里程碑達成率、單任務成本、相較於隨機基準線的邊際勝率，以及資料污染檢驗註記的完整計分卡。
+
+## Use It｜實際應用
+
+`outputs/skill-benchmark-reader.md` 能為任何宣稱具備突破性的多 Agent 評測論文或官方報告進行深度批判性審查：自動對照 2026 自檢清單進行逐項打分，並精準產出其潛在瑕疵與客觀適用邊界。
+
+## Ship It｜交付成果
+
+正式環境評測體系建構鐵律：
+
+- **親手打造反映真實業務分佈的內部私有基準測試。** 公開的學術基準測試僅供參考，絕對無法替代你自身的真實業務場景。
+- **每一次對比皆必須強制納入純隨機基準線。** 若你的多 Agent 複雜架構在特定協同任務上無法以壓倒性優勢碾壓隨機線，該任務定義極高機率本身就存在嚴重的結構性問題。
+- **在回報準確率的同時，必須同步呈報 Token 成本與延遲耗時。** 維運團隊兩者皆需要。
+- **每季度強制重建一次評測集。** 真實世界的資料分佈隨時在漂移；過時陳舊的基準測試只會誤導團隊走向盲目樂觀。
+- **堅決杜絕針對公開基準測試進行過度最佳化。** 若你的團隊全員都在為了刷高 SWE-bench Pro 的榜單數字而進行專門調校，你們在真實正式環境中的表現必然會遭遇慘痛崩潰。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。指出三套模擬系統中，哪一套具備最高的「每單位里程碑成本效益」？該系統是否同時也是原始準確率最高的那一個？
+2. 閱讀 MultiAgentBench（arXiv:2503.01935）。針對你自己團隊的真實業務領域，MARBLE 的實測結論會推薦你選用四大拓撲中的哪一種？從論文實測結果中給出具體論證。
+3. 閱讀 SWE-bench Pro 論文。究竟是哪些具體的方法論設計使其具備了強悍的抗污染特性？完全相同的思路能否應用至你所關注的其他評測領域？
+4. 閱讀 COMMA 關於多模態協同崩潰的實測發現。為你團隊的內部基準測試設計一項簡單的多模態非對稱協同任務。怎樣的實測表現才能算作有價值的真實正向訊號？
+5. 挑選一篇近期發布的多 Agent 頂會論文，對其頭條亮點宣稱逐項套用本課的自檢清單。若由你來擔任審稿人，你會給該項宣稱打出幾分？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| MARBLE | "MultiAgentBench" | ACL 2025; star/chain/tree/graph topologies with milestone KPIs. |
+| COMMA | "Multimodal benchmark" | Multimodal asymmetric-info coordination; frontier models struggle vs random. |
+| MedAgentBoard | "Domain stress test" | Four medical categories; often finds multi-agent does not dominate single-LLM. |
+| AgentArch | "Enterprise benchmark" | Tools + memory + orchestration layered. |
+| SWE-bench Pro | "Contamination-resistant" | 1865 problems, 41 repos; ~23% vs 70%+ on Verified (the contamination signal). |
+| Milestone achievement | "Partial credit" | Benchmarks that reward progress, not only final success. |
+| Contamination | "Benchmark leaked into training" | Post-release, benchmarks drift into training corpora; scores inflate. |
+| WMAC | "AAAI 2026 Bridge Program" | Workshop on Multi-Agent Coordination; community focal point. |
+
+## Further Reading｜延伸閱讀
+
+- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935) — 具備里程碑 KPI 的拓撲結構評測基準。
+- [MARBLE repository](https://github.com/ulab-uiuc/MARBLE) — 官方開源參考實作儲存庫。
+- [MedAgentBoard](https://arxiv.org/abs/2505.12371) — 醫療專業領域壓力測試；揭示多 Agent 往往未能超越單一 LLM。
+- [AgentArch](https://arxiv.org/abs/2509.10769) — 企業級 Agent 架構分層評測。
+- [SWE-bench leaderboards](https://www.swebench.com/) — 官方排行榜，提供尖端模型在 Verified 與 Pro 上的即時動態比分。
+- [AAAI 2026 WMAC](https://multiagents.org/2026/) — 2026 年多 Agent 協同工作坊官方頁面。

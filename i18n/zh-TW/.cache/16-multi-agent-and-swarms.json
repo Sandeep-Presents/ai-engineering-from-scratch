@@ -21,5 +21,6 @@
   "phases/16-multi-agent-and-swarms/20-marl-maddpg-qmix-mappo/docs/en.md": "77aa03c7a2d275a2459e0bf2153ec6059b438f6fa97e68d208716531ea0e9caf",
   "phases/16-multi-agent-and-swarms/21-agent-economies/docs/en.md": "0f033e2c2a20d36b6eb6bddb6b3c0a1984bcb813f9714cc4deb503eca7add32b",
   "phases/16-multi-agent-and-swarms/22-production-scaling-queues-checkpoints/docs/en.md": "f35e11480b186e03dd8652f0775a8f23e890d03863539e654b00ddc9a9d21d09",
-  "phases/16-multi-agent-and-swarms/23-failure-modes-mast-groupthink/docs/en.md": "01c36d0c07b02e58865546546e120a469f9bd58b1123aba79c3d0bccb13b6840"
+  "phases/16-multi-agent-and-swarms/23-failure-modes-mast-groupthink/docs/en.md": "01c36d0c07b02e58865546546e120a469f9bd58b1123aba79c3d0bccb13b6840",
+  "phases/16-multi-agent-and-swarms/24-evaluation-coordination-benchmarks/docs/en.md": "1cef5b611082650577f0de25b71a4a0569a3559687c02cd081f28258922f66d0"
 }
