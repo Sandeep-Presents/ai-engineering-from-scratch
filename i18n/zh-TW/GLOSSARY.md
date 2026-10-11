@@ -1683,3 +1683,10 @@
 | multi-layer network | 多層網路 | 否 | 多層網絡 | 由多層神經元依序堆疊而成的網路。 |
 | bias vector | 偏置向量 | 否 |  | 矩陣乘法之後加上的偏置。 |
 | universal approximation | 通用近似 | 否 |  | 單一隱藏層在神經元夠多時可近似任何連續函數。 |
+| agent memory | 記憶 | 否 | | agent 認知記憶語境；`memory` 詞條的「記憶體」僅限 OS／硬體語境。 |
+| harness | 執行環境 | 否 | 控端 | 依上下文可用「測試框架」「評測工具」；禁用自造詞「控端」。 |
+| round-robin | 循環輪替 | 否 | | 固定順序輪替（發言、分片、負載平衡）；與 polling（輪詢）是不同機制。 |
+| curriculum | 課程 | 否 | | 模型訓練或 agent 學習的任務編排序列；學校制度語境才用「課綱」。 |
+| open-weights | 開放權重 | 否 | | 權重可取得不等於開源授權；依所附授權條款描述。 |
+| ground-truth patch | 標準答案修補檔 | 否 | | SWE-bench 類基準的參照修補檔；與 ground truth（真實標籤）語境不同。 |
+| attestation | 認證 | 否 | | 供應鏈／發布流程的簽名證明文件；與 authentication（身分驗證）不同。 |
