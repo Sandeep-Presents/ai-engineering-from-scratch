@@ -1,6 +1,6 @@
 # 3D 生成
 
-> 3D 是3D 最能從 2D 技術獲益的模態。2023 年的突破是 3D Gaussian Splatting。2024 到 2026 這波生成，是在上面再疊多視角擴散（multi-view diffusion）加 3D 重建（reconstruction），從一段 prompt 或一張照片產出物件和場景。
+> 3D 是最能從 2D 技術轉用中獲益的模態。2023 年的突破是 3D Gaussian Splatting。2024 到 2026 這波生成，是在上面再疊多視角擴散（multi-view diffusion）加 3D 重建（reconstruction），從一段 prompt 或一張照片產出物件和場景。
 
 **Type:** Learn
 **Languages:** Python
