@@ -45,14 +45,14 @@
 
 ```mermaid
 graph LR
-    subgraph Before
+    subgraph 變換前
         A["點 A"]
         B["點 B"]
     end
     subgraph Matrix["矩陣乘法"]
         M["M（變換）"]
     end
-    subgraph After
+    subgraph 變換後
         A2["點 A'"]
         B2["點 B'"]
     end
