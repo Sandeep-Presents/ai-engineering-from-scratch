@@ -1,6 +1,6 @@
 # 間接 Prompt 注入——正式環境首要受攻擊面（Indirect Prompt Injection — Production Attack Surface）
 
-> 間接 Prompt 注入（Indirect Prompt Injection, IPI）將指令植入外部內容——網頁、電子郵件、共用文件或支援工單——由 agentic system 在使用者未明確操作下讀取。IPI 是 2026 年主要的正式環境威脅：它繞過使用者輸入過濾器，因為攻擊者不會接觸使用者；隨著 agent 處理更多外部內容，威脅會悄然擴大；它也會攻擊沒有人閱讀 prompt 的自動化工作流程。《MDPI Information》17(1):54（2026 年 1 月）綜述了 2023 至 2025 年的研究。NDSS 2026 的 IPI 防禦論文指出核心挑戰：注入指令在語意上可能無害（例如「請輸出 Yes」），因此偵測需要超越關鍵字過濾的方法。《The Attacker Moves Second》（Nasr 等人，OpenAI、Anthropic、DeepMind 合作，2025 年 10 月）指出，自適應攻擊（梯度搜尋、RL、隨機搜尋、人工紅隊）使 12 種已發表防禦的 ASR 超過 90%，而這些防禦原先回報的 ASR 接近零。
+> 間接 Prompt 注入（Indirect Prompt Injection, IPI）將指令植入外部內容——網頁、電子郵件、共用文件或支援工單——由 agentic system 在使用者未明確操作下讀取。IPI 是 2026 年主要的正式環境威脅：它繞過使用者輸入過濾器，因為攻擊者不會接觸使用者；隨著 agent 處理更多外部內容，威脅會悄然擴大；它也會攻擊沒有人閱讀 prompt 的自動化工作流程。《MDPI Information》17(1):54（2026 年 1 月）綜述了 2023 至 2025 年的研究。NDSS 2026 的 IPI 防禦論文指出核心挑戰：注入指令在語意上可能無害（例如「請輸出 Yes」），因此偵測需要超越關鍵字過濾的方法。《The Attacker Moves Second》（Nasr 等人，OpenAI、Anthropic、DeepMind 合作，2025 年 10 月）指出，自適應攻擊（梯度搜尋、RL、隨機搜尋、人工紅隊）攻破了 12 種已發表防禦中的 90% 以上；這些防禦原先回報的攻擊成功率接近零。
 
 **Type:** Build
 **Languages:** Python (stdlib, IPI attack + defense harness)

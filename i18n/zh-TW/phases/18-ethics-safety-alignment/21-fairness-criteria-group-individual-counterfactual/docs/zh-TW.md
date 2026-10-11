@@ -1,6 +1,6 @@
 # 公平性準則——群體、個體與反事實（Fairness Criteria — Group, Individual, Counterfactual）
 
-> 三大流派建構了現代公平性研究的完整架構體系。群體公平（Group fairness）：人口統計均等（demographic parity）、均等化賠率（Equalized odds）、條件使用準確度均等（Conditional use accuracy equality）——核心要求受保護群體在統計均值上的各項機率相等。個體公平（Individual fairness，Dwork 等人，2012）：相似的個體應當獲得相似的決策裁定；在數學上表現為決策映射函數滿足李普希茨連續性條件（Lipschitz condition）。反事實公平（Counterfactual fairness，Kusner 等人，2017）：若某個體在因果世界模型中將其敏感屬性反事實替換後其決策結果保持不變，則該決策對其公平。2024 年重大理論突破（NeurIPS 2024）：反事實公平與預測準確度之間存在不可調和的內生權衡；提出了一套模型無關方法，能以有界的準確度損失，將最優但不公平的預測器轉換為反事實公平預測器。溯因反事實（Backtracking counterfactuals，arXiv:2401.13935，2024 年 1 月）：開闢了新範式，避免了對受法律保護屬性進行干預的法律疑慮。哲學調和（ICLR Blogposts 2024）：在明確因果有向無環圖（DAG）的前提下，滿足特定群體公平指標在實質上隱含並導向了反事實公平。
+> 三大流派建構了現代公平性研究的完整架構體系。群體公平（Group fairness）：人口統計均等（demographic parity）、均等化賠率（Equalized odds）、條件使用準確度均等（Conditional use accuracy equality）——核心要求受保護群體在統計均值上的各項機率相等。個體公平（Individual fairness，Dwork 等人，2012）：相似的個體應當獲得相似的決策裁定；在數學上表現為決策映射函數滿足李普希茨連續性條件（Lipschitz condition）。反事實公平（Counterfactual fairness，Kusner 等人，2017）：若某個體在因果世界模型中將其敏感屬性反事實替換後其決策結果保持不變，則該決策對其公平。2024 年重大理論突破（NeurIPS 2024）：反事實公平與預測準確度之間存在固有的取捨；提出了一套模型無關方法，能以有界的準確度損失，將最優但不公平的預測器轉換為反事實公平預測器。溯因反事實（Backtracking counterfactuals，arXiv:2401.13935，2024 年 1 月）：開闢了新範式，避免了對受法律保護屬性進行干預的法律疑慮。哲學調和（ICLR Blogposts 2024）：在明確因果有向無環圖（DAG）的前提下，滿足特定群體公平指標在實質上隱含並導向了反事實公平。
 
 **Type:** Learn
 **Languages:** Python (stdlib, three-criteria comparison)
@@ -40,9 +40,9 @@ Kusner 等人於 2017 年提出。在給定全域人群因果模型的前提下�
 
 需要因果有向無環圖（Causal DAG）。DAG 本身是建模選擇；反事實公平有多合理，取決於該 DAG 有多合理。
 
-### 反事實公平與模型精度的物理取捨
+### 反事實公平與模型精度之間固有的取捨
 
-NeurIPS 2024 理論研究證實：反事實公平與預測準確度之間存在不可避免的物理張力。該研究提出一套模型無關方法，能將最優但不公平的預測器轉換為反事實公平預測器，且準確度成本有界。折損的大小直接取決於敏感屬性在原始不公模型中的權重係數絕對值。
+NeurIPS 2024 理論研究證實：反事實公平與預測準確度之間存在固有的取捨。該研究提出一套模型無關方法，能將最優但不公平的預測器轉換為反事實公平預測器，且準確度成本有界。折損的大小直接取決於敏感屬性在原始不公模型中的權重係數絕對值。
 
 ### 溯因反事實（Backtracking counterfactuals）
 

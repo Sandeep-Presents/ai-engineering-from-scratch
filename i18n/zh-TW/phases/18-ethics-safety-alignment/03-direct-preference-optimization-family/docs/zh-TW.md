@@ -1,6 +1,6 @@
 # 直接偏好最佳化（DPO）家族演進（The Direct Preference Optimization Family）
 
-> Rafailov 等人（2023）證明了帶有 KL 散度約束的 RLHF 最佳解，可以直接透過偏好資料以封閉解析形式（Closed form）精準推導，從而允許工程師徹底跳過顯式的獨立獎勵模型，直接對策略模型展開端到端最佳化。這項突破性洞察催生出了一整個龐大的對齊家族——IPO、KTO、SimPO、ORPO、BPO——各自專攻修復 DPO 原始架構的一項致命缺陷。到了 2026 年，直接對齊演算法（DAA）承載的前沿後訓練作業比 PPO 更多。然而第 18 課第 02 節揭示的過度最佳化曲線依然嚴酷適用：直接對齊演算法並未逃脫古德哈特定律的詛咒，它們僅僅是轉移了漏洞被鑽取的具體位置。
+> Rafailov 等人（2023）證明了帶有 KL 散度約束的 RLHF 最佳解，可以直接透過偏好資料以封閉解析形式（Closed form）精準推導，從而允許工程師徹底跳過顯式的獨立獎勵模型，直接對策略模型展開端到端最佳化。這項突破性洞察催生出了一整個龐大的對齊家族——IPO、KTO、SimPO、ORPO、BPO——各自專攻修復 DPO 原始架構的一項致命缺陷。到了 2026 年，直接對齊演算法（DAA）承載的前沿後訓練作業比 PPO 更多。然而 Phase 18 · 02 揭示的過度最佳化曲線依然適用：直接對齊演算法並未逃脫古德哈特定律的詛咒，它們僅僅是轉移了漏洞被鑽取的具體位置。
 
 **Type:** Learn
 **Languages:** Python (stdlib, six-variant preference-loss comparator)
@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-第 18 課第 01 節確立的經典 RLHF 最佳化目標：
+Phase 18 · 01 確立的經典 RLHF 最佳化目標：
 
 ```
 max_pi E_{x,y~pi} [ r(x, y) ] - beta * KL(pi || pi_ref)
@@ -87,7 +87,7 @@ L_SimPO = -log sigmoid(
 )
 ```
 
-並引入固定間距 `gamma` 確保數值穩定性。長度正規化徹底消除了模型惡意利用 DPO 長度偏見的作弊動機（在原始 DPO 中，更長的回復 `y_w` 天生更容易累積出更大的對數機率差）。
+並引入固定間距 `gamma` 確保數值穩定性。長度正規化消除了利用 DPO 長度偏差失效模式的誘因（在原始 DPO 中，更長的回復 `y_w` 天生更容易累積出更大的對數機率差）。
 
 ### ORPO（Hong 等人，2024）
 
@@ -106,7 +106,7 @@ L_OR = -log sigmoid(log(odds(y_w) / odds(y_l)))
 
 ### 普適規律：直接對齊演算法依然無法逃脫過度最佳化
 
-Rafailov 等人在 NeurIPS 2024 論文《Scaling Laws for Reward Model Overoptimization in Direct Alignment Algorithms》中，在跨越不同 KL 預算下針對 DPO、IPO 與 SLiC 進行了窮盡壓測。以真實黃金獎勵為縱軸、KL 散度為橫軸的曲線，依然呈現出 Gao 等人所發現的「先衝上峰值隨後不可避免暴跌」的過度最佳化形狀。在訓練過程中，隱式獎勵依然在向分佈外樣本瘋狂採樣；單純的 KL 正則化根本無法平抑這一崩潰趨勢。
+Rafailov 等人在 NeurIPS 2024 論文《Scaling Laws for Reward Model Overoptimization in Direct Alignment Algorithms》中，在跨越不同 KL 預算下針對 DPO、IPO 與 SLiC 進行了窮盡壓測。以真實黃金獎勵為縱軸、KL 散度為橫軸的曲線，依然呈現出 Gao 等人所發現的「先衝上峰值隨後不可避免暴跌」的過度最佳化形狀。訓練期間會查詢分佈外樣本的隱式獎勵；單純的 KL 正則化根本無法平抑這一崩潰趨勢。
 
 直接對齊演算法並沒有消滅古德哈特定律。它們僅僅是將漏洞爆發的界面，從「顯式獎勵模型被過度最佳化」轉移到了「與參考策略的比值被過度最佳化」。最根本的解法——更高質量的資料、模型集成、及時終止訓練——對兩者一體適用。
 
@@ -118,7 +118,7 @@ Rafailov 等人在 NeurIPS 2024 論文《Scaling Laws for Reward Model Overoptim
 - 觀察到被選中答案的對數機率發生退化暴跌：首選 BPO。
 - 樣本間的偏好強度差異極其懸殊、且 DPO 頻繁觸發梯度飽和：首選 IPO。
 
-頂級實驗室通常會在內部基準集上將這五大演算法全面跑一遍對抗壓測。沒有任何理由假設數學推理的最優對齊演算法會與安全對齊完全一致。
+所有實驗室都會以一系列測試比較這五種演算法。沒有任何理由假設數學推理的最優對齊演算法會與安全對齊完全一致。
 
 ```figure
 dpo-margin
