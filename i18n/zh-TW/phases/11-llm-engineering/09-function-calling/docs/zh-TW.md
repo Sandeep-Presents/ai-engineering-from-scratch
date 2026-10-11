@@ -37,10 +37,10 @@
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant A as Application
-    participant M as Model
-    participant T as Tool
+    participant U as 使用者
+    participant A as 應用程式
+    participant M as 模型
+    participant T as 工具
 
     U->>A: "What's the weather in Tokyo?"
     A->>M: messages + tool definitions
