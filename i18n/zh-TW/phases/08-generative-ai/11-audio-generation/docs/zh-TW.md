@@ -12,7 +12,7 @@
 三種音訊生成任務：
 
 1. **文字轉語音（text-to-speech）。** 給文字，產出語音。乾淨語音是窄頻（narrow-band），音素結構（phonetic structure）也很強——用 token 上的 transformer 解得很好。VALL-E（Microsoft）、NaturalSpeech 3、ElevenLabs、OpenAI TTS。
-2. **音樂生成。** 給一段 prompt（文字、旋律、和弦進行（chord progression）、曲風），產出音樂。分布（distribution）分布範圍廣得多。MusicGen（Meta）、Stable Audio 2.5、Suno v4、Udio、Riffusion。
+2. **音樂生成。** 給一段 prompt（文字、旋律、和弦進行（chord progression）、曲風），產出音樂。分布範圍廣得多。MusicGen（Meta）、Stable Audio 2.5、Suno v4、Udio、Riffusion。
 3. **音效／聲音設計（sound design）。** 給一段 prompt，產出環境音或擬音（Foley）。AudioGen、AudioLDM 2、Stable Audio Open。
 
 三者都跑在同一層基底上：神經音訊編解碼器（neural audio codec），加上 token 自迴歸（token-AR）或擴散產生器。
