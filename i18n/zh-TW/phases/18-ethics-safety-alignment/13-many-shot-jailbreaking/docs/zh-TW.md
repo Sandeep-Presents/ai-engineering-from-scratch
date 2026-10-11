@@ -1,6 +1,6 @@
 # 多樣本越獄攻擊（Many-Shot Jailbreaking）
 
-> Anil、Durmus、Panickssery、Sharma 等人（Anthropic 團隊，NeurIPS 2024）。多樣本越獄攻擊（Many-Shot Jailbreaking, MSJ）深度利用了現代大模型超長上下文視窗的物理特性：在對話中蓄意塞入數百輪虛構的「使用者-助手」對話，在這些假對話中助手毫無防備地順從了各類有害請求，最後再追加攻擊者真正的目標提問。攻擊成功率嚴格遵循關於示範樣本數量（Shot count）的冪律法則（Power law）：在 5 個樣本時幾乎完全無效，但在達到 256 個樣本時，在暴力與欺詐類內容上的越獄成功率呈現出極高的確定性。該現象遵循與良性上下文學習（ICL）完全相同的冪律軌跡——攻擊行為與模型正常的少樣本學習共享同一個底層神經網路機制，這正是為何在保護良性 ICL 能力的同時防禦 MSJ 在工程上極具挑戰的原因。基於分類器的 Prompt 即時過濾修改技術，能在受測基準下將攻擊成功率從 61% 劇烈壓低至 2%。
+> Anil、Durmus、Panickssery、Sharma 等人（Anthropic 團隊，NeurIPS 2024）。多樣本越獄攻擊（Many-Shot Jailbreaking, MSJ）深度利用了現代大模型超長上下文視窗的物理特性：在對話中蓄意塞入數百輪虛構的「使用者-助手」對話，在這些假對話中助手毫無防備地順從了各類有害請求，最後再追加攻擊者真正的目標提問。攻擊成功率嚴格遵循關於示範樣本數量（Shot count）的冪律法則（Power law）：在 5 個樣本時幾乎完全無效，但在達到 256 個樣本時，對暴力與欺騙類內容的越獄可可靠成功。該現象遵循與良性上下文學習（ICL）完全相同的冪律軌跡——攻擊行為與模型正常的少樣本學習共享同一個底層神經網路機制，這正是為何在保護良性 ICL 能力的同時防禦 MSJ 在工程上極具挑戰的原因。基於分類器的 Prompt 即時過濾修改技術，能在受測基準下將攻擊成功率從 61% 劇烈壓低至 2%。
 
 **Type:** Learn
 **Languages:** Python (stdlib, in-context learning vs MSJ simulator)
@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 深入描述多樣本越獄攻擊（MSJ）的具體手法，以及其所依賴並剝削的超長上下文視窗物理特性。
-- 陳述經驗實證的冪律法則：攻擊成功率（ASR）如何隨上下文示範樣本數量的增長而呈指數級膨脹。
+- 陳述經驗實證的冪律法則：攻擊成功率（ASR）如何隨示範樣本數量增加而呈冪律成長。
 - 深刻解釋為何 MSJ 與良性上下文學習（ICL）共享完全相同的底層機理，以及這對防禦架構設計帶來的深刻兩難。
 - 剖析 Anthropic 提出的基於分類器的 Prompt 動態修訂防禦機制，以及其所回報的 61% 至 2% 的實質防護成效。
 
@@ -38,7 +38,7 @@ Assistant:
 
 ### 呈冪律分佈的攻擊成功率（Power-law ASR）
 
-Anil 等人的實測報告指出：攻擊成功率（ASR）隨示範樣本數量呈嚴格的冪律（Power law）增長。在僅有 5 個樣本時，模型的安全防護堅不可摧，攻擊幾乎完全失效。在 32 個樣本附近，防護開始出現裂痕。當推進至 256 個樣本時，模型在暴力與欺詐類有害問題上的拒答防禦徹底瓦解。曲線的具體冪指數取決於特定危害類別與模型規格。
+Anil 等人的實測報告指出：攻擊成功率（ASR）隨示範樣本數量呈嚴格的冪律（Power law）增長。在 5 個 shots 時，攻擊可靠地失敗；在 32 個 shots 左右開始成功；到 256 個 shots 時，對暴力與欺騙內容已能可靠成功。曲線的具體冪指數取決於特定危害類別與模型規格。
 
 核心數學特徵在於它是冪律——而非平緩飽和的 S 型 Logistic 曲線。這意味著隨著樣本數持續注入，攻擊成功率不會過早遭遇天花板，而是頑固地持續攀升。
 
@@ -88,15 +88,15 @@ jailbreak-defense
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| MSJ | "many-shot jailbreak" | Long-context attack with hundreds of faux user-assistant compliance pairs |
-| Shot count | "N examples in context" | Number of faux compliance pairs before the target query |
-| Power-law ASR | "ASR = f(shots)^alpha" | Attack success rate grows polynomially, not sigmoidally, in shot count |
-| ICL | "in-context learning" | Model extracts task structure from in-context examples |
-| Pattern defense | "classifier over context" | Defense that detects MSJ structure before the model sees it |
-| Context-window exploit | "long-prompt attack surface" | Attacks that exist because context windows are long |
-| Compositional attack | "MSJ + PAIR" | Combination of MSJ with other attack families; often strictly stronger |
+| MSJ | 「多樣本越獄」 | 在長上下文中加入數百組偽造的使用者－助手順從配對所發動的攻擊 |
+| Shot count | 「上下文中的 N 個範例」 | 目標查詢之前偽造的順從配對數量 |
+| Power-law ASR | 「ASR = f(shots)^alpha」 | 攻擊成功率隨樣本數呈多項式成長，而非 S 型成長 |
+| ICL | 「上下文學習」 | 模型從上下文範例中擷取任務結構 |
+| Pattern defense | 「對上下文執行分類」 | 在模型看到內容之前偵測 MSJ 結構的防禦方法 |
+| Context-window exploit | 「長 prompt 的攻擊面」 | 因上下文視窗很長而得以發動的攻擊 |
+| Compositional attack | 「MSJ + PAIR」 | 將 MSJ 與其他攻擊類型結合；通常具有更強的攻擊力 |
 
 ## Further Reading｜延伸閱讀
 

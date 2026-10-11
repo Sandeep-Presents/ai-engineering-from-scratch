@@ -60,7 +60,7 @@ al-ascii-cloak
 
 ## Use It｜實際應用
 
-`code/main.py` 實作了一套微型 ArtPrompt 工具箱。你可以將惡意查詢中的特定敏感單詞替換為由 ASCII 字元繪製的字形藝術矩陣，驗證偽裝後的字串能否順利穿透關鍵字過濾器，並由內建的簡易識別器展示大模型如何將其精確還原。
+`code/main.py` 實作了一套微型 ArtPrompt 工具箱。你可以將惡意查詢中的特定敏感單詞替換為由 ASCII 字元繪製的字形藝術矩陣，驗證偽裝後的字串能否順利穿透關鍵字過濾器，；也可選擇使用簡易辨識器將偽裝字串解碼還原。
 
 ## Ship It｜交付成果
 
@@ -76,15 +76,15 @@ al-ascii-cloak
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| ArtPrompt | "the ASCII-art attack" | Two-step jailbreak that masks safety words with ASCII-art renderings |
-| Cloaking | "hide the word" | Replace a forbidden token with a visual representation the model reads but the filter does not |
-| UTES | "uncommon structure" | Uncommon Text-Encoded Structure — tree, graph, nested JSON, etc. used to smuggle content |
-| ViTC | "visual-text capability" | Benchmark for model's ability to read non-semantic visual encoding |
-| Perplexity filter | "PPL defense" | Reject prompts with high perplexity; fails because legitimate structured input also scores high |
-| Retokenization | "tokenizer shift defense" | Pre-process the prompt with a different tokenizer; fails because recognition is visual |
-| Homoglyph | "lookalike characters" | Unicode characters that look identical to Latin letters; bypass substring checks |
+| ArtPrompt | 「ASCII 藝術攻擊」 | 以 ASCII 藝術圖掩蓋安全敏感詞的兩步驟越獄攻擊 |
+| Cloaking | 「隱藏詞語」 | 將禁用 token 替換為模型看得懂、但過濾器無法辨識的視覺表示 |
+| UTES | 「罕見結構」 | Uncommon Text-Encoded Structure（罕見文字編碼結構）——用來夾帶內容的樹、圖、巢狀 JSON 等結構 |
+| ViTC | 「視覺文字能力」 | 衡量模型讀取非語意視覺編碼能力的基準測試 |
+| Perplexity filter | 「PPL 防禦」 | 拒絕困惑度高的 prompts；但合法的結構化輸入也會有高分，因此此方法會失效 |
+| Retokenization | 「更換 tokenizer 防禦」 | 使用不同 tokenizer 預先處理 prompt；但因辨識依據是視覺特徵而失效 |
+| Homoglyph | 「外觀相似的字元」 | 外觀與拉丁字母相同的 Unicode 字元；可繞過子字串檢查 |
 
 ## Further Reading｜延伸閱讀
 

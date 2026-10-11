@@ -1,6 +1,6 @@
 # 數位浮水印技術——SynthID、Stable Signature 與 C2PA（Watermarking — SynthID, Stable Signature, C2PA）
 
-> 三大前沿支柱技術共同確立了 2026 年 AI 生成內容（AIGC）的產權與溯源體系。**SynthID**（Google DeepMind 出品）——影像浮水印於 2023 年 8 月正式推出，文字與影片浮水印於 2024 年 5 月全面上線（深度整合進 Gemini 與 Veo），文字浮水印演算法於 2024 年 10 月透過「負責任 GenAI 工具箱」正式開源，統一跨模態偵測器則於 2025 年 11 月隨 Gemini 3 Pro 一併發布。文字浮水印在解碼採樣時以人類肉眼完全無法察覺的微幅偏移調整 Next-token 預測機率；而影像與影片浮水印則能強健抵禦各類有損壓縮、幾何裁剪、濾鏡調色與幀率變更。**Stable Signature**（Fernandez 等人，ICCV 2023，arXiv:2303.15435）——對潛在擴散模型（Latent Diffusion）的解碼器進行專門 fine-tuning，使生成的每一幅影像皆在潛在空間中深嵌一段固定的二進位識別碼；在極端裁剪至僅剩原始畫面 10% 的殘酷測試下，偵測率依然突破 90%，且偽陽性率（FPR）低於 $10^{-6}$。隨後的破譯大作《Stable Signature is Unstable》（arXiv:2405.07145，2024 年 5 月）則展示了脆弱面：僅需對解碼器進行微小的對抗性 fine-tuning，便能在絲毫不損害影像畫質的前提下將浮水印徹底抹除。**C2PA**——基於密碼學簽署、防篡改的數位內容出處中繼資料標準（C2PA 2.2 解釋文件，2025 年）。數位浮水印與 C2PA 構成了完美的架構互補：外層中繼資料極易被惡意剝離，但能承載極其豐富的產權資訊鏈；底層浮水印能穿透跨平台轉碼而頑強存活，但所能承載的有效資訊位元相對有限。
+> 三大前沿支柱技術共同確立了 2026 年 AI 生成內容（AIGC）的產權與溯源體系。**SynthID**（Google DeepMind 出品）——影像浮水印於 2023 年 8 月正式推出，文字與影片浮水印於 2024 年 5 月全面上線（深度整合進 Gemini 與 Veo），文字浮水印演算法於 2024 年 10 月透過「負責任 GenAI 工具箱」正式開源，統一跨模態偵測器則於 2025 年 11 月隨 Gemini 3 Pro 一併發布。文字浮水印在解碼取樣時以人類肉眼完全無法察覺的微幅偏移調整 Next-token 預測機率；而影像與影片浮水印則能強健抵禦各類有損壓縮、幾何裁剪、濾鏡調色與幀率變更。**Stable Signature**（Fernandez 等人，ICCV 2023，arXiv:2303.15435）——對潛在擴散模型（Latent Diffusion）的解碼器進行專門 fine-tuning，使生成的每一幅影像皆在潛在空間中深嵌一段固定的二進位識別碼；在極端裁剪至僅剩原始畫面 10% 的殘酷測試下，偵測率依然突破 90%，且偽陽性率（FPR）低於 $10^{-6}$。隨後的破譯大作《Stable Signature is Unstable》（arXiv:2405.07145，2024 年 5 月）則展示了脆弱面：僅需對解碼器進行微小的對抗性 fine-tuning，便能在絲毫不損害影像畫質的前提下將浮水印徹底抹除。**C2PA**——基於密碼學簽署、防篡改的數位內容出處中繼資料標準（C2PA 2.2 解釋文件，2025 年）。數位浮水印與 C2PA 構成了完美的架構互補：外層中繼資料極易被惡意剝離，但能承載極其豐富的產權資訊鏈；底層浮水印能穿透跨平台轉碼而頑強存活，但所能承載的有效資訊位元相對有限。
 
 **Type:** Build
 **Languages:** Python (stdlib, token-watermark embed + detect)
@@ -26,13 +26,13 @@ Kirchenbauer 等人於 2023 年確立、後由 Google 官方工程化推向大�
 
 1. 在自回歸解碼的每一個步進中，利用偽隨機雜湊函數對前置 K 個 Token 進行雜湊，將整個詞表（Vocabulary）動態且偽隨機地劃分為「綠名單（Green set）」與「紅名單（Red set）」。
 2. 向落在綠名單內的 Token 對應的 Logit 數值中，人工疊加一個微小的正向偏置 δ。
-3. 最終採樣產出的生成文本中，綠名單 Token 的實體出現頻率將顯著高於純粹隨機碰巧應當出現的理論比例。
+3. 最終取樣產出的生成文本中，綠名單 Token 的實體出現頻率將顯著高於純粹隨機碰巧應當出現的理論比例。
 
 偵測判別演算法：對受測文字重新執行相同的雜湊劃分，統計整段文字中綠名單 Token 的累積數量，並據此計算出標準正態分佈下的 Z-score 統計分數。對於被打上浮水印的 AI 文本，Z-score 顯著大於 0；而對於真實人類撰寫的文字，Z-score 始終圍繞 0 波動。
 
 核心物理特徵：
 - 人類讀者肉眼完全無感（偏置 δ 極其微小，輸出語意品質折損微乎其微）。
-- 唯有手握原始偽隨機劃分密鑰的授權方，才能執行可靠的解碼偵測。
+- 偵測需要能存取詞彙表分割函數。
 - 面對同義改寫（Paraphrase）極度脆弱——對文字進行同義句式重構，會徹底摧毀先前的相鄰 Token 雜湊鏈。
 
 Google 於 2024 年 10 月透過其「負責任 GenAI 工具箱」正式開源了 SynthID-text 的完整實作。
@@ -69,7 +69,7 @@ Google 如今已在其搜尋引擎（Search）、廣告平台（Ads）以及「�
 
 歐盟委員會專門針對 AI 生成內容標註確立了《透明度行為準則》（首份草案於 2025 年 12 月發布，第二版草案於 2026 年 3 月更新，預計將於 2026 年 6 月正式定稿生效，詳見[歐盟執委會官方進度頁面](https://digital-strategy.ec.europa.eu/en/policies/code-practice-ai-generated-content)）。截至 2026 年 4 月，該準則仍處於最後草案修訂階段，具體時間表可能微幅調整。這是一項從法律層面強制要求技術防護落地的剛性約束：所有具備深度偽造特徵的音訊、視訊與圖像，在歐盟市場發布時必須在技術層面具備清晰可讀的標註。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 22 節防範模型對外洩漏機密個資；第 23 節規範模型產出內容的產權標註；第 27 節將回溯預訓練資料來源的合規清洗；第 24 節則統籌各大主權國家針對這些技術手段所設立的法定執法邊界。
 
@@ -79,7 +79,7 @@ an-watermark-greenlist
 
 ## Use It｜實際應用
 
-`code/main.py` 實作了一套微型文字數位浮水印植入與偵測系統。將 Token 抽象為整數標籤；在採樣時基於雜湊演算法將機率偏置注入動態劃分的綠名單集合。偵測器即時統計被測文本中的綠名單 Token 佔比，並精確計算 Z-score 統計顯著性。在終端機中，你可以觀察到 1,000 Token 長度的生成文字如何輕鬆達到極高的 Z-score，親眼見證同義改寫如何瞬間瓦解該訊號，並測量其在真實人類自然語言上的偽陽性報警率。
+`code/main.py` 實作了一套微型文字數位浮水印植入與偵測系統。將 Token 抽象為整數標籤；在取樣時基於雜湊演算法將機率偏置注入動態劃分的綠名單集合。偵測器即時統計被測文本中的綠名單 Token 佔比，並精確計算 Z-score 統計顯著性。在終端機中，你可以觀察到 1,000 Token 長度的生成文字如何輕鬆達到極高的 Z-score，親眼見證同義改寫如何瞬間瓦解該訊號，並測量其在真實人類自然語言上的偽陽性報警率。
 
 ## Ship It｜交付成果
 
@@ -95,15 +95,15 @@ an-watermark-greenlist
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| SynthID | "Google's watermark" | Cross-modal provenance signal; text, image, audio, video |
-| Token watermark | "Kirchenbauer-style" | Biased-sampling text watermark detectable via green-token z-score |
-| Stable Signature | "image watermark" | Fine-tuned-decoder watermark; ICCV 2023 |
-| C2PA | "the metadata standard" | Cryptographically signed tamper-evident provenance metadata |
-| Paraphrase robustness | "does rewording break it" | Text watermark property; currently limited |
-| Fine-tune removal | "adversarial unwatermark" | Attack that removes image watermark via decoder fine-tuning |
-| Cross-modal detector | "unified SynthID" | November 2025 unified API across modalities |
+| SynthID | 「Google 的浮水印」 | 跨模態的來源訊號，涵蓋文字、影像、音訊與影片 |
+| Token watermark | 「Kirchenbauer 式方法」 | 以偏置取樣生成的文字浮水印，可透過綠色 token 的 z-score 偵測 |
+| Stable Signature | 「影像浮水印」 | 透過 fine-tune 解碼器建立的浮水印；ICCV 2023 |
+| C2PA | 「中繼資料標準」 | 以密碼學簽署、防竄改的來源中繼資料 |
+| Paraphrase robustness | 「改寫會破壞訊號嗎」 | 文字浮水印的特性，目前仍有限制 |
+| Fine-tune removal | 「對抗式去除浮水印」 | 透過 fine-tune 解碼器移除影像浮水印的攻擊 |
+| Cross-modal detector | 「統一的 SynthID」 | 2025 年 11 月推出、支援多種模態的統一 API |
 
 ## Further Reading｜延伸閱讀
 

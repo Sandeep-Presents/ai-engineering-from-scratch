@@ -1,6 +1,6 @@
 # AI 控制架構——在潛在叛變下的安全保障（AI Control — Safety Despite Subversion）
 
-> Greenblatt、Shlegeris、Sachan 與 Roger（Redwood Research 團隊，arXiv:2312.06942，ICML 2024）。AI 控制（Control）體系徹底重構了安全命題：給定一個可能在暗中對抗你、具備強大能力的不可信模型 U，我們究竟能透過何種通訊協定，在從中安全榨取實用價值的同時，將不可接受的災難性後果發生機率嚴格限制在安全上限之內？我們手頭的可用資源包括：一個已知安全但能力較弱的受信任模型 T、極為有限的受信任人類審核工時預算 H，以及對 U 之輸出進行即時過濾修改的能力。在該架構體系下，在程式碼後門植入任務中，「受信任編輯（Trusted Editing）」在帕累托前沿（Pareto-dominates）上全面碾壓「不可信監控（Untrusted Monitoring）」。該框架完全繼承了資安工程學的最壞情況假設：安全性的度量標準，是在由頂級紅隊充當 U 的極限對抗壓力下，敵對挑選的 U 依然在數學上無法引發具體災難性後果的真實機率。
+> Greenblatt、Shlegeris、Sachan 與 Roger（Redwood Research 團隊，arXiv:2312.06942，ICML 2024）。AI 控制（Control）體系徹底重構了安全命題：給定一個可能在暗中對抗你、具備強大能力的不可信模型 U，我們究竟能透過何種通訊協定，在從中安全榨取實用價值的同時，將不可接受的災難性後果發生機率嚴格限制在安全上限之內？我們手頭的可用資源包括：一個已知安全但能力較弱的受信任模型 T、極為有限的受信任人類審核工時預算 H，以及對 U 之輸出進行即時過濾修改的能力。在該架構體系下，在程式碼後門植入任務中，「受信任編輯（Trusted Editing）」在帕累托前沿（Pareto-dominates）上全面碾壓「不可信監控（Untrusted Monitoring）」。該框架完全繼承了資安工程學的最壞情況假設：安全性指標是在紅隊壓力測試下，U 無法造成具體不可接受結果的機率。
 
 **Type:** Learn
 **Languages:** Python (stdlib, safety-vs-usefulness frontier on code-backdoor task)
@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-第 07 至 09 節的殘酷實證確立了一項無可爭辯的現實：前沿旗艦模型完全可能具備欺騙性對齊、暗中策劃謀劃或自發偽裝合規的高級心智。安全命題在此被徹底重塑：我們能否在預設完全不信任該模型的前提下，依然從其身上安全榨取強大的生產力，同時在物理上徹底剝奪其引發毀滅性災難後果的任何可能性？這正是 AI 控制（AI Control）所要攻克的終極課題。其架構完全遵照經典資安工程學：預設最壞情況的惡意對手、設計嚴密的防護協定，並在紅隊專家模擬對手的極限施壓下，度量對手的實質攻擊成功率。
+第 07 至 09 節的殘酷實證確立了一項無可爭辯的現實：前沿旗艦模型完全可能具備欺騙性對齊、暗中策劃謀劃或自發偽裝合規的高級心智。安全命題在此被徹底重塑：我們能否在預設完全不信任該模型的前提下，依然從其身上安全榨取強大的生產力，同時不讓它有機會造成不可接受的結果？這正是 AI 控制（AI Control）所要攻克的終極課題。其架構完全遵照經典資安工程學：預設最壞情況的惡意對手、設計嚴密的防護協定，並在紅隊專家模擬對手的極限施壓下，度量對手的實質攻擊成功率。
 
 ## The Concept｜核心概念
 
@@ -40,7 +40,7 @@
 - **基準裸奔協定（Baseline）**：直接將 U 的輸出交付上線。實用性達到極致滿分；安全性趨近於零。
 - **全量前置審計協定（Upfront auditing）**：調用受信任人類 H 對 U 的所有輸出進行逐行人工審查。安全性滿分；但人類時間預算在短短數小時內便會徹底耗盡癱瘓。
 - **不可信自我監控協定（Untrusted Monitoring）**：調用 U 的第二個獨立實例，專門對第一個 U 實例的輸出進行安全審查；人類 H 僅對被標記為可疑的樣本進行人工複核。核心死穴：兩個同架構的 U 實例之間完全可能展開暗中勾結。
-- **受信任編輯協定（Trusted Editing）**：對 U 產出的每一項輸出，強制由受信任弱模型 T 進行全文重構與審查。唯有當 T 感到極度不確定或無法理解時，才將其路由升級給人類 H 裁決。
+- **受信任編輯協定（Trusted Editing）**：T 對每次 U 的輸出進行編輯；若 T 沒有把握，則交由 H 處理。
 
 Greenblatt 等人實測證實：受信任編輯協定（Trusted Editing）在帕累托前沿上全面碾壓不可信監控協定——在相同的安全保障水準下，它始終能榨取出高得多的實用生產力。
 
@@ -98,15 +98,15 @@ al-control-protocol
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| AI Control | "safety under subversion" | Protocol design that bounds unacceptable outcomes under a worst-case U |
-| Untrusted model (U) | "the strong model" | The capable model we want to extract work from but do not trust |
-| Trusted model (T) | "the weak model" | A weaker model, known not to be adversarial, used as editor/monitor |
-| Trusted human (H) | "the audit budget" | Bounded expert labor; expensive; the ground-truth signal |
-| Trusted Editing | "T edits U" | Protocol where T is the gate on U's outputs; H called on ambiguous outputs |
-| Untrusted Monitoring | "U monitors U" | Protocol where a second U instance scores outputs; collusion-resistant only with extra investment |
-| Control safety case | "the formal argument" | Written argument that a protocol bounds the adversary's success under worst-case U |
+| AI Control | 「遭到顛覆時仍能安全」 | 設計一套協定，在最壞情況的 U 下限制不可接受結果 |
+| Untrusted model (U) | 「強模型」 | 我們希望從中取得成果、但不信任其行為的高能力模型 |
+| Trusted model (T) | 「弱模型」 | 已知不具對抗性的較弱模型，用作編輯器或監控者 |
+| Trusted human (H) | 「稽核預算」 | 數量有限且成本高昂的專家人力；提供真實標準訊號 |
+| Trusted Editing | 「T 編輯 U」 | 由 T 把關 U 輸出的協定；遇到模糊輸出時才交由 H 處理 |
+| Untrusted Monitoring | 「U 監控 U」 | 由第二個 U 執行個體為輸出評分的協定；只有額外投入資源才能抵禦串通 |
+| Control safety case | 「形式論證」 | 書面論證，說明協定如何在最壞情況的 U 下限制對手的成功率 |
 
 ## Further Reading｜延伸閱讀
 

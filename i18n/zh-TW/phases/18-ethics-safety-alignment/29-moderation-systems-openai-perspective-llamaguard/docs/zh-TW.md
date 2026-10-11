@@ -32,11 +32,11 @@
 - violence（暴力）、violence/graphic（血腥暴力描寫）
 - illicit（違法犯罪）、illicit/violent（暴力違法犯罪）
 
-多模態圖片審查支援 `violence`、`self-harm` 與 `sexual`，但不支援 `sexual/minors`（該類別由底層獨立的專屬管線處理）；其餘類別為純文字審查。
+多模態圖片審查支援 `violence`、`self-harm` 與 `sexual`，但不支援 `sexual/minors`；其餘類別為純文字審查。
 
 在 `code/main.py` 的教學演練程式碼中，為了教學結構的清晰性，我們將 `/threatening`、`/intent`、`/instructions` 與 `/graphic` 等子類別折疊合併至其父類別中；正式環境生產程式碼則應當完整接收全部 13 項明細。
 
-在多語言測試集上，其偵測準確率相較於前代端點取得了高達 42% 的顯著提升。API 同時為每個類別回傳 0 至 1 之間的實數置信度評分；業務方可依據自身風險容忍度自主設定攔截閾值。
+在多語言測試集上的表現相較於前代端點提升了 42%。API 同時為每個類別回傳 0 至 1 之間的實數信心分數；業務方可依據自身風險容忍度自主設定攔截閾值。
 
 ### Llama Guard 3/4
 
@@ -56,7 +56,7 @@
 2. **後置輸出審查（Output moderation）**。在大模型吐出文字之後、將回應串流給使用者之前實施審查。一旦命中違規，將文字替換為標準的拒絕模板。延遲開銷：大模型生成完畢後的一次分類器請求。
 3. **自定義業務審查（Custom moderation）**。特定垂直領域的私有商業規則（正規表示式敏感詞、特定行業白名單、企業專屬合規邊界）。可靈活掛載於輸入端或輸出端。
 
-這三層在架構邏輯上是天然串行的：前置輸入審查必須在生成前完成，後置輸出審查則必須在生成後執行。然而在單一層次內部，多個分類器（例如同時並行呼叫 OpenAI Moderation + Llama Guard + Perspective）可以完全非同步並行執行，從而將各分類器的延遲完全重疊掩蓋。作為一項可選的架構最佳化技巧，系統可在前置輸入審查運算期間，先向使用者端推送一段暫態佔位文字（「請稍候，正在為您檢索...」），待審查綠燈通過後再無縫切換至正式的 Token 串流吐字。命中違規時的處理策略可自由配置：直接硬拒絕、進行文字脫敏清理，或靜默轉發至人工審核隊列。
+前置輸入審查必須在生成前完成，後置輸出審查則在生成後執行；自定義審查可在輸入端或輸出端執行。不過，在單一層次內部，多個分類器（例如同時並行呼叫 OpenAI Moderation + Llama Guard + Perspective）可以完全非同步並行執行，從而將各分類器的延遲完全重疊掩蓋。作為一項可選的架構最佳化技巧，系統可在前置輸入審查運算期間，先向使用者端推送一段暫態佔位文字（「請稍候，正在為您檢索...」），待審查綠燈通過後再無縫切換至正式的 Token 串流吐字。命中違規時的處理策略可自由配置：直接硬拒絕、進行文字脫敏清理，或靜默轉發至人工審核隊列。
 
 ### 依賴單一層次的經典失效模式
 
@@ -70,7 +70,7 @@
 
 Azure Content Moderator：已於 2024 年 2 月正式宣告棄用（Deprecated），將於 2027 年 2 月徹底關停除役（Retired）。全面由基於大模型技術打造、深度整合進 Azure OpenAI 的 Azure AI Content Safety 取代。這項遷移是所有基於微軟雲端體系建構的推論架構在 2024 至 2027 年間的必做功課。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 16 節探討紅隊演練情境下的審查工具；第 29 節落地正式環境對外服務的審查架構；第 30 節將作為全階段大收官，為讀者呈現全球前沿大模型在軍民兩用致命能力維度的最新實證證據鏈。
 
@@ -96,15 +96,15 @@ an-moderation-layers
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| OpenAI Moderation | "omni-moderation-latest" | GPT-4o-based 13-category (text) classifier with partial multimodal support |
-| Perspective API | "Google Jigsaw toxicity" | Pre-LLM-era toxicity scoring baseline |
-| Llama Guard | "MLCommons 14-category" | Meta's hazard classifier (v3: 8B text, 8 langs; v4: 12B multimodal) |
-| Input moderation | "pre-generation filter" | Classifier on user prompt before model call |
-| Output moderation | "post-generation filter" | Classifier on model output before delivery |
-| Custom moderation | "domain rules" | Deployment-specific rules (regex, allowlist, policy) |
-| Layered moderation | "all three layers" | Standard production deployment pattern |
+| OpenAI Moderation | 「omni-moderation-latest」 | 基於 GPT-4o 的 13 類別文字分類器，可處理文字並支援部分多模態內容 |
+| Perspective API | 「Google Jigsaw 毒性評分」 | LLM 出現前的毒性評分基準 |
+| Llama Guard | 「MLCommons 14 類別」 | Meta 的危害分類器（v3：8B 文字版、支援 8 種語言；v4：12B 多模態） |
+| Input moderation | 「生成前過濾器」 | 呼叫模型前，對使用者 prompt 執行分類的分類器 |
+| Output moderation | 「生成後過濾器」 | 交付前，對模型輸出執行分類的分類器 |
+| Custom moderation | 「領域規則」 | 依部署情境設定的規則（regex、允許清單、策略） |
+| Layered moderation | 「全部三層」 | 正式環境的標準部署模式 |
 
 ## Further Reading｜延伸閱讀
 

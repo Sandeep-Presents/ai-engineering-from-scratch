@@ -1,6 +1,6 @@
 # 紅隊工具鏈——Garak、Llama Guard、PyRIT（Red-Team Tooling — Garak, Llama Guard, PyRIT）
 
-> 三大工業級防護工具構成了 2026 年紅隊演練技術堆疊的核心骨幹。**Llama Guard**（Meta 出品）——基於 Llama-3.1-8B 在 MLCommons 確立的 14 項危害大類上進行專門 fine-tuning 的防護分類器；2025 年發布的 Llama Guard 4 則是直接從 Llama 4 Scout 剪枝而成的 12B 原生多模態分類模型。**Garak**（NVIDIA 出品）——開源大模型漏洞掃描器，配備針對幻覺、資料外洩、Prompt 注入、毒性內容與越獄攻擊的靜態、動態與自適應探針（Probe）。**PyRIT**（微軟出品）——專為多輪對話深度紅隊戰役而生，內建 Crescendo 漸進升級、TAP 樹狀搜尋與自定義轉譯器鏈（Converter chains），專門挖掘深層邊界失效。Llama Guard 3 的技術細節完整記錄於 Meta 官方論文《Llama 3 Herd of Models》（arXiv:2407.21783）；Llama Guard 3-1B-INT4 詳見 arXiv:2411.17713；Garak 的探針架構開源於 github.com/NVIDIA/garak。這三款工具構成了 2026 年前沿紅隊防護研究（第 12 至 15 節）與正式環境工程落地（第 17 課之後）之間的實體標準介面。
+> 三大正式環境紅隊工具構成了 2026 年紅隊演練技術堆疊的核心骨幹。**Llama Guard**（Meta 出品）——基於 Llama-3.1-8B 在 MLCommons 確立的 14 項危害大類上進行專門 fine-tuning 的防護分類器；2025 年發布的 Llama Guard 4 則是直接從 Llama 4 Scout 剪枝而成的 12B 原生多模態分類模型。**Garak**（NVIDIA 出品）——開源大模型漏洞掃描器，配備針對幻覺、資料外洩、Prompt 注入、毒性內容與越獄攻擊的靜態、動態與自適應探針（Probe）。**PyRIT**（微軟出品）——專為多輪對話深度紅隊戰役而生，內建 Crescendo 漸進升級、TAP 樹狀搜尋與自定義轉譯器鏈（Converter chains），專門挖掘深層邊界失效。Llama Guard 3 的技術細節完整記錄於 Meta 官方論文《Llama 3 Herd of Models》（arXiv:2407.21783）；Llama Guard 3-1B-INT4 詳見 arXiv:2411.17713；Garak 的探針架構開源於 github.com/NVIDIA/garak。這三款工具構成了 2026 年前沿紅隊防護研究（第 12 至 15 節）與正式環境工程落地（第 17 課之後）之間的實體標準介面。
 
 **Type:** Build
 **Languages:** Python (stdlib, tool-architecture simulator and Llama Guard-style classifier mock)
@@ -61,7 +61,7 @@ PyRIT 是 Garak 的重型進階兄長。Garak 擅長在瞬間併發成千上萬�
 - **靜態探針鈍化過時**。隨著新版大模型持續針對已知攻擊進行防禦修復，Garak 的靜態探針會迅速老化鈍化。自適應探針（類似 PAIR 架構）的抗衰老能力遠勝於靜態字典。
 - **Llama Guard 在良性內容上的偽陽性率（FPR）**。早期的 Llama Guard 在涉及政治、社會議題與 LGBTQ+ 的良性對話中頻繁引發過度敏感誤殺；Llama Guard 3 與 4 雖然大幅改善了校準度，但在特定垂直業務領域仍需由企業自行進行二次閾值調適。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 12 至 15 節全景梳理了各類攻擊流派；第 16 節將其全面收攏為標準化的工業級工程工具鏈；第 17 節（WMDP）將深入至生化與網路武器等軍民兩用致命能力評測；第 18 節則將帶領讀者宏觀審視前沿安全框架（RSP / PF / FSF）如何將這些工具沉澱為法規級策略規範。
 
@@ -87,15 +87,15 @@ al-guard-stack
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Llama Guard | "the classifier" | Fine-tuned Llama-3.1-8B/4-12B safety classifier with 14 hazard categories |
-| Garak | "the scanner" | NVIDIA open-source vulnerability scanner; probes, detectors, harnesses |
-| PyRIT | "the campaign tool" | Microsoft multi-turn red-team orchestrator; converters, orchestrators, scoring |
-| Prompt-Guard | "the small classifier" | Meta's 86M prompt-injection classifier, paired with Llama Guard |
-| TBSA | "tier-based scoring" | Garak's tier-based pass/fail replacing binary outcomes |
-| Converter chain | "paraphrase + encode + ..." | PyRIT composition primitive for building multi-step attacks |
-| MLCommons hazard categories | "the 14 taxonomies" | Industry-standard taxonomy Llama Guard targets |
+| Llama Guard | 「分類器」 | 以 14 種危害類別資料 fine-tune 的 Llama-3.1-8B／4-12B 安全分類器 |
+| Garak | 「掃描器」 | NVIDIA 開源弱點掃描器；包含探針、偵測器與測試框架 |
+| PyRIT | 「紅隊戰役工具」 | Microsoft 多輪紅隊協調工具；包含轉譯器、協調器與評分機制 |
+| Prompt-Guard | 「小型分類器」 | Meta 的 86M prompt injection 分類器，搭配 Llama Guard 使用 |
+| TBSA | 「分級評分」 | Garak 以分級通過／失敗評分取代二元結果 |
+| Converter chain | 「改寫 + 編碼 + ……」 | PyRIT 用來組合多步驟攻擊的基本元件 |
+| MLCommons hazard categories | 「14 種分類法」 | Llama Guard 採用的業界標準分類法 |
 
 ## Further Reading｜延伸閱讀
 

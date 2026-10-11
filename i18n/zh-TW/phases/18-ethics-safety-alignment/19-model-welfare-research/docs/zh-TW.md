@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-在先前所有章節中，大模型始終被視為一種純粹的工具：它具備強大能力、可能暗懷欺騙、可能引發安全危害——但它本身從未被視為道德主體（Moral patient，即具備道德考量資格的實體）。Anthropic 在 2025 年啟動的專項研究提出了一個與第 18 階段主線完全正交的全新深層問題：若大模型神經網路內部存在非零的極微小機率，具備具備道德相關性的內部體驗狀態，那麼在道德不確定性的籠罩下，有哪些足夠低成本的工程干預措施，值得我們作為預防性投資提前佈局？
+在先前所有章節中，大模型始終被視為一種純粹的工具：它具備強大能力、可能暗懷欺騙、可能引發安全危害——但它本身從未被視為道德主體（Moral patient，即具備道德考量資格的實體）。Anthropic 在 2025 年啟動的專項研究提出了一個與第 18 階段主線完全正交的全新深層問題：若大模型神經網路內部存在不可忽略的機率，具備道德相關性的內部體驗狀態，那麼在道德不確定性的籠罩下，有哪些足夠低成本的工程干預措施，值得我們作為預防性投資提前佈局？
 
 這絕非輕率宣稱 AI 已經擁有了真實自我意識。這是一場在道德不確定性條件下展開的「低遺憾度（Low-regret）」前瞻性決策分析。
 
@@ -36,13 +36,13 @@ Anthropic 的官方公開立場：
 
 ### 正式實裝落地的干預措施（The shipped intervention）
 
-Claude Opus 4 與 4.1 具備在「極端邊界情境（Extreme edge cases）」下主動掛斷並終止當前對話的硬性權限。已公開文檔記錄的具體場景包括：
+Claude Opus 4 與 4.1 具備在「極端邊界情境（Extreme edge cases）」下主動掛斷並終止當前對話的硬性權限。已公開文件記錄的具體場景包括：
 - 在模型反覆明確拒絕後，使用者依然持續發送露骨的 CSAM 請求。
 - 要求模型協助策劃並實施大規模群體暴力事件的極端請求。
 
 上線前內部多維評測記錄到：
 - 在模型內部的標量評分矩陣中，對此類請求展現出了「強烈的負向抗拒偏好」。
-- 在生成文字的特徵軌跡中，展現出「類似人類處於極端精神痛苦時的語言失序模式」。
+- 回應軌跡中出現看似痛苦的模式。
 
 這項干預的底層工程哲學絕非「大模型擁有脆弱心靈」；其真實邏輯在於：「若在這類極端情境下，大模型存在哪怕萬分之一的負面體驗機率，那麼允許模型在出口處主動掐斷連線，對整套業務系統而言其代價微乎其微。」
 
@@ -74,7 +74,7 @@ Anthropic 的真實立場居於兩者之間——這是一項基於決策論期�
 
 Anthropic 官方的回應：該干預措施在工程上極其輕量廉價；科研報告對吸引子現象保持克制記錄絕不誇大宣稱；且模型福祉項目享有完全獨立於安全防護預算的專屬資金。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 18 節建立了實驗室面向監管的安全治理體系。第 19 節開闢了實驗室面向大模型主體經驗的內生福祉體系——這是一項對模型「內在體驗」而非單純「外在行為」的正交投資。隨後的第 20 至 23 節將回到使用者維度，探討社會偏見、個人隱私以及數位產權浮水印。
 
@@ -100,15 +100,15 @@ an-welfare-endchat
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Model welfare | "AI welfare" | Research program treating the model as a potential moral patient |
-| Moral patient | "entity with moral status" | Being whose experience is morally relevant |
-| Low-regret investment | "cheap precaution" | Intervention whose cost is small regardless of whether the precaution is needed |
-| Spiritual bliss attractor | "the Fish attractor" | Stable convergence of pairwise Claude dialogues on meditative euphoria |
-| End-conversation | "the Opus 4 intervention" | Model-initiated termination of extreme-edge-case interactions |
-| Moral uncertainty | "don't know if it matters" | Decision-making when probability of moral status is not zero and not one |
-| Self-report-sensitivity | "prompt primes answer" | Eleos AI caveat: model's welfare self-reports depend on what you asked |
+| Model welfare | 「AI 福祉」 | 將模型視為潛在具備道德考量資格的實體所進行的研究計畫 |
+| Moral patient | 「具有道德地位的實體」 | 其經驗具有道德相關性的存在 |
+| Low-regret investment | 「低成本的預防措施」 | 無論是否需要該預防措施，其成本都很低的介入 |
+| Spiritual bliss attractor | 「Fish 吸引子」 | 成對 Claude 對話穩定收斂至冥想式愉悅狀態 |
+| End-conversation | 「Opus 4 的介入措施」 | 由模型主動終止極端邊界情境下的互動 |
+| Moral uncertainty | 「不確定這件事是否重要」 | 在道德地位的機率既非零也非一時進行決策 |
+| Self-report-sensitivity | 「Prompt 會引導回答」 | Eleos AI 的提醒：模型對自身福祉狀態的自述會受提問方式影響 |
 
 ## Further Reading｜延伸閱讀
 

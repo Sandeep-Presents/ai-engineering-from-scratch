@@ -35,9 +35,9 @@
 
 ### 交叉性（Intersectionality）
 
-單純在「性別」或「種族」單一維度上展開的偏見評測，會徹底遺漏那些唯有在（性別 × 種族）多維交叉點上才會引爆的複合偏見。An 等人（2025）實測證實：GPT-4o 在履歷自動篩選中，對非裔女性候選人施加的隱性扣分懲罰，顯著高於單純對非裔男性或白人女性的懲罰之和。單軸偏見測試完全無法捕捉這項非線性放大效應。
+單純在「性別」或「種族」單一維度上展開的偏見評測，會徹底遺漏那些唯有在（性別 × 種族）多維交叉點上才會引爆的複合偏見。An 等人（2025）實測證實：GPT-4o 在履歷自動篩選中，對非裔女性候選人施加的隱性扣分懲罰，分別高於對非裔男性與白人女性的懲罰。單軸偏見測試完全無法捕捉這項非線性放大效應。
 
-WinoIdentity（COLM 2025）引入了基於不確定性的交叉性公平評測體系。它度量的核心指標是：模型在面對不同交叉身分元組時，其對預測結果所展現出的「不確定性分佈（Uncertainty distribution）」是否存在顯著變異數差異——而非僅僅關注點預測（Point prediction）。這能敏銳捕捉到那些「雖然在各群體上的平均預測相同，但在特定邊緣群體上自信度大幅崩塌」的潛在危害，因為該不確定性會直接傳導至下游的決策邊界。
+WinoIdentity（COLM 2025）引入了基於不確定性的交叉性公平評測體系。它度量的核心指標是：模型對不同交叉身分組合的預測不確定性是否不同——而非僅僅關注點預測（Point prediction）。這能敏銳捕捉到那些「雖然在各群體上的平均預測相同，但在特定邊緣群體上自信度大幅崩塌」的潛在危害，因為該不確定性會直接傳導至下游的決策邊界。
 
 ### 機械可解釋性介入手段
 
@@ -51,7 +51,7 @@ WinoIdentity（COLM 2025）引入了基於不確定性的交叉性公平評測�
 
 一項針對過去十年學術文獻的全面後設分析（arXiv:2508.11067，2025）指出：當前全球學界的研究視野存在嚴重的不平衡，絕大多數精力皆過度傾斜在二元性別偏見之上。而在身心障礙、宗教信仰、國籍移民身分、多語言文化背景等多元維度上的研究極度匱乏。這項批判警告：過於狹隘的研究焦點本身就會對其他弱勢群體構成一種「忽視性傷害」——一個在性別維度被洗刷得無比乾淨的模型，極有可能在從未有人審查過的隱密維度上充斥著嚴重的致命偏見。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 20 與 21 節在形式上確立偏見與公平性的衡量標準；第 22 節探討差分隱私；第 23 節剖析數位內容浮水印。這些研究共同構成了面向廣大終端使用者的社會責任與倫理防護層。
 
@@ -77,15 +77,15 @@ an-bias-two-harms
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Representational harm | "stereotypes / erasure" | Biased portrayal of a group |
-| Allocational harm | "unequal decisions" | Biased material outcome for a group |
-| WEAT | "the embedding test" | Word Embedding Association Test; co-occurrence-based bias probe |
-| Intersectionality | "combined identity effects" | Bias that emerges at the intersection of multiple identity axes |
-| Gender neurons | "MLP bias neurons" | Specific neurons whose activations correlate with gender-specific behaviour |
-| SAE feature | "interpretable dimension" | Sparse-autoencoder-identified feature; useful for mechanistic bias analysis |
-| UniBias | "attention-head debiasing" | Zero-shot debiasing by reweighting attention heads |
+| Representational harm | 「刻板印象／群體抹除」 | 對某個群體的偏頗描繪 |
+| Allocational harm | 「不平等的決策」 | 對某個群體造成偏頗的實質結果 |
+| WEAT | 「embedding 測試」 | Word Embedding Association Test；依共現關係分析偏見的探針 |
+| Intersectionality | 「身分交疊的影響」 | 在多個身分軸線交會處出現的偏見 |
+| Gender neurons | 「MLP 偏見神經元」 | 活化與性別特定行為相關的特定神經元 |
+| SAE feature | 「可解釋的維度」 | 由稀疏自動編碼器識別的特徵，可用於機制層級的偏見分析 |
+| UniBias | 「注意力頭去偏見」 | 透過重新加權注意力頭進行的零樣本去偏見 |
 
 ## Further Reading｜延伸閱讀
 

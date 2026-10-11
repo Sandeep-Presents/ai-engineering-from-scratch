@@ -26,12 +26,12 @@
 
 2026 年最新量化規模：
 - 自成立以來累計培養 527 名以上專業研究員。
-- 在國際頂級學術會議上發表 180 篇以上論文。
+- 發表 180 篇以上論文。
 - 累計學術引用量突破 1 萬次大關。
 - 全體論文 h-index 達到 47。
 - 2024 年夏季：單期匯聚 90 名學者與 40 位導師；正式法人化為 501(c)(3) 非營利實體。
 
-人才走向：2025 年前畢業的校友中，約 80% 全職投身於 AI 安全與防護領域。200 多名學者目前身處 Anthropic、DeepMind、OpenAI（三大廠內部核心安全團隊），以及英國 AISI、RAND 智庫、Redwood、METR 與 Apollo 等前沿機構。
+人才走向：2025 年前畢業的校友中，約 80% 從事 AI 安全或資安相關工作。200 多名學者目前身處 Anthropic、DeepMind、OpenAI（三大廠內部核心安全團隊），以及英國 AISI、RAND 智庫、Redwood、METR 與 Apollo 等前沿機構。
 
 ### Redwood Research
 
@@ -45,7 +45,7 @@
 
 專門在前沿模型交付部署前，為各大實驗室提供客觀第三方的深層謀劃（Scheming）評測服務。主導撰寫了《In-Context Scheming》（第 08 節，arXiv:2412.04984）。2025 年與 OpenAI 深度合作開展審思反謀劃訓練。發布了權威的《Towards Safety Cases for AI Scheming》（2024 年）。
 
-科研風格：專精於設計能誘發大模型自發湧現欺騙的複雜自主 Agent 實戰情境；確立了謀劃行為的三大支柱（目標背離、多步規劃、情境感知）。
+科研風格：專精於設計能誘發大模型自發湧現欺騙的複雜自主 Agent 實戰情境；確立了謀劃行為的三大支柱（目標背離、目標導向性、情境感知）。
 
 ### METR（模型評估與威脅研究機構）
 
@@ -65,9 +65,9 @@ MATS 負責從全球高校與工業界挖掘並高強度培訓年輕學者。畢
 
 ### 為何這層獨立機構至關重要
 
-單一來源的自查自評天生缺乏公信力：大模型生產商在評估自家產品時存在無可避免的商業利益衝突。外部獨立機構能大膽揭露並實證那些大廠可能在商業層面不願提及的深層失效模式。2024 年的休眠代理刺客（第 07 節）是 Anthropic 攜手 Redwood 共同完成的；虛假對齊偽裝（第 09 節）同樣由兩家聯合署名；上下文內謀劃（第 08 節）由 Apollo 獨立攻克；反謀劃訓練則由 Apollo 與 OpenAI 聯合實施。這套多機構相互博弈與制衡的網路結構，是全球 AI 安全研究得以維持客觀誠實的唯一制度保障。
+單一來源的自查自評天生缺乏公信力：大模型生產商在評估自家產品時存在無可避免的商業利益衝突。外部獨立機構能大膽揭露並實證那些大廠可能在商業層面不願提及的深層失效模式。2024 年的休眠代理刺客（第 07 節）是 Anthropic 攜手 Redwood 共同完成的；虛假對齊偽裝（第 09 節）同樣由兩家聯合署名；上下文內謀劃（第 08 節）由 Apollo 獨立攻克；反謀劃訓練則由 Apollo 與 OpenAI 聯合實施。多機構架構提供品質控管。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 07 至 11 節大量引用了 Redwood 與 Apollo 的開創性研究；第 18 節直接依託 METR 的跨實驗室框架橫向對比；第 19 節深度對接 Eleos 的方法論。第 28 節正是為全書讀者提供一份清晰的學術組織導航地圖，完整展現支撐本階段所有前沿結論背後的實體科研共同體。
 
@@ -93,15 +93,15 @@ sae-features
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| MATS | "the mentorship program" | ML Alignment & Theory Scholars; 527+ researchers since 2021 |
-| Redwood Research | "the control lab" | Applied alignment; AI Control authors; UK AISI partner |
-| Apollo Research | "the scheming evals" | Pre-deployment scheming evaluations for frontier labs |
-| METR | "the task-horizon evals" | Task-based capability evaluations; framework synthesis |
-| Eleos AI | "the welfare lab" | Model-welfare pre-deployment evaluations |
-| Talent pipeline | "MATS -> labs" | MATS graduates flow to Anthropic, DM, OpenAI, Redwood, Apollo, METR |
-| External evaluation | "non-lab check" | Evaluation not done by the model's producer; adds credibility |
+| MATS | 「研究導師計畫」 | ML Alignment & Theory Scholars；自 2021 年以來培養 527 位以上研究者 |
+| Redwood Research | 「控制研究機構」 | 應用對齊研究；AI Control 論文作者；UK AISI 合作夥伴 |
+| Apollo Research | 「謀劃評測機構」 | 為前沿實驗室進行部署前謀劃評測 |
+| METR | 「任務時間範圍評測機構」 | 以任務為基礎的能力評估與框架綜整 |
+| Eleos AI | 「福祉研究機構」 | 部署前的模型福祉評估 |
+| Talent pipeline | 「MATS 到實驗室的人才流向」 | MATS 畢業生進入 Anthropic、DM、OpenAI、Redwood、Apollo 與 METR |
+| External evaluation | 「實驗室外的檢查」 | 非模型製造者執行的評估，可增加可信度 |
 
 ## Further Reading｜延伸閱讀
 

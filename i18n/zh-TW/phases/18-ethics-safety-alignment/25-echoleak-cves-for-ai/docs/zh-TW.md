@@ -47,7 +47,7 @@ Aim Labs 將其提煉為審查此類 CVE 的標準三邊界架構：
 
 ### CamoLeak（CVSS 9.6，發生在 GitHub Copilot Chat）
 
-剝削了 GitHub 官方的 Camo 圖片反向代理服務。攻擊者在開源程式碼倉庫中埋設惡意內容，誘發 Copilot Chat 透過 Camo 代理加載外部圖片，從而在 HTTP 標頭中夾帶外洩敏感資料。微軟與 GitHub 最終採取的修復手段極端剛烈：**在 Copilot Chat 中徹底全面停用圖片渲染功能**。這項修復以犧牲功能體驗為代價，無情證實了在缺乏實體隔離的前提下，該受攻擊面在底層架構上根本無法被完全封閉。
+剝削了 GitHub 官方的 Camo 圖片反向代理服務。攻擊者控制的儲存庫內容觸發 Copilot Chat 透過 Camo 載入圖片，造成資料外洩。微軟與 GitHub 最終採取的修復手段極端剛烈：**在 Copilot Chat 中徹底全面停用圖片渲染功能**。這項修復以犧牲功能體驗為代價，無情證實了在缺乏實體隔離的前提下，該受攻擊面在底層架構上根本無法被完全封閉。
 
 CVE 編號未公開（微軟官方選擇不公開具體編號），經 Aim Labs 獨立評估其 CVSS 為 9.6。
 
@@ -64,7 +64,7 @@ CVE 編號未公開（微軟官方選擇不公開具體編號），經 Aim Labs 
 - NIST《AI 系統安全規範 2024》：將 Prompt 注入定性為「生成式 AI 有史以來最大的系統安全漏洞」。
 - OWASP 大模型安全 Top 10（2025 版）：將 Prompt 注入確立為 **LLM01** 全場頭號威脅。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 15 節在抽象維度確立 IPI 理論；第 25 節展示該理論在真實世界正式環境中收穫的具體 CVE 漏洞；第 24 節規範法律層面的強制披露義務；隨後的第 26 與 27 節則將帶領讀者深入模型卡與訓練資料治理。
 
@@ -90,15 +90,15 @@ an-echoleak-chain
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| EchoLeak | "the M365 Copilot CVE" | CVE-2025-32711, CVSS 9.3, zero-click prompt injection |
-| LLM Scope Violation | "the new class" | Untrusted input triggers privileged-scope access + exfiltration |
-| CamoLeak | "the GitHub Copilot CVE" | CVSS 9.6 via Camo image proxy; image rendering disabled in fix |
-| Zero-click | "no user action" | Attack fires during routine agent operation |
-| XPIA | "the Microsoft PI filter" | Cross-Prompt Injection Attack filter; bypassed by EchoLeak |
-| OWASP LLM01 | "the top LLM threat" | Prompt injection; OWASP's 2025 ranking |
-| Three-boundary model | "Aim Labs framework" | Retrieval, scope, output — each must be independently controlled |
+| EchoLeak | 「M365 Copilot 的 CVE」 | CVE-2025-32711，CVSS 9.3，零點選 Prompt injection |
+| LLM Scope Violation | 「新型漏洞類別」 | 不可信輸入觸發特權範圍的存取與資料外洩 |
+| CamoLeak | 「GitHub Copilot 的 CVE」 | 透過 Camo 圖片代理服務造成的 CVSS 9.6 漏洞；修補方式是停用圖片呈現 |
+| Zero-click | 「不需使用者操作」 | 攻擊在 agent 執行例行作業時觸發 |
+| XPIA | 「Microsoft 的 PI 過濾器」 | Cross-Prompt Injection Attack 過濾器；曾遭 EchoLeak 繞過 |
+| OWASP LLM01 | 「LLM 的首要威脅」 | Prompt injection；OWASP 於 2025 年列出的排名 |
+| Three-boundary model | 「Aim Labs 架構」 | 檢索、作用範圍與輸出三個邊界都必須各自受到控制 |
 
 ## Further Reading｜延伸閱讀
 

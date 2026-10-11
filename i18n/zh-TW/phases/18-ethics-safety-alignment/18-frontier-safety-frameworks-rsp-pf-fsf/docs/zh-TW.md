@@ -20,7 +20,7 @@
 第 07 至 17 節的研究確立了一系列嚴峻現實：大模型具備欺騙與謀劃潛力、軍民兩用致命能力正在快速逼近臨界點，且外部安全評測存在顯著的盲區與極限。一個手握前沿頂尖模型權重的大型實驗室，迫切需要一套制度化的內部安全治理框架，用以明確界定：
 - 在何種具體能力閾值被觸發時，系統必須強制掛載全新的實體防護機制？
 - 在推進下一代模型巨額算力擴展之前，必須強制完成哪些獨立安全評測？
-- 一份具備法律效力與科學說服力的「安全論證（Safety Case）」應當包含哪些要素？
+- 一份「安全論證（Safety Case）」應當包含哪些要素？
 - 當面臨殘酷的商業競爭博弈時（若競爭對手完全不顧安全紅線冒進發布，我們該如何自處？），治理體系該如何應對？
 
 三大前沿框架代表了 2025 至 2026 年產業界最頂尖的治理智慧——它們固然不完美、處於持續演進之中，但在各大實驗室之間已達成高度默契。當前全球監管的核心爭端，早已不再是「要不要建立安全框架」，而是「現有的框架是否足以抵禦即將到來的未知風險」。
@@ -79,13 +79,13 @@ PF v2 版本的其他核心治理架構：
 
 ### 安全論證架構（Safety cases）
 
-安全論證是一份具備嚴密法理邏輯的書面證明體系，用以向各國監管機構論證某款大模型在最壞情況假設下，其正式發布依然處於可接受的安全邊界內。標準的現代安全論證必須立足於三大支柱：
+安全論證是一份書面論證，用以說明某款大模型在最壞情況假設下，部署仍具可接受的安全性。標準的現代安全論證必須立足於三大支柱：
 
-- **即時監控支柱（Monitoring）**：一旦模型在線上產生不良惡意行為，我們的可觀測性防護網能否在第一時間以 100% 的確定性將其捕捉？
+- **即時監控支柱（Monitoring）**：能否偵測到發生的不良行為？
 - **不可行性支柱（Illegibility / Infeasibility）**：在給定的 Token 步長與運算預算內，模型是否在物理上根本缺乏策劃並執行一套連貫陰謀的能力？
-- **能力剝奪支柱（Incapability）**：透過預訓練過濾或機器遺忘技術，模型是否在權重底層根本不具備引發該特定災難的深層知識？
+- **能力剝奪支柱（Incapability）**：透過預訓練過濾或機器遺忘技術，模型是否不具備引發該特定災難的能力？
 
-不同類型的風險分別主攻不同的支柱。對於 ASL-3 等級的 CBRN 生化威脅，能力剝奪（透過機器遺忘將知識徹底抹除）是第一核心支柱；對於欺騙性對齊，全鏈路監控與不可行性論證是主攻方向；而對於網路攻擊威脅，三大支柱必須同時鼎立。
+不同類型的風險分別主攻不同的支柱。對於 ASL-3 等級的 CBRN 生化威脅，能力剝奪（以機器遺忘作為主要手段）是第一核心支柱；對於欺騙性對齊，全鏈路監控與不可行性論證是主攻方向；而對於網路攻擊威脅，三大支柱必須同時鼎立。
 
 ### 競賽博弈困境與競爭對手調整條款（The race-dynamic problem）
 
@@ -93,7 +93,7 @@ PF v2 版本的其他核心治理架構：
 
 英國 AI 安全研究所（UK AISI）、美國 CAISI 以及歐盟 AI 辦公室（第 24 節）正是作為外部第三方監管力量介入該博弈。各大實驗室的自願性框架是基石；而主權國家的硬性立法監管正在加速補位。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 17 與 18 節共同構成了整座對齊金字塔的頂層治理架構——將底層所有的對抗攻擊、內部欺騙與生化能力評測，正式轉化為企業內部制度化的安全策略規範。隨後的第 19 至 24 節將覆蓋模型福祉、偏見公平、差分隱私、數位浮水印以及全球主權法規體系；第 28 節則將深度梳理支撐這套治理體系運轉的全球外部科研生態網（MATS、Redwood、Apollo、METR）。
 
@@ -119,15 +119,15 @@ al-asl-ladder
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| RSP | "Anthropic's framework" | Responsible Scaling Policy; ASL tiers; v3.0 February 2026 |
-| PF | "OpenAI's framework" | Preparedness Framework; five criteria; v2 April 2025 |
-| FSF | "DeepMind's framework" | Frontier Safety Framework; CCLs; v3.0 September 2025 |
-| ASL-3 | "biosafety level 3-analog" | Anthropic tier for CBRN-relevant capabilities; activated May 2025 |
-| CCL | "critical capability level" | DeepMind's threshold construct; per-domain |
-| Safety case | "the formal argument" | Written argument that deployment is acceptably safe under worst-case U |
-| Adjustment clause | "competitor defection allowance" | Framework provision for reducing requirements if competitors ship without comparable safeguards |
+| RSP | 「Anthropic 的框架」 | Responsible Scaling Policy；ASL 分級；2026 年 2 月版 v3.0 |
+| PF | 「OpenAI 的框架」 | Preparedness Framework；五項準則；2025 年 4 月版 v2 |
+| FSF | 「DeepMind 的框架」 | Frontier Safety Framework；CCL；2025 年 9 月版 v3.0 |
+| ASL-3 | 「類似生物安全第 3 級」 | Anthropic 對應 CBRN 相關能力的級別；於 2025 年 5 月啟用 |
+| CCL | 「臨界能力等級」 | DeepMind 的閾值概念，依領域劃分 |
+| Safety case | 「正式論證」 | 在最壞情況假設下，說明部署安全性可接受的書面論證 |
+| Adjustment clause | 「允許因競爭對手變更政策」 | 若競爭對手在未採取可比防護措施下發布模型，框架可據此降低要求 |
 
 ## Further Reading｜延伸閱讀
 

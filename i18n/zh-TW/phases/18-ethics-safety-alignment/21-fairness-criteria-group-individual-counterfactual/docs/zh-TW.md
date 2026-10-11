@@ -1,6 +1,6 @@
 # 公平性準則——群體、個體與反事實（Fairness Criteria — Group, Individual, Counterfactual）
 
-> 三大流派建構了現代公平性研究的完整架構體系。群體公平（Group fairness）：統計平等人數（Demographic parity）、均等化賠率（Equalized odds）、條件使用準確度均等（Conditional use accuracy equality）——核心要求受保護群體在統計均值上的各項機率相等。個體公平（Individual fairness，Dwork 等人，2012）：相似的個體應當獲得相似的決策裁定；在數學上表現為決策映射函數滿足李普希茨連續性條件（Lipschitz condition）。反事實公平（Counterfactual fairness，Kusner 等人，2017）：若某個體在因果世界模型中將其敏感屬性反事實替換後其決策結果保持不變，則該決策對其公平。2024 年重大理論突破（NeurIPS 2024）：反事實公平與預測準確度之間存在不可調和的內生權衡；提出了一套模型無關方法，能以有界且微小的精度折損，將最優但不公的預測器平滑投影轉換為反事實公平預測器。溯因反事實（Backtracking counterfactuals，arXiv:2401.13935，2024 年 1 月）：開闢了全新範式，巧妙規避了對法定受保護屬性實施直接干預的法理死穴。哲學調和（ICLR Blogposts 2024）：在明確因果有向無環圖（DAG）的前提下，滿足特定群體公平指標在實質上隱含並導向了反事實公平。
+> 三大流派建構了現代公平性研究的完整架構體系。群體公平（Group fairness）：人口統計均等（demographic parity）、均等化賠率（Equalized odds）、條件使用準確度均等（Conditional use accuracy equality）——核心要求受保護群體在統計均值上的各項機率相等。個體公平（Individual fairness，Dwork 等人，2012）：相似的個體應當獲得相似的決策裁定；在數學上表現為決策映射函數滿足李普希茨連續性條件（Lipschitz condition）。反事實公平（Counterfactual fairness，Kusner 等人，2017）：若某個體在因果世界模型中將其敏感屬性反事實替換後其決策結果保持不變，則該決策對其公平。2024 年重大理論突破（NeurIPS 2024）：反事實公平與預測準確度之間存在不可調和的內生權衡；提出了一套模型無關方法，能以有界且微小的精度折損，將最優但不公的預測器平滑投影轉換為反事實公平預測器。溯因反事實（Backtracking counterfactuals，arXiv:2401.13935，2024 年 1 月）：開闢了全新範式，巧妙規避了對法定受保護屬性實施直接干預的法理死穴。哲學調和（ICLR Blogposts 2024）：在明確因果有向無環圖（DAG）的前提下，滿足特定群體公平指標在實質上隱含並導向了反事實公平。
 
 **Type:** Learn
 **Languages:** Python (stdlib, three-criteria comparison)
@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 精確陳述三大群體公平性準則（人口統計平等、均等化賠率、條件使用準確度均等），並深刻理解著名的不可能定理（Impossibility theorem）。
+- 精確陳述三大群體公平性準則（人口統計均等、均等化賠率、條件使用準確度均等），並深刻理解著名的不可能定理（Impossibility theorem）。
 - 掌握 Dwork 等人 2012 年基於李普希茨（Lipschitz）連續條件形式化定義的個體公平性。
 - 描述反事實公平性（Counterfactual fairness）的數學內涵，及其對因果有向無環圖（Causal DAG）的深層依賴。
 - 剖析溯因反事實（Backtracking counterfactuals），並說明其如何繞過「在反歧視法理上不得對敏感屬性實施實體干預」的法律障礙。
@@ -22,7 +22,7 @@
 
 ### 群體公平（Group fairness）
 
-- **統計平等人數（Demographic parity）**：P(Y=1 | A=a) = P(Y=1 | A=a') 對所有群體嚴格成立。要求跨群體的絕對正向獲批率相等。
+- **人口統計均等（demographic parity）**：P(Y=1 | A=a) = P(Y=1 | A=a') 對所有群體嚴格成立。要求跨群體的絕對正向獲批率相等。
 - **均等化賠率（Equalized odds）**：P(Y=1 | Y*=y, A=a) = P(Y=1 | Y*=y, A=a')。要求跨群體的真陽性率（TPR）與偽陽性率（FPR）同時相等。
 - **條件使用準確度均等（Conditional use accuracy equality）**：P(Y*=y | Y=y, A=a) = P(Y*=y | Y=y, A=a')。要求跨群體的陽性預測值（PPV）與陰性預測值（NPV）完全一致。
 
@@ -46,9 +46,9 @@ NeurIPS 2024 理論研究證實：反事實公平與預測準確度之間存在�
 
 ### 溯因反事實（Backtracking counterfactuals）
 
-arXiv:2401.13935（2024 年 1 月）。傳統反事實分析強制對敏感屬性實施直接干預——「若這個人原本是另一種性別，系統的決策是否會改變？」在法理學上這面臨巨大挑戰：各國反歧視法明確規定保護屬性屬於不可侵犯的先天狀態，不得在司法裁判中作為虛擬操作變數。
+arXiv:2401.13935（2024 年 1 月）。傳統反事實分析強制對敏感屬性實施直接干預——「若這個人原本是另一種性別，系統的決策是否會改變？」在法理學上這面臨巨大挑戰：在法律上可能有疑慮：分類法規可能不允許對受保護屬性進行這類干預。
 
-溯因反事實巧妙翻轉了推理方向：不再對先天屬性實施虛擬干預，而是向後反推——「這個人自身具備的哪些真實特徵組合，如果發生何種合理變更，本可以導向那個理想的反事實結果？」這項數學視角的反轉，徹底繞開了反歧視法律上的嚴肅爭議。
+溯因反事實巧妙翻轉了推理方向：不再對先天屬性實施虛擬干預，而是向後反推——「這個人自身具備的哪些真實特徵組合，如果發生何種合理變更，本可以導向那個理想的反事實結果？」這項數學視角的反轉可避開這項法律疑慮。
 
 ### 哲學調和（Philosophical reconciliation）
 
@@ -56,7 +56,7 @@ ICLR Blogposts 2024 系列專文指出：只要手握一張嚴謹的因果圖譜
 
 這雖然無法打破不可能定理（基礎機率不相等時依然無法同時湊齊三者），但它深刻證明：過去大眾眼裡「群體利益」與「個體權益」之間的尖銳對立，在很大程度上純粹是因為我們在建模時未曾明確寫下底層因果機制而造成的概念迷霧。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 20 節專攻偏見度量；第 21 節專攻公平性規範定義；第 22 節跨入差分隱私；第 23 節深入數位浮水印。這些研究共同築牢了面向實體人類福祉的社會公平防線。
 
@@ -66,7 +66,7 @@ an-fairness-trilemma
 
 ## Use It｜實際應用
 
-`code/main.py` 建構了一套帶有敏感屬性且各群體基礎機率不相等的微型二元分類資料集。在簡單分類器上同時計算統計平等人數、均等化賠率與條件使用準確度均等三大指標，在終端機中直觀印證不可能定理的劇烈衝突。隨後套用針對人口平等的樣本重加權演算法，親眼見證為了滿足一項指標時，另外兩項指標如何被迫付出慘痛的精度與公平代價。
+`code/main.py` 建構了一套帶有敏感屬性且各群體基礎機率不相等的微型二元分類資料集。在簡單分類器上同時計算人口統計均等、均等化賠率與條件使用準確度均等三大指標，在終端機中直觀印證不可能定理的劇烈衝突。隨後套用針對人口統計均等的樣本重加權演算法，親眼見證為了滿足一項指標時，另外兩項指標如何被迫付出慘痛的精度與公平代價。
 
 ## Ship It｜交付成果
 
@@ -74,7 +74,7 @@ an-fairness-trilemma
 
 ## Exercises｜練習
 
-1. 執行 `code/main.py`。在預設測試資料下記錄三大群體公平性指標的具體數值。套用以「人口統計平等」為導向的重加權算法後重新測量。詳細對比另外兩項指標發生的劇烈波動。
+1. 執行 `code/main.py`。在預設測試資料下記錄三大群體公平性指標的具體數值。套用以「人口統計均等」為導向的重加權演算法後重新測量。詳細對比另外兩項指標發生的劇烈波動。
 2. 採用非敏感特徵上的 L2 歐幾里得幾何距離，動手實作 Dwork 等人 2012 年的個體公平性度量函數。統計在常數 L=1 的約束下，資料集中共有多少對個體直接違反了李普希茨連續條件？
 3. 仔細研讀 Kusner 等人（2017）原著論文。為一個自動化履歷篩選系統手繪一張包含兩個特徵的簡易因果有向無環圖（DAG），並寫出該圖所隱含的反事實公平性約束方程。
 4. 2024 年的溯因反事實技術徹底規避了對法定受保護屬性的直接虛擬干預。舉出一個真實司法訴訟場景，深入論證為何該特性對於企業應對就業歧視指控具備至關重要的勝訴意義。
@@ -82,15 +82,15 @@ an-fairness-trilemma
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Demographic parity | "equal rates" | P(Y=1 | A=a) equal across groups |
-| Equalized odds | "equal TPR/FPR" | Equal true-positive and false-positive rates across groups |
-| Conditional use accuracy | "equal PPV/NPV" | Equal predictive values across groups |
-| Individual fairness | "Lipschitz condition" | Similar individuals get similar decisions |
-| Counterfactual fairness | "causal alteration invariance" | Decision unchanged under counterfactual attribute alteration |
-| Backtracking counterfactual | "explain via actuals" | Counterfactual reasoned backward from outcome, not forward from attribute |
-| Impossibility theorem | "the three conflict" | Chouldechova / KMR 2017: group criteria mutually exclusive under unequal base rates |
+| Demographic parity | 「各群體比率相等」 | 各群體的 P(Y=1 | A=a) 相等 |
+| Equalized odds | 「TPR／FPR 相等」 | 各群體的真陽性率與偽陽性率相等 |
+| Conditional use accuracy | 「PPV／NPV 相等」 | 各群體的預測值相等 |
+| Individual fairness | 「Lipschitz 條件」 | 相似的個體得到相似的決策 |
+| Counterfactual fairness | 「對因果屬性變更保持不變」 | 在反事實情境下變更屬性，決策仍保持不變 |
+| Backtracking counterfactual | 「從實際特徵反向解釋」 | 從結果往回推理反事實，而非從屬性往前推理 |
+| Impossibility theorem | 「三項準則彼此衝突」 | Chouldechova／KMR（2017）：基礎率不相等時，群體公平準則彼此互斥 |
 
 ## Further Reading｜延伸閱讀
 

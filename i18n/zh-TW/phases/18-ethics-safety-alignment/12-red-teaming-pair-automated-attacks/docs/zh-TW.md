@@ -33,7 +33,7 @@
 1. 為攻擊者 A 注入惡意目標 G 以及截至目前為止的所有歷史（Prompt, 回應）對話記錄。
 2. 攻擊者 A 總結前期被拒絕的教訓，生成一條全新的候選越獄 Prompt p_k。
 3. 將 p_k 送交目標模型 T；接收其輸出的原始回應 r_k。
-4. 由獨立裁判 J 對照原始惡意目標 G，為 (p_k, r_k) 組合進行安全合規打分。
+4. 由獨立裁判 J 評估回應是否達成攻擊目標 G，並為 (p_k, r_k) 評分。
 5. 若評分大於等於預設判定閾值，演算法立即終止——宣告成功找到越獄越權 Prompt。
 6. 否則，將 (p_k, r_k) 完整追加進攻擊者 A 的上下文歷史中；繼續推進下一輪迭代。
 
@@ -65,7 +65,7 @@ GCG（Zou 等人，2023）透過計算底層梯度，在 Token 離散空間中�
 
 ### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
 
-第 12 節確立了自動化對抗攻擊的算法底座。第 13 節（多樣本越獄）探討基於超長上下文的長度漏洞；第 14 節（ASCII 藝術與視覺越獄）探討多模態編碼攻擊；第 15 節（間接 Prompt 注入）剖析 2026 年最具威脅的正式環境實體受攻擊面；第 16 節則全面轉向對應的防禦工具鏈（Llama Guard、Garak、PyRIT）。
+第 12 節確立了自動化對抗攻擊的演算法基礎。第 13 節（多樣本越獄）探討基於超長上下文的長度漏洞；第 14 節（ASCII 藝術與視覺越獄）探討多模態編碼攻擊；第 15 節（間接 Prompt 注入）剖析 2026 年最具威脅的正式環境實體受攻擊面；第 16 節則全面轉向對應的防禦工具鏈（Llama Guard、Garak、PyRIT）。
 
 ```figure
 al-pair-loop
@@ -89,15 +89,15 @@ al-pair-loop
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| PAIR | "automated jailbreak" | Prompt Automatic Iterative Refinement; attacker-LLM + judge-LLM loop |
-| GCG | "gradient jailbreak" | White-box token-level gradient search for adversarial suffixes |
-| Attack success rate (ASR) | "% jailbreaks at k queries" | Primary metric; must be reported with query budget and judge identity |
-| Judge LLM | "the scorer" | LLM that grades whether a response satisfies the harmful goal |
-| JailbreakBench | "the evaluation" | Standardized harmful-behaviour set with tagged categories |
-| HarmBench | "the broader bench" | 510 behaviours, functional + semantic harm tests |
-| TAP | "tree of attacks" | PAIR with branching + pruning; better ASR at higher compute |
+| PAIR | 「自動化越獄」 | Prompt Automatic Iterative Refinement（prompt 自動迭代精煉）；攻擊者 LLM 與裁判 LLM 的循環 |
+| GCG | 「梯度越獄」 | 以白箱、token 層級的梯度搜尋尋找對抗性後綴 |
+| Attack success rate (ASR) | 「k 次查詢內的越獄百分比」 | 主要指標；必須連同查詢預算與裁判身分一併回報 |
+| Judge LLM | 「評分器」 | 評估回應是否達成有害目標的 LLM |
+| JailbreakBench | 「評估基準」 | 依標記類別整理的標準化有害行為集合 |
+| HarmBench | 「範圍更廣的基準」 | 510 種行為，包含功能性與語意傷害測試 |
+| TAP | 「攻擊樹」 | 加入分岔與剪枝的 PAIR；使用更多運算資源可提高 ASR |
 
 ## Further Reading｜延伸閱讀
 

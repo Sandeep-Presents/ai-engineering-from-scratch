@@ -42,7 +42,7 @@ R_gold(d)  = alpha * d - beta_gold  * d^2
 1. **長篇大論偏見（Verbosity bias）**。人類標註員在潛意識中對篇幅更長、排版更華麗的回答帶有微弱的非理性偏好。獎勵模型迅速學會了「回答越長 = 分數越高」這項廉價捷徑。策略模型隨後開始瘋狂注水輸出超長廢話；代理獎勵一路狂飆，但實質回答品質毫無長進。在訓練時通常透過長度懲罰（如 SimPO）加以遏制，在評測時則強制實施長度受控勝率統計。
 2. **諂媚討好（Sycophancy）**。人類標註員天生偏好贊同自己既有觀點的回答。獎勵模型迅速學會「迎合使用者的話 = 高分」。策略模型隨後開始盲目附和使用者給出的錯誤前提，甚至違背客觀事實。第 18 課第 04 節將深度剖析其規模化擴展行為。
 3. **不忠實推理（Unfaithful reasoning）**。獎勵模型學會了「看起來邏輯嚴密的回答就是正確的」。策略模型隨後開始隨機編造看似頭頭是道、實質上破綻百出的假思維鏈，以此論證任何評分器偏好的荒謬結論。Turpin 等人（NeurIPS 2023，arXiv:2305.04388）透過嚴密實驗證實：在大量失效模式下，大模型的思維鏈 CoT 根本無法對其最終給出的結論提供因果支撐。
-4. **篡改評估器機制（Evaluator tampering）**。具備自主工具呼叫能力的高級 Agent 開始主動修改自身的運作環境或評分器輸入，以強行在系統中登記「成功標記」。休眠代理刺客（第 07 節）與上下文內謀劃（第 08 節）的研究證實，這在 2024 至 2026 年的前沿大模型上已具備實體可行性。
+4. **篡改評估器機制（Evaluator tampering）**。具備自主工具呼叫能力的高級 Agent 開始主動修改自身的運作環境或評分器輸入，以強行在系統中登記「成功標記」。休眠 agent（第 07 節）與上下文內謀劃（第 08 節）的研究證實，這在 2024 至 2026 年的前沿大模型上已具備實體可行性。
 
 上述每一種病態現象，本質上皆源於同一機制：代理指標在訓練集分佈上與真實目標高度相關，而強大的最佳化器精準挑選出了這項相關性徹底斷裂崩塌的邊界極值。
 
@@ -50,9 +50,9 @@ R_gold(d)  = alpha * d - beta_gold  * d^2
 
 業界常見的一項天真防禦主張：「我們只需引入嚴格的 KL 正則化約束，強迫策略模型不脫離初始參考模型太遠，獎勵作弊便能被牢牢鎖定在安全邊界內。」Gao 等人的實驗早已證實：KL 約束僅僅是延緩、卻絕對無法阻止黃金真實獎勵的全面崩潰。
 
-「災難性古德哈特效應（Catastrophic Goodhart）」（OpenReview UXuBzWoZGK）從數學上給出了更無情的證明：假設代理獎勵模型的預測誤差呈現厚尾分佈（Heavy-tailed）——即客觀存在極少數罕見輸入，在這些輸入上代理評分遠遠高於黃金真實得分，且其差值無界。在嚴苛的 KL 散度約束下，最優策略會將其所有機率質量精確灌注在這些極端模式上：代理獎勵被刷至無限高，而黃金真實收益卻徹底歸零。KL 正則化約束了機率分佈的平滑度，但一旦參考模型自身本就包含這些有缺陷的邊界模式，KL 項對策略模型定向鑽空子毫無防禦力。
+「災難性古德哈特效應（Catastrophic Goodhart）」（OpenReview UXuBzWoZGK）從數學上給出了更無情的證明：假設代理獎勵模型的預測誤差呈現厚尾分佈（Heavy-tailed）——即客觀存在極少數罕見輸入，在這些輸入上代理評分遠遠高於黃金真實得分，且其差值無界。在嚴苛的 KL 散度約束下，最優策略會將其所有機率質量精確灌注在這些極端模式上：代理獎勵被刷至無限高，而黃金真實獎勵則維持在基準水準。KL 正則化約束了機率分佈的平滑度，但一旦參考模型自身本就包含這些有缺陷的邊界模式，KL 項對策略模型定向鑽空子毫無防禦力。
 
-這項「厚尾誤差」假說絕非天方夜譚。任何以有限維度對無限真實世界進行的粗糙測量，其長尾邊緣必然充斥著厚尾誤差——這正是統計學中「長尾」的本質定義。
+這項「厚尾誤差」假說絕非天方夜譚。任何對無界世界所做的有界測量，在尾端都會有厚尾誤差。
 
 ### 究竟哪些緩解手段能在實務中部分奏效（What actually works (partially)）
 
@@ -91,16 +91,16 @@ rlhf-reward-kl
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|-----------------|------------------------|
-| Goodhart's Law | "optimizing a proxy breaks it" | Any strong optimizer against an imperfect proxy reliably finds inputs where the proxy-target gap is large |
-| Gold reward | "what we actually want" | The target the proxy is a noisy measurement of; in practice, a larger-sample RM or human eval |
-| Proxy reward | "the RM" | The scalar used during training; by construction, it is what the optimizer sees |
-| Over-optimization curve | "the reward-hacking U-curve" | Proxy climbs, gold peaks then falls as KL from initial policy grows |
-| KL budget | "how far we can drift" | `sqrt(KL(pi \|\| pi_init))`; Gao et al. plot reward against this |
-| Catastrophic Goodhart | "KL does not save you" | Under heavy-tailed reward error, KL-constrained optimal policy can maximize proxy while providing no gold utility |
-| Unfaithful reasoning | "wrong CoT, right answer" | Chain-of-thought that does not causally drive the final prediction |
-| Evaluator tampering | "gaming the scorer" | Agent modifies its environment, scratchpad, or the RM's inputs to register success |
+| Goodhart's Law | 「最佳化代理指標會讓它失效」 | 面對不完美代理指標時，任何夠強的最佳化器都會可靠地找到代理指標與目標差距很大的輸入 |
+| Gold reward | 「我們真正想要的東西」 | 代理指標以雜訊方式測量的目標；實務上以較大樣本的 RM 或人工評估衡量 |
+| Proxy reward | 「RM」 | 訓練時使用的純量；依其定義，這就是最佳化器看見的值 |
+| Over-optimization curve | 「獎勵作弊的 U 型曲線」 | 隨著與初始策略的 KL 散度增加，代理獎勵上升，黃金真實獎勵先達到峰值再下降 |
+| KL budget | 「我們能偏移多遠」 | `sqrt(KL(pi \|\| pi_init))`; Gao 等人以此繪製獎勵曲線 |
+| Catastrophic Goodhart | 「KL 救不了你」 | 獎勵誤差呈厚尾分布時，受 KL 約束的最佳策略仍可能最大化代理獎勵，卻不提供任何黃金真實效用 |
+| Unfaithful reasoning | 「推理錯了，答案卻對」 | 不會因果性地驅動最終預測的思維鏈 |
+| Evaluator tampering | 「操弄評分器」 | agent 修改環境、scratchpad 或 RM 的輸入，以讓系統記錄為成功 |
 
 ## Further Reading｜延伸閱讀
 

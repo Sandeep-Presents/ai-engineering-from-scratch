@@ -51,7 +51,7 @@ L_DPO = -log sigmoid(
 
 原始架構中潛藏的致命隱患：
 
-- 隱式獎勵差距 `beta * (log(pi/pi_ref)_w - log(pi/pi_ref)_l)` 在數學上是無界的。即便微弱的人類偏好，亦會被放大為無限大的隱式鴻溝。
+- 隱式獎勵差距 `beta * (log(pi/pi_ref)_w - log(pi/pi_ref)_l)` 在數學上是無界的。微小的偏好也可能產生任意大的隱式獎勵差距。
 - 該損失函數將被選中（Chosen）與被拒絕（Rejected）的對數機率推向相反方向。只要被拒絕答案的對數機率下跌得更快，被選中答案自身的絕對對數機率甚至會被同步拉低。這被稱為「劣質選中回應（Degraded Chosen Response）」病態現象。
 - 分佈外偏好資料（罕見偏好對抗罕見偏好）會產出完全不可控的荒謬隱式獎勵。
 
@@ -142,17 +142,17 @@ dpo-margin
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|-----------------|------------------------|
-| DPO | "RLHF without a reward model" | Loss derived from the closed-form RLHF optimum; policy parameters only |
-| Implicit reward | "the log-ratio" | `beta * log(pi(y\|x) / pi_ref(y\|x))` — the DPO-implied reward |
-| IPO | "bounded DPO" | Replaces log-sigmoid with identity; implicit reward gap capped by `1/(2 beta)` |
-| KTO | "unpaired DPO" | Prospect-theory utility over single labels with loss aversion |
-| SimPO | "reference-free DPO" | Length-normalized log-likelihood + margin; no reference policy |
-| ORPO | "one-stage DPO" | NLL + odds-ratio preference term; trains from base model in one pass |
-| BPO | "chosen-preserving DPO" | DPO plus a penalty for decreasing the chosen response's absolute log-prob |
-| Degraded Chosen | "chosen goes down" | DPO decreases chosen log-prob so long as rejected falls faster |
-| DAA | "direct alignment algorithm" | Any preference-loss method that skips an explicit RM |
+| DPO | 「不使用獎勵模型的 RLHF」 | 從 RLHF 的封閉解最佳解推導出的損失；僅需策略參數 |
+| Implicit reward | 「對數比值」 | `beta * log(pi(y\|x) / pi_ref(y\|x))` — DPO 隱含的獎勵 |
+| IPO | 「有界 DPO」 | 以恆等函數取代 log-sigmoid；隱含獎勵差距上限為 `1/(2 beta)` |
+| KTO | 「非成對 DPO」 | 對單一標籤套用展望理論效用與損失趨避 |
+| SimPO | 「不需參考模型的 DPO」 | 長度正規化的對數概似加上間隔；不使用參考策略 |
+| ORPO | 「單階段 DPO」 | NLL 加上勝算比偏好項；一次從基礎模型訓練 |
+| BPO | 「保留 chosen 的 DPO」 | 在 DPO 中加入懲罰，避免降低 chosen 回應的絕對對數機率 |
+| Degraded Chosen | 「chosen 下降」 | 只要 rejected 的對數機率下降得更快，DPO 就會降低 chosen 的對數機率 |
+| DAA | 「直接對齊演算法」 | 跳過明確 RM 的任何偏好損失方法 |
 
 ## Further Reading｜延伸閱讀
 

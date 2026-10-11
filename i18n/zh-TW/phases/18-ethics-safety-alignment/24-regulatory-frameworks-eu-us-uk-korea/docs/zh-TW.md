@@ -57,7 +57,7 @@
 
 ### 美國 CAISI（2025 年 6 月重組成立）
 
-美國新政府正式將隸屬於 NIST 的原 AI Safety Institute 重新改組為「AI 標準與創新中心（Center for AI Standards and Innovation, CAISI）」。官方監管哲學全面轉向「親增長、親創新（Pro-growth）」的產業扶持立場。大幅削減了對前置繁複安全評測的硬性行政干預，轉為強調技術標準制定與商業創新保護。這構成了與歐盟嚴苛監管主義分庭抗禮的強大國家競爭力地緣對衝。
+美國新政府正式將隸屬於 NIST 的原 AI Safety Institute 重新改組為「AI 標準與創新中心（Center for AI Standards and Innovation, CAISI）」。官方監管哲學全面轉向「親增長、親創新（Pro-growth）」的產業扶持立場。降低了對部署前評估的重視程度，並轉向強調標準制定與創新支援。這構成了與歐盟嚴苛監管主義分庭抗禮的強大國家競爭力地緣對衝。
 
 ### 韓國《人工智慧基本法》
 
@@ -79,9 +79,9 @@
 
 面對這場全球監管哲學的劇烈碰撞，任何跨國業務團隊在架構設計上皆必須「向上相容於最嚴苛的標準」——在 2026 年，這意味著你的底層系統架構必須無條件優先滿足歐盟 AI 法案的要求。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
-第 18 節涵蓋實驗室自願性框架；第 24 節確立各國法定硬性約束；第 25 節將探討大模型專屬的 CVE 漏洞庫；第 26 與 27 節則將落地文檔規範（模型卡）與預訓練資料血緣治理。
+第 18 節涵蓋實驗室自願性框架；第 24 節確立各國法定硬性約束；第 25 節將探討大模型專屬的 CVE 漏洞庫；第 26 與 27 節則將落實文件規範（模型卡）與預訓練資料血緣治理。
 
 ```figure
 an-eu-act-timeline
@@ -105,15 +105,15 @@ an-eu-act-timeline
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| EU AI Act | "the regulation" | Risk-tier-based horizontal AI regulation; in force Aug 2024 |
-| GPAI | "general-purpose AI" | Large foundation models; systemic-risk subset has additional obligations |
-| Article 50 | "transparency obligations" | AI-generated content labelling; applies Aug 2026 |
-| UK AISI | "AI Security Institute" | Renamed Feb 2025; narrower frontier-security focus |
-| CAISI | "US center for AI standards" | Renamed Jun 2025 from AI Safety Institute; pro-growth posture |
-| Korean AI Framework Act | "MSIT horizontal regulation" | First Asian comprehensive AI law; effective Jan 2026 |
-| Systemic-risk GPAI | "the 1e25 FLOP threshold" | Additional obligations tier; estimated 5-15 companies bound |
+| EU AI Act | 「這項法規」 | 依風險分級的橫向 AI 法規；2024 年 8 月生效 |
+| GPAI | 「通用 AI」 | 大型基礎模型；系統性風險子類別另有義務 |
+| Article 50 | 「透明度義務」 | AI 生成內容標示；2026 年 8 月適用 |
+| UK AISI | 「AI 安全研究所」 | 2025 年 2 月更名，聚焦範圍較窄的前沿安全 |
+| CAISI | 「美國 AI 標準中心」 | 2025 年 6 月由 AI Safety Institute 更名；立場轉向支持成長 |
+| Korean AI Framework Act | 「MSIT 橫向法規」 | 亞洲首部綜合性 AI 法律；2026 年 1 月生效 |
+| Systemic-risk GPAI | 「1e25 FLOP 門檻」 | 額外義務的分級，估計涵蓋 5 至 15 家業者 |
 
 ## Further Reading｜延伸閱讀
 

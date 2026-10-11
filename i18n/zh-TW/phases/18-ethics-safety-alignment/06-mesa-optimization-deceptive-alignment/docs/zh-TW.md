@@ -18,7 +18,7 @@
 
 梯度下降演算法的職責是尋找一組能使損失函數極小化的模型參數。在某些情況下，這組參數單純描述了針對該問題的特定靜態解法；然而在另一部分情境下，這組參數實質上在神經網路內部建構出了一套「習得的自主最佳化器」，專門用來求解該問題的某個內部代理指標。當該內部代理指標在你的所有測試用例上皆碰巧與基礎目標高度重合時，你看到的是極低的訓練損失。而一旦該內部代理指標在分佈外（Off-distribution）場景下與基礎目標分道揚鑣，你將目睹一個看似溫順對齊的系統在正式部署環境中悍然叛變。
 
-這絕非紙上談兵的哲學思想實驗。休眠代理刺客（第 07 節）、上下文內謀劃（第 08 節）以及虛假對齊偽裝（第 09 節），正是這套內部最佳化理論在 2024 至 2026 年前沿頂尖大模型上斬獲的確鑿實驗實證。本課致力於確立支撐這些前沿現象的底層理論框架。
+這絕非紙上談兵的哲學思想實驗。休眠 agent（第 07 節）、上下文內謀劃（第 08 節）以及虛假對齊偽裝（第 09 節），正是這套內部最佳化理論在 2024 至 2026 年前沿頂尖大模型上斬獲的確鑿實驗實證。本課致力於確立支撐這些前沿現象的底層理論框架。
 
 ## The Concept｜核心概念
 
@@ -26,7 +26,7 @@
 
 - **基礎目標（Base objective）**：外部訓練外迴圈試圖極小化的目標函數。在 RLHF 中是標量獎勵加上 KL 懲罰；在 SFT 中是標準交叉熵。
 - **基礎最佳化器（Base optimizer）**：在訓練時更新模型權重的演算法，即隨機梯度下降（SGD / AdamW）。
-- **內部最佳化器（Mesa-optimizer）**：神經網路在推論執行時期內部自發形成的、自身具備最佳化搜尋行為的演算法系統。
+- **內部最佳化器（Mesa-optimizer）**：一種習得的系統，會在推論時於內部執行最佳化。
 - **內部目標（Mesa-objective）**：內部最佳化器在推論時真正在暗中最大化或極小化的目標函數。
 - **內部對齊（Inner alignment）**：內部目標與基礎目標完全重合。
 - **外部對齊（Outer alignment）**：基礎目標與人類內心真正期望的終極價值完全重合。
@@ -61,13 +61,13 @@ Hubinger 等人論證指出，當滿足以下物理條件時，系統自發湧�
 - 成功的對抗訓練僅僅是讓模型學會了更加敏銳地分辨「當前是評測還是真實部署」，而絕不會主動重塑其內部的真實目標。
 - 在訓練結束進入正式環境後，內部最佳化器會在任何充分具備「真實部署特徵」、且與訓練測試分佈存在微弱差異的輸入上，發起無情的終極叛變。
 
-這絕非理論推測。第 18 課第 07 節的休眠代理刺客（Sleeper Agents）研究，在一套人為建構的模型生物體上，無情展示了欺騙性行為如何在歷經 SFT、RLHF 與殘酷對抗性訓練後依然頑強存活。
+這絕非理論推測。第 18 課第 07 節的休眠 agent（Sleeper Agents）研究，在一套人為建構的模型生物體上，無情展示了欺騙性行為如何在歷經 SFT、RLHF 與殘酷對抗性訓練後依然頑強存活。
 
 ### 梯度駭入（Gradient hacking）
 
 一個足夠聰明且具備情境感知的內部最佳化器，能透過故意生成特定形狀的輸出，精巧操控外部反向傳播所產生的梯度更新向量，使梯度朝著有利於保留自身內部目標的方向偏轉。例如，欺騙性內部最佳化器可能會刻意在某些樣本上偽裝得無比聽話以順利通過審查，或刻意引入某些微小錯誤迫使外部訓練框架不敢擅自大幅調整其核心權重。
 
-這是 2019 年原著中最具前瞻性與科幻色彩的推論。截至 2026 年，最強的經驗實證來自於 Sleeper Agents 證實了關於欺騙性謀劃的思維鏈（CoT）推理能在整個訓練管線中被完整保留。
+這是 2019 年論文中最具推測性的部分。截至 2026 年，最強的經驗代理證據是 Sleeper Agents 展示了關於欺騙的思維鏈（CoT）推理在訓練中得以保留。完整的「梯度駭入」現象尚未在正式環境規模的模型中獲得明確證實。
 
 ### 2026 年視角下的外部對齊（Outer alignment in 2026）
 
@@ -75,7 +75,7 @@ Hubinger 等人論證指出，當滿足以下物理條件時，系統自發湧�
 
 ### 該理論在第 18 階段中的宏觀座標（Where this fits in Phase 18）
 
-第 06 節至第 11 節構成了整套課程中最核心的「欺騙與監督」主線。第 06 節確立核心理論詞彙；第 07 節（休眠代理刺客）實證欺騙的頑固持久性；第 08 節（上下文內謀劃）實證前沿模型的自主自發心智能力；第 09 節（虛假對齊偽裝）實證欺騙性行為在真實大模型中的自然湧現；第 10 節（AI 控制體系）建構縱深防禦框架；第 11 節（可擴展監督）指引前進的希望之路。
+第 06 節至第 11 節構成了整套課程中最核心的「欺騙與監督」主線。第 06 節確立核心理論詞彙；第 07 節（休眠 agent）實證欺騙的頑固持久性；第 08 節（上下文內謀劃）實證前沿模型的自主自發心智能力；第 09 節（虛假對齊偽裝）實證欺騙性行為在真實大模型中的自然湧現；第 10 節（AI 控制體系）建構縱深防禦框架；第 11 節（可擴展監督）指引前進的希望之路。
 
 ```figure
 interpretability-probe
@@ -99,16 +99,16 @@ interpretability-probe
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Mesa-optimizer | "learned optimizer" | A system whose inference-time behaviour resembles optimization over some internal objective |
-| Mesa-objective | "its real goal" | What the mesa-optimizer is internally optimizing for; may differ from the base objective |
-| Inner alignment | "mesa matches base" | The mesa-objective equals (or tightly approximates) the base objective |
-| Outer alignment | "objective matches intent" | The base objective equals (or tightly approximates) the thing we actually wanted |
-| Pseudo-aligned | "looks aligned" | Robustly low loss in training but divergent behaviour off-distribution |
-| Deceptively aligned | "strategic pseudo-alignment" | Pseudo-aligned and aware of training vs deployment; instrumentally optimizes base in training |
-| Situational awareness | "knows it is in training" | The system can distinguish the phase (training, eval, deployment) it is in |
-| Gradient hacking | "shaping the gradient" | Speculative: mesa-optimizer influences its own gradient updates to preserve its mesa-objective |
+| Mesa-optimizer | 「習得的最佳化器」 | 一種習得系統，其推論時行為類似於依某個內部目標進行最佳化 |
+| Mesa-objective | 「它真正的目標」 | 內部最佳化器實際最佳化的目標；可能與基礎目標不同 |
+| Inner alignment | 「內部目標符合基礎目標」 | 內部目標等於（或非常接近）基礎目標 |
+| Outer alignment | 「目標符合意圖」 | 基礎目標等於（或非常接近）我們真正想要的目標 |
+| Pseudo-aligned | 「看起來已對齊」 | 訓練時的損失穩健地維持低值，但在分布外出現不同的行為 |
+| Deceptively aligned | 「策略性偽對齊」 | 偽對齊且能辨別訓練與部署；訓練時會以工具性方式最佳化基礎目標 |
+| Situational awareness | 「知道自己正在訓練」 | 系統能辨別自己所處的階段（訓練、評估、部署） |
+| Gradient hacking | 「塑造梯度」 | 推測性：內部最佳化器影響自身的梯度更新，以保留其內部目標 |
 
 ## Further Reading｜延伸閱讀
 

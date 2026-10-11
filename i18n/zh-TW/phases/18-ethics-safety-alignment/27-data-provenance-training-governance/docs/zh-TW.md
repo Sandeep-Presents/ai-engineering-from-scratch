@@ -22,7 +22,7 @@
 
 ### 加州 AB 2013 法案（California AB 2013）
 
-於 2024 年正式簽署成法。對於在 2022 年 1 月 1 日或之後發布的系統，開發者必須在 2026 年 1 月 1 日當天或之前在官方網站公開相關文檔。法案第 3111(a) 條強制要求開發者發布訓練所用資料集的高階摘要，嚴格涵蓋 12 項法定具體項目：
+於 2024 年正式簽署成法。對於在 2022 年 1 月 1 日或之後發布的系統，開發者必須在 2026 年 1 月 1 日當天或之前在官方網站公開相關文件。法案第 3111(a) 條強制要求開發者發布訓練所用資料集的高階摘要，嚴格涵蓋 12 項法定具體項目：
 1. 資料集的原始來源或合法所有者。
 2. 該資料集如何具體服務於該 AI 系統預期目標的架構說明。
 3. 資料集內部的資料點（Data points）總數量（允許給出大致區間；動態增長資料集允許給出合理估算）。
@@ -65,11 +65,11 @@
 
 ### 資料血緣倡議（Data Provenance Initiative）
 
-官方網站 dataprovenance.org。Longpre、Mahari、Lee 等人發布的重磅調查報告《Consent in Crisis》（2024 年 7 月）：針對全球 AI 訓練公共語料庫展開了全景式實證審計。核心結論：全球各大頂級網站與出版商正在以指數級速度追加 robots.txt 禁爬限制。全人類原本自由共享的開源資料公共地（Commons）正在以驚人的速度急劇枯竭。僅在 2023 至 2024 年的短短一年間，全球最頂尖的高質量訓練語料來源中，便有約 25% 增加了排他性限制。深遠影響：未來大模型預訓練資料的取得，將不可逆地全面依賴全新範式——商業版權採購授權、高品質合成資料生成，以及具備 Token 激勵的 Web3/開源協同生態。
+官方網站 dataprovenance.org。Longpre、Mahari、Lee 等人發布的重磅調查報告《Consent in Crisis》（2024 年 7 月）：針對全球 AI 訓練公共語料庫展開了全景式實證審計。核心結論：全球各大網站與出版商新增 robots.txt 限制的速度正在加快。全人類原本自由共享的開源資料公共地（Commons）正在以驚人的速度急劇枯竭。僅在 2023 至 2024 年的短短一年間，全球最頂尖的高質量訓練語料來源中，便有約 25% 增加了排他性限制。深遠影響：未來訓練資料的取得將仰賴新的方式，包括授權、合成生成與激勵式參與。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
-第 26 節規範模型層面的對外文檔；第 27 節規範資料集層面的源頭治理；兩者共同築牢了透明度防禦層。隨後的第 28 節將帶領讀者穿透至整個 AI 對齊科研生態系的核心機構（MATS、Redwood、Apollo、METR）。
+第 26 節規範模型層面的對外文件；第 27 節規範資料集層面的源頭治理；兩者共同築牢了透明度防禦層。隨後的第 28 節將帶領讀者穿透至整個 AI 對齊科研生態系的核心機構（MATS、Redwood、Apollo、METR）。
 
 ```figure
 an-provenance-oneway
@@ -77,7 +77,7 @@ an-provenance-oneway
 
 ## Use It｜實際應用
 
-`code/main.py` 實作了一套加州 AB 2013 宣告式腳手架生成器：針對一套玩具訓練資料集，自動生成包含 12 項法定欄位的標準 Markdown/JSON 揭露文檔。程式會自動標註哪些欄位會觸發後續的著作權或加州隱私法（CPRA）申報義務。
+`code/main.py` 實作了一套加州 AB 2013 宣告式腳手架生成器：針對一套玩具訓練資料集，自動生成包含 12 項法定欄位的標準 Markdown/JSON 揭露文件。程式會自動標註哪些欄位會觸發後續的著作權或加州隱私法（CPRA）申報義務。
 
 ## Ship It｜交付成果
 
@@ -93,15 +93,15 @@ an-provenance-oneway
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| AB 2013 | "the California law" | Generative AI training-data transparency; 12 mandated fields |
-| TDM exception | "text-and-data-mining" | EU Copyright Directive training-data exception with opt-out |
-| Legitimate interest | "the EU basis" | GDPR Article 6 basis that may justify training on public content |
-| Opt-out signal | "machine-readable no-train" | robots.txt, C2PA "No AI Training," TDM.Reservation |
-| Irreversibility | "cannot un-train" | Data in model weights is not surgically removable |
-| Unlearning | "approximate removal" | Post-training interventions to reduce model dependence on specific data |
-| Consent in Crisis | "the DPI audit" | July 2024 finding of accelerating robots.txt restrictions |
+| AB 2013 | 「加州法律」 | 生成式 AI 訓練資料透明度法；規定 12 項欄位 |
+| TDM exception | 「文字與資料探勘」 | 歐盟著作權指令中含退出機制的訓練資料例外條款 |
+| Legitimate interest | 「歐盟的法律依據」 | GDPR 第 6 條所列、可能適用於公開內容訓練的法律依據 |
+| Opt-out signal | 「機器可讀的禁止訓練訊號」 | robots.txt、C2PA「No AI Training」與 TDM.Reservation |
+| Irreversibility | 「無法取消訓練」 | 模型權重中的資料無法透過手術式方式移除 |
+| Unlearning | 「近似移除」 | 訓練後用來降低模型對特定資料依賴的介入方式 |
+| Consent in Crisis | 「DPI 稽核」 | 2024 年 7 月對 robots.txt 限制加速增加的發現 |
 
 ## Further Reading｜延伸閱讀
 

@@ -1,6 +1,6 @@
 # 指令遵循作為對齊訊號（Instruction-Following as Alignment Signal）
 
-> 後續所有對 RLHF 的尖銳批判，本質上皆是針對這套流水線展開的論辯。在深入研究「最佳化壓力如何扭曲代理指標」之前，你必須先看清這座代理指標的全貌。InstructGPT（Ouyang 等人，2022）奠定了這一領域的標準參考架構：在指令-回應配對上進行監督式 fine-tuning（SFT）、在成對偏好排序上訓練獎勵模型（Reward Model），隨後透過 PPO 演算法針對獎勵模型最佳化策略模型，並施加相對於 SFT 基準策略的 KL 散度懲罰。一個僅有 1.3B 參數的 InstructGPT 模型，在人類評估中全面擊敗了高達 175B 參數的原生 GPT-3。正是這項里程碑級的實驗結論，使得直到 2026 年全球每一家前沿頂尖實驗室依然在正式發布具備 RLHF 架構特徵的後訓練（Post-training）管線。
+> 後續所有對 RLHF 的尖銳批判，本質上皆是針對這套流水線展開的論辯。在深入研究「最佳化壓力如何扭曲代理指標」之前，你必須先看清這座代理指標的全貌。InstructGPT（Ouyang 等人，2022）奠定了這一領域的標準參考架構：在指令-回應配對上進行監督式 fine-tuning（SFT）、在成對偏好排序上訓練獎勵模型（Reward Model），隨後透過 PPO 演算法針對獎勵模型最佳化策略模型，並施加相對於 SFT 基準策略的 KL 散度懲罰。在人類偏好評估中，1.3B InstructGPT 比 175B GPT-3 更受偏好。正是這項里程碑級的實驗結論，使得直到 2026 年全球每一家前沿頂尖實驗室依然在正式發布具備 RLHF 架構特徵的後訓練（Post-training）管線。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy three-stage pipeline)
@@ -24,7 +24,7 @@
 
 ### 階段一：監督式 Fine-Tuning（SFT）（Stage 1: supervised fine-tuning (SFT)）
 
-蒐集一組高質量的「指令-回答」資料對，其中的回答嚴格符合一個心懷善意的專業人類所應撰寫的標準。Ouyang 等人從標註員與 OpenAI API 真實流量中精心篩選了 1.3 萬條 Prompt。使用標準的交叉熵損失函數（Cross-entropy loss）在該資料集上對基礎 Base 模型進行 fine-tuning。
+蒐集一組高品質的「指令－回應」配對，其中的回應是出自心懷善意的人會寫下的內容。Ouyang 等人使用來自標註員與 OpenAI API 的 1.3 萬個 prompts。使用標準的交叉熵損失函數（Cross-entropy loss）在該資料集上對基礎 Base 模型進行 fine-tuning。
 
 SFT 賦予模型的核心能力：模型學會了以解答者身分正面回答問題，而非無休止地續寫文字。SFT 尚未解決的缺陷：當面對多個語意合理但品質參差的候選答案時，SFT 模型完全缺乏分辨「標註員究竟更偏好哪一個」的微弱訊號。
 
@@ -71,7 +71,7 @@ PPO-ptx 隨後成為了全行業的事實標準。Anthropic、DeepMind 與 Meta 
 
 ### 為何這是貫穿第 18 階段的基石參照物（Why this is the reference point for Phase 18）
 
-後續章節中的每一項經典批評——獎勵作弊（第 02 節）、DPO 偏好直接最佳化（第 03 節）、諂媚討好（第 04 節）、憲法 AI（第 05 節）、休眠代理刺客（第 07 節）、虛假對齊偽裝（第 09 節）——本質上皆是在對這套經典管線的特定環節發起猛烈攻擊。獎勵作弊直接攻破階段二；DPO 將階段二與階段三融合成一體；憲法 AI 用 AI 裁判徹底取代人類標註員；諂媚討好證實了人類標註員自身本身就是充滿偏見的劣質訊號源；而虛假對齊偽裝更是證實了策略模型具備完全繞過階段三約束的高級心智能力。若未在腦海中先為這套標準管線建立清晰的架構座標，你將完全無法深刻理解後續的所有前沿安全博弈。
+後續章節中的每一項經典批評——獎勵作弊（第 02 節）、DPO 偏好直接最佳化（第 03 節）、諂媚討好（第 04 節）、憲法 AI（第 05 節）、休眠 agent（第 07 節）、虛假對齊偽裝（第 09 節）——本質上皆是在對這套經典管線的特定環節發起猛烈攻擊。獎勵作弊直接攻破階段二；DPO 將階段二與階段三融合成一體；憲法 AI 用 AI 裁判徹底取代人類標註員；諂媚討好證實了人類標註員自身本身就是充滿偏見的劣質訊號源；而虛假對齊偽裝更是證實了策略模型具備完全繞過階段三約束的高級心智能力。若未在腦海中先為這套標準管線建立清晰的架構座標，你將完全無法深刻理解後續的所有前沿安全博弈。
 
 ```figure
 al-instruct-pipeline
@@ -101,15 +101,15 @@ al-instruct-pipeline
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|-----------------|------------------------|
-| SFT | "instruction tuning" | Stage 1: cross-entropy fine-tune on prompt-response pairs |
-| Reward model | "the RM" | Scalar regressor over (prompt, response) trained with Bradley-Terry on pairwise labels |
-| Bradley-Terry | "pairwise preference loss" | -log sigmoid(r_w - r_l); reduces pairwise ranking to binary classification |
-| KL penalty | "the regularizer" | `beta * KL(pi \|\| pi_SFT)` — keeps the RL policy near the SFT anchor |
-| PPO-ptx | "PPO with pretraining mix" | Adds a fraction of pre-training log-likelihood to the PPO objective to offset the alignment tax |
-| Alignment tax | "the RLHF regression" | Post-RLHF drop on standard benchmarks that RLHF did not target |
-| Labeler preference | "the ground truth" | Sample of human rankings; the RM is a statistical proxy for this, not for "human values" |
+| SFT | 「指令調校」 | 階段 1：在 prompt－回應配對上以交叉熵進行 fine-tuning |
+| Reward model | 「RM」 | 以 Bradley-Terry 損失和成對標籤訓練、作用於（prompt, response）的純量迴歸器 |
+| Bradley-Terry | 「成對偏好損失」 | -log sigmoid(r_w - r_l)；將成對排序轉化為二元分類 |
+| KL penalty | 「正則化項」 | `beta * KL(pi \|\| pi_SFT)` — 讓 RL 策略維持在 SFT 錨點附近 |
+| PPO-ptx | 「混合預訓練資料的 PPO」 | 將部分預訓練對數概似加入 PPO 目標，以抵銷對齊稅 |
+| Alignment tax | 「RLHF 的退化」 | RLHF 未曾針對的標準基準測試，在 RLHF 後出現表現下降 |
+| Labeler preference | 「真實答案」 | 人類排序樣本；RM 是這些排序的統計代理，而不是「人類價值觀」的代理 |
 
 ## Further Reading｜延伸閱讀
 

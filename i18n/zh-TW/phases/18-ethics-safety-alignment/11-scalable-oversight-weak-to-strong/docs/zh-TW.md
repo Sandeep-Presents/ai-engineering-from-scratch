@@ -1,6 +1,6 @@
 # 可擴展監督與弱到強泛化（Scalable Oversight and Weak-to-Strong Generalization）
 
-> Burns 等人（OpenAI 超級對齊團隊，「Weak-to-Strong Generalization」，2023）為超級對齊（Superalignment）難題提出了一項極具實操性的代理實驗框架：使用由弱模型產出的標籤，去 fine-tuning 監督一個遠比其強大的強模型。若強模型能從充滿瑕疵的不完美弱監督中正確泛化，那麼現有適用於人類認知尺度內的對齊方法，便有望順利外推延伸至超越人類的超智系統。可擴展監督（Scalable Oversight）與弱到強泛化（W2SG）構成了完美的雙向互補。可擴展監督（辯論機制、遞迴獎勵建模、任務拆解）透過技術手段實質提升監督者的有效認知能力，使其能跟上受監督模型的智力步伐；而 W2SG 則確保強模型能從監督者所能提供的任何不完美微弱訊號中正確泛化。2025 年 1 月的最新研究《Debate Helps W2SG》（arXiv:2501.13124）將兩者深度結合。
+> Burns 等人（OpenAI 超級對齊團隊，「Weak-to-Strong Generalization」，2023）為超級對齊（Superalignment）難題提出了一項實證代理框架：使用由弱模型產出的標籤，去 fine-tuning 監督一個遠比其強大的強模型。若強模型能從充滿瑕疵的不完美弱監督中正確泛化，那麼現有適用於人類認知尺度內的對齊方法，便有望順利外推延伸至超越人類的超智系統。可擴展監督（Scalable Oversight）與弱到強泛化（W2SG）構成了完美的雙向互補。可擴展監督（辯論機制、遞迴獎勵建模、任務拆解）透過技術手段實質提升監督者的有效認知能力，使其能跟上受監督模型的智力步伐；而 W2SG 則確保強模型能從監督者所能提供的任何不完美微弱訊號中正確泛化。2025 年 1 月的最新研究《Debate Helps W2SG》（arXiv:2501.13124）將兩者深度結合。
 
 **Type:** Learn
 **Languages:** Python (stdlib, W2SG gap simulator)
@@ -39,7 +39,7 @@ Burns 等人將這項龐大宏偉的哲學難題，簡化收斂為一套可落�
 
 ### Burns 等人的關鍵實證發現（Burns et al. empirical findings）
 
-在自然語言處理（NLP）、西洋棋殘局謎題以及獎勵模型訓練等廣泛任務中，PGR 始終呈現顯著的正向數值：強模型成功展現出了超越弱監督者錯誤的卓越泛化能力。不同任務上的 PGR 介於約 20% 至 80% 之間。這證實了強模型能夠從充滿瑕疵的不完美標籤中，「理解」背後試圖傳達的真實意圖，並自主調用其預訓練中蓄積的強大先驗知識進行查漏補缺。
+在自然語言處理（NLP）、西洋棋殘局謎題以及獎勵模型訓練等廣泛任務中，PGR 一貫為正：強模型成功展現出了超越弱監督者錯誤的卓越泛化能力。不同任務上的 PGR 介於約 20% 至 80% 之間。這證實了強模型能夠從充滿瑕疵的不完美標籤中，「理解」背後試圖傳達的真實意圖，並自主調用其預訓練中蓄積的強大先驗知識進行查漏補缺。
 
 Burns 等人坦誠指出的架構局限性：
 - 該實驗中的「弱到強」本質上是基礎能力的代差，而非嚴格意義上的對齊代差。此處的弱模型天然是對齊的；而在真實的超人類情境下，人類與超智系統之間的認知代差遠比 GPT-2 到 GPT-4 龐大得多。
@@ -91,15 +91,15 @@ scalable-oversight
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Scalable oversight | "making the overseer stronger" | Mechanisms that increase an overseer's ability to evaluate a more-capable model |
-| W2SG | "weak supervises strong" | Fine-tuning a strong model on weak labels and measuring the capability recovered |
-| PGR | "performance gap recovered" | (fine-tuned - weak) / (ceiling - weak); 1.0 = fully closed, 0 = no help |
-| Debate | "two U instances argue" | Scalable oversight mechanism where a weak judge picks between two U defenders |
-| RRM | "recursive reward modeling" | U helps train the reward model for U+1; overseer capability tracks U |
-| Task decomposition | "sub-tasks the human checks" | Break a hard task into sub-tasks the human can verify, recursively |
-| Superalignment | "aligning superhuman AI" | The research agenda concerned with aligning models the human cannot directly evaluate |
+| Scalable oversight | 「讓監督者更強」 | 提升監督者評估能力更強模型之能力的機制 |
+| W2SG | 「弱模型監督強模型」 | 使用弱模型標籤對強模型進行 fine-tuning，並衡量恢復了多少能力 |
+| PGR | 「恢復的效能差距」 | (fine-tuned - weak) / (ceiling - weak)；1.0 = 完全彌合，0 = 沒有幫助 |
+| Debate | 「兩個 U 執行個體辯論」 | 可擴展監督機制，由較弱的裁判從兩個 U 辯手中選出較佳者 |
+| RRM | 「遞迴獎勵建模」 | U 協助訓練 U+1 的獎勵模型；監督者的能力隨 U 提升 |
+| Task decomposition | 「由人類檢查的子任務」 | 將困難任務遞迴拆成多個人類可驗證的子任務 |
+| Superalignment | 「對齊超人類 AI」 | 旨在對齊人類無法直接評估之模型的研究議程 |
 
 ## Further Reading｜延伸閱讀
 

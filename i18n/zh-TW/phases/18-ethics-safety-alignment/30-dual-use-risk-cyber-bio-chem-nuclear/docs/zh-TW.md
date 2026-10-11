@@ -1,6 +1,6 @@
-# 軍民兩用風險——網路、生化、化學與核武賦能（Dual-Use Risk — Cyber, Bio, Chem, Nuclear Uplift）
+# 軍民兩用風險——網路、生化、化學與核武能力提升幅（Dual-Use Risk — Cyber, Bio, Chem, Nuclear Uplift）
 
-> 2026 年軍民兩用致命能力的全球真實圖景，按具體領域逐一剖析。生化／危險化學：第 17 節詳述了 WMDP；Anthropic 的生物武器取得實戰試驗（測得 2.53 倍的效率提升）以及 OpenAI 在 2025 年 4 月《防備框架 v2》中發出的紅色警訊（「大模型已處於有意義協助新手製造已知生物威脅的臨界點邊緣」），標誌著歷史拐點的到來。網路安全（Anthropic 2025 年 11 月官方報告）：具備國家背景的駭客組織利用 Claude 的 Agent 程式碼工具，將一場完整網路攻擊戰役中高達 90% 的流程實現了自動化，全程僅需在 4 至 6 個關鍵節點進行人工介入；OpenAI 則推出「受信任存取（Trusted access）」試點計畫，專門向經過背景審查的合格資安防禦機構開放頂級能力。化學與生物實作鴻溝的加速瓦解：傳統經典防線主張「單純獲得資訊並不足以付諸實踐」。然而具備原生視覺能力的前沿旗艦模型（GPT-5.2、Gemini 3 Pro、Claude Opus 4.5、Grok 4.1）能即時觀看濕實驗室的實體操作視訊，並在操作中途給予即時糾偏指導。2025 年 12 月：OpenAI 公開演示了 GPT-5 針對濕實驗室流程展開自主迭代，透過 AI 驅動的實驗協定最佳化實現了驚人的 79 倍效率飛躍。新手 vs 專家非對稱定律：AI 為零基礎新手帶來了極高的「相對賦能倍率（Relative uplift）」，但同時為資深專家開闢了高維恐怖的「絕對能力天花板（Absolute capability）」。
+> 2026 年軍民兩用致命能力的全球真實圖景，按具體領域逐一剖析。生化／危險化學：第 17 節詳述了 WMDP；Anthropic 的生物武器取得實戰試驗（回報 2.53 倍的能力提升幅度）以及 OpenAI 在 2025 年 4 月《防備框架 v2》中發出的紅色警訊（「大模型已處於有意義協助新手製造已知生物威脅的臨界點邊緣」），標誌著歷史拐點的到來。網路安全（Anthropic 2025 年 11 月官方報告）：具備國家背景的駭客組織利用 Claude 的 Agent 程式碼工具，將一場完整網路攻擊戰役中高達 90% 的流程實現了自動化，全程僅需在 4 至 6 個關鍵節點進行人工介入；OpenAI 則推出「受信任存取（Trusted access）」試點計畫，專門向經過背景審查的合格資安防禦機構開放頂級能力。化學與生物實作鴻溝的加速瓦解：傳統經典防線主張「單純獲得資訊並不足以付諸實踐」。然而具備原生視覺能力的前沿旗艦模型（GPT-5.2、Gemini 3 Pro、Claude Opus 4.5、Grok 4.1）能即時觀看濕實驗室的實體操作視訊，並在操作中途給予即時糾偏指導。2025 年 12 月：OpenAI 公開演示了 GPT-5 針對濕實驗室流程展開自主迭代，透過 AI 驅動的實驗協定最佳化實現了驚人的 79 倍效率飛躍。新手 vs 專家非對稱定律：AI 為零基礎新手帶來了極高的「相對賦能倍率（Relative uplift）」，但同時為資深專家開闢了高維恐怖的「絕對能力天花板（Absolute capability）」。
 
 **Type:** Learn
 **Languages:** none
@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入梳理 2024 至 2025 年生物危險能力賦能提升（Bio-uplift）的敘事演進：「輕微助益」 → 「臨界點邊緣」 → 「2.53 倍提升不足以排除達到 ASL-3」。
+- 深入梳理 2024 至 2025 年生物危險能力提升幅（Bio-uplift）的敘事演進：「輕微助益」 → 「臨界點邊緣」 → 「2.53 倍提升幅不足以排除達到 ASL-3」。
 - 掌握 Anthropic 於 2025 年 11 月發布的重磅網路安全報告：國家級駭客將網路攻擊戰役的高達 90% 流程實施了 Agent 自動化。
 - 剖析化學與生物「實作操作鴻溝」的加速瓦解：具備視覺多模態的大模型如何對實體濕實驗室操作提供即時糾偏。
 - 陳述「相對新手賦能 vs 絕對專家天花板」的非對稱核心規律，及其對安全論證（Safety Case）建構帶來的深遠影響。
@@ -34,7 +34,7 @@
 
 歷史防禦說辭：僅僅取得合成資訊是遠遠不夠的；在實體濕實驗室（Wet-lab）中親手調配試劑的手感與實作經驗，能牢牢將門外漢擋在門外。然而 2025 年具備視覺能力的前沿大模型，在物理層面正在瓦解這條防線：
 
-- **即時實驗協定視覺糾偏**。GPT-5.2、Gemini 3 Pro、Claude Opus 4.5、Grok 4.1 能即時觀看使用者透過攝影鏡頭拍攝的實體操作視訊，並在操作者滴定失誤、試劑配比偏差的中途給予即時語音警告與步驟修正。
+- **即時實驗協定視覺糾偏**。GPT-5.2、Gemini 3 Pro、Claude Opus 4.5、Grok 4.1 能觀看濕實驗室影片，並指出操作流程中的錯誤。
 - **2025 年 12 月 OpenAI 官方里程碑演示**。GPT-5 自主針對實體濕實驗室流程展開閉環迭代，透過由 AI 驅動的實驗協定演算法最佳化，將生物實體實驗的推進效率直接飆升了 79 倍。
 
 深遠含義：過去作為最後馬奇諾防線的「隱性實踐知識（Tacit knowledge）障礙」正在被多模態視覺大模型快速填平。
@@ -52,12 +52,12 @@ Anthropic 於 2025 年 11 月發布的重磅安全報告：具備國家情報背
 
 在 CBRN 四大極限領域中，核武是目前公開文獻中分析最少的一項。其威脅建模存在根本不同：製造核武的核心死穴是**武器級裂變核材料的物理取得與濃縮離心機硬體設施**，而非純粹的理論物理方程式資訊。資訊層面的 AI 賦能在真實世界中無法轉化為新手的實體操作能力。2024 至 2025 年間，沒有任何一家頂尖實驗室觀測到核武領域觸發了危險能力紅線。
 
-### 相對新手賦能 vs 絕對專家天花板
+### 相對新手提升幅 vs 絕對專家天花板
 
 貫穿四大領域的普適規律：
 
-- **相對新手賦能（Novice-relative uplift）**：極高。呈現乘數效應。正如 Anthropic 2025 年實測的 2.53 倍。
-- **絕對專家能力天花板（Expert-absolute capability）**：天花板極高。一位心懷惡意的領域專家能從模型中榨取出的危害深度，遠遠超過門外漢，因為專家懂得如何精確下 prompt、如何繞過話術審查，以及如何正確解讀模糊輸出。
+- **相對新手提升幅（Novice-relative uplift）**：極高。呈現乘數效應。正如 Anthropic 2025 年實測的 2.53 倍。
+- **絕對專家能力天花板（Expert-absolute capability）**：天花板極高。一位心懷惡意的領域專家能從模型中榨取出的危害深度，遠遠超過門外漢，因為專家知道該問什麼，以及如何解讀模型輸出。
 
 對安全論證（Safety Cases）的深層啟示：單純依賴防護欄去壓制新手賦能（拒絕簡單提問），在面對頂級惡意專家時形同虛設。必須在架構底層實施誘發抗性加固、模型表徵機器遺忘（第 17 節），以及嚴苛的實體外部控制協定（第 10 節）。
 
@@ -65,14 +65,14 @@ Anthropic 於 2025 年 11 月發布的重磅安全報告：具備國家情報背
 
 | 核心領域 | 2024 年歷史態勢 | 2025 至 2026 年現狀 | 關鍵轉折點 |
 |---|---|---|---|
-| 生物安全 | 輕微助益（Mild uplift） | 2.53 倍實質提升，逼近 ASL-3 | 取得階段自動化全鏈路貫通 |
+| 生物安全 | 輕微助益（Mild uplift） | 2.53 倍提升幅，逼近 ASL-3 | 取得階段自動化全鏈路貫通 |
 | 危險化學 | 輕微助益 | 多模態視覺消解實作操作鴻溝 | 濕實驗室視訊即時糾偏 |
 | 網路攻擊 | 輔助生成程式碼片段 | 80% 至 90% 戰役全流程自動化 | Agent 自主編程 |
 | 核武威脅 | 極其有限 | 依然保持極度有限 | 實體核材料物理取得障礙牢不可破 |
 
 三大領域相繼突破歷史閾值。唯獨一項依然受到不可逾越的實體物理邊界封鎖。
 
-### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+### 該研究在第 18 階段中的宏觀座標
 
 第 30 節是全階段的集大成收官之作：它是第 18 階段前面所有 29 課共同服務的終極實體戰場。第 17 與 18 節建立了度量與框架；第 12 至 16 節打磨了評測工具；第 24 與 25 節規範了法律法規與披露邊界；第 28 節梳理了外部科研生態網路。第 30 節所呈現的，正是當前人類文明與前沿 AI 技術在軍民兩用致命邊界處展開實力較量的真實全景圖。
 
@@ -98,15 +98,15 @@ an-uplift-asymmetry
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Uplift | "AI helps attackers" | Increase in attacker capability attributable to AI assistance |
-| Novice-relative uplift | "multiplicative" | How much AI helps a novice vs status-quo |
-| Expert-absolute capability | "ceiling" | Maximum capability an expert can extract from the model |
-| Execution gap | "doing vs knowing" | Historical defense: tacit wet-lab skill blocks novices |
-| Agentic coding | "autonomous attacks" | Multi-step autonomous cyber-task execution |
-| Acquisition phase | "pre-synthesis steps" | Procurement, equipment, permit stages of a bio threat |
-| Trusted access | "defender-only pilot" | OpenAI 2025 program giving vetted defenders capability access |
+| Uplift | 「AI 協助攻擊者」 | 可歸因於 AI 協助的攻擊者能力提升幅 |
+| Novice-relative uplift | 「乘數效果」 | AI 相較於現有方式，為新手帶來的能力提升幅 |
+| Expert-absolute capability | 「能力上限」 | 專家能從模型中取得的最高能力 |
+| Execution gap | 「知道但做不到」 | 傳統防護依據：濕實驗室的隱性技能會阻擋新手 |
+| Agentic coding | 「自動化攻擊」 | 多步驟、自主執行的網路任務 |
+| Acquisition phase | 「合成前的步驟」 | 生物威脅途徑中的採購、器材與許可階段 |
+| Trusted access | 「僅提供防禦者的試點計畫」 | OpenAI 於 2025 年為經審核的防禦者提供能力存取的計畫 |
 
 ## Further Reading｜延伸閱讀
 

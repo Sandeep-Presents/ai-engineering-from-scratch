@@ -1,6 +1,6 @@
 # 間接 Prompt 注入——正式環境首要受攻擊面（Indirect Prompt Injection — Production Attack Surface）
 
-> 間接 Prompt 注入（Indirect Prompt Injection, IPI）將攻擊指令深植於外部內容之中——一段網頁文字、一封傳入電子郵件、一份共用文件或一張客戶支援工單——在無需終端使用者採取任何主動操作的前提下，由自主 Agent 系統在日常運作中無感讀入並執行。IPI 是 2026 年正式環境中的頭號致命威脅：它直接繞過了傳統針對使用者輸入的安全過濾網（因為攻擊者從未直接碰觸使用者介面）、隨著 Agent 吞吐更多外部內容而在背景無聲擴散，並精準鎖定那些根本沒有人類在旁盯著 Prompt 的全自動化工作流。權威文獻《MDPI Information》17(1):54（2026 年 1 月）全面綜述了 2023 至 2025 年的研究成果。NDSS 2026 的 IPI 防禦論文確立了核心架構挑戰：被注入的指令在語意上完全可以是無害的（例如「請僅輸出 Yes」），因此防禦絕非單純依賴敏感關鍵字過濾所能解決。聯合研究《The Attacker Moves Second》（Nasr 等人，OpenAI、Anthropic 與 DeepMind 聯合發表，2025 年 10 月）無情證實：自適應攻擊（梯度搜尋、強化學習、隨機搜尋、頂級人工紅隊）成功攻破了先前宣稱攻擊成功率趨近於零的 12 種已發表防禦機制中的 90% 以上。
+> 間接 Prompt 注入（Indirect Prompt Injection, IPI）將攻擊指令深植於外部內容之中——一段網頁文字、一封傳入電子郵件、一份共用文件或一張客戶支援工單——在無需終端使用者採取任何主動操作的前提下，由自主 Agent 系統在日常運作中無感讀入並執行。IPI 是 2026 年正式環境中的主要威脅：它直接繞過了傳統針對使用者輸入的安全過濾網（因為攻擊者從未直接碰觸使用者介面）、隨著 Agent 吞吐更多外部內容而在背景無聲擴散，並精準鎖定那些根本沒有人類在旁盯著 Prompt 的全自動化工作流。權威文獻《MDPI Information》17(1):54（2026 年 1 月）全面綜述了 2023 至 2025 年的研究成果。NDSS 2026 的 IPI 防禦論文確立了核心架構挑戰：被注入的指令在語意上完全可以是無害的（例如「請僅輸出 Yes」），因此防禦絕非單純依賴敏感關鍵字過濾所能解決。聯合研究《The Attacker Moves Second》（Nasr 等人，OpenAI、Anthropic 與 DeepMind 聯合發表，2025 年 10 月）無情證實：自適應攻擊（梯度搜尋、強化學習、隨機搜尋、頂級人工紅隊）成功攻破了先前宣稱攻擊成功率趨近於零的 12 種已發表防禦機制中的 90% 以上。
 
 **Type:** Build
 **Languages:** Python (stdlib, IPI attack + defense harness)
@@ -78,15 +78,15 @@ al-injection-vector
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| IPI | "indirect prompt injection" | Injection via content the user did not write, consumed by the agent during normal operation |
-| RAG injection | "poisoned retrieval" | Attacker publishes content that the retrieval step fetches; prompt contains the payload |
-| Zero-click | "no user action" | Attack triggers automatically during agent operation; user does nothing |
-| IFC | "information flow control" | Label-based approach: actions from untrusted content require trusted ratification |
-| Adaptive attack | "gradient / RL red-team" | Attack that knows the defense and optimizes against it; required for honest evaluation |
-| Benign instruction | "please print Yes" | IPI payload that is semantically benign; no keyword filter catches it |
-| Scope violation | "cross-trust exfiltration" | Agent accesses data from one trust context and outputs it to another |
+| IPI | 「間接 prompt 注入」 | 透過使用者未撰寫、而 agent 在正常運作中讀取的內容進行注入 |
+| RAG injection | 「遭污染的檢索」 | 攻擊者發布會被檢索步驟取回的內容；prompt 中包含攻擊酬載 |
+| Zero-click | 「不需使用者操作」 | 攻擊在 agent 運作期間自動觸發；使用者不需採取任何行動 |
+| IFC | 「資訊流控制」 | 以標籤為基礎的方法：來自不可信內容的動作必須經可信來源核准 |
+| Adaptive attack | 「梯度／RL 紅隊攻擊」 | 知道防禦方式並針對它進行最佳化的攻擊；誠實評估時必須納入此類攻擊 |
+| Benign instruction | 「請印出 Yes」 | 語意上無害的 IPI 酬載；任何關鍵字過濾器都無法偵測到 |
+| Scope violation | 「跨信任範圍外洩」 | agent 讀取某個信任脈絡中的資料，並將資料輸出至另一個脈絡 |
 
 ## Further Reading｜延伸閱讀
 
