@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你有一個資料集（dataset），選了一個演算法（algorithm），訓練它，結果普普通通。你換上更花俏的演算法，結果還是普通。你花了一週調整超參數（hyperparameter），改善有限。
+你有一個資料集（dataset），選了一個演算法（algorithm），訓練它，結果普普通通。你換上更花俏的演算法，結果還是普通。你花了一週進行超參數調校（hyperparameter tuning），改善有限。
 
 然後有人把原始資料轉換成更好的特徵，一個簡單的邏輯斯迴歸（logistic regression）就打敗了你調好的梯度提升集成（gradient-boosted ensemble）。
 

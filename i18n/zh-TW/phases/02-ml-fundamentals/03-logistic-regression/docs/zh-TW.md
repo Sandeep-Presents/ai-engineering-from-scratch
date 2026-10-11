@@ -460,7 +460,7 @@ for t in thresholds:
 
 ## Use It｜實際應用
 
-接著用 scikit-learn 做同一件事。
+接著用 scikit-learn 做同一件事；這才是你在實務環境中會使用的方式。
 
 ```python
 from sklearn.linear_model import LogisticRegression as SklearnLR

@@ -103,7 +103,7 @@ git push origin my-progress
 ## Exercises｜練習
 
 1. fork 這個儲存庫、clone 你的 fork，建立名為 `my-progress` 的 branch，新增一個檔案、commit，然後 push
-2. 建立 `.gitignore`，排除模型 checkpoint 檔案（`.pt`、`.pth`、`.safetensors`）
+2. 建立 `.gitignore`，排除 model checkpoint 檔案（`.pt`、`.pth`、`.safetensors`）
 3. 使用 `git log --oneline` 查看這個儲存庫的 commit 歷史，了解課程是如何新增的
 
 ## Key Terms｜關鍵術語

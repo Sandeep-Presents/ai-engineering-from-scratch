@@ -83,7 +83,7 @@ code --install-extension charliermarsh.ruff
 
 本課的 `code/.vscode/extensions.json` 檔案列出完整的建議清單。開啟專案資料夾（project folder）後，VS Code 會提示你安裝這些擴充功能。
 
-### 步驟 3：設定偏好設定
+### 步驟 3：調整設定
 
 複製本課的 `code/.vscode/settings.json`，或透過 `Settings > Open Settings (JSON)` 手動套用。
 

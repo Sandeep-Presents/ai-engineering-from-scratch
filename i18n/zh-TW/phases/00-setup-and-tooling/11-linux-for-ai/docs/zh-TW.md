@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你在 macOS 或 Windows 上開發。但只要用 SSH 連上雲端 GPU（cloud GPU） 機器、租用 Lambda 執行個體，或開一台 EC2 機器，你就會進入 Ubuntu 環境。終端機是你唯一的介面（interface）——沒有 Finder、沒有檔案總管、沒有 GUI。如果你不會在命令列上瀏覽檔案系統、安裝套件、管理行程（process），就只能一邊支付 GPU 閒置期間的費用，一邊搜尋「Linux 怎麼解壓縮檔案」。
+你在 macOS 或 Windows 上開發。但只要用 SSH 連上雲端 GPU（cloud GPU）機器、租用 Lambda 執行個體，或開一台 EC2 機器，你就會進入 Ubuntu 環境。終端機是你唯一的介面（interface）——沒有 Finder、沒有檔案總管、沒有 GUI。如果你不會在命令列上瀏覽檔案系統、安裝套件、管理行程（process），就只能一邊支付 GPU 閒置期間的費用，一邊搜尋「Linux 怎麼解壓縮檔案」。
 
 這是一份生存指南，只講在遠端 Linux 機器上做 AI 工作需要的東西，不多不少。
 
@@ -153,7 +153,7 @@ sudo command                # Run a single command as root
 sudo su                     # Become root (exit to go back, use sparingly)
 ```
 
-在雲端 GPU（cloud GPU） 執行個體上，你通常是唯一的使用者，而且已經有 sudo 權限。不要什麼都用 root 跑，需要時才用 sudo。
+在雲端 GPU（cloud GPU）執行個體上，你通常是唯一的使用者，而且已經有 sudo 權限。不要什麼都用 root 跑，需要時才用 sudo。
 
 ## 行程與 systemd
 

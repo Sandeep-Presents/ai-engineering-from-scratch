@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-單一決策樹（decision tree）訓練（training）快、好解讀，但會過度擬合（overfitting）。單一線性模型在複雜邊界上又會欠擬合（underfitting）。你可以花好幾天打造完美的模型架構——或者，你也可以把一堆不完美的模型組合起來，得到比其中任何一個都好的東西。
+單一決策樹（decision tree）訓練（training）快、好解讀，但會過度擬合（overfitting）。單一線性模型在複雜邊界上又會欠擬合（underfitting）。你可以花好幾天打造完美的模型架構——或者，你也可以把一堆不完美的模型組合起來，得到比任何單一模型都更好的結果。
 
 集成方法做的就是這件事。它們是在表格資料（tabular data）上贏得 Kaggle 競賽最可靠的技術，驅動了大多數正式環境的機器學習（machine learning）系統，也把偏差－變異取捨（bias-variance tradeoff）具體展現出來：bagging 降變異，boosting 降偏差，stacking 學習在哪些輸入上該信任哪些模型。
 
@@ -310,7 +310,7 @@ class GradientBoostingScratch:
 對大多數表格資料預測問題，請照這個順序嘗試：
 
 1. **LightGBM 或 XGBoost**，先用預設參數（default parameters）
-2. 調 n_estimators、learning_rate、max_depth、min_child_weight
+2. 調校 n_estimators、learning_rate、max_depth、min_child_weight
 3. 如果還需要最後 0.5%，建立由 3–5 個多樣模型組成的 stacking 集成
 4. 全程使用交叉驗證
 

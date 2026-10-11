@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 建立旋轉、縮放、推移（shearing）和反射（reflection）矩陣，並套用到 2D 與 3D 的點
+- 建立旋轉（rotation）、縮放（scaling）、推移（shearing）和反射（reflection）矩陣，並套用到 2D 與 3D 的點
 - 用矩陣乘法組合多個變換，並驗證順序確實影響結果
 - 用特徵方程式（characteristic equation）計算 2x2 矩陣的特徵值（eigenvalue）與特徵向量（eigenvector）
 - 說明為什麼特徵值決定了主成分分析（PCA）方向、RNN 穩定性和譜分群（spectral clustering）的行為

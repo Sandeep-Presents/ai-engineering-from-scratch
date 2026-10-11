@@ -9,8 +9,8 @@
 
 ## Learning Objectives｜學習目標
 
-- 從零實作伯努利、類別、卜瓦松、均勻與常態分布（normal distribution）的機率質量函數（PMF）和機率密度函數（PDF）
-- 計算期望值與變異數（variance），並用中央極限定理（Central Limit Theorem）說明為什麼高斯分布無所不在
+- 從零實作伯努利（Bernoulli）、類別（categorical）、卜瓦松（Poisson）、均勻（uniform）與常態分布（normal distribution）的機率質量函數（probability mass function，PMF）和機率密度函數（probability density function，PDF）
+- 計算期望值與變異數（variance），並用中央極限定理（Central Limit Theorem）說明為什麼常態分布無所不在
 - 用數值穩定性技巧（numerical stability trick，減去最大 logit）打造 softmax 和 log-softmax 函數
 - 從 logits 計算交叉熵損失，並把它連結到負對數概似（negative log-likelihood）
 

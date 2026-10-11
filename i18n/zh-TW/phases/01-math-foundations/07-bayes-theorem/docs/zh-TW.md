@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 套用貝氏定理，從先驗（prior）、概似（likelihood）與證據（evidence）計算後驗機率
+- 套用貝氏定理（Bayes’ theorem），從先驗（prior）、概似（likelihood）與證據（evidence）計算後驗機率
 - 從零打造一個帶拉普拉斯平滑（Laplace smoothing）與對數空間計算的單純貝氏（Naive Bayes）文字分類器
 - 比較 MLE 與 MAP 估計，並說明 MAP 如何對應到 L2 正則化（regularization）
 - 用 Beta-Binomial 共軛先驗為 A/B 測試實作循序貝氏更新

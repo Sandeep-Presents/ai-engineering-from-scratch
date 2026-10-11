@@ -308,7 +308,7 @@ D_KL(P || Q) != D_KL(Q || P)
 
 ### Wasserstein 距離（Wasserstein distance；推土距離，Earth Mover's Distance）
 
-Wasserstein 距離（Wasserstein distance）衡量將一種機率分布轉換成另一種所需的最小「功」。可以想像一種分布是一堆土，另一種是坑洞：你要搬多少土、搬多遠？
+Wasserstein 距離（Wasserstein distance）衡量將一種機率分布轉換成另一種所需的最小搬運成本（質量乘上距離）。可以想像一種分布是一堆土，另一種是坑洞：你要搬多少土、搬多遠？
 
 ```
 W(P, Q) = inf over all transport plans gamma of E[d(x, y)]
@@ -494,7 +494,7 @@ print(f"Similarities: {similarities[top_k]}")
 | Jaccard 相似度（Jaccard similarity） | 「集合重疊度」 | 交集大小除以聯集大小，適用於集合而非向量。 |
 | 編輯距離（edit distance） | 「Levenshtein 距離」 | 將一個字串轉換成另一個字串所需的最少插入、刪除和取代次數。 |
 | KL 散度（KL divergence） | 「分布之間的距離」 | 並非真正的距離（不對稱），衡量使用 Q 編碼 P 時多出的資訊位元。 |
-| Wasserstein 距離（Wasserstein distance） | 「推土距離」 | 將機率質量從一種分布搬運到另一種所需的最小功；它是真正的距離度量。 |
+| Wasserstein 距離（Wasserstein distance） | 「推土距離」 | 將機率質量從一種分布搬運到另一種所需的最小搬運成本（質量乘上距離）；它是真正的距離度量。 |
 | 近似最近鄰（ANN） | 「ANN 搜尋」 | HNSW、LSH、IVF 等演算法能比精確搜尋快很多，找到近似最近的點。 |
 | HNSW | 「向量資料庫演算法」 | Hierarchical Navigable Small World 圖。用於快速近似最近鄰搜尋的多層圖。 |
 | L1 正則化（L1 regularization） | 「LASSO」 | 將權重的 L1 範數加進損失函數，促使部分權重變成零，產生稀疏性。 |

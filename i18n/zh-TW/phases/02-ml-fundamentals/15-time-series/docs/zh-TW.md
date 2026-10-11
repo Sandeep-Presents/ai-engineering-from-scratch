@@ -1,6 +1,6 @@
 # 時間序列基礎（time series）
 
-> 過去表現確實能預測未來結果——只要你先檢查定態（stationarity）。
+> 過去的數值確實能預測未來結果——只要你先檢查定態（stationarity）。
 
 **Type:** Build
 **Language:** Python

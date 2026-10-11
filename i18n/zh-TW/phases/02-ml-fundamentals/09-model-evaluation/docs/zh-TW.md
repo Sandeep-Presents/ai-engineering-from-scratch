@@ -33,7 +33,7 @@ flowchart LR
     A --> D[測試集 15-20%]
     B --> E[擬合模型]
     E --> C
-    C --> F[調整超參數]
+    C --> F[超參數調校]
     F --> E
     F --> G[最終模型]
     G --> D
@@ -43,7 +43,7 @@ flowchart LR
 三種切分，三種用途：
 
 - **訓練集（training set）**：模型從這些資料中學習。訓練時它看的就是這些樣本（example）。
-- **驗證集（validation set）**：用來調整超參數（hyperparameter）和挑選模型。模型從不用它訓練，但你的決策會受它影響。
+- **驗證集（validation set）**：用來進行超參數調校（hyperparameter tuning）和挑選模型。模型從不用它訓練，但你的決策會受它影響。
 - **測試集**：只在最後碰一次，用來回報最終表現。如果你看了測試表現之後回頭改模型，它就不再是測試集——它已經變成第二個驗證集了。
 
 測試集是你的保留集（hold-out）保證：它確保你回報的表現，反映的是模型面對真正沒見過的資料時的樣子。
@@ -655,7 +655,7 @@ scores = cross_val_score(model, X, y, cv=StratifiedKFold(5), scoring="f1")
 ## Exercises｜練習
 
 1. 實作精確率–召回率曲線（precision-recall curve）：畫出不同閾值下的精確率對召回率。計算平均精確率（average precision，PR 曲線下面積）。在類別不平衡（class imbalance）資料集上比較 PR 曲線與 ROC 曲線，並說明什麼情況下哪一個更有參考價值。
-2. 建立巢狀交叉驗證（nested cross-validation）迴圈：外層迴圈評估模型表現，內層迴圈調整超參數。用它公平比較兩個模型，不把驗證資料洩漏進評估裡。
+2. 建立巢狀交叉驗證（nested cross-validation）迴圈：外層迴圈評估模型表現，內層迴圈進行超參數調校。用它公平比較兩個模型，不把驗證資料洩漏進評估裡。
 3. 實作模型比較用的置換檢定（permutation test）：打亂標籤（label）、重新訓練、測量表現。重複 100 次建立虛無分布（null distribution）。針對觀察到的模型表現，計算對應這個分布的 p 值（p-value）。
 
 ## Key Terms｜關鍵術語
@@ -674,6 +674,6 @@ scores = cross_val_score(model, X, y, cv=StratifiedKFold(5), scoring="f1")
 
 ## Further Reading｜延伸閱讀
 
-- [scikit-learn Model Selection Guide](https://scikit-learn.org/stable/model_selection.html)——交叉驗證、指標與超參數調整的完整參考
+- [scikit-learn Model Selection Guide](https://scikit-learn.org/stable/model_selection.html)——交叉驗證、指標與超參數調校的完整參考
 - [Beyond Accuracy: Precision and Recall (Google ML Crash Course)](https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall)——附互動範例的清楚解說
 - [A Survey of Cross-Validation Procedures (Arlot & Celisse, 2010)](https://projecteuclid.org/journals/statistics-surveys/volume-4/issue-none/A-survey-of-cross-validation-procedures-for-model-selection/10.1214/09-SS054.full)——嚴謹探討各種交叉驗證策略何時有效、為何有效

@@ -1,6 +1,6 @@
 # 特徵選擇（feature selection）
 
-> 特徵（feature）愈多並不比較好。選對的特徵才比較好。
+> 特徵（feature）並非愈多愈好，選對特徵才重要。
 
 **Type:** Build
 **Language:** Python

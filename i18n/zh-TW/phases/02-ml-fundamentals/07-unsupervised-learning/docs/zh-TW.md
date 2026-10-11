@@ -35,7 +35,7 @@ flowchart LR
     B --> D[DBSCAN]
     B --> E[階層式分群（hierarchical clustering）]
     B --> F[GMM]
-    C --> G[非階層式分群（hierarchical clustering）、球形群集（spherical cluster）]
+    C --> G[非階層式分群（flat clustering）、球形群集（spherical cluster）]
     D --> H[任意形狀、雜訊偵測]
     E --> I[巢狀群集樹]
     F --> J[軟式指派（soft assignment）、橢圓形群集（elliptical cluster）]

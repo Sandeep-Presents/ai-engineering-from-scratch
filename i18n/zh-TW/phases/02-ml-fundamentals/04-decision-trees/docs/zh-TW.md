@@ -434,7 +434,7 @@ print(f"Accuracy: {rf.score(X_test, y_test):.4f}")
 print(f"Feature importances: {rf.feature_importances_}")
 ```
 
-實務上，梯度提升樹（gradient boosted trees），例如 XGBoost、LightGBM 和 CatBoost，往往比隨機森林更強，因為它們會依序建立樹，讓每棵樹修正前一棵樹的錯誤。不過，隨機森林比較不容易設定錯誤，幾乎不需要調整超參數。
+實務上，梯度提升樹（gradient boosted trees），例如 XGBoost、LightGBM 和 CatBoost，往往比隨機森林更強，因為它們會依序建立樹，讓每棵樹修正前一棵樹的錯誤。不過，隨機森林比較不容易設定錯誤，幾乎不需要進行超參數調校（hyperparameter tuning）。
 
 ## Ship It｜交付成果
 

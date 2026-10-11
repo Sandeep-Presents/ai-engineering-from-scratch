@@ -148,7 +148,7 @@ P(word_i | class) = (docs in class containing word_i + alpha) / (total docs in c
 
 如果一個詞出現在測試資料（test data）裡，卻從未出現在某個類別的訓練資料中，會發生什麼事？
 
-沒有平滑時：`P(word | class) = 0/N = 0`。一個零乘進整個乘積，就會讓 `P(class | features) = 0`，不管其他證據有多強。一個沒見過的詞就毀掉整次預測，即使其餘證據都支持這個類別。
+沒有平滑時：`P(word | class) = 0/N = 0`。一個零乘進整個乘積，就會讓 `P(class | features) = 0`，不管其他證據有多強。一個沒見過的詞就毀掉整次預測，即使其餘證據都對這個類別有利。
 
 拉普拉斯平滑會給每個特徵計數加上一個小的 `alpha`（通常是 1）：
 

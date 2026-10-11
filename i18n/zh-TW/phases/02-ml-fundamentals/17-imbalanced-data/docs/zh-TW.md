@@ -1,4 +1,4 @@
-# 處理類別不平衡（class imbalance）資料（imbalanced data）
+# 處理不平衡資料（imbalanced data）
 
 > 當 99% 的資料都是「正常」時，準確率（accuracy）就是謊言。
 
