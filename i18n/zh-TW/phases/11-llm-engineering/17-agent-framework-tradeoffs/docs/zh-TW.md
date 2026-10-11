@@ -26,7 +26,7 @@
 | **LangGraph** | `StateGraph`——具型別狀態、節點（node）、條件邊、檢查點儲存器。 | 具備顯式狀態與人工介入中斷的工作流；需要時光旅行除錯的正式環境 agent。 | 拓撲結構未定、自由鬆散且由角色驅動的發散型頭腦風暴。 |
 | **CrewAI** | `Crew`——角色人設（目標、背景故事）、任務清單、運作程序（循序或階層式）。 | 具備角色扮演或多重人設、任務規劃呈短鏈線性／階層式的工作流程。 | 超越團隊輪次歷史紀錄的深層狀態管理；複雜的條件動態分岔。 |
 | **AutoGen** | `ConversableAgent` 成對互動——兩個或多個 agent 輪流對話，直至觸發終止條件。 | 多 agent 深度**對話**（師生問答、提案—批判、執行—審查），思考會從對話互動中湧現。 | 拓撲已知且確定性的 DAG 工作流；需要跨行程重啟的持久化狀態儲存。 |
-| **Agno** | `Agent`——單一 LLM + 工具庫 + 記憶體，可彈性組合為小型團隊。 | 快速建構的獨立 agent 與輕量團隊；強大多模態支援與內建多種儲存驅動。 | 具備客製化歸約器、層級深邃且顯式分岔的複雜狀態圖。 |
+| **Agno** | `Agent`——單一 LLM + 工具庫 + 記憶，可彈性組合為小型團隊。 | 快速建構的獨立 agent 與輕量團隊；強大多模態支援與內建多種儲存驅動。 | 具備客製化歸約器、層級深邃且顯式分岔的複雜狀態圖。 |
 
 ### 「抽象層」究竟意味著什麼？
 
@@ -96,7 +96,7 @@
 | 具備型別化狀態、人工介入審核、長生命週期的 DAG 工作流 | LangGraph | 具備一等公民的狀態管理／狀態、檢查點機制、中斷能力與時光旅行。 |
 | 具備鮮明角色分工的調研／文章撰寫管線 | CrewAI（循序模式）或 LangGraph 子圖 | 任務配角色在 CrewAI 中表達很自然；若後續條件分岔變得複雜，可升級為 LangGraph。 |
 | 提案—批判或師生問答的思維碰撞型雙向對話 | AutoGen | 雙 Agent 即時對話是其最原生的設計形態。 |
-| 自帶工具、工作階段與記憶體的單兵獨立 Agent | Agno | 依賴最輕、整合最快，內建多種持久化儲存與記憶庫。 |
+| 自帶工具、工作階段與記憶的單兵獨立 Agent | Agno | 依賴最輕、整合最快，內建多種持久化儲存與記憶庫。 |
 | 包含上千個平行扇出並需狀態合流的任務 | LangGraph + `Send` | 唯一具備一等公民平行分發 API 的框架。 |
 | 快速驗證可行性，不想被特定框架綁定 | 純 Python + 服務供應商 SDK | 「無框架」通常是最快的做法。 |
 
@@ -128,7 +128,7 @@ l5-framework-fit
 - [LangGraph documentation](https://langchain-ai.github.io/langgraph/) ——StateGraph、檢查點儲存器、中斷機制與時光旅行官方技術手冊
 - [CrewAI documentation](https://docs.crewai.com/) ——Crews、Flows、Agents、Tasks 與 Processes 使用指南
 - [AutoGen documentation](https://microsoft.github.io/autogen/) ——ConversableAgent、GroupChat、teams 與 tools 官方手冊
-- [Agno documentation](https://docs.agno.com/) ——Agent、Team、Workflow、儲存驅動與記憶體架構
+- [Agno documentation](https://docs.agno.com/) ——Agent、Team、Workflow、儲存與記憶
 - [Anthropic — Building effective agents (Dec 2024)](https://www.anthropic.com/research/building-effective-agents) ——框架無關的五大高階模式庫（Prompt 串接、路由、平行化、編排器—工作者、評估器—最佳化器）
 - [Yao et al., "ReAct: Synergizing Reasoning and Acting" (ICLR 2023)](https://arxiv.org/abs/2210.03629) ——各大框架外層包裝所共同依賴的 ReAct 迴圈論文
 - [Wu et al., "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation" (2023)](https://arxiv.org/abs/2308.08155) ——AutoGen 的設計架構論文
