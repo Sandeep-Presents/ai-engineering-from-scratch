@@ -36,14 +36,14 @@ vLLM 在 4xA100-80GB 上部署 Llama 3 70B 時，在低並行下每個使用者�
 
 ```mermaid
 graph LR
-    subgraph "Prefill (compute-bound)"
-        P1["All prompt tokens"] --> P2["Parallel attention"]
-        P2 --> P3["Full matmul utilization"]
+    subgraph "預填（受運算限制）"
+        P1["所有 prompt token"] --> P2["平行注意力"]
+        P2 --> P3["完整矩陣乘法利用率"]
     end
 
-    subgraph "Decode (memory-bound)"
-        D1["One token at a time"] --> D2["Sequential generation"]
-        D2 --> D3["Waiting on memory reads"]
+    subgraph "解碼（受記憶體限制）"
+        D1["一次一個 token"] --> D2["序列式生成"]
+        D2 --> D3["等待記憶體讀取"]
     end
 
     P3 --> D1
@@ -67,16 +67,16 @@ KV 快取儲存了先前所有 token 的 key 與 value 投影。生成第 N 個 
 
 ```mermaid
 graph TD
-    subgraph "Without KV Cache"
-        A1["Token 5: recompute K,V for tokens 1-4"]
-        A2["Token 6: recompute K,V for tokens 1-5"]
-        A3["Token 7: recompute K,V for tokens 1-6"]
+    subgraph "沒有 KV cache"
+        A1["Token 5：重新計算 Token 1-4 的 K、V"]
+        A2["Token 6：重新計算 Token 1-5 的 K、V"]
+        A3["Token 7：重新計算 Token 1-6 的 K、V"]
     end
 
-    subgraph "With KV Cache"
-        B1["Token 5: compute K5,V5, read K1-4,V1-4 from cache"]
-        B2["Token 6: compute K6,V6, read K1-5,V1-5 from cache"]
-        B3["Token 7: compute K7,V7, read K1-6,V1-6 from cache"]
+    subgraph "使用 KV cache"
+        B1["Token 5：計算 K5、V5，從快取讀取 K1-4、V1-4"]
+        B2["Token 6：計算 K6、V6，從快取讀取 K1-5、V1-5"]
+        B3["Token 7：計算 K7、V7，從快取讀取 K1-6、V1-6"]
     end
 ```
 
@@ -105,10 +105,10 @@ at 128K tokens: 320 KB * 131,072 = 40 GB
 ```mermaid
 sequenceDiagram
     participant GPU
-    participant R1 as Request 1 (50 tokens)
-    participant R2 as Request 2 (10 tokens)
-    participant R3 as Request 3 (30 tokens)
-    participant R4 as Request 4 (waiting)
+    participant R1 as 請求 1（50 個 token）
+    participant R2 as 請求 2（10 個 token）
+    participant R3 as 請求 3（30 個 token）
+    participant R4 as 請求 4（等待中）
 
     Note over GPU: Static batching
     GPU->>R1: Process batch [R1, R2, R3]
@@ -135,18 +135,18 @@ vLLM 提出的 PagedAttention 將作業系統的虛擬記憶體概念搬到了 K
 
 ```mermaid
 graph TD
-    subgraph "Contiguous allocation"
-        C1["Request A: 2GB block"]
-        C2["[free: 0.5GB]"]
-        C3["Request B: 1GB block"]
-        C4["[free: 1.5GB -- but fragmented]"]
+    subgraph "連續配置"
+        C1["請求 A：2 GB 區塊"]
+        C2["[可用：0.5 GB]"]
+        C3["請求 B：1 GB 區塊"]
+        C4["[可用：1.5 GB——但有碎片]"]
     end
 
     subgraph "PagedAttention"
-        P1["Page pool: 256 pages of 16 tokens each"]
-        P2["Request A: pages 3,7,12,45,88..."]
-        P3["Request B: pages 1,4,9,22,67..."]
-        P4["No fragmentation, no waste"]
+        P1["頁面池：256 頁，每頁 16 個 token"]
+        P2["請求 A：頁面 3、7、12、45、88…"]
+        P3["請求 B：頁面 1、4、9、22、67…"]
+        P4["沒有碎片，也沒有浪費"]
     end
 ```
 
@@ -162,11 +162,11 @@ Decode 緩慢是因為它是循序進行的——你生成一個 token，餵回�
 
 ```mermaid
 graph LR
-    D["Draft model (1B)"] -->|"Generate 5 tokens<br/>~5ms"| C["Candidates: the cat sat on the"]
-    C --> T["Target model (70B)"]
-    T -->|"Verify all 5 in one pass<br/>~70ms"| V{"Match?"}
-    V -->|"4 of 5 match"| A["Accept 4 tokens in 75ms<br/>vs 280ms sequential"]
-    V -->|"Mismatch at pos 5"| R["Reject token 5<br/>Resample from target"]
+    D["草稿模型（1B）"] -->|"Generate 5 tokens<br/>~5ms"| C["候選內容：the cat sat on the"]
+    C --> T["目標模型（70B）"]
+    T -->|"Verify all 5 in one pass<br/>~70ms"| V{"符合？"}
+    V -->|"4 of 5 match"| A["75ms 接受 4 個 token<br/>相較於序列處理的 280ms"]
+    V -->|"Mismatch at pos 5"| R["拒絕 token 5<br/>從目標模型重新抽樣"]
 ```
 
 加速幅度取決於**接受率（acceptance rate）**——草稿模型與目標模型預測一致的頻率。以 Llama 3 8B 為 Llama 3 70B 擔任草稿模型時，在自然語言上的接受率通常為 70% 到 85%，這直接轉化為 2 到 3 倍的 decode 加速。
