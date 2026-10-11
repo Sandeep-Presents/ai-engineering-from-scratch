@@ -11,7 +11,7 @@
 ## Learning Objectives｜學習目標
 
 - 套用核心 Prompt 工程模式（角色、脈絡、約束條件、輸出格式），將模糊的需求轉化為精確的指令
-- 建構帶有明確行為準則的系統訊息，建構包含明確行為規則的 system prompt，以產生一致且高品質的輸出
+- 建構包含明確行為準則的 system prompt，以產生一致且高品質的輸出
 - 診斷 Prompt 失效問題（幻覺、拒絕回答、格式違規），並透過針對性的 Prompt 修改進行修復
 - 實作 Prompt 測試框架，根據預期輸出評估 Prompt 變更的效果
 
@@ -33,7 +33,7 @@ You are a senior copywriter at a B2B SaaS company. Write a product launch email 
 
 第一個 Prompt 啟動了模型訓練資料中泛濫平庸的行銷信分布。第二個 Prompt 則鎖定了狹窄且高品質的專業切片。相同的模型，相同的參數，產出的結果卻天差地別。
 
-你所要求的與你所得到的之間的這段鴻溝，正是 Prompt 工程這門學科的全部意義所在。它不是應急的 hack 或權宜之計，它是人類意圖與機器能力之間最核心的主要介面。它是更更廣泛領域——脈絡工程（Context Engineering，第 5 課涵蓋）——的一個子集，後者處理的是進入模型脈絡視窗的一切內容，而不僅僅是 Prompt 文字本身。
+你所要求的與你所得到的之間的這段鴻溝，正是 Prompt 工程這門學科的全部意義所在。它不是應急的 hack 或權宜之計，它是人類意圖與機器能力之間主要的介面。它是更廣泛領域——脈絡工程（Context Engineering，第 5 課涵蓋）——的一個子集，後者處理的是進入模型脈絡視窗的一切內容，而不僅僅是 Prompt 文字本身。
 
 Prompt 工程並未消亡。宣稱它已死的人，正如 2015 年宣稱 CSS 已死的人一樣。改變的是它已成為必備的基礎門檻。每位認真的 AI 工程師都必須掌握它。問題不再於是否該學習它，而在於要鑽研得多深。
 
@@ -45,11 +45,11 @@ Prompt 工程並未消亡。宣稱它已死的人，正如 2015 年宣稱 CSS �
 
 ```mermaid
 graph TD
-    subgraph Anatomy["Prompt Anatomy"]
+    subgraph Anatomy["Prompt 結構"]
         direction TB
-        S["System Message\nSets identity, rules, constraints\nPersists across turns"]
-        U["User Message\nThe actual task or question\nChanges every turn"]
-        A["Assistant Prefill\nPartial response to steer format\nOptional, powerful"]
+        S["系統訊息\n設定身分、規則與限制\n在各輪間維持不變"]
+        U["使用者訊息\n實際任務或問題\n每輪都會變動"]
+        A["助理預填\n用來引導格式的部分回應\n選用，但功能強大"]
     end
 
     S --> U --> A
@@ -59,13 +59,13 @@ graph TD
     style A fill:#1a1a2e,stroke:#51cf66,color:#fff
 ```
 
-**系統訊息（System message）**：無形的無形推手。它設定了模型的身分定位、行為約束與輸出規則。模型將此視為最高優先權的脈絡。OpenAI、Anthropic 與 Google 皆支援系統訊息，但內部處理方式各有不同。Claude 對系統訊息的依從性最強；GPT-5 在長對話中偶爾會偏離系統指令；而 Gemini 3 則將 `system_instruction` 作為獨立的生成設定欄位處理，而非一般訊息。
+**系統訊息（System message）**：無形推手。它設定了模型的身分定位、行為約束與輸出規則。模型將此視為最高優先權的脈絡。OpenAI、Anthropic 與 Google 皆支援系統訊息，但內部處理方式各有不同。Claude 對系統訊息的依從性最強；GPT-5 在長對話中偶爾會偏離系統指令；而 Gemini 3 則將 `system_instruction` 作為獨立的生成設定欄位處理，而非一般訊息。
 
 **使用者訊息（User message）**：任務主體。這是大多數人直覺認知的「Prompt」。但若缺少良好的系統訊息，使用者訊息的約束力往往不足。
 
-**助理預填（Assistant prefill）**：重要工具。你可以主動提供助理回應的開頭字串。傳送 `{"role": "assistant", "content": "```json\n{"}`，模型便會直接接續從該處接續，輸出乾淨的 JSON 而不會夾帶任何開場白。Anthropic API 原生支援此特性；OpenAI 則不支援（需改用結構化輸出模式）。
+**助理預填（Assistant prefill）**：重要工具。你可以主動提供助理回應的開頭字串。傳送 `{"role": "assistant", "content": "```json\n{"}`，模型便會直接從該處接續，輸出乾淨的 JSON 而不會夾帶任何開場白。Anthropic API 原生支援此特性；OpenAI 則不支援（需改用結構化輸出模式）。
 
-### 角色提示：為何「你是一名專家 X」能奏效
+### 角色 prompting：為何「你是一名專家 X」能奏效
 
 「你是一名資深 Python 開發者」並非魔法咒語，它是一個活化引導函數。
 
@@ -73,7 +73,7 @@ LLM 在數十億份文件上訓練而成。這些文件包含了初學者與專�
 
 具體明確的角色效果遠勝泛泛而談：
 
-| 角色提示 | 啟動的分佈區域 |
+| 角色 prompt | 啟動的分佈區域 |
 |-------------|-------------------|
 | 「你是一個有幫助的助理」 | 普遍、中位數水準的回應 |
 | 「你是一名軟體工程師」 | 較佳的程式碼，但依然寬泛 |
@@ -116,7 +116,7 @@ Summarize this article in exactly 3 bullet points. Each bullet should be one sen
 
 **Markdown**：「使用 ## 作為章節標題，**粗體**標註關鍵術語，- 作為條列項目。」模型多數情況下預設使用 Markdown，但顯式指示能大幅提升一致性。
 
-**編號列表**：「列出剛好 5 個項目，編號 1 到 5。每個項目需為一句話。」編號列表比單純的條列符號更為可靠，因為模型能模型較容易追蹤項目數。
+**編號列表**：「列出剛好 5 個項目，編號 1 到 5。每個項目需為一句話。」編號列表比單純的條列符號更為可靠，因為模型較容易追蹤項目數。
 
 **分隔標籤模式**：使用 XML 風格的分隔標籤來拆分各個輸出區塊：
 ```
@@ -135,7 +135,7 @@ Summarize this article in exactly 3 bullet points. Each bullet should be one sen
 
 **肯定約束**（「務必……」）：「務必引用來源文件。務必包含信心分數。務必以一句話總結作結。」這些規則在每次回應中創造了結構性保證。
 
-**條件約束**（「若 X 則 Y」）：「若使用者詢問價格，僅能根據官方定價頁面的資訊作答。若輸入包含程式碼，將回應格式化為程式碼審查。若不確定，直接回答『我不確定』而非隨意猜測。」這些規則能穩妥處理原本容易產生不佳輸出的邊界情況的邊界情況。
+**條件約束**（「若 X 則 Y」）：「若使用者詢問價格，僅能根據官方定價頁面的資訊作答。若輸入包含程式碼，將回應格式化為程式碼審查。若不確定，直接回答『我不確定』而非隨意猜測。」這些規則能穩妥處理原本容易產生不佳輸出的邊界情況。
 
 ### 溫度與抽樣
 
@@ -143,11 +143,11 @@ Summarize this article in exactly 3 bullet points. Each bullet should be one sen
 
 ```mermaid
 graph LR
-    subgraph Temp["Temperature Spectrum"]
+    subgraph Temp["溫度範圍"]
         direction LR
-        T0["temp=0.0\nDeterministic\nAlways picks top token\nBest for: extraction,\nclassification, code"]
-        T5["temp=0.3-0.7\nBalanced\nMostly predictable\nBest for: summarization,\nanalysis, Q&A"]
-        T1["temp=1.0\nCreative\nFull distribution sampling\nBest for: brainstorming,\ncreative writing, poetry"]
+        T0["temp=0.0\n確定性\n總是選擇機率最高的 token\n適用於：擷取、\n分類、程式碼"]
+        T5["temp=0.3-0.7\n平衡\n大致可預測\n適用於：摘要、\n分析、問答"]
+        T1["temp=1.0\n創意\n從完整分布取樣\n適用於：腦力激盪、\n創意寫作、詩歌"]
     end
 
     T0 ~~~ T5 ~~~ T1
@@ -165,7 +165,7 @@ graph LR
 | 創意發散 | 1.0 | 1.0 | 頭腦風暴、創意寫作、靈感構思 |
 | 混沌失控 | 1.5+ | 1.0 | 絕不要在正式環境中使用 |
 
-**Top-p**（核抽樣，nucleus sampling）是另一個旋鈕。它將抽樣限制在累積機率超過 p 的最小 token 集合內。Top-p=0.9 意味著模型僅考慮佔據機率質量前 90% 的候選 token。在實務中建議使用溫度**或**使用 Top-p，不要不要同時調整兩者——它們之間的交互作用難以預測。
+**Top-p**（核抽樣，nucleus sampling）是另一個旋鈕。它將抽樣限制在累積機率超過 p 的最小 token 集合內。Top-p=0.9 意味著模型僅考慮佔據機率質量前 90% 的候選 token。在實務中建議使用溫度**或**使用 Top-p，不要同時調整兩者——它們之間的交互作用難以預測。
 
 ### 脈絡視窗：容量與使用方式
 
@@ -207,7 +207,7 @@ Score: [0-100]
 Summary: [one sentence, max 20 words]
 ```
 
-**3. 元提示模式（The Meta-Prompt Pattern）**
+**3. meta-prompt 模式（The Meta-Prompt Pattern）**
 ```
 I want you to write a prompt for an LLM that will [desired task].
 The prompt should include: role, constraints, output format, examples.
@@ -291,7 +291,7 @@ Do not attempt to answer out-of-scope questions even if you know the answer.
 
 最優秀的 Prompt 具備模型無關性（model-agnostic）。它們無需大幅調校即可在 GPT-5、Claude Opus 4.7、Gemini 3 Pro 以及開源權重模型（Llama 4、Qwen3、DeepSeek-V3）上通用：
 
-1. 使用使用一般英文，避免模型專屬語法，而非特定廠商的專有標記技巧。
+1. 使用一般英文，避免模型專屬語法，而非特定廠商的專有標記技巧。
 2. 對格式要求保持顯式說明——不要依賴各廠商預設但互不相同的隱性行為。
 3. 採用 XML 標籤分隔各區塊（所有主流模型對 XML 結構皆有良好理解）。
 4. 將核心指令放置在脈絡的開頭與結尾（「迷失在中間」現象普遍存在於所有模型中）。
@@ -500,7 +500,7 @@ def build_multi_turn(pattern_name, turns, system_override=None):
 
 ### 步驟 3：多模型測試框架
 
-一個將同一個 Prompt 發送至多個 LLM API 並收集結果進行對比的測試框架。透過服務供應商抽象層處理各家 API 的差異 的格式差異。
+一個將同一個 Prompt 發送至多個 LLM API 並收集結果進行對比的測試框架。透過服務供應商抽象層處理各家 API 的差異。
 
 ```python
 import json
@@ -983,7 +983,7 @@ LangChain 允許你撰寫單一 Prompt 範本並跨各廠商執行。這正是�
 
 本課產出兩項實用產物：
 
-`outputs/prompt-prompt-optimizer.md`——一個元提示（meta-prompt），接收任何初稿 Prompt 並使用本課的 10 大模式將其專業重寫。餵入模糊需求，換回經過工程化打磨的精確指令。
+`outputs/prompt-prompt-optimizer.md`——一個 meta-prompt，接收任何初稿 Prompt 並使用本課的 10 大模式將其專業重寫。餵入模糊需求，換回經過工程化打磨的精確指令。
 
 `outputs/skill-prompt-patterns.md`——一個根據任務類型、所需可靠性與目標模型，選擇最佳 Prompt 模式的決策架構。
 
@@ -991,7 +991,7 @@ Python 程式碼（`code/prompt_engineering.py`）是一套獨立的測試框架
 
 ## Exercises｜練習
 
-1. 在 `TEST_SUITE` 的 5 個測試案例基礎上，再新增 5 個以涵蓋剩餘的模式（元提示、問題分解、自我批判、受眾適配、邊界防禦）。執行完整套件，並指出哪種模式在跨模型間產出的一致性最高。
+1. 在 `TEST_SUITE` 的 5 個測試案例基礎上，再新增 5 個以涵蓋剩餘的模式（meta-prompt、問題分解、自我批判、受眾適配、邊界防禦）。執行完整套件，並指出哪種模式在跨模型間產出的一致性最高。
 
 2. 將 `simulate_llm_call` 替換為對至少兩家服務供應商（OpenAI 與 Anthropic 免費層即可）的真實 API 呼叫。在兩者上執行相同的 Prompt，並測量：回應長度、格式遵循度、關鍵字覆蓋率與延遲。記錄哪款模型能更精確地遵循指令。
 
@@ -1008,21 +1008,21 @@ Python 程式碼（`code/prompt_engineering.py`）是一套獨立的測試框架
 | 系統訊息（System message） | 「那個指令」 | 一條以高優先級別處理的特殊訊息，為整個對話樹立身分定位、行為規則與約束條件 |
 | 溫度（Temperature） | 「創造力旋鈕」 | Softmax 前作用於 logit 分布上的縮放因子——較高值使分布平緩（更隨機），較低值使分布陡峭（更確定） |
 | Top-p | 「核抽樣」 | 將 token 抽樣限制在累積機率超過 p 的最小集合內，直接截斷極低機率長尾 |
-| 少樣本提示（Few-shot prompting） | 「提供範例」 | 在 Prompt 中置入 2 到 10 個輸入／輸出範例，使模型在無需任何 fine-tuning 下學會任務模式 |
-| 思維鏈（Chain-of-thought） | 「一步步思考」 | 提示模型展示中間推理推導步驟，使數學、邏輯與多步驟問題的準確率提升 10% 到 40% |
-| 角色提示（Role prompting） | 「你是一個專家」 | 設定身分人設，引導抽樣分布偏向訓練資料中該特定領域的高品質區域 |
+| 少樣本 prompting（Few-shot prompting） | 「提供範例」 | 在 Prompt 中置入 2 到 10 個輸入／輸出範例，使模型在無需任何 fine-tuning 下學會任務模式 |
+| 思維鏈（Chain-of-thought） | 「一步步思考」 | prompt 模型展示中間推理推導步驟，使數學、邏輯與多步驟問題的準確率提升 10% 到 40% |
+| 角色 prompting（Role prompting） | 「你是一個專家」 | 設定身分人設，引導抽樣分布偏向訓練資料中該特定領域的高品質區域 |
 | Prompt 注入（Prompt injection） | 「越獄攻擊」 | 一種攻擊手法，使用者輸入中包含旨在覆寫系統訊息的指令，促使模型忽略原本的安全規則 |
 | 脈絡視窗（Context window） | 「它能讀多少內容」 | 模型在單次呼叫中所能處理的最大 token 總數（輸入 + 輸出）——現行模型從 8K 到 2M 不等 |
 | 助理預填（Assistant prefill） | 「幫它開個頭」 | 主動提供模型回應開頭的少數幾個 token，藉此引導輸出格式並徹底消除開場白贅字——Anthropic 原生支援 |
-| 元提示（Meta-prompting） | 「用 Prompt 寫 Prompt」 | 使用 LLM 本身來為其他 LLM 任務自動生成、批判並最佳化 Prompt |
+| meta-prompting（Meta-prompting） | 「用 Prompt 寫 Prompt」 | 使用 LLM 本身來為其他 LLM 任務自動生成、批判並最佳化 Prompt |
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) ——OpenAI 官方最佳實踐，涵蓋系統訊息、少樣本學習與思維鏈提示
+- [OpenAI Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) ——OpenAI 官方最佳實踐，涵蓋系統訊息、少樣本學習與思維鏈 prompting
 - [Anthropic Prompt Engineering Guide](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) ——Claude 專屬技術，包含 XML 格式化、助理預填與思考標籤
 - [Wei et al., 2022 -- "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models"](https://arxiv.org/abs/2201.11903) ——證明「一步步思考」能將 LLM 推理任務精度拉升 10% 到 40% 的奠基論文
 - [Zamfirescu-Pereira et al., 2023 -- "Why Johnny Can't Prompt"](https://arxiv.org/abs/2304.13529) ——研究非專家在 Prompt 工程上的痛點與 Prompt 生效本質的學術探討
-- [Shin et al., 2023 -- "Prompt Engineering a Prompt Engineer"](https://arxiv.org/abs/2311.05661) ——使用 LLM 自動最佳化 Prompt 的元提示技術濫觴
+- [Shin et al., 2023 -- "Prompt Engineering a Prompt Engineer"](https://arxiv.org/abs/2311.05661) ——使用 LLM 自動最佳化 Prompt 的 meta-prompting 技術濫觴
 - [Arena (formerly LMSYS Chatbot Arena)](https://arena.ai/) ——LLM 即時盲測對比平台，可跨模型測試相同 Prompt 並為較佳回應投票
 - [DAIR.AI Prompt Engineering Guide](https://www.promptingguide.ai/) ——涵蓋零樣本、少樣本、CoT、ReAct 與自洽性的詳盡 Prompt 技術指南
 - [Anthropic prompt library](https://docs.anthropic.com/en/prompt-library) ——按應用場景分類的精選實戰 Prompt 庫，展示正式環境中的成熟結構模式
