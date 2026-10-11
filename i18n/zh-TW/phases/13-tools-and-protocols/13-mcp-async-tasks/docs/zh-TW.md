@@ -456,7 +456,7 @@ id=5 resultType=complete status=completed
 | Durable-before-return | 核心鐵律：必須在底層確認持久化寫入成功後，方可向外回傳任務識別碼 |
 | `notifications/tasks` | 在已建立的 SSE 訂閱串流上推送的完整任務狀態變更快照 |
 
-## Legacy Compatibility｜傳統歷史相容性
+## 傳統歷史相容性
 
 在 2025-11-25 舊版實驗性規範中，存在由用戶端主動發起的任務升級、`tasks/status`、`tasks/result` 以及選用的 `tasks/list`。請將這些舊標識嚴格封裝在專屬的傳統相容轉接層內部。當前現代用戶端應當宣告擴充能力、接收伺服器主導派發的 ID、透過 `tasks/get` 輪詢狀態、透過 `tasks/update` 送出補充輸入，並直接自任務快照內部讀取最終內聯成果。
 

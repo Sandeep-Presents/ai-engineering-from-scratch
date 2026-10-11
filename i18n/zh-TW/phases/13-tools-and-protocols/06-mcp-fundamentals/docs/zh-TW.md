@@ -38,7 +38,7 @@ MCP 伺服器對外公開三大核心原語：
 
 1. **工具（Tools）**：由模型決策是否呼叫的動作，透過 `tools/list` 探測發現，透過 `tools/call` 發起執行。
 2. **資源（Resources）**：以 URI 唯一定位的唯讀資料資產，透過 `resources/list` 探測發現，透過 `resources/read` 檢索讀取。
-3. **Prompt 範本（Prompts）**：可重複使用的結構化提示範本，透過 `prompts/list` 探測發現，透過 `prompts/get` 進行實例化彩現。
+3. **Prompt 範本（Prompts）**：可重複使用的結構化 prompt 範本，透過 `prompts/list` 探測發現，透過 `prompts/get` 進行實例化彩現。
 
 請注意：根目錄宣告（Roots、Sampling 與 Logging 在 `2026-07-28` 規範中為相容性而保留，但已棄用。新系統在架構設計時，應將根目錄作為顯式的工具或資源引數傳入、直接呼叫模型服務供應商的原生 API 進行文字取樣，並透過 stderr 或 OpenTelemetry 記錄日誌。引導式互動（Elicitation）仍可透過多輪往返請求（Multi Round-Trip Requests）進行：由伺服器回傳輸入請求，並由用戶端重試最初的操作。現代伺服器絕不可自主發起獨立的逆向 JSON-RPC 請求。
 

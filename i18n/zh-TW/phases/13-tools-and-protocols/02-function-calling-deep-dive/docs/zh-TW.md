@@ -12,13 +12,13 @@
 - 精準指認 OpenAI、Anthropic 與 Gemini 在函式呼叫酬載（宣告、呼叫、結果）上的三大形態結構差異。
 - 在三大服務供應商格式之間自由雙向轉譯單一工具宣告，並預測各家嚴格模式（Strict Mode）約束條件的不同之處。
 - 靈活運用各平台的 `tool_choice` 參數，實現強制呼叫、禁止呼叫或由模型自主挑選工具。
-- 掌握各廠商在正式環境中的硬性配額上限（工具總數、Schema 巢狀深度、引數長度限制），以及踩線違規時各自拋出的典型錯誤代號。
+- 掌握各廠商在正式環境中的硬性配額上限（工具總數、結構描述巢狀深度、引數長度限制），以及踩線違規時各自拋出的典型錯誤代號。
 
 ## The Problem｜問題
 
 函式呼叫的請求與回應格式，因服務供應商不同而存在細微卻致命的差異。來自 2026 年商業正式環境的三個具體實例：
 
-**OpenAI Chat Completions / Responses API**：傳入 `tools: [{type: "function", function: {name, description, parameters, strict}}]`。模型回傳的回應包含 `choices[0].message.tool_calls: [{id, type: "function", function: {name, arguments}}]`，其中 `arguments` 是一個你必須自行手動解析的字串化 JSON。嚴格模式（`strict: true`）透過語法受限解碼強制確保引數絕對符合 Schema 規範。
+**OpenAI Chat Completions / Responses API**：傳入 `tools: [{type: "function", function: {name, description, parameters, strict}}]`。模型回傳的回應包含 `choices[0].message.tool_calls: [{id, type: "function", function: {name, arguments}}]`，其中 `arguments` 是一個你必須自行手動解析的字串化 JSON。嚴格模式（`strict: true`）透過語法受限解碼強制確保引數絕對符合結構描述規範。
 
 **Anthropic Messages API**：傳入 `tools: [{name, description, input_schema}]`。模型回傳的結果封裝為 `content: [{type: "text"}, {type: "tool_use", id, name, input}]`。注意其 `input` 已經由官方 SDK 解析為現成物件（而非未解析的純字串）。你必須以一條全新的 `user` 訊息回覆，內部包裹 `{type: "tool_result", tool_use_id, content}` 專屬區塊。
 
@@ -52,13 +52,13 @@
 | 結果注入區塊 | 角色為 `tool`，欄位為 `tool_call_id` | 角色為 `user`，區塊為 `tool_result`，欄位為 `tool_use_id` | `functionResponse` 物件，帶有相應的 `id` |
 | 強制呼叫特定工具 | `tool_choice: {type: "function", function: {name}}` | `tool_choice: {type: "tool", name}` | `tool_config: {function_calling_config: {mode: "ANY"}}` |
 | 全面禁用所有工具 | `tool_choice: "none"` | `tool_choice: {type: "none"}` | `mode: "NONE"` |
-| 嚴格 Schema 約束 | `strict: true` | 原生即視為契約（始終高度嚴格遵循） | 在請求最外層配置 `responseSchema` |
+| 嚴格結構描述約束 | `strict: true` | 原生即視為契約（始終高度嚴格遵循） | 在請求最外層配置 `responseSchema` |
 
 ### 真實正式環境中必撞的硬性上限
 
-- **OpenAI**：單次請求至多宣告 128 個工具。Schema 巢狀深度上限為 5 層。單一引數序列化字串長度 ≤ 8192 位元組。嚴格模式（Strict Mode）嚴格禁用 `$ref`，且不允許屬性相互重疊的 `oneOf`/`anyOf`/`allOf`，且 properties 中定義的每一個欄位皆必須顯式列入 `required` 清單。
-- **Anthropic**：單次請求至多宣告 64 個工具。Schema 深度理論上無硬性上限，但實務建議深度 ≤ 10。無顯式的 strict 模式開關；Schema 本身即被視為嚴肅契約，模型遵循率極高。
-- **Gemini**：單次請求至多宣告 64 個函式。Schema 型別系統基於 OpenAPI 3.0 子集（與標準 JSON Schema 2020-12 存在細微方言語義差異）。自 Gemini 3 起支援具備唯一 ID 的並行呼叫。
+- **OpenAI**：單次請求至多宣告 128 個工具。結構描述巢狀深度上限為 5 層。單一引數序列化字串長度 ≤ 8192 位元組。嚴格模式（Strict Mode）嚴格禁用 `$ref`，且不允許屬性相互重疊的 `oneOf`/`anyOf`/`allOf`，且 properties 中定義的每一個欄位皆必須顯式列入 `required` 清單。
+- **Anthropic**：單次請求至多宣告 64 個工具。結構描述深度理論上無硬性上限，但實務建議深度 ≤ 10。無顯式的 strict 模式開關；結構描述本身即被視為嚴肅契約，模型遵循率極高。
+- **Gemini**：單次請求至多宣告 64 個函式。結構描述型別系統基於 OpenAPI 3.0 子集（與標準 JSON Schema 2020-12 存在細微方言語義差異）。自 Gemini 3 起支援具備唯一 ID 的並行呼叫。
 
 ### `tool_choice` 調度行為
 
@@ -72,7 +72,7 @@
 
 - **OpenAI**：允許直接透過名稱強制鎖定單一特定工具。
 - **Anthropic**：允許直接透過名稱強制鎖定工具；並透過 `disable_parallel_tool_use` 旗標精確控制單呼叫 vs 多並行呼叫。
-- **Gemini**：提供 `mode: "VALIDATED"` 模式，無論模型原始意圖為何，皆將每一次輸出強制通過 Schema 校驗器。
+- **Gemini**：提供 `mode: "VALIDATED"` 模式，無論模型原始意圖為何，皆將每一次輸出強制通過結構描述驗證器。
 
 ### 多工具並行呼叫
 
@@ -94,7 +94,7 @@ Phase 13 · 03 將深度剖析並行與串流引數的重組還原技術。本�
 
 - **OpenAI（非嚴格模式）**：模型偶發輸出殘缺的 `arguments: "{bad json}"`，你的 JSON 解析器拋出例外，你必須將錯誤訊息包裝為錯誤提示重新請求模型。
 - **OpenAI（嚴格模式）**：校驗發生於模型底層解碼階段；從數學上杜絕了語法錯誤的 JSON，但在模型無法遵循時可能會回傳 `refusal` 拒絕區塊。
-- **Anthropic**：輸出的 `input` 可能包含 Schema 之外的未知欄位；其 Schema 偏向建議性質，伺服器端必須自行二次嚴格校驗。
+- **Anthropic**：輸出的 `input` 可能包含結構描述之外的未知欄位；其結構描述偏向建議性質，伺服器端必須自行二次嚴格校驗。
 - **Gemini**：受限於 OpenAPI 3.0 的歷史包袱，物件欄位上的 `enum` 列舉值有時會被底層默默忽略，應用層必須手動實施二次防禦校驗。
 
 ### 統一轉譯器模式（Translator Pattern）
@@ -140,9 +140,9 @@ function-call-args
 
 3. 實作 `tool_choice` 策略轉譯函式：將標準的 `ToolChoice(mode="force", tool_name="x")` 轉換為三大服務供應商的對應參數形態。隨後繼續擴充實作 `mode="any"` 與 `mode="none"` 的情境，並對照本課的差異對照表進行核驗。
 
-4. 挑選三大廠商之一，從頭到尾精讀其官方函式呼叫指南。找出其 Schema 規範中存在、但其餘兩家完全不支援的某一專屬欄位（例如 OpenAI 的 `strict`、Anthropic 的 `disable_parallel_tool_use`、Gemini 的 `function_calling_config.allowed_function_names`）。
+4. 挑選三大廠商之一，從頭到尾精讀其官方函式呼叫指南。找出其結構描述規範中存在、但其餘兩家完全不支援的某一專屬欄位（例如 OpenAI 的 `strict`、Anthropic 的 `disable_parallel_tool_use`、Gemini 的 `function_calling_config.allowed_function_names`）。
 
-5. 撰寫一組測試向量：構造一個引數型別故意違反 Schema 宣告的無效工具呼叫。將其傳入各服務供應商的校驗邏輯中（可借鑑第 01 課的標準函式庫校驗器作為代理），記錄拋出的具體錯誤形態。並據此論證：在商業正式環境中，若追求極致的強型別安全性，你會優先選用哪一家服務供應商？
+5. 撰寫一組測試向量：構造一個引數型別故意違反結構描述宣告的無效工具呼叫。將其傳入各服務供應商的校驗邏輯中（可借鑑第 01 課的標準函式庫校驗器作為代理），記錄拋出的具體錯誤形態。並據此論證：在商業正式環境中，若追求極致的強型別安全性，你會優先選用哪一家服務供應商？
 
 ## Key Terms｜關鍵術語
 
@@ -151,7 +151,7 @@ function-call-args
 | Function calling | 「原生工具使用」 | 模型服務供應商在 API 底層直接支援輸出結構化工具呼叫的原生機制 |
 | Tool declaration | 「工具宣告規範」 | 由工具名稱、描述說明以及 JSON Schema 輸入規格構成的宣告酬載 |
 | `tool_choice` | 「工具調度策略」 | 控制模型在當前輪次該自動（Auto）、必選（Required）、禁用（None）或強制特定工具的參數 |
-| Strict mode | 「強制合法約束模式」 | OpenAI 特有的旗標，透過語法受限解碼強制模型輸出百分之百符合 Schema |
+| Strict mode | 「強制合法約束模式」 | OpenAI 特有的旗標，透過語法受限解碼強制模型輸出百分之百符合結構描述 |
 | `tool_use` block | 「Claude 呼叫區塊」 | Anthropic 在內容串流中輸出的專屬區塊，帶有唯一 ID、名稱與解析後的輸入引數 |
 | `functionCall` part | 「Gemini 呼叫元件」 | Gemini 在 `parts[]` 串流中吐出的專屬物件，包含名稱、引數與唯一追蹤 ID |
 | Arguments-as-string | 「字串化 JSON」 | OpenAI 傳回的引數為未經解析的原始 JSON 字串，而非已解析物件 |

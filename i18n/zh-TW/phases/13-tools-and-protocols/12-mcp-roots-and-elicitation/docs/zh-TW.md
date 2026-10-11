@@ -291,7 +291,7 @@ python3 -m unittest discover tests -v
 | Decline | 明確拒絕；使用者主動拒絕執行當前操作的確定性終態意圖 |
 | Cancel | 取消操作；使用者未經批准而關閉對話框或中斷互動的中立狀態 |
 
-## Legacy Compatibility｜傳統歷史相容性
+## 傳統歷史相容性
 
 面對鎖定於 2025-11-25 舊版本的傳統端點，`roots/list`、`notifications/roots/list_changed` 以及傳統伺服器主動發起的 `elicitation/create` 依然可能存在。請將該轉接邏輯嚴格標註為舊版相容層。絕不允許舊版 Root 清單繞過伺服器端的實體授權檢查，亦絕不可將工作階段式的架構假設引入現代處理常式中。
 
