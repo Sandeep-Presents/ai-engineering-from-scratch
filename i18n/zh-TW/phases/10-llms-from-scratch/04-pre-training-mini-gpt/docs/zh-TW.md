@@ -47,17 +47,17 @@ GPT 是一個自回歸語言模型。「自回歸（Autoregressive）」意味�
 
 ```mermaid
 graph TD
-    A["Token IDs\n(batch, seq_len)"] --> B["Token Embeddings\n(batch, seq_len, 768)"]
-    A --> C["Position Embeddings\n(batch, seq_len, 768)"]
-    B --> D["Add"]
+    A["Token ID\n(batch, seq_len)"] --> B["Token embedding\n(batch, seq_len, 768)"]
+    A --> C["位置 embedding\n(batch, seq_len, 768)"]
+    B --> D["相加"]
     C --> D
-    D --> E["Transformer Block 1"]
-    E --> F["Transformer Block 2"]
+    D --> E["transformer 區塊 1"]
+    E --> F["transformer 區塊 2"]
     F --> G["..."]
-    G --> H["Transformer Block 12"]
-    H --> I["Layer Norm"]
-    I --> J["Linear Head\n(768 -> 50257)"]
-    J --> K["Softmax\nNext-token probabilities"]
+    G --> H["transformer 區塊 12"]
+    H --> I["層正規化"]
+    I --> J["線性輸出頭\n(768 -> 50257)"]
+    J --> K["softmax\n下一個 token 的機率"]
 
     style A fill:#1a1a2e,stroke:#e94560,color:#fff
     style B fill:#1a1a2e,stroke:#0f3460,color:#fff
@@ -110,26 +110,26 @@ output = attention_weights @ V
 
 ```mermaid
 graph LR
-    subgraph MultiHead["Multi-Head Attention (12 heads)"]
+    subgraph MultiHead["多頭注意力（12 個頭）"]
         direction TB
-        I["Input (768)"] --> S1["Split into 12 heads"]
-        S1 --> H1["Head 1\n(64 dims)"]
-        S1 --> H2["Head 2\n(64 dims)"]
+        I["輸入（768）"] --> S1["拆分為 12 個頭"]
+        S1 --> H1["頭 1\n（64 維）"]
+        S1 --> H2["頭 2\n（64 維）"]
         S1 --> H3["..."]
-        S1 --> H12["Head 12\n(64 dims)"]
-        H1 --> C["Concat (768)"]
+        S1 --> H12["頭 12\n（64 維）"]
+        H1 --> C["串接（768）"]
         H2 --> C
         H3 --> C
         H12 --> C
-        C --> O["Output Projection\n(768 -> 768)"]
+        C --> O["輸出投影\n(768 -> 768)"]
     end
 
-    subgraph SingleHead["Each Head Computes"]
+    subgraph SingleHead["每個頭的計算"]
         direction TB
         Q["Q = X @ W_q"] --> A["scores = Q @ K^T / 8"]
         K["K = X @ W_k"] --> A
-        A --> M["Apply causal mask"]
-        M --> SM["Softmax"]
+        A --> M["套用因果遮罩"]
+        M --> SM["softmax"]
         SM --> MUL["weights @ V"]
         V["V = X @ W_v"] --> MUL
     end
@@ -163,20 +163,20 @@ KV Cache 解決了這個問題。在為每個 token 計算出 K 與 V 之後，�
 
 ```mermaid
 graph LR
-    subgraph Prefill["Phase 1: Prefill"]
+    subgraph Prefill["階段 1：預填"]
         direction TB
-        P1["Full prompt\n(all tokens known)"]
-        P2["Parallel computation\n(compute-bound)"]
-        P3["Builds KV Cache"]
+        P1["完整 prompt\n（已知所有 token）"]
+        P2["平行運算\n（受運算限制）"]
+        P3["建立 KV cache"]
         P1 --> P2 --> P3
     end
 
-    subgraph Decode["Phase 2: Decode"]
+    subgraph Decode["階段 2：解碼"]
         direction TB
-        D1["Generate token N"]
-        D2["Read KV Cache\n(memory-bound)"]
-        D3["Append to KV Cache"]
-        D4["Generate token N+1"]
+        D1["產生 token N"]
+        D2["讀取 KV cache\n（受記憶體限制）"]
+        D3["附加至 KV cache"]
+        D4["產生 token N+1"]
         D1 --> D2 --> D3 --> D4
         D4 -.->|repeat| D1
     end
