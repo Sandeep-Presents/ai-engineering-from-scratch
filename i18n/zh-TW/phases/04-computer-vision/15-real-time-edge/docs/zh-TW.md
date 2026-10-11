@@ -94,7 +94,7 @@ FLOPs（每次推論的浮點運算數）是便宜、與裝置無關的延遲代
 
 | 預算 | 模型 | 為什麼 |
 |--------|-------|-----|
-| 參數少於 300 萬 | MobileNetV3-Small | 到處都編譯得動，基準（baseline）不錯 |
+| 參數少於 300 萬 | MobileNetV3-Small | 到處都編譯得動，基準模型不錯 |
 | 300 萬到 1000 萬 | EfficientNet-Lite-B0 | 在 TFLite 上，參數效率最佳 |
 | 1000 萬到 2000 萬 | ConvNeXt-Tiny | 參數效率最佳，對 CPU 友善 |
 | 2000 萬到 3000 萬 | MobileViT-S 或 EfficientViT | 有 ImageNet 準確率的 transformer |
