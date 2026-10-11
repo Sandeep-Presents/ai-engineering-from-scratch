@@ -1,4 +1,4 @@
-# GloVe、FastText 與子詞 embedding
+# GloVe、FastText 與子詞（subword） embedding
 
 > Word2Vec 一個詞訓練一個 embedding。GloVe 把共現（co-occurrence）矩陣做了矩陣分解（matrix factorization）。FastText 把片段做成 embedding。BPE 接上了 transformer。
 
