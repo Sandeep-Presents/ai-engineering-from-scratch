@@ -16,9 +16,9 @@
 
 ## The Problem｜問題
 
-單一決策樹（decision tree）訓練（training）快、好解讀，但會過度擬合（overfitting）。單一線性模型（model）在複雜邊界上又會欠擬合（underfitting）。你可以花好幾天打造完美的模型（model）架構——或者，你也可以把一堆不完美的模型（model）組合起來，得到比其中任何一個都好的東西。
+單一決策樹（decision tree）訓練（training）快、好解讀，但會過度擬合（overfitting）。單一線性模型在複雜邊界上又會欠擬合（underfitting）。你可以花好幾天打造完美的模型架構——或者，你也可以把一堆不完美的模型組合起來，得到比其中任何一個都好的東西。
 
-集成方法做的就是這件事。它們是在表格資料（tabular data）上贏得 Kaggle 競賽最可靠的技術，驅動了大多數正式環境的機器學習（machine learning）系統，也把偏差－變異取捨（bias-variance tradeoff）具體展現出來：bagging 降變異，boosting 降偏差，stacking 學習在哪些輸入上該信任哪些模型（model）。
+集成方法做的就是這件事。它們是在表格資料（tabular data）上贏得 Kaggle 競賽最可靠的技術，驅動了大多數正式環境的機器學習（machine learning）系統，也把偏差－變異取捨（bias-variance tradeoff）具體展現出來：bagging 降變異，boosting 降偏差，stacking 學習在哪些輸入上該信任哪些模型。
 
 ## The Concept｜核心概念
 
@@ -30,18 +30,18 @@
 P(majority correct) = sum over k > N/2 of C(N,k) * p^k * (1-p)^(N-k)
 ```
 
-每個準確率都是 60% 的 21 個分類器（classifier），多數決的準確率約為 74%；有 101 個時，會升到 84%。當各模型（model）犯的是不同的錯，錯誤會互相抵銷。
+每個準確率都是 60% 的 21 個分類器（classifier），多數決的準確率約為 74%；有 101 個時，會升到 84%。當各模型犯的是不同的錯，錯誤會互相抵銷。
 
-關鍵條件是**多樣性（diversity）**。如果所有模型（model）都犯一樣的錯，組合起來一點用都沒有。集成之所以有效，是因為它透過以下方式產生多樣的模型（model）：
+關鍵條件是**多樣性（diversity）**。如果所有模型都犯一樣的錯，組合起來一點用都沒有。集成之所以有效，是因為它透過以下方式產生多樣的模型：
 
 - 不同的訓練（training）子集（bagging）
 - 不同的特徵（feature）子集——隨機森林（random forest）
 - 依序修正錯誤（boosting）
-- 不同的模型（model）家族（stacking）
+- 不同的模型家族（stacking）
 
 ### Bagging（bootstrap 聚合；bootstrap aggregating）
 
-Bagging 讓每個模型（model）在訓練（training）資料（training data）的不同 bootstrap 樣本（bootstrap sample）上訓練（training），藉此製造多樣性。
+Bagging 讓每個模型在訓練（training）資料（training data）的不同 bootstrap 樣本（bootstrap sample）上訓練（training），藉此製造多樣性。
 
 ```mermaid
 flowchart TD
@@ -50,10 +50,10 @@ flowchart TD
     D --> B3[Bootstrap 樣本 3]
     D --> BN[Bootstrap 樣本 N]
 
-    B1 --> M1[模型（model） 1]
-    B2 --> M2[模型（model） 2]
-    B3 --> M3[模型（model） 3]
-    BN --> MN[模型（model） N]
+    B1 --> M1[模型 1]
+    B2 --> M2[模型 2]
+    B3 --> M3[模型 3]
+    BN --> MN[模型 N]
 
     M1 --> V[取平均或多數決]
     M2 --> V
@@ -71,21 +71,21 @@ Bagging 降低變異而幾乎不增加偏差。每棵樹各自對自己的 boots
 
 ### Boosting（依序修正錯誤）
 
-Boosting 依序訓練（training）模型（model）。每個新模型（model）都專注在前面模型（model）答錯的樣本上。
+Boosting 依序訓練（training）模型。每個新模型都專注在前面模型答錯的樣本上。
 
 ```mermaid
 flowchart LR
-    D[帶權重（weight）的資料] --> M1[模型（model） 1]
+    D[帶權重（weight）的資料] --> M1[模型 1]
     M1 --> E1[找出錯誤]
     E1 --> W1[提高錯誤樣本的權重]
-    W1 --> M2[模型（model） 2]
+    W1 --> M2[模型 2]
     M2 --> E2[找出錯誤]
     E2 --> W2[提高錯誤樣本的權重]
-    W2 --> M3[模型（model） 3]
-    M3 --> F[所有模型（model）的加權總和（weighted sum）]
+    W2 --> M3[模型 3]
+    M3 --> F[所有模型的加權總和（weighted sum）]
 ```
 
-Boosting 降低偏差：每個新模型（model）都在修正目前為止集成的系統性誤差。最終預測是所有模型（model）的加權總和（weighted sum），表現較好的模型（model）權重較高。
+Boosting 降低偏差：每個新模型都在修正目前為止集成的系統性誤差。最終預測是所有模型的加權總和（weighted sum），表現較好的模型權重較高。
 
 代價是：boosting 跑太多輪會過度擬合，因為它會一直去擬合愈來愈難的樣本，其中有些可能只是雜訊。
 
@@ -111,11 +111,11 @@ AdaBoost（Adaptive Boosting）是第一個實用的 boosting 演算法（algori
 3. Final prediction: H(x) = sign(sum(alpha_t * h_t(x)))
 ```
 
-誤差愈低的模型（model） alpha 愈高；被分錯的樣本權重（sample weight）會提高，讓下一個模型（model）專注在它們身上。
+誤差愈低的模型 alpha 愈高；被分錯的樣本權重（sample weight）會提高，讓下一個模型專注在它們身上。
 
 ### Gradient Boosting
 
-Gradient boosting 把 boosting 推廣到任意損失函數（loss function）。它不再對樣本重新加權，而是讓每個新模型（model）去擬合當前集成的殘差（residual）——也就是損失的負梯度（negative gradient）。
+Gradient boosting 把 boosting 推廣到任意損失函數（loss function）。它不再對樣本重新加權，而是讓每個新模型去擬合當前集成的殘差（residual）——也就是損失的負梯度（negative gradient）。
 
 ```
 1. Initialize: F_0(x) = argmin_c sum(L(y_i, c))
@@ -155,9 +155,9 @@ Stacking 把多個基模型（base model）的預測當成元學習器（meta-le
 
 ```mermaid
 flowchart TD
-    D[訓練（training）資料] --> M1[模型（model） 1：隨機森林]
-    D --> M2[模型（model） 2：SVM]
-    D --> M3[模型（model） 3：邏輯斯迴歸（logistic regression）]
+    D[訓練（training）資料] --> M1[模型 1：隨機森林]
+    D --> M2[模型 2：SVM]
+    D --> M3[模型 3：邏輯斯迴歸（logistic regression）]
 
     M1 --> P1[預測 1]
     M2 --> P2[預測 2]
@@ -170,9 +170,9 @@ flowchart TD
     META --> F[最終預測]
 ```
 
-元學習器會學到：在哪種輸入上該信任哪個基模型（model）。如果隨機森林在某些區域比較強、SVM 在另一些區域比較強，元學習器就會學會依輸入選擇合適的模型（model）。
+元學習器會學到：在哪種輸入上該信任哪個基模型。如果隨機森林在某些區域比較強、SVM 在另一些區域比較強，元學習器就會學會依輸入選擇合適的模型。
 
-為了避免資料洩漏（data leakage），基模型（model）的預測必須在訓練（training）集（training set）上以交叉驗證（cross-validation）產生。絕不能在訓練（training）基模型（model）的同一份資料上產生元特徵（meta-feature）。
+為了避免資料洩漏（data leakage），基模型的預測必須在訓練（training）集（training set）上以交叉驗證（cross-validation）產生。絕不能在訓練（training）基模型的同一份資料上產生元特徵（meta-feature）。
 
 ### 投票
 
@@ -303,7 +303,7 @@ class GradientBoostingScratch:
 | Gradient Boosting | 偏差 | 表格資料、競賽 | 訓練（training）慢，不調校就容易過度擬合 |
 | XGBoost／LightGBM | 兩者 | 正式環境的表格資料 ML | 超參數（hyperparameter）很多 |
 | Stacking | 兩者 | 搶最後 1-2% 的準確率 | 複雜，元學習器有過度擬合風險 |
-| 投票 | 變異 | 快速組合多樣的模型（model） | 模型（model）不多樣就沒用 |
+| 投票 | 變異 | 快速組合多樣的模型 | 模型不多樣就沒用 |
 
 ### 表格資料的正式環境技術堆疊
 
@@ -311,7 +311,7 @@ class GradientBoostingScratch:
 
 1. **LightGBM 或 XGBoost**，先用預設參數（default parameters）
 2. 調 n_estimators、learning_rate、max_depth、min_child_weight
-3. 如果還需要最後 0.5%，建立由 3–5 個多樣模型（model）組成的 stacking 集成
+3. 如果還需要最後 0.5%，建立由 3–5 個多樣模型組成的 stacking 集成
 4. 全程使用交叉驗證
 
 在表格資料上，神經網路幾乎總是比 gradient boosting 差——儘管研究仍持續嘗試。TabNet、NODE 這類架構偶爾能追平，但很少打敗調好的 XGBoost。
@@ -328,7 +328,7 @@ class GradientBoostingScratch:
 
 3. 在 gradient boosting 實作中加入提前停止（early stopping）：每一輪後記錄驗證損失（validation loss），連續 10 輪沒有改善就停止。它實際需要多少棵樹？
 
-4. 用三個基模型（model）（邏輯斯迴歸、決策樹、k 最近鄰法（KNN））加一個邏輯斯迴歸元學習器，建立一個 stacking 集成。用 5 折交叉驗證（5-fold cross-validation）產生元特徵。與每個單獨的基模型（model）比較。
+4. 用三個基模型（邏輯斯迴歸、決策樹、k 最近鄰法（KNN））加一個邏輯斯迴歸元學習器，建立一個 stacking 集成。用 5 折交叉驗證（5-fold cross-validation）產生元特徵。與每個單獨的基模型比較。
 
 5. 用預設參數在同一個資料集上跑 XGBoost。與你從頭實作的 gradient boosting 比較準確率，並計時兩者。速度差多少？
 
@@ -336,14 +336,14 @@ class GradientBoostingScratch:
 
 | 術語 | 常見說法 | 實際意義 |
 |------|----------------|----------------------|
-| bagging | 「在隨機子集上訓練（training）」 | bootstrap 聚合：在 bootstrap 樣本上訓練（training）多個模型（model）、平均預測以降低變異 |
-| boosting | 「專攻困難樣本」 | 依序訓練（training）模型（model），每個模型（model）修正目前為止集成所犯的錯誤，以降低偏差 |
+| bagging | 「在隨機子集上訓練（training）」 | bootstrap 聚合：在 bootstrap 樣本上訓練（training）多個模型、平均預測以降低變異 |
+| boosting | 「專攻困難樣本」 | 依序訓練（training）模型，每個模型修正目前為止集成所犯的錯誤，以降低偏差 |
 | AdaBoost | 「把資料重新加權」 | 透過樣本權重更新實現的 boosting；分錯的點在下一輪權重更高 |
-| gradient boosting | 「去擬合殘差」 | 讓每個新模型（model）擬合損失函數負梯度的 boosting |
+| gradient boosting | 「去擬合殘差」 | 讓每個新模型擬合損失函數負梯度的 boosting |
 | XGBoost | 「Kaggle 神器」 | 具備正則化、二階最佳化與系統層級加速技巧的 gradient boosting |
-| stacking | 「模型（model）上面再疊模型（model）」 | 把基模型（model）的預測當成元學習器的輸入特徵 |
+| stacking | 「模型上面再疊模型」 | 把基模型的預測當成元學習器的輸入特徵 |
 | 隨機森林（random forest） | 「很多隨機的樹」 | 對決策樹做 bagging，並在每次分割時隨機對特徵子取樣以增加多樣性 |
-| 集成多樣性（ensemble diversity） | 「各犯各的錯」 | 各模型（model）的錯誤必須不相關，集成才能勝過個別模型（model） |
+| 集成多樣性（ensemble diversity） | 「各犯各的錯」 | 各模型的錯誤必須不相關，集成才能勝過個別模型 |
 | 袋外誤差（out-of-bag error） | 「免費的驗證」 | 未被抽入某次 bootstrap 的樣本（約 36.8%）可作為驗證集，不需另留保留集（hold-out） |
 
 ## Further Reading｜延伸閱讀
