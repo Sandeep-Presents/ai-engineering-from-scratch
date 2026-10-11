@@ -1,6 +1,6 @@
 # 多 agent 強化學習（multi-agent RL）
 
-> 單 agent 的 RL 假設環境是平穩的。把兩個正在學習的 agent 放進同一個世界，此假設不再成立：每個 agent 都是對方環境的一部分，而且兩邊都在變。多 agent RL 是一套技巧，讓馬可夫假設不再成立時，學習還能收斂。
+> 單 agent 的 RL 假設環境是定態的。把兩個正在學習的 agent 放進同一個世界，此假設不再成立：每個 agent 都是對方環境的一部分，而且兩邊都在變。多 agent RL 是一套技巧，讓馬可夫假設不再成立時，學習還能收斂。
 
 **Type:** Build
 **Languages:** Python
@@ -184,5 +184,5 @@ Refuse independent Q-learning on tightly-coupled cooperative tasks. Refuse to re
 - [Yu et al. (2022). The Surprising Effectiveness of PPO in Cooperative Multi-Agent Games (MAPPO)](https://arxiv.org/abs/2103.01955) ——PPO 在 MARL 中的表現出人意料地好。
 - [Vinyals et al. (2019). Grandmaster level in StarCraft II using multi-agent reinforcement learning (AlphaStar)](https://www.nature.com/articles/s41586-019-1724-z) ——大規模的聯賽對戰。
 - [Silver et al. (2017). Mastering the game of Go without human knowledge (AlphaGo Zero)](https://www.nature.com/articles/nature24270) ——零和遊戲裡的純自我對弈。
-- [Sutton & Barto (2018). Ch. 15 — Neuroscience & Ch. 17 — Frontiers](http://incompleteideas.net/book/RLbook2020.pdf) ——教科書對多 agent 設定和非定態問題的短處理；CTDE 就是為了處理這個問題而提出的。
+- [Sutton & Barto (2018). Ch. 15 — Neuroscience & Ch. 17 — Frontiers](http://incompleteideas.net/book/RLbook2020.pdf) ——教科書對多 agent 設定和非定態問題的簡短論述；CTDE 就是為了處理這個問題而提出的。
 - [Zhang, Yang & Başar (2021). Multi-Agent Reinforcement Learning: A Selective Overview](https://arxiv.org/abs/1911.10635) ——涵蓋合作、競爭、混合 MARL 和收斂結果的綜述。
