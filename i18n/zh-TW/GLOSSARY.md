@@ -130,6 +130,7 @@
 | response body | 回應本文 | 否 |  |  |
 | authentication | 身分驗證 | 否 |  |  |
 | authorization | 授權 | 否 |  |  |
+| elicitation | 徵詢 | 否 |  | MCP 術語，指在操作期間向使用者請求輸入；每課首次寫「Elicitation（徵詢：向使用者請求輸入）」，後文用「徵詢」。不要把它限定為問答或表單形式。 |
 | API key | API 金鑰 | 否 | API 密鑰 |  |
 | rate limit | 速率限制 | 否 |  |  |
 | billing unit | 計費單位 | 否 |  |  |
@@ -314,6 +315,7 @@
 | Git LFS | Git LFS | 是 |  | 專案名稱。 |
 | DVC | DVC | 是 |  | Data Version Control 工具名稱。 |
 | data version control | 資料版本控制 | 否 |  | 管理資料集與模型版本的方式。 |
+| provenance | 溯源 | 否 |  | data provenance→資料溯源；provenance signal→溯源信號；provenance chain→溯源鏈條；content provenance→內容溯源；Data Provenance Initiative→資料溯源倡議。避免譯為「出處」或「血緣」。 |
 | Hugging Face Hub | Hugging Face Hub | 是 |  | Hugging Face 的資料集與模型託管平台。 |
 | LSP | LSP | 是 |  | Language Server Protocol 縮寫。 |
 | Pylance | Pylance | 是 |  | 產品名稱。 |
@@ -1739,3 +1741,6 @@
 | uplift | 提升幅 | 否 | | 行銷／成長情境的指標提升幅度；勿譯為「效率」。 |
 | retriever | 檢索器 | 否 | | RAG／搜尋管線中負責取回候選文件的元件。 |
 | detector | 偵測器 | 否 | | 偵測異常、越獄、訊號的元件；勿誤譯為「檢索器」（那是 retriever）。 |
+| speaker | 說話人 | 否 | 語者 | 語音／ASR 語境的發話者；統一「說話人」（06 冊曾有語者／說話人混用）。 |
+| keyword | 關鍵字 | 否 | 關鍵詞 | 關鍵字偵測（keyword spotting）等語境；統一「關鍵字」。 |
+| threshold tuning | 閾值調整 | 否 | 閾值調校 | 決策閾值校準；tuning 語境用「調整」，optimization 用「最佳化」。 |
