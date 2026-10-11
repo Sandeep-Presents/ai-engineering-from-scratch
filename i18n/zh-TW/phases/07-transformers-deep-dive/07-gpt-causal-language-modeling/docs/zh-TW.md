@@ -74,7 +74,7 @@ mask-derivation
 
 ### 平行訓練，串列推論（inference）
 
-訓練：整段 `(N, d_model)` 序列前向傳遞一次，算 N 個交叉熵（cross-entropy）損失（每個位置一個），加總，反向傳播（backpropagation）。沿著序列平行。這就是 GPT 訓練縮放得起來的原因——一個 GPU 行程裡，一個批次（batch）處理 100 萬個 token。
+訓練：整段 `(N, d_model)` 序列前向傳遞一次，算 N 個交叉熵（cross-entropy）損失（每個位置一個），加總，反向傳播（backpropagation）。沿著序列平行。這就是 GPT 訓練縮放得起來的原因——一次 GPU 前向傳遞中，一個批次（batch）處理 100 萬個 token。
 
 推論：你一個 token 一個 token 生成。餵 `[t1, t2, t3]`，得到 `t4`。餵 `[t1, t2, t3, t4]`，得到 `t5`。餵 `[t1, t2, t3, t4, t5]`，得到 `t6`。KV 快取（第 12 課）存下 `t1…tn` 的隱藏狀態（hidden state），每一步就不用重算。但推論時的串列深度等於輸出長度。那就是自迴歸（autoregressive）帶來的代價，也是為什麼解碼是每個 LLM 的延遲（latency）瓶頸。
 
