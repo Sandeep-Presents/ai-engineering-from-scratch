@@ -26,15 +26,15 @@ notebook 由一連串儲存格（cell）組成。每個儲存格可以是程式�
 
 ```mermaid
 graph TD
-    A["**Markdown 儲存格（Markdown Cell）**\n# 我的實驗\n測試學習率（learning rate）0.01"] --> B["**程式碼儲存格（Code Cell）** ► 執行\nmodel.fit(X, y, lr=0.01)\n---\n輸出：loss = 0.342"]
-    B --> C["**程式碼儲存格（Code Cell）** ► 執行\nplt.plot(losses)\n---\n輸出：notebook 內嵌圖表（inline plot）"]
+    A["**Markdown 儲存格**\n# 我的實驗\n測試學習率（learning rate）0.01"] --> B["**程式碼儲存格** ► 執行\nmodel.fit(X, y, lr=0.01)\n---\n輸出：loss = 0.342"]
+    B --> C["**程式碼儲存格** ► 執行\nplt.plot(losses)\n---\n輸出：notebook 內嵌圖表"]
 ```
 
 核心（kernel）是背景執行的 Python 行程（process）。執行儲存格時，程式碼會傳送到核心，由它執行後再回傳結果。所有儲存格共用同一個核心，因此變數（variable）會在儲存格之間保留。
 
 ```mermaid
 graph LR
-    A[Notebook 介面] <--> B[核心\nPython 行程（process）]
+    A[Notebook 介面] <--> B[核心\nPython 行程]
     B --> C[變數（variable）會保留在記憶體（memory）中]
     B --> D[依你點選的任意順序執行儲存格]
     B --> E[重新啟動後，核心會結束]
