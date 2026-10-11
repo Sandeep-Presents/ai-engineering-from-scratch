@@ -1,6 +1,6 @@
 # Agent 經濟體、代幣激勵與聲譽系統（Agent Economies, Token Incentives, Reputation）
 
-> 長時程自主 Agent（METR 定義的 1 小時至 8 小時工作曲線）迫切需要經濟自主權。業界新興形成的 **5 層技術堆疊** 體系為：**DePIN**（實體算力層）→ **身分層**（W3C DID + 聲譽資本）→ **認知層**（RAG + MCP）→ **結算層**（帳戶抽象化）→ **治理層**（Agentic DAO）。當前正式環境中的 Agent 激勵網路包括 **Bittensor**（TAO 子網專門獎勵特定任務的專家模型）、**Fetch.ai / ASI 聯盟**（ASI-1 Mini LLM + FET 代幣），以及 **Gonka**（將算力重新分配至高產出 AI 任務的 Transformer 工作量證明 PoW）。學術前沿進展：AAMAS 2025 發布的去中心化 LaMAS 採用**夏普利值（Shapley-value）貢獻歸因演算法**，公平獎勵每位參與協同的 Agent；Google Research 在《Mechanism design for large language models》中提出了單調聚合架構下的**次價代幣拍賣機制（Second-price token auctions）**。本課將親手打造一個微型 Agent 交易市場、將夏普利值歸因應用於多 Agent 管線，並實際運作次價拍賣機制，讓博弈論機制在工程肌肉記憶中扎實落地。
+> 長時程自主 Agent（METR 定義的 1 小時至 8 小時工作曲線）迫切需要經濟自主權。業界新興形成的 **5 層技術堆疊** 體系為：**DePIN**（硬體算力層）→ **身分層**（W3C DID + 聲譽資本）→ **認知層**（RAG + MCP）→ **結算層**（帳戶抽象化）→ **治理層**（Agentic DAO）。當前正式環境中的 Agent 激勵網路包括 **Bittensor**（TAO 子網專門獎勵特定任務的專家模型）、**Fetch.ai / ASI 聯盟**（ASI-1 Mini LLM + FET 代幣），以及 **Gonka**（將算力重新分配至高產出 AI 任務的 Transformer 工作量證明 PoW）。學術前沿進展：AAMAS 2025 發布的去中心化 LaMAS 採用**夏普利值（Shapley-value）貢獻歸因演算法**，公平獎勵每位參與協同的 Agent；Google Research 在《Mechanism design for large language models》中提出了單調聚合架構下的**次價代幣拍賣機制（Second-price token auctions）**。本課將親手打造一個微型 Agent 交易市場、將夏普利值歸因應用於多 Agent 管線，並實際運作次價拍賣機制，讓博弈論機制在工程肌肉記憶中扎實落地。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -11,7 +11,7 @@
 
 當多個 Agent 共同協同產出巨大價值、卻需要對個體進行獨立分配獎勵時，多 Agent 系統會變得極其棘手。古典分配機制——平均分配、抑或由最後一位交付者獨吞所有報酬——在博弈本質上不是嚴重不公，就是極易被惡意投機鑽營。基於聯盟博弈的夏普利值（Shapley value）分配機制在公理上保證了絕對的公平，然而其精確計算開銷極其高昂。2025 至 2026 年的學術文獻提出了一系列高度實用的工程近似手段：夏普利蒙地卡羅抽樣、單調聚合拍賣，以及依據經證實的實質貢獻動態累積的鏈上聲譽系統。
 
-除了抽象的貢獻度歸因之外，整個產業已全面邁向具備實體金融行為能力的自主經濟 Agent：Bittensor TAO 專門激勵礦工算力以 fine-tuning 特定子網模型；Fetch.ai / ASI 聯盟透過 FET 代幣獎勵呼叫 ASI-1 Mini LLM 的實際用量；Gonka 則將傳統無意義的雜湊運算轉化為實質有益於 AI 推論的 Transformer 工作量證明。具備自主交易能力的經濟 Agent 早已成為現實；核心關鍵在於如何設計出能與人類總體目標對齊的激勵機制。
+除了抽象的貢獻度歸因之外，整個產業已全面邁向實際從事經濟活動的自主 Agent：Bittensor TAO 專門激勵礦工算力以 fine-tuning 特定子網模型；Fetch.ai / ASI 聯盟透過 FET 代幣獎勵呼叫 ASI-1 Mini LLM 的實際用量；Gonka 則將傳統無意義的雜湊運算轉化為實質有益於 AI 推論的 Transformer 工作量證明。具備自主交易能力的經濟 Agent 早已成為現實；核心關鍵在於如何設計出能與人類總體目標對齊的激勵機制。
 
 本課將 Agent 經濟體視為一個具體的工程問題家族——涵蓋貢獻度歸因、機制設計與聲譽管理——並以最精準精煉的數學推演親手實現它們。
 
@@ -19,11 +19,11 @@
 
 ### 5 層 Agent 經濟體技術堆疊
 
-1. **DePIN（實體去中心化算力層）。** 負責出租 GPU、儲存空間與頻寬的去中心化基礎設施。例如 Bittensor 子網、Render Network、Akash。這並非 Agent 專屬技術，而是作為 Agent 賴以生存的底層物理養分。
+1. **DePIN（去中心化硬體算力層）。** 負責出租 GPU、儲存空間與頻寬的去中心化基礎設施。例如 Bittensor 子網、Render Network、Akash。這並非 Agent 專屬技術，而是作為 Agent 賴以生存的底層物理養分。
 2. **身分層（Identity）。** W3C 去中心化識別碼（DID）賦予每個 Agent 一個完全獨立於任何中心化平台的持久化身分。各項歷史聲譽牢牢綁定至該 DID 之上。Agent 網路協定（ANP）即將 DID 作為其底層服務發現層。
 3. **認知層（Cognition）。** Agent 本身的核心推理閉環：LLM + RAG + MCP。這正是本書其他各階段所傳授的核心技術。
 4. **結算層（Settlement）。** 帳戶抽象化（以太坊 ERC-4337 標準）允許 Agent 直接從自身的智慧合約帳戶中自主支付 Gas 費，而無需人為持有 ETH。Agent 能夠自主為第三方外部服務付費、彼此之間互相轉帳結算，或為自身消耗的底層算力買單。
-5. **治理層（Governance）。** Agentic DAO：由人類*與*具備法定資格的 Agent 共同就協定升級進行投票的治理組織，投票權重通常與歷史聲譽嚴格掛鉤。
+5. **治理層（Governance）。** Agentic DAO：由人類與 Agent 共同就協定變更投票的治理組織，投票權重通常與歷史聲譽嚴格掛鉤。
 
 並非所有正式環境系統皆必須完整覆蓋這全部 5 層。Bittensor 覆蓋了第 1、2 層，局部涵蓋 3 與 4 層，完全未觸及第 5 層。OpenAI 的原生 Agent 則幾乎僅停留在第 3 層。這套 5 層堆疊是一份宏觀的架構參考地圖，而非教條式的硬性規範。
 
@@ -33,7 +33,7 @@
 
 **Fetch.ai / ASI 聯盟。** ASI-1 Mini LLM 原生運作於 Fetch.ai 的去中心化網路之上；終端使用者透過支付 FET 代幣換取模型推論服務。在此體系中，「Agent 作為對等同儕」的特質更為鮮明：Fetch 網路中的一個 Agent 能夠自主呼叫另一個 Agent 協助完成特定子任務，並直接以 FET 代幣進行點對點結算。
 
-**Gonka。** 基於 Transformer 的實質工作量證明：其 PoW 運算本質上正是 Transformer 模型的真實前向傳播（Forward pass）。礦工透過執行具備已知正確基準答案的推論任務（源自標準訓練集）來賺取收益。以實質高產出的有用 AI 算力，徹底取代了傳統浪費電力的無意義 SHA-256 暴力碰撞。
+**Gonka。** 基於 Transformer 的實質工作量證明：其 PoW 運算本質上正是 Transformer 模型的前向傳遞（forward pass）。礦工透過執行具備已知正確基準答案的推論任務（源自標準訓練集）來賺取收益。以實質高產出的有用 AI 算力，徹底取代了傳統浪費電力的無意義 SHA-256 暴力碰撞。
 
 截至 2026 年 4 月，這三者皆已達到工業級就緒水準。其利益分配機制各有側重：Bittensor 依據子網驗證者的相對品質評分分配收益；Fetch 依據真實付費用戶的實質效用需求分配；Gonka 則專門獎勵經密碼學驗證的有用推論算力。
 
@@ -53,9 +53,9 @@ shapley(i) = (1/N!) * sum over all orderings O of (v(S_i_O ∪ {i}) - v(S_i_O))
 
 ### 用於聚合輸出的次價拍賣機制（Second-Price Auction）
 
-Google Research 在《Mechanism design for large language models》中提出了一種專門用於聚合多個 LLM 輸出的次價代幣拍賣機制。架構設定：N 個 Agent 各自生成一份候選回應；每個 Agent 對於自身產出被系統最終選中持有各自的私有保留估值。拍賣主辦方選取報價最高的方案，但最終僅向其支付**第二高報價**的金額。在單調聚合（即整體效用取決於選中了哪個方案，而非總共提出了多少出價）的數學前提下，該機制具備嚴格的激勵相容性（Truthful）——各 Agent 的唯一最優策略，就是誠實呈報自身的真實私有估值。
+Google Research 在《Mechanism design for large language models》中提出了一種專門用於聚合多個 LLM 輸出的次價代幣拍賣機制。架構設定：N 個 Agent 各自生成一份候選回應；每個 Agent 對於自身產出被系統最終選中持有各自的私有保留估值。拍賣主辦方選取報價最高的方案，但最終僅向其支付**第二高報價**的金額。在單調聚合（即整體效用取決於選中了哪個方案，而非總共提出了多少出價）的數學前提下，該機制具激勵相容性（truthful）：誠實呈報估值是各 Agent 的最優策略。
 
-這項機制對大模型工程具有顛覆性價值：你能將文字生成任務直接外包給市場上定價策略各異的多個 Agent；拍賣機制保證了系統能挑選出最優產出，同時向其支付絕對公平客觀的報酬，且所有 Agent 在博弈結構上完全喪失了惡意虛報價格的投機動機。
+這項機制對大型語言模型工程具有重要價值：你能將文字生成任務直接外包給市場上定價策略各異的多個 Agent；拍賣機制保證了系統能挑選出最優產出，同時向其支付絕對公平客觀的報酬，且所有 Agent 在博弈結構上完全喪失了惡意虛報價格的投機動機。
 
 ### 聲譽資本（Reputation Capital）
 
@@ -84,7 +84,7 @@ AAMAS 2025 發布的 LaMAS 提案完美融合了三大支柱：DID 去中心化�
 
 ### 何時建構 Agent 經濟體才真正具備實質意義
 
-- **由多個互不相識的異質維運團隊組成的開放網路。** 不存在單一實體能全權掌控全場所有 Agent。
+- **由多個互不相識的異質維運團隊組成的開放網路。** 不存在單一團隊能全權掌控所有 Agent。
 - **具備機器可客觀驗證的明確產出。** 若缺乏可客觀驗證的標準，一切貢獻度歸因皆只是無謂的主觀猜測。
 - **需要跨越數天乃至數週運作的長時程工作流程。** 單次對話任務根本無法從長期的聲譽累積中獲益。
 - **代幣化支付結算在你所在的司法管轄區具備完全合法的法規基礎。**
@@ -122,7 +122,7 @@ python3 code/main.py
 
 2026 年運作 Agent 經濟體系統的必備工程鐵律：
 
-- **優先引入聲譽系統，慎用實體代幣。** 聲譽機制的建置成本低廉且自身便具備巨大治理價值；而引入實體金融代幣會瞬間引發沉重的法律與金融風險。
+- **優先引入聲譽系統，慎用代幣。** 聲譽機制的建置成本低廉且自身便有價值；引入代幣則會增加法律與經濟複雜度。
 - **獎勵分配前必須強制執行獨立驗證。** 絕不允許在未經客觀驗證的前提下發放報酬。盲信 Agent 自行申報的品質，只會招致猖獗的女巫作弊遊戲。
 - **採用夏普利蒙地卡羅抽樣，切勿盲目窮舉。** 在實際生產中抽樣 100 至 1,000 種排列組合即可；精確的全排列窮舉在規模擴大後在物理上無法計算。
 - **為聲譽衰減係數設定邊界並配置最低底線。** 無界限的過快衰減會無辜抹殺合法貢獻者的長期心血；而過於遲鈍的衰減則會讓躺在功勞簿上的陳舊高聲譽 Agent 享有不公的特權。
@@ -132,28 +132,28 @@ python3 code/main.py
 
 1. 執行 `code/main.py`。確認計算出的夏普利值總和是否嚴格等於全體協同創造的總價值（驗證有效性公理）。修改底層價值函數，觀察夏普利分配結果是否朝符合經濟學直覺的預期方向位移？
 2. 實現**夏普利蒙地卡羅抽樣演算法**（在 K 種隨機排列組合上進行抽樣計算）。評估抽樣次數 K 如何影響逼近真實值的精確度？針對 N=4 的團隊，比對抽樣估計與精確窮舉之間的誤差幅度。
-3. 在拍賣前引入聯盟組建（Coalition-forming）環節：允許各 Agent 自行合併為聯合團隊進行整包投標。觀察系統中會自發形成何種聯盟？最終產出的市場均衡相較於個體獨立競標是否達成了帕雷托最優（Pareto-better）？
-4. 閱讀 Google Research 關於大模型機制設計的官方技術文章。指出其中一項一旦被破壞就會導致激勵相容性（誠實出價）徹底瓦解的核心假設。在真實 LLM 業務環境中，該假設破裂會呈現出何種具體失效？
+3. 在拍賣前引入聯盟組建（Coalition-forming）環節：允許各 Agent 自行合併為聯合團隊進行整包投標。觀察系統中會自發形成何種聯盟？最終產出的市場均衡相較於個體獨立競標是否達成了帕雷托改善（Pareto improvement）？
+4. 閱讀 Google Research 關於大型語言模型機制設計的官方技術文章。指出其中一項一旦被破壞就會導致激勵相容性（誠實出價）徹底瓦解的核心假設。在真實 LLM 業務環境中，該假設破裂會呈現出何種具體失效？
 5. 閱讀 AAMAS 2025 去中心化 LaMAS 論文。在包含 10 位 Agent 的合成任務上實現其夏普利歸因步驟。精確計算耗費了多少時間？抽樣 100 次的近似估算與精確值之間的落差有多大？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| DePIN | "Decentralized physical infrastructure" | Token-incentivized compute/storage/bandwidth. Bittensor, Akash, Render. |
-| DID | "Decentralized identifier" | W3C spec for portable IDs. Agent reputation binds to DID, not to a platform. |
-| ERC-4337 | "Account abstraction" | Contract accounts that can sponsor gas, enabling agent payments. |
-| Shapley value | "Fair credit attribution" | Unique allocation satisfying efficiency, symmetry, linearity, null. |
-| Second-price auction | "Vickrey auction" | Truthful mechanism: winner pays second-highest bid. Monotone aggregation compatible. |
-| Reputation capital | "Accumulated quality score" | DID-bound score from confirmed contributions; decays over time. |
-| Agentic DAO | "Agents + humans govern" | DAO with agent voters as first-class, voting power tied to reputation. |
-| TAO / FET / GPU credits | "Token denominations" | Bittensor TAO, Fetch.ai FET, various DePIN tokens. |
+| DePIN | 「去中心化硬體基礎設施」 | 以代幣激勵運算、儲存與頻寬；例如 Bittensor、Akash、Render。 |
+| DID | 「去中心化識別碼」 | W3C 的可攜式識別碼規格。Agent 聲譽綁定 DID，而非平台。 |
+| ERC-4337 | 「帳戶抽象化」 | 可代付 Gas 的合約帳戶，使 Agent 能付款。 |
+| 夏普利值 | 「公平的貢獻歸因」 | 滿足有效性、對稱性、線性與虛擬參與者公理的唯一分配。 |
+| 次價拍賣 | 「維克里拍賣」 | 誠實機制：得標者支付次高出價；適用於單調聚合。 |
+| 聲譽資本 | 「累積的品質分數」 | 綁定 DID、根據已確認貢獻累積的分數；會隨時間衰減。 |
+| Agentic DAO | 「Agent 與人類共同治理」 | DAO 將 Agent 投票者視為一等公民，投票權與聲譽掛鉤。 |
+| TAO／FET／GPU 點數 | 「代幣計價單位」 | Bittensor TAO、Fetch.ai FET 與各種 DePIN 代幣。 |
 
 ## Further Reading｜延伸閱讀
 
-- [The Agent Economy](https://arxiv.org/abs/2602.14219) — 2026 年針對 5 層 Agent 經濟體架構堆疊的全面權威綜述。
-- [Google Research — Mechanism design for large language models](https://research.google/blog/mechanism-design-for-large-language-models/) — 單調聚合架構下的代幣拍賣機制設計。
-- [AAMAS 2025 — decentralized LaMAS](https://www.ifaamas.org/Proceedings/aamas2025/pdfs/p2896.pdf) — 基於夏普利值的去中心化貢獻度歸因架構論文。
-- [Bittensor TAO documentation](https://docs.bittensor.com/) — 子網架構與代幣激勵分發官方技術文件。
-- [Fetch.ai / ASI Alliance](https://fetch.ai/) — ASI-1 Mini LLM 與 FET 代幣生態系官方入口。
-- [W3C Decentralized Identifiers (DIDs) spec](https://www.w3.org/TR/did-core/) — 支撐去中心化身分與聲譽綁定的底層國際標準規範。
+- [The Agent Economy](https://arxiv.org/abs/2602.14219)
+- [Google Research — Mechanism design for large language models](https://research.google/blog/mechanism-design-for-large-language-models/)
+- [AAMAS 2025 — decentralized LaMAS](https://www.ifaamas.org/Proceedings/aamas2025/pdfs/p2896.pdf)
+- [Bittensor TAO documentation](https://docs.bittensor.com/)
+- [Fetch.ai / ASI Alliance](https://fetch.ai/)
+- [W3C Decentralized Identifiers (DIDs) spec](https://www.w3.org/TR/did-core/)

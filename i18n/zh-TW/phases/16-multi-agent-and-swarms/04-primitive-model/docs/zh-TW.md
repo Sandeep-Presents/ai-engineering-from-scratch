@@ -9,11 +9,11 @@
 
 ## Problem｜問題
 
-每隔六個月，業界就會誕生一套全新的多 agent 框架。2023 年是 AutoGen。2024 年是 CrewAI。隨後是 LangGraph 與 OpenAI Swarm。2025 年 4 月 Google 釋出 ADK。2026 年 2 月微軟發布 Agent Framework RC。每一份官方新聞稿皆高調宣稱自己找到了「唯一正確的抽象層」。
+每隔六個月，業界就會誕生一套全新的多 agent 框架。2023 年是 AutoGen。2024 年是 CrewAI。同年還有 LangGraph 與 OpenAI Swarm。2025 年 4 月 Google 釋出 ADK。2026 年 2 月微軟發布 Agent Framework RC。每一份官方新聞稿皆高調宣稱自己找到了「唯一正確的抽象層」。
 
 如果你試圖逐一單獨學習它們，你很快就會陷入筋疲力竭的認知過載。它們的 API 介面看似大相逕庭。官方文件對「何謂 Agent」的定義彼此矛盾。有的框架將其共享記憶體稱為「黑板（blackboard）」，另一個稱之為「訊息池（message pool）」，第三個則稱其為「StateGraph」。你甚至開始懷疑整個人工智慧領域是否僅是在毫無意義地徒勞空轉。
 
-事實並非如此。在天花亂墜的行銷包裝之下，底層的四大原語歷久彌新、極其穩定。只要一次性徹底搞懂它們，未來任何新框架你都能在一分鐘內看清底牌。
+事實並非如此。在天花亂墜的行銷包裝之下，底層的四大原語歷久彌新、極其穩定。學會一次，就能用一段話讀懂每個新框架。
 
 ## Concept｜核心概念
 
@@ -22,20 +22,20 @@
 1. **Agent**——由一段系統 prompt 加上一份工具清單所構成。本質上是完全無狀態的；每一次執行皆嚴格始於其系統 prompt 與當前的訊息歷史。
 2. **交接（Handoff）**——控制權從一個 agent 轉移至另一個 agent 的結構化轉移過程。在底層機制上，表現為回傳新 agent 的工具呼叫，或是依據特定條件跳轉的圖邊（graph edge）。
 3. **共享狀態（Shared state）**——任何可供多個 agent 讀取（有時允許寫入）的資料結構。例如訊息池、黑板、鍵值儲存（KV store）或向量記憶體。
-4. **編排器（Orchestrator）**——決定下一步由誰發言的仲裁實體。常見選項包括：顯式宣告的執行圖（確定性）、由 LLM 充當發言選取器（軟性決策）、依賴上一位發言者的交接工具呼叫（如 OpenAI Swarm），或是依據佇列進行調度的排程器（群體架構）。
+4. **編排器（Orchestrator）**——決定下一步由誰發言的元件。常見選項包括：顯式宣告的執行圖（確定性）、由 LLM 充當發言選取器（軟性決策）、依賴上一位發言者的交接工具呼叫（如 OpenAI Swarm），或是依據佇列進行調度的排程器（群體架構）。
 
 這就是整個多 agent 架構的完整設計空間。各大框架僅僅是針對各個座標軸選取了不同的預設值；其餘的一切皆屬表面語法糖。
 
 ### 2026 年主流框架如何映射至該模型
 
-| Framework | Agent | Handoff | Shared state | Orchestrator |
+| 框架 | Agent | 交接 | 共享狀態 | 編排者 |
 |-----------|-------|---------|--------------|--------------|
-| OpenAI Swarm / Agents SDK | `Agent(instructions, tools)` | tool returns Agent | caller's problem | the LLM's next handoff call |
-| AutoGen v0.4 / AG2 | `ConversableAgent` | speaker-selector on GroupChat | message pool | selector function (LLM or round-robin) |
-| CrewAI | `Agent(role, goal, backstory)` | `Process.Sequential / Hierarchical` | Task outputs chained | manager LLM or static order |
-| LangGraph | node function | graph edge + condition | `StateGraph` reducer | the graph, deterministic |
-| Microsoft Agent Framework | agent + orchestration patterns | pattern-specific | thread / context | pattern-specific |
-| Google ADK | agent + A2A card | A2A task | A2A artifacts | host decides |
+| OpenAI Swarm / Agents SDK | `Agent(instructions, tools)` | 工具回傳 Agent | 呼叫端負責 | LLM 的下一次交接呼叫 |
+| AutoGen v0.4 / AG2 | `ConversableAgent` | GroupChat 的發言者選取器 | 訊息池 | 選取器函式（LLM 或輪詢） |
+| CrewAI | `Agent(role, goal, backstory)` | `Process.Sequential / Hierarchical` | 串接 Task 輸出 | 管理者 LLM 或靜態順序 |
+| LangGraph | 節點函式 | 圖邊與條件 | `StateGraph` reducer | 確定性的圖 |
+| Microsoft Agent Framework | agent 與編排模式 | 依模式而定 | thread／context | 依模式而定 |
+| Google ADK | agent 與 A2A card | A2A 任務 | A2A 工件 | host 決定 |
 
 表面上的語法差異看似天差地別。但在引擎蓋之下：調校的永遠是相同的四個旋鈕。
 
@@ -51,7 +51,7 @@
 
 ### 無狀態性的深刻洞察
 
-除了「共享狀態」之外，其餘三個原語在數學本質上皆是完全無狀態的。Agent 是 (prompt, tools) 的純函式映射。交接本質上是一次函式呼叫。編排器則是一個任務排程器。**整個多 Agent 系統中唯一擁有狀態的實體，正是共享狀態。** 這正是所有耐人尋味的複雜 bug 潛伏的真正溫床：記憶體污染（第 15 課）、訊息時序錯亂、版本漂移以及寫入並行競爭。
+除了「共享狀態」之外，其餘三個原語在數學本質上皆是完全無狀態的。Agent 是 (prompt, tools) 的純函式映射。交接本質上是一次函式呼叫。編排器則是一個任務排程器。**多 Agent 系統中唯一具有狀態的部分，就是共享狀態。** 這正是所有耐人尋味的複雜 bug 潛伏的真正溫床：記憶體污染（第 15 課）、訊息時序錯亂、版本漂移以及寫入並行競爭。
 
 刻意隱藏共享狀態的框架（例如 Swarm）只不過是將這個燙手山芋粗暴踢給了外層呼叫者。而將共享狀態集中管理的框架（例如 LangGraph 檢查點、AutoGen 訊息池）雖然具備極佳的可觀測性，卻將沉重的狀態同步開銷轉嫁給了底層的共享狀態實作。
 
@@ -73,7 +73,7 @@ Handoff = (from_agent, to_agent, reason, payload)
 
 當前由三種主流實作模式所統治：
 
-- **函式回傳值（Function return）**——工具執行完畢後直接回傳下一個目標 agent。這正是 OpenAI Swarm 的標準模式。各 agent 在自身的工具 Schema 中自行攜帶路由邏輯。
+- **函式回傳值（Function return）**——工具執行完畢後直接回傳下一個目標 agent。這正是 OpenAI Swarm 的標準模式。各 agent 在自身的工具結構描述中自行攜帶路由邏輯。
 - **圖邊（Graph edge）**——LangGraph 模式。邊的定義是宣告式的。LLM 產出一個決策值；底層條件分流自動決定跳轉至哪一個目標節點。
 - **發言人選取（Speaker selection）**——AutoGen GroupChat 模式。由一個專門的選取器函式（有時本身就是一次獨立的 LLM 呼叫）通讀共享池並指派下一位發言者。
 
@@ -83,9 +83,9 @@ Handoff = (from_agent, to_agent, reason, payload)
 SharedState = { messages: [], artifacts: {}, context: {} }
 ```
 
-最精簡的形式僅是一組訊息清單。但在實務中往往包含更多豐富結構：例如強型別工件（CrewAI 的 Task 輸出）、受管制的型別上下文（LangGraph reducers）以及外部記憶體系統（MCP、向量資料庫）。
+最精簡的形式僅是一組訊息清單。但在實務中往往包含更多豐富結構：例如強型別工件（CrewAI 的 Task 輸出）、具型別的上下文（LangGraph reducers）以及外部記憶體系統（MCP、向量資料庫）。
 
-常見的兩大拓撲結構：**完整池（full pool）**（每個 agent 皆能看見每一則訊息）與**投影視圖（projected）**（每個 agent 僅能看見依其角色剪裁後的特定視圖）。完整池實作最為簡便，但擴展性極差。投影視圖具備優異的擴展性，但要求在架構初期進行嚴謹的 Schema 設計。
+常見的兩大拓撲結構：**完整池（full pool）**（每個 agent 皆能看見每一則訊息）與**投影視圖（projected）**（每個 agent 僅能看見依其角色剪裁後的特定視圖）。完整池實作最為簡便，但擴展性極差。投影視圖具備優異的擴展性，但要求在架構初期設計嚴謹的結構描述。
 
 #### Orchestrator（編排器）
 
@@ -156,21 +156,21 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Agent | "An LLM with tools" | A `(system_prompt, tools, model)` triple. Stateless. |
-| Handoff | "Transfer of control" | A structured call that names the next agent and optional payload. Three implementations: function return, graph edge, speaker selection. |
-| Shared state | "Memory" / "context" | The only stateful part of a multi-agent system. Message pool or blackboard. |
-| Orchestrator | "Coordinator" | Whoever decides who runs next. Static graph, LLM selector, handoff-driven, or queue-driven. |
-| Primitive | "Abstraction" | One of the four axes every framework parameterizes. Not a framework feature. |
-| Message pool | "Shared chat history" | Full-history shared state. Easy to reason about, scales badly. |
-| Projected state | "Scoped view" | Role-specific view into shared state. Scales, requires schema design. |
-| Speaker selection | "Who talks next" | Orchestrator pattern where a function (often an LLM) picks the next agent from a group. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| Agent | 「具工具的 LLM」 | `(system_prompt, tools, model)` 三元組。沒有狀態。 |
+| 交接（Handoff） | 「控制權移交」 | 指定下一個 agent 與選用 payload 的結構化呼叫。實作方式有三種：函式回傳、圖邊、發言者選取。 |
+| 共享狀態（Shared state） | 「記憶」／「上下文」 | 多 agent 系統中唯一有狀態的部分，可以是訊息池或黑板。 |
+| 編排者（Orchestrator） | 「協調者」 | 決定下一個執行對象的元件；可採靜態圖、LLM 選取器、交接驅動或佇列驅動。 |
+| 原語（Primitive） | 「抽象概念」 | 每個框架都會參數化的四個軸向之一，不是框架功能。 |
+| 訊息池（Message pool） | 「共享聊天記錄」 | 保存完整歷史的共享狀態，容易推理，但擴展性差。 |
+| 投影狀態（Projected state） | 「限縮範圍的視圖」 | 依角色提供的共享狀態視圖。擴展性較好，但需要設計結構描述。 |
+| 發言者選取（Speaker selection） | 「接下來誰發言」 | 一種編排模式，由函式（通常是 LLM）從一組 agent 中選出下一個 agent。 |
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI cookbook: Orchestrating Agents — Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 對交接驅動編排模式最為清晰透徹的權威論述。
-- [AutoGen stable docs](https://microsoft.github.io/autogen/stable/) — GroupChat 搭配發言人選取機制是 LLM 動態選取編排架構的經典參考規範。
-- [LangGraph workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 圖邊編排架構與基於 reducer 運作的共享狀態模型。
-- [CrewAI introduction](https://docs.crewai.com/en/introduction) — 具備角色、目標與背景故事設定的 agent，及其循序與階層式處理流程。
-- [AG2 (community AutoGen continuation)](https://github.com/ag2ai/ag2) — 在微軟將 v0.4 轉入維護模式後，持續活躍演進的 AutoGen 社群主力 branch。
+- [OpenAI cookbook: Orchestrating Agents — Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 清楚說明交接驅動編排的資料。
+- [AutoGen stable docs](https://microsoft.github.io/autogen/stable/) — LLM 選取編排模式的參考實作：GroupChat 與發言者選取。
+- [LangGraph workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 圖邊編排與以 reducer 為基礎的共享狀態。
+- [CrewAI introduction](https://docs.crewai.com/en/introduction) — 以角色、目標和背景故事定義 agent，以及循序／階層式流程。
+- [AG2 (community AutoGen continuation)](https://github.com/ag2ai/ag2) — Microsoft 將 v0.4 轉入維護模式後，仍持續發展的 AutoGen v0.2 系列。

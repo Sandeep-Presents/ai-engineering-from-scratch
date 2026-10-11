@@ -50,7 +50,7 @@
 ### 多方辯論模式（Debate）
 
 - 平行提案者 + 迭代式交叉互相批判（第 25 課）。
-- 嚴格而言它更偏向「驗收防禦機制」而非單純編排，但在許多框架中常被作為獨立的拓撲選項提供。
+- 嚴格而言它更偏向「驗證機制」而非單純編排，但在許多框架中常被作為獨立的拓撲選項提供。
 
 ### 自主團隊（Crews）vs 確定性工作流程（Flows）
 
@@ -63,7 +63,7 @@ CrewAI 正式規範了兩種部署形態：
 
 ### Anthropic 的架構選型準則
 
-「大模型領域的成功，不在於打造最複雜精巧的系統，而在於打造最切合你實際需求的正確系統。」
+「大型語言模型領域的成功，不在於打造最複雜精巧的系統，而在於打造最切合你實際需求的正確系統。」
 
 決策先後順序：
 
@@ -125,17 +125,17 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Supervisor-worker | 「中央路由器 + 專家」 | 中央 LLM 分派任務給各專家；專家之間完全互不通訊 |
-| Swarm | 「對等群集 P2P」 | 各 Agent 透過共享工具直接移交控制權；無中央調度中心 |
-| Hierarchical | 「監督者的監督者」 | 透過多層巢狀子圖容納大規模 Agent 群體的分層體系 |
-| Debate | 「提案 + 交叉批判」 | 多個平行提案者透過 R 輪交叉反思收斂共識（第 25 課） |
-| Tool-call-based supervision | 「純工具監督模式」 | 直接透過常規工具呼叫實作監督者，以實現精細的上下文工程控制 |
-| Crew | 「自主協同團隊」 | CrewAI 由大模型主導的開放性探索協同模式 |
-| Flow | 「確定性工作流程」 | CrewAI 由程式碼主導的事件驅動生產級工作流程 |
+| 監督者－工作者（Supervisor-worker） | 「中央路由器 + 專家」 | 中央 LLM 分派任務給各專家；專家之間完全互不通訊 |
+| 蜂群（Swarm） | 「對等群集 P2P」 | 各 Agent 透過共享工具直接移交控制權；無中央調度中心 |
+| 階層式（Hierarchical） | 「監督者的監督者」 | 透過多層巢狀子圖容納大規模 Agent 群體的分層體系 |
+| 辯論（Debate） | 「提案 + 交叉批判」 | 多個平行提案者交叉批判（第 25 課） |
+| 以工具呼叫為基礎的監督（Tool-call-based supervision） | 「純工具監督模式」 | 直接透過常規工具呼叫實作監督者，以實現精細的上下文工程控制 |
+| 協作團隊（Crew） | 「自主協同團隊」 | CrewAI 由 LLM 主導的自主角色協作模式 |
+| 流程（Flow） | 「確定性工作流程」 | CrewAI 由程式碼主導的事件驅動生產級工作流程 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——五大模式與工作流程 vs Agent 權威指南
+- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——五種模式與 Agent 和工作流程之比較
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) ——監督者、群集與階層式圖架構
 - [CrewAI docs](https://docs.crewai.com/en/introduction) ——Crew vs Flow 生產實踐手冊
 - [Du et al., Society of Minds (arXiv:2305.14325)](https://arxiv.org/abs/2305.14325) ——多 Agent 辯論奠基論文

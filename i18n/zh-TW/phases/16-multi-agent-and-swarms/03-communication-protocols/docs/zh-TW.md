@@ -1431,7 +1431,7 @@ graph TD
     AUDIT -->|否| ORG{所有 agent 都在你的組織內嗎？}
     ORG -->|是| A2A_R[A2A<br/>Agent Cards + 任務]
     ORG -->|否| INFRA{共用<br/>基礎設施？}
-    INFRA -->|是| BROKER[A2A + 訊息代理]
+    INFRA -->|是| BROKER[A2A + 訊息中介程式]
     INFRA -->|否| ANP_R[ANP + A2A<br/>DID 驗證]
 
     style MCP_R fill:#d1fae5,stroke:#059669
@@ -1470,7 +1470,7 @@ graph TD
 | DID | 「去中心化 ID」 | W3C 標準，用於可由密碼學驗證的身分，託管於 agent 自身的網域。ANP 使用 `did:wba` 方法。 |
 | TrajectoryMetadata | 「稽核收據」 | ACP 的機制，將推理步驟、工具呼叫及其輸入輸出附加到每則 agent 回應。 |
 | Meta-protocol | 「agent 協商如何溝通」 | ANP 的做法：agent 以自然語言動態協商資料格式，再生成程式碼來處理。 |
-| Task | 「一個工作單元」 | A2A 中具狀態的物件，追蹤從提交到完成的工作。一旦進入終端狀態即不可變。 |
+| Task | 「一個工作單元」 | A2A 中具狀態的物件，追蹤從送出到完成的工作。一旦進入終端狀態即不可變。 |
 
 ## Further Reading｜延伸閱讀
 

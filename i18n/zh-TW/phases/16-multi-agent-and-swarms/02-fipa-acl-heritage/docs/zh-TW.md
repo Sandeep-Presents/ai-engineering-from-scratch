@@ -1,6 +1,6 @@
 # FIPA-ACL 與言語行為理論的歷史傳承（Heritage of FIPA-ACL and Speech Acts）
 
-> 在 MCP 誕生之前，在 A2A 出現之前，早已存在 FIPA-ACL。2000 年，IEEE 智慧實體代理基金會（Foundation for Intelligent Physical Agents）批准了一套標準 agent 通訊語言，其中包含二十種施為詞（performatives）、兩種內容語言以及一整套互動協定——包含合約網（contract net）、訂閱／通知（subscribe/notify）以及條件請求（request-when）。由於本體論（ontology）的額外負擔對網際網路而言過於沉重，它在工業界逐漸沉寂；然而如今 LLM 引領的多 agent 系統復興，正悄悄在沒有形式語意學約束的情況下重新實現相同的思想：以 JSON 契約替代施為詞，以自然語言替代本體論。本課將嚴肅通讀 FIPA-ACL，以便你能看清 2026 年的各大協定決策中哪些是歷史重造輪子、哪些是真正的新穎突破，以及當前浪潮將在何處不可避免地重新踩中 2000 年代早已解決的歷史老坑。
+> 在 MCP 誕生之前，在 A2A 出現之前，早已存在 FIPA-ACL。2000 年，IEEE 智慧硬體 agent 基金會（Foundation for Intelligent Physical Agents）批准了一套標準 agent 通訊語言，其中包含二十種施為詞（performatives）、兩種內容語言以及一整套互動協定——包含合約網（contract net）、訂閱／通知（subscribe/notify）以及條件請求（request-when）。由於本體論（ontology）的額外負擔對網際網路而言過於沉重，它在工業界逐漸沉寂；然而如今 LLM 引領的多 agent 系統復興，正悄悄在沒有形式語意學約束的情況下重新實現相同的思想：以 JSON 契約替代施為詞，以自然語言替代本體論。本課將嚴肅通讀 FIPA-ACL，以便你能看清 2026 年的各大協定決策中哪些是歷史重造輪子、哪些是真正的新穎突破，以及當前浪潮將在何處不可避免地重新踩中 2000 年代早已解決的歷史老坑。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -127,7 +127,7 @@ FIPA 規範定義了大約 15 種經典互動協定。其中有三種模式極�
 
 無需重回龐雜本體論泥潭的務實緩解防禦：
 
-- 針對 `content` 嚴格約束 JSON Schema——在線路傳輸層直接攔截結構性語法錯誤。
+- 針對 `content` 嚴格約束 JSON Schema——在傳輸時直接攔截結構性語法錯誤。
 - 採用具備型別定義的工件（A2A 規範）——拒絕模態不匹配的資料。
 - 在訊息信封中顯式標註行為施為詞——即使內容採用自然語言，訊息意圖本身依然清晰無歧義。
 
@@ -135,11 +135,11 @@ FIPA 規範定義了大約 15 種經典互動協定。其中有三種模式極�
 
 | 現代規格 | FIPA 對應 | 保留的部分 | 捨棄的部分 |
 |---|---|---|---|
-| MCP `tools/call` | `request` | 明確的意圖、關聯識別碼 | 形式語意學、本體論 |
-| MCP `resources/read` | `query-ref` | 明確的意圖、關聯識別碼 | 形式語意學 |
-| A2A Task lifecycle | contract-net + request-when | 非同步生命週期、狀態轉換 | 形式化的完備性保證 |
-| A2A streaming events | subscribe/notify | 非同步推送 | 具型別謂詞的訂閱 |
-| CA-MCP shared context | blackboard（Hayes-Roth 1985） | 多寫入者共享記憶體 | 邏輯一致性模型 |
+| MCP `tools/call` | `request` | 明確意圖、關聯識別碼 | 形式語意學、本體論 |
+| MCP `resources/read` | `query-ref` | 明確意圖、關聯識別碼 | 形式語意學 |
+| A2A 任務生命週期 | contract-net + request-when | 非同步生命週期、狀態轉換 | 形式完整性保證 |
+| A2A 串流事件 | subscribe/notify | 非同步推送 | 具型別述詞的訂閱 |
+| CA-MCP 共享上下文 | 黑板（Hayes-Roth，1985） | 多寫入者共享記憶體 | 邏輯一致性模型 |
 | NLIP | 自然語言內容 | 原生支援 LLM | 結構描述 |
 
 從上至下通讀此對比表格，其核心規律昭然若揭：保留結構骨架原語，揚棄繁複形式證明，將其餘的模糊語意交由 LLM 去自行弭平。
@@ -193,7 +193,7 @@ python3 code/main.py
 | 術語 | 常見說法 | 實際意義 |
 |------|----------------|----------------------|
 | 言語行為（Speech act） | 「會產生動作的話語」 | Austin／Searle：話語即行動，是 ACL 的理論源頭。 |
-| FIPA | 「那個老舊的 XML 東西」 | IEEE 智慧實體代理基金會（Foundation for Intelligent Physical Agents），2000 年將 ACL 標準化。 |
+| FIPA | 「那個老舊的 XML 東西」 | IEEE 智慧硬體 agent 基金會（Foundation for Intelligent Physical Agents），2000 年將 ACL 標準化。 |
 | ACL | 「Agent 通訊語言」 | FIPA 的訊息信封格式：施為詞 + 內容 + 中繼資料。 |
 | 施為詞（Performative） | 「動詞」 | 訊息的意圖類別，例如 `inform`、`request`、`propose`、`cfp` 等。 |
 | KQML | 「FIPA 的前身」 | 知識查詢與操作語言（1993 年）。較簡單、範圍較窄。 |
@@ -204,8 +204,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Liu et al. — A Survey of Agent Interoperability Protocols: MCP, ACP, A2A, ANP](https://arxiv.org/html/2505.02279v1) — 將現代規格連結到 FIPA 歷史傳承的 2025 年經典綜述。
-- [FIPA ACL Message Structure Specification (fipa00037)](http://www.fipa.org/specs/fipa00037/) — 2000 年批准的訊息信封格式。
+- [Liu et al. — A Survey of Agent Interoperability Protocols: MCP, ACP, A2A, ANP](https://arxiv.org/html/2505.02279v1) — 連結現代規格與 FIPA 傳承的 2025 年綜述。
+- [FIPA ACL Message Structure Specification (fipa00037)](http://www.fipa.org/specs/fipa00037/) — 2000 年核准的訊息信封格式。
 - [FIPA Communicative Act Library Specification (fipa00037)](http://www.fipa.org/specs/fipa00037/) — 完整的施為詞目錄。
-- [MCP specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28) — 目前作為 `request`/`query-ref` 等價物的無狀態工具使用規格。
-- [A2A specification](https://a2a-protocol.org/latest/specification/) — 對應合約網與訂閱通知機制的現代 agent 點對點規格。
+- [MCP specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28) — 目前對應 `request`／`query-ref` 的無狀態工具使用規格。
+- [A2A specification](https://a2a-protocol.org/latest/specification/) — 合約網與訂閱通知模式的現代 agent 對等協定。

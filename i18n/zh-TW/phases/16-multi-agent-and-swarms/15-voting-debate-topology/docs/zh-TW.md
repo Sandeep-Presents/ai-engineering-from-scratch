@@ -77,7 +77,7 @@ AgentVerse（ICLR 2024，https://proceedings.iclr.cc/paper_files/paper/2024/file
 
 2024 至 2026 年的實務文獻中有一個模式：把 N 個 Agent 之一換成完全不同的異質基底模型，帶來的準確率提升，比把同質 Agent 數量增加 1 個更大。其背後的直覺是打破單一文化的同質盲點：每一個新的獨立誤差來源，都比一個帶有相同系統性偏見的相關複製品更有價值。
 
-在極端情況下，異質性勝過數量。在大多數具有明確真實標籤的任務上，三個不同模型勝過同一模型的五個複製品。
+在極端情況下，異質性勝過數量。在大多數具有明確真實標籤（ground truth）的任務上，三個不同模型勝過同一模型的五個複製品。
 
 ### 審議團機制（Jury Methods）
 
@@ -158,9 +158,9 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Wang et al. — Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171) — 單一模型基準線
-- [Du et al. — Improving Factuality and Reasoning via Multiagent Debate](https://arxiv.org/abs/2305.14325) — Agent 數量與輪次各自獨立重要
-- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935) — 拓撲基準測試，顯示圖狀在研究任務最佳、鏈狀在管線任務最佳
-- [Should we be going MAD?](https://arxiv.org/abs/2311.17371) — MAD 策略綜述；發現在相同預算下，MAD 常輸給自我一致性
-- [AgentVerse (ICLR 2024)](https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf) — 自願承擔與從眾順從的湧現模式
-- [MARBLE repo](https://github.com/ulab-uiuc/MARBLE) — 參考基準測試實作
+- [Wang et al. — Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171)
+- [Du et al. — Improving Factuality and Reasoning via Multiagent Debate](https://arxiv.org/abs/2305.14325)
+- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935)
+- [Should we be going MAD?](https://arxiv.org/abs/2311.17371)
+- [AgentVerse (ICLR 2024)](https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf)
+- [MARBLE repo](https://github.com/ulab-uiuc/MARBLE)

@@ -1,6 +1,6 @@
 # 平行／群體／網路式架構（Parallel / Swarm / Networked Architectures）
 
-> 與監督者模式形成鮮明對比：群體架構內部不存在任何中央裁決實體。各 Agent 透過監聽共享的事件匯流排（event bus），非同步地從中主動認領任務，並將產出結果回寫入池。LangGraph 明確支援「群體架構（Swarm Architecture）」以應對去中心化的動態多變環境。Matrix 框架（arXiv:2511.21686）更進一步，將控制流與資料流全數抽象化為在分散式佇列中傳遞的序列化訊息，徹底消除了單一編排器的效能瓶頸。其背後的權衡取捨極為明確：以犧牲系統的確定性與可追溯性為代價，換取近乎無限的水平擴展能力。群體架構極度適用於包含大量相互獨立子任務的業務；然而面對需要全域一致性宏觀規劃的任務，它將徹底崩潰。
+> 與監督者模式形成鮮明對比：群體架構內部沒有中央決策者。各 Agent 透過監聽共享的事件匯流排（event bus），非同步地從中主動認領任務，並將產出結果回寫入池。LangGraph 明確支援「群體架構（Swarm Architecture）」以應對去中心化的動態多變環境。Matrix 框架（arXiv:2511.21686）更進一步，將控制流與資料流全數抽象化為在分散式佇列中傳遞的序列化訊息，徹底消除了單一編排器的效能瓶頸。其背後的權衡取捨極為明確：以犧牲系統的確定性與可追溯性為代價，換取擴展性。群體架構極度適用於包含大量相互獨立子任務的業務；但不適合需要單一連貫計畫的任務。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `threading`, `queue`)
@@ -47,7 +47,7 @@
 
 ### Matrix 框架（arXiv:2511.21686）
 
-Matrix 是 2025 年將群體架構推向極致境界的代表性論文：它將系統的控制流（Control flow）與資料流（Data flow）全部統一序列化為在分散式佇列上穿梭的標準訊息。徹底根絕了中心協同器。系統的容錯能力直接轉嫁給底層訊息的持久化保證；而系統的水平擴展性則直接成為訊息代理器（Message broker）的責任，而不再是應用層的包袱。
+Matrix 是 2025 年將群體架構推向極致境界的代表性論文：它將系統的控制流（Control flow）與資料流（Data flow）全部統一序列化為在分散式佇列上穿梭的標準訊息。徹底根絕了中心協同器。系統的容錯能力直接轉嫁給底層訊息的持久化保證；而系統的水平擴展性則直接成為訊息中介程式（Message broker）的責任，而不再是應用層的包袱。
 
 其核心技術貢獻：確立了一套嶄新的程式設計模型，讓多 Agent 協同的核心問題從傳統的「監督者下一步該挑選哪位 Agent？」徹底昇華為「該 Agent 應當訂閱哪一個訊息主題（Topic）？」。這讓整個多 Agent 系統在架構外觀上宛如一座高度成熟的發布／訂閱（Pub/Sub）事件網格。
 
@@ -100,7 +100,7 @@ python3 code/main.py
 
 - **配備動態老化特性的優先級佇列。** 堅決防範長時程任務陷入永久性飢餓。
 - **保證工作者具備嚴格冪等性（Worker idempotency）。** 若工作者在執行中途不幸崩潰，該任務可能會被重新推回佇列並被二次認領。工作者邏輯必須具備重複執行結果不變的冪等保證。
-- **引入持久化訊息佇列。** 在正式環境中，必須採用 Kafka、Redis Streams 或具備資料庫備援的實體佇列。標準函式庫的 `queue.Queue` 僅屬純記憶體暫態。
+- **引入持久化訊息佇列。** 在正式環境中，必須採用 Kafka、Redis Streams 或以資料庫為後端的持久化佇列。標準函式庫的 `queue.Queue` 僅屬純記憶體暫態。
 - **逐任務級別的全鏈路可觀測性。** 每個任務皆必須指派唯一的 Trace ID；每位工作者在啟動與完成時皆必須嚴格記錄該 ID。
 - **背壓防禦機制（Back-pressure）。** 一旦佇列積壓的速度遠超過工作者群體的消化能力，必須及時通知上游生產者強制減速。
 
@@ -114,16 +114,16 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Swarm architecture | "Decentralized agents" | Workers pull from shared queue; no central orchestrator. |
-| Event bus | "Agents subscribe to topics" | Message broker that routes tasks to workers by type or content. |
-| Starvation | "Task never runs" | Low-priority task never gets picked because higher-priority work arrives continuously. |
-| Hot-spotting | "One worker drowns" | Load imbalance where one worker gets most tasks. |
-| Back-pressure | "Slow down the producer" | Mechanism that signals upstream to stop producing when the queue fills up. |
-| Idempotent worker | "Safe to re-run" | A task processed twice produces the same result. Required because workers may crash mid-run. |
-| Durable queue | "Survives crashes" | Queue backed by disk or replicated storage; tasks are not lost when a worker crashes. |
-| Matrix framework | "Full message-passing swarm" | Both data and control flow are serialized messages on distributed queues. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 群體架構（Swarm architecture） | 「去中心化的 agent」 | 工作者從共享佇列取出工作；沒有中央編排者。 |
+| 事件匯流排（Event bus） | 「agent 訂閱主題」 | 訊息中介程式依工作類型或內容將任務路由給工作者。 |
+| 飢餓（Starvation） | 「任務永遠不會執行」 | 高優先級工作持續到達，導致低優先級任務一直未被選取。 |
+| 負載熱點（Hot-spotting） | 「一個工作者忙不過來」 | 負載不平衡，某個工作者收到大多數任務。 |
+| 背壓（Back-pressure） | 「讓生產者放慢速度」 | 佇列填滿時，通知上游停止產生新工作的機制。 |
+| 冪等工作者（Idempotent worker） | 「可安全重跑」 | 同一任務處理兩次會產生相同結果。工作者可能在執行途中當機，因此必須冪等。 |
+| 持久化佇列（Durable queue） | 「當機後仍保留」 | 由磁碟或複寫儲存支援的佇列；工作者當機時任務不會遺失。 |
+| Matrix 框架（Matrix framework） | 「完整的訊息傳遞群體」 | 資料流與控制流都是在分散式佇列中傳遞的序列化訊息。 |
 
 ## Further Reading｜延伸閱讀
 

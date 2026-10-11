@@ -60,7 +60,7 @@ Host: agent.example.com
 }
 ```
 
-**任務（Task）。** A2A 中的最小工作單元。一個非同步且具備狀態追蹤的實體物件，遵循嚴格的生命週期：`TASK_STATE_SUBMITTED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED` / `TASK_STATE_FAILED` / `TASK_STATE_CANCELED`。用戶端發起訊息，伺服器據此建立任務，隨後用戶端可透過主動輪詢或串流訂閱即時掌握進度更新。
+**任務（Task）。** A2A 中的最小工作單元。一個非同步且具備狀態追蹤的物件，遵循嚴格的生命週期：`TASK_STATE_SUBMITTED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED` / `TASK_STATE_FAILED` / `TASK_STATE_CANCELED`。用戶端發起訊息，伺服器據此建立任務，隨後用戶端可透過主動輪詢或串流訂閱即時掌握進度更新。
 
 **工件（Artifact）。** 任務執行完畢後產出的實質結果。涵蓋純文字、結構化 JSON、圖片、影像與音訊。工件天然具備強型別特質：每個片段皆攜帶 `text`、`raw`、`url` 或 `data` 之一，並明確標註其 `mediaType`，讓各類多模態資料皆能享有真正的一等公民地位。
 
@@ -69,7 +69,7 @@ Host: agent.example.com
 ### MCP 與 A2A 的職責劃分
 
 - **MCP**（第 13 課）：專注於 Agent ↔ 工具。Agent 透過 JSON-RPC 與各工具伺服器展開讀寫互動。預設為完全無狀態。
-- **A2A**：專注於 Agent ↔ Agent。對等互聯協定；通訊雙方皆是具備自主推理與決策能力的智慧實體。
+- **A2A**：專注於 Agent ↔ Agent。對等互聯協定；通訊雙方都是具有自主推理能力的 agent。
 
 現代正式環境多 Agent 系統通常雙劍合璧。一個處於對等地位的 A2A 節點，在自身端點內部呼叫各類 MCP 工具。這種職責劃分確保了兩個維度的關注點分離與架構純粹。
 
@@ -77,16 +77,16 @@ Host: agent.example.com
 
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant S as Agent server
+    participant C as 用戶端
+    participant S as Agent 伺服器
     C->>S: GET /.well-known/agent-card.json
-    S-->>C: Agent Card JSON
+    S-->>C: Agent Card（JSON）
     C->>S: POST /message:send (returnImmediately)
-    S-->>C: task, TASK_STATE_SUBMITTED
+    S-->>C: 任務，TASK_STATE_SUBMITTED
     C->>S: GET /tasks/{id}
     S-->>C: TASK_STATE_WORKING
     C->>S: GET /tasks/{id}
-    S-->>C: TASK_STATE_COMPLETED, artifacts
+    S-->>C: TASK_STATE_COMPLETED、工件
 ```
 
 上述展示了標準的 HTTP+JSON 綁定路徑，且每一個請求標頭皆強制攜帶 `A2A-Version: 1.0`。在預設情況下，`SendMessage` 會持續阻塞直到任務達成終端狀態或被中斷，因此採用輪詢的用戶端會主動設定 `configuration.returnImmediately` 以便在第一時間立即取得建立的任務物件。
@@ -148,7 +148,7 @@ sw-agent-card-discovery
 - 主動抓取並解析 Agent Card，
 - 發起帶有 `returnImmediately` 的非同步訊息請求，
 - 透過輪詢即時追蹤任務進度直到終端狀態，
-- 讀取並驗收最終的實體工件。
+- 讀取並驗收工件。
 
 執行指令：
 
@@ -160,15 +160,15 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-`outputs/skill-a2a-integrator.md` 能為具體的跨系統 Agent 整合任務產出完備的 A2A 架構設計：涵蓋 Agent Card 欄位定義、任務資料 Schema、認證方案選型，以及串流 vs 輪詢的傳輸策略。
+`outputs/skill-a2a-integrator.md` 能為具體的跨系統 Agent 整合任務產出完備的 A2A 架構設計：涵蓋 Agent Card 欄位定義、任務資料結構描述、認證方案選型，以及串流 vs 輪詢的傳輸策略。
 
 ## Ship It｜交付成果
 
 將 A2A 服務推向正式環境前的必備檢查清單：
 
 - **強制鎖定協定規格版本。** A2A 仍在高速演進中；在 `supportedInterfaces` 的每個條目中皆必須明確宣告其 `protocolVersion`，且用戶端發起請求時必須強制攜帶 `A2A-Version: 1.0` 標頭。
-- **保證任務建立的嚴格冪等性。** 網路重試引發的重複送出必須精準收斂為同一個實體任務。依據用戶端傳入的 `messageId` 進行全域去重。
-- **嚴格驗證工件 Schema。** 明確宣告 Agent 回傳的工件形狀；消費方必須對接收到的資料結構進行嚴密驗證。
+- **保證任務建立的嚴格冪等性。** 網路重試引發的重複送出必須精準收斂為同一個任務。依據用戶端傳入的 `messageId` 進行全域去重。
+- **嚴格驗證工件結構描述。** 明確宣告 Agent 回傳的工件形狀；消費方必須對接收到的資料結構進行嚴密驗證。
 - **配備速率限制與身分認證。** A2A 本質上面向公開網路；必須嚴格套用現代 Web 級別的資安防禦。
 - **為失敗任務建立死信佇列（Dead-letter）。** 長期監控並分析失敗任務的錯誤模式，以便精準捕捉底層循環出現的架構瑕疵。
 
@@ -182,16 +182,16 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| A2A | "Agent-to-agent" | Peer protocol for agents to call other agents across systems. Google 2025. |
-| Agent Card | "The agent's business card" | JSON at `/.well-known/agent-card.json` describing skills, `supportedInterfaces`, auth. |
-| Task | "The unit of work" | Async stateful object with a lifecycle; artifacts produced on completion. |
-| Artifact | "The result" | Typed output: text, structured JSON, image, video, audio. First-class media. |
-| Opaque lifecycle | "How it's solved is the agent's business" | Client sees state transitions; server is free to choose framework/tools. |
-| Discovery | "Finding the agent" | `GET /.well-known/agent-card.json` returns the card. |
-| MCP vs A2A | "Tools vs peers" | MCP: vertical agent ↔ tool. A2A: horizontal agent ↔ agent. |
-| ACP / ANP / NLIP | "Sibling protocols" | Adjacent specs; A2A is the most-adopted 2026. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| A2A | 「agent 對 agent」 | 讓不同系統的 agent 互相呼叫的對等協定，由 Google 於 2025 年推出。 |
+| Agent Card | 「agent 的名片」 | 位於 `/.well-known/agent-card.json` 的 JSON 文件，描述技能、`supportedInterfaces` 與驗證方式。 |
+| 任務（Task） | 「工作單位」 | 具有生命週期的非同步狀態物件；完成後會產生工件。 |
+| 工件（Artifact） | 「結果」 | 具型別的輸出，包括文字、結構化 JSON、圖片、影片及音訊，是一等媒體。 |
+| 不透明生命週期（Opaque lifecycle） | 「如何完成任務是 agent 的事」 | 用戶端能看到狀態轉換；伺服器可自行選擇框架與工具。 |
+| 探索（Discovery） | 「尋找 agent」 | `GET /.well-known/agent-card.json` 會回傳 Agent Card。 |
+| MCP 與 A2A | 「工具與同儕」 | MCP：垂直連接 agent 與工具；A2A：水平連接 agent 與 agent。 |
+| ACP／ANP／NLIP | 「相關協定」 | 相鄰領域的規格；A2A 是 2026 年採用最廣的協定。 |
 
 ## Further Reading｜延伸閱讀
 

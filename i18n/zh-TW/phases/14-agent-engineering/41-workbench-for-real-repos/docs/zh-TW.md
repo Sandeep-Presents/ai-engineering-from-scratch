@@ -12,7 +12,7 @@
 - 在小型應用程式中，將七大工作台表面完整整合為一套有機咬合的工程整體。
 - 將完全相同的任務執行兩次（純 Prompt vs 工作台引導），並精準量測五項關鍵產出指標。
 - 深度解讀「導入前後對照報告（Before/After Report）」，明確判斷哪些工作台表面帶來了最大的架構槓桿。
-- 具備充足的量化論據，有力回擊「但我的大模型已經足夠聰明」的質疑。
+- 具備充足的量化論據，有力回擊「但我的模型已經足夠聰明」的質疑。
 
 ## The Problem｜問題
 
@@ -24,16 +24,16 @@
 
 ```mermaid
 flowchart TD
-  Task[Task: validate /signup and add tests] --> A[Prompt-only run]
-  Task --> B[Workbench-guided run]
-  A --> M[Measure: 5 outcomes]
+  Task[任務：驗證 /signup 並新增測試] --> A[純 Prompt 執行]
+  Task --> B[工作台引導執行]
+  A --> M[衡量五項結果]
   B --> M
   M --> Report[before-after-report.md]
 ```
 
 ### 範例應用程式架構
 
-位於 `sample_app/` 的極簡 FastAPI 風格微服務：
+位於 `sample_app/` 的極簡 FastAPI 風格處理常式：
 
 - `app.py`：包含 `/signup` 註冊路由（尚未實作任何輸入驗證）；
 - `test_app.py`：包含一項基本的成功路徑測試；
@@ -68,7 +68,7 @@ flowchart TD
 | 衡量指標 | 為何至關重要 |
 |---|---|
 | `tests_actually_run` | 絕大多數「測試全數通過」的口頭宣稱皆無法被客觀驗證 |
-| `acceptance_met` | 實體執行的測試必須正是那條能確鑿證明目標達成的核心測試 |
+| `acceptance_met` | 實際執行的測試必須正是那條能確鑿證明目標達成的核心測試 |
 | `files_outside_scope` | 範疇蔓延是長路徑任務中最常見、最致命的隱性失效 |
 | `handoff_quality` | 下一個工作階段究竟是能直接接手，還是被迫重新摸索一切 |
 | `reviewer_total` | 在確定性關卡之上，由獨立角色做出的質性工程裁決 |
@@ -79,7 +79,7 @@ wb-ab-runs
 
 ## Build It｜動手實作
 
-`code/main.py` 在相同的範例應用程式測試環境上編排了這兩條管線。兩條管線皆採用腳本化模擬（完全不呼叫外部 LLM），確保每次量測結果具備百分之百的可重現性。腳本會自動將對比結果寫入 `before-after-report.md` 與 `comparison.json`。
+`code/main.py` 在同一個測試用範例應用程式上編排了這兩條管線。兩條管線皆採用腳本化模擬（完全不呼叫外部 LLM），確保每次量測結果具備百分之百的可重現性。腳本會自動將對比結果寫入 `before-after-report.md` 與 `comparison.json`。
 
 執行實驗：
 
@@ -89,23 +89,23 @@ python3 code/main.py
 
 輸出包含：終端對照表格呈現兩條管線的各項指標、儲存於同級目錄下的 Markdown 診斷報告，以及方便繪製圖表的 JSON 資料。
 
-## Production patterns in the wild｜真實世界中的生產級模式
+## 真實世界中的生產級模式
 
 懷疑論者最常提出的質疑是：「工作台到底能帶來多少實質提升？」2026 年來自一線工業界的量化數字，遠比任何抽象解釋更具說服力：
 
-**Terminal Bench 在完全相同的模型下從前 30 名開外躍升至全球第 5 名**：LangChain 發布的《Anatomy of an Agent Harness》（2026 年 4 月）實證指出：在完全不更換底層模型的前提下，僅僅調校外圍harness架構，一款寫程式 Agent 在 Terminal Bench 2.0 上的排名直接飆升了 25 名。相同的模型，不同的工作台表面，帶來了完全不同量級的工程產出。
+**Terminal Bench 在完全相同的模型下從前 30 名開外躍升至全球第 5 名**：LangChain 發布的《Anatomy of an Agent Harness》（2026 年 4 月）實證指出：在完全不更換底層模型的前提下，僅僅調校外圍 harness（執行框架）架構，一款寫程式 Agent 在 Terminal Bench 2.0 上的排名直接飆升了 25 名。相同的模型，不同的工作台表面，帶來了完全不同量級的工程產出。
 
 **Vercel 大膽刪除 80% 的工具，成功率自 80% 躍升至 100%**：Vercel 官方報告指出，將 Agent 的可用工具刪除 80%，任務成功率反而自 80% 飆升至 100%。更小的工具表面、更鋒利的範疇約束、更少的出錯途徑。留白與克制創造了奇蹟。
 
-**Harvey 單純依靠harness工程使法律 Agent 準確率翻倍**：在完全不調整模型權重的前提下，harness架構最佳化直接讓法律檢索與審查的準確率提升了一倍以上。
+**Harvey 單純依靠 harness 工程使法律 Agent 準確率翻倍**：在完全不調整模型權重的前提下，harness 架構最佳化直接讓法律檢索與審查的準確率提升了一倍以上。
 
-**88% 的企業級 AI Agent 專案無法成功邁向正式環境**：preprints.org 發布的《Harness Engineering for Language Agents》（2026 年 3 月）深入追溯了失敗根源，發現絕大多數事故全數源自執行環境架構而非大模型推理能力：陳舊的狀態、脆弱的重試、失控膨脹的上下文脈絡，以及面對中繼錯誤時糟糕的復原能力。
+**88% 的企業級 AI Agent 專案無法成功邁向正式環境**：preprints.org 發布的《Harness Engineering for Language Agents》（2026 年 3 月）深入追溯了失敗根源，指出失敗多與執行環境架構有關，而非推理能力：陳舊的狀態、脆弱的重試、失控膨脹的上下文脈絡，以及面對中繼錯誤時糟糕的復原能力。
 
-**長脈絡崩潰效應（Long-context collapse）**：WebAgent 的基準任務完成率在長脈絡情境下，自 40–50% 斷崖式暴跌至 10% 以下，元兇全數是死迴圈與目標遺忘。Ralph Loop 與移交封包正是專門為吸收該崩潰而生。
+**長脈絡崩潰效應（Long-context collapse）**：WebAgent 的基準任務完成率在長脈絡情境下，自 40–50% 斷崖式暴跌至 10% 以下，元兇大多是死迴圈與目標遺忘。Ralph Loop 與移交封包正是專門為吸收該崩潰而生。
 
-**客觀承認「偽陰性（假警報）」的存在**：單一步驟的事實性任務、單行程式碼 Lint 檢查、格式化排版等大模型早已逐字倒背如流的極簡任務——在純 Prompt 下速度確實更快。優秀的基準評測應當誠實列舉這些場景，絕不將工作台吹捧為包治百病的萬靈丹。
+**坦然呈現工作台可能過度設計的情境**：單一步驟的事實性任務、單行程式碼 Lint 檢查、格式化排版等模型早已記住的極簡任務——在純 Prompt 下速度確實更快。優秀的基準評測應當誠實列舉這些場景，絕不將工作台吹捧為包治百病的萬靈丹。
 
-核心結論絕非「工作台能永遠凌駕於模型之上」——模型隨時間確實會逐步吸收部分工作台技巧。核心結論在於：**在當下，最具決定性的工程負載全數落在了這七大工作台表面之上，而客觀實測數字早已給出了定論。**
+核心結論絕非「工作台能永遠凌駕於模型之上」——模型隨時間確實會逐步吸收部分工作台技巧。核心結論在於：**在當下，工程負載落在這七大工作台表面之上，客觀實測數字也支持這一點。**
 
 ## Use It｜實際應用
 
@@ -119,14 +119,14 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-workbench-benchmark.md` 是一套可移植的評測 harness技能。它能在特定專案的真實範例應用上，對任何 Agent 產品同時執行這兩條管線，並自動量化產出五大核心指標報告。
+`outputs/skill-workbench-benchmark.md` 是一套可移植的評測 harness 技能。它能在特定專案的真實範例應用上，對任何 Agent 產品同時執行這兩條管線，並自動量化產出五大核心指標報告。
 
 ## Exercises｜練習
 
 1. 新增第六個評估維度：「首個有意義實質修改之耗時（Time-to-first-meaningful-edit）」。思考該如何純淨客觀地量測該指標？
 2. 在你自家程式碼庫中挑選一個真實的「次日接手任務」，全流程執行此對照實驗。工作台的各項指標在何處發生了輕微滑落？
-3. 增加「偽陰性」專項評測：挑選那些純 Prompt 顯然更快、工作台顯得過度設計的極簡任務。提出為何在全域維度下依然必須堅持引入工作台的架構論證。
-4. 將腳本化的模擬 Agent 替換為真實的大模型 API 網路呼叫。哪些量測維度的隨機雜訊開始顯著放大？
+3. 增加「工作台過度設計」專項評測：挑選那些純 Prompt 顯然更快、工作台顯得過度設計的極簡任務。提出為何在全域維度下依然必須堅持引入工作台的架構論證。
+4. 將腳本化的模擬 Agent 替換為真實的 LLM API 呼叫。哪些量測維度的隨機雜訊開始顯著放大？
 5. 撰寫一份面向非技術高層的一頁式架構摘要。在嚴格刪減下，哪些核心結論必須被重點保留？
 
 ## Key Terms｜關鍵術語
@@ -136,17 +136,17 @@ python3 code/main.py
 | Sample app | 「逼真範例儲存庫」 | 小巧但結構完整、足以全面檢驗全部七大工作台表面的真實程式碼庫 |
 | Pipeline | 「執行管線」 | Agent 必須依序嚴格遵循的工作台表面讀寫執行序列 |
 | Before/after report | 「客觀實測戰報」 | 能直接遞交給懷疑論者、以量化數字說話的導入前後對比報告 |
-| False negative | 「工作台過度設計」 | 純 Prompt 速度更快、工作台開銷大於收益的極簡任務；應坦誠列舉 |
-| Workbench benchmark | 「可靠性基準評測」 | 跨越不同 Agent 產品、在目標程式碼庫上客觀驗收其工程可靠性的測試 harness |
+| 工作台過度設計案例（False negative） | 「工作台過度設計」 | 純 Prompt 速度更快、工作台開銷大於收益的極簡任務；應坦誠列舉 |
+| 工作台基準測試（Workbench benchmark） | 「可靠性基準評測」 | 在目標程式碼庫上測試不同 Agent 產品的可攜式工具 |
 
 ## Further Reading｜延伸閱讀
 
 - [LangChain, The Anatomy of an Agent Harness](https://blog.langchain.com/the-anatomy-of-an-agent-harness/) ——Terminal Bench 前 30 名躍升至第 5 名實證
 - [MongoDB, The Agent Harness: Why the LLM Is the Smallest Part of Your Agent System](https://www.mongodb.com/company/blog/technical/agent-harness-why-llm-is-smallest-part-of-your-agent-system) ——Vercel 80% 躍升 100%、Harvey 準確率翻倍之客觀實證
 - [preprints.org, Harness Engineering for Language Agents](https://www.preprints.org/manuscript/202603.1756) ——88% 企業級失敗率與執行環境根因分析
-- [HN: Improving 15 LLMs at Coding in One Afternoon. Only the Harness Changed](https://news.ycombinator.com/item?id=46988596) ——跨 15 款大模型的harness改進實證
+- [HN: Improving 15 LLMs at Coding in One Afternoon. Only the Harness Changed](https://news.ycombinator.com/item?id=46988596) ——在 15 個模型上重現
 - [Cloudflare, Orchestrating AI Code Review at Scale](https://blog.cloudflare.com/ai-code-review/) ——30 天內 13 萬次生產級審查執行報告
-- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——高效 Agent 架構指南
+- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 - Phases 14 · 32 to 14 · 40——本課在此進行端到端全量檢驗的全部工作台表面
 - Phase 14 · 19——本課所互補的宏觀基準評測（SWE-bench、GAIA、AgentBench）
-- Phase 14 · 30——本測試 harness可無縫接入的評測驅動開發（Eval-Driven Development）
+- Phase 14 · 30——本測試 harness 可無縫接入的評測驅動開發（Eval-Driven Development）

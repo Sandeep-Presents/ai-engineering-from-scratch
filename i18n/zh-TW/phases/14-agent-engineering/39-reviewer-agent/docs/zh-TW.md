@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你要求 Agent 修復一個 Bug。它修改了四個檔案、執行了測試，並宣稱大功告成。驗收關卡（第 38 課）確認了驗收指令確實執行過且範疇未超限，關卡亮起綠燈輸出 `passed: true`。你放心地合併了程式碼。然而兩天之後，你卻驚恐地發現：該修復在根本上修錯了 Bug 的另一半，甚至解決了完全不相干的問題。
+你要求 Agent 修復一個 Bug。它修改了四個檔案、執行了測試，並宣稱大功告成。驗收關卡（第 38 課）確認了驗收指令確實執行過且範疇未超限，關卡亮起綠燈輸出 `passed: true`。你放心地合併了程式碼。兩天後，你發現這項修復解決的是 Bug 中錯誤的那一半問題。
 
 驗收關卡是必要的，但它並不充分。審核者專門提出那些確定性驗收無法回答的深層問題：這項修改是否解決了真正的問題？它是否在未標註的情況下暗中擴大了範疇？它所做出的前提假設是否留存於可供審計的地方？它留下的工作台狀態是否足以讓下一個工作階段平滑接手？
 
@@ -24,11 +24,11 @@
 
 ```mermaid
 flowchart LR
-  Builder[Builder Agent] --> Artifacts[diff + state + feedback + verdict]
-  Artifacts --> Reviewer[Reviewer Agent]
+  Builder[建置者 Agent] --> Artifacts[差異 + 狀態 + 回饋 + 裁決]
+  Artifacts --> Reviewer[審核者 Agent]
   Reviewer --> Rubric[reviewer_checklist.md]
   Reviewer --> Report[review_report.json]
-  Report --> Human[Human Sign-Off]
+  Report --> Human[人類簽核]
 ```
 
 ### 審核者評分標準表（Reviewer Rubric）
@@ -47,7 +47,7 @@ flowchart LR
 
 ### 審核者是角色分離，而非模型分離
 
-你完全可以使用與建置者完全相同的底層大模型來執行審核者。這項架構紀律的精髓在於**角色的嚴密隔離**：截然不同的系統 Prompt、截然不同的輸入上下文脈絡，且對實體 Git Diff 堅決不具備寫入修改權限。系統姿態的根本轉變，直接帶來了信號品質的質的飛躍。
+你完全可以使用與建置者完全相同的模型來執行審核者。這項架構紀律的精髓在於**角色的嚴密隔離**：截然不同的系統 Prompt、截然不同的輸入上下文脈絡，且對 Git Diff 堅決不具備寫入權限。系統姿態的根本轉變，直接帶來了信號品質的質的飛躍。
 
 ### 審核者絕對無權編輯 Git Diff
 
@@ -78,7 +78,7 @@ python3 code/main.py
 
 輸出包含：寫入磁碟的兩份審查報告，以及終端格式化呈現的維度評分表格。
 
-## Production patterns in the wild｜真實世界中的生產級模式
+## 真實世界中的生產級模式
 
 客觀實測數字證明：Cloudflare 於 2026 年 4 月發布的 AI 程式碼審查系統實測顯示，其在 30 天內跨越 5,169 個儲存庫的 48,095 個 Merge Requests 中執行了 131,246 次審查執行。單次審查耗時中位數僅為 3 分 39 秒。在「審查協調器（Review Coordinator）」的指揮下，多達 7 個專業領域審核者（資安、效能、程式碼品質、文件、發布管理、合規性、工程規範）並行發起審查，由協調器負責去重並判定嚴重性。頂級旗艦模型嚴格專供協調器使用；各專業領域專家則執行於更便宜的輕量模型層級。
 
@@ -86,9 +86,9 @@ python3 code/main.py
 
 **專業專家池，而非單一龐大的全能審核者**：對於個人專案，單一包含 5 個維度的評分表足矣。一旦程式碼庫涉及資安敏感、極致效能與架構文件等多個深水區表面，應當拆分為擁有多個小 Prompt 的專業專家。協調器負責去重；專家絕不需要通讀整本百科全書。這自然實現了模型層級的分流：輕量模型跑專家，旗艦模型跑協調器。
 
-**消除偏見是系統架構需求，而非選配最佳化**：大模型裁判存在四種可預測的可靠偏見（Adnan Masood，2026 年 4 月）：位置偏見（Position bias，GPT-4 在 (A,B) 與 (B,A) 順序下有一致性缺失問題）、冗長偏見（Verbosity bias，傾向於為字數更多的囉嗦長文打高分）、自喜好偏見（偏愛同模型家族產出的內容）、權威偏見（過度迷信知名作者的引用）。緩解方案：同時評估正反兩種順序且僅在一致時採納；採用明確獎勵簡練文字的 1–4 分評分制；跨模型家族輪換裁判；在評分前強制剔除作者姓名中繼資料。
+**消除偏見是系統架構需求，而非選配最佳化**：LLM 評審存在四種可預測的可靠偏見（Adnan Masood，2026 年 4 月）：位置偏見（Position bias，GPT-4 在 (A,B) 與 (B,A) 的排序下約有 40% 不一致）、冗長偏見（Verbosity bias，較長的輸出平均會獲得約 15% 的分數膨脹）、自喜好偏見（偏愛同模型家族產出的內容）、權威偏見（過度評高引用知名作者的輸出）。緩解方案：同時評估正反兩種順序且僅在一致時採納；採用明確獎勵簡練文字的 1–4 分評分制；跨模型家族輪換裁判；在評分前移除作者姓名。
 
-**建立標準標定校準集，而非憑主觀感覺盲測**：維護一份包含 10 到 20 個歷史任務及其已知正確裁決的基準校準集。每當修改審核 Prompt 時，強制在該資料集上全量重跑。若與歷史真實結果的一致性低於 80%，該評分標準必須重新修訂後方獲准發布。
+**建立標準標定校準集，而非憑主觀感覺盲測**：維護一份包含 10 到 20 個歷史任務及其已知正確裁決的基準校準集。每當修改審核 Prompt 時，強制在該資料集上全量重跑。若與歷史紀錄的一致性低於 80%，該評分標準必須修改後才能發布。這是每個團隊最終都會重新發現的事；不如一開始就建立它。
 
 **與驗收關卡組成混合規範（Hybrid Norm）**：驗收關卡（第 38 課）全權負責客觀確定性檢查（指令是否執行過、測試是否通過、範疇是否守住）。審核者則專職負責語意質性檢查（方向是否正確、假設是否完備、移交是否可用）。Anthropic 於 2026 年的指引明確強調了此切分：切勿要求審核者重複去做驗收關卡早已證明的事情。
 
@@ -126,11 +126,11 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI Agents SDK handoffs](https://openai.github.io/openai-agents-python/handoffs/) ——委派移交架構指南
-- [Anthropic Claude Code subagents](https://code.claude.com/docs/en/sub-agents) ——子 agent 協同模式手冊
+- [OpenAI Agents SDK handoffs](https://openai.github.io/openai-agents-python/handoffs/)
+- [Anthropic Claude Code subagents](https://code.claude.com/docs/en/sub-agents)
 - [Cloudflare, Orchestrating AI Code Review at Scale](https://blog.cloudflare.com/ai-code-review/) ——7 專家 + 協調者架構，30 天內 13 萬次執行實證
 - [Agent-as-a-Judge: Evaluating Agents with Agents (OpenReview / ICLR)](https://openreview.net/forum?id=DeVm3YUnpj) ——DevAI 基準與 366 項階層式解法需求
-- [Adnan Masood, Rubric-Based Evaluations and LLM-as-a-Judge](https://medium.com/@adnanmasood/rubric-based-evals-llm-as-a-judge-methodologies-and-empirical-validation-in-domain-context-71936b989e80) ——四類大模型裁判偏見及其消除對策
+- [Adnan Masood, Rubric-Based Evaluations and LLM-as-a-Judge](https://medium.com/@adnanmasood/rubric-based-evals-llm-as-a-judge-methodologies-and-empirical-validation-in-domain-context-71936b989e80) ——四類 LLM 評審偏見及其緩解方法
 - [MLflow, LLM-as-a-Judge Evaluation](https://mlflow.org/llm-as-a-judge) ——建置者與評估者解耦之生產級工具
 - [LangChain, How to Calibrate LLM-as-a-Judge with Human Corrections](https://www.langchain.com/articles/llm-as-a-judge) ——標定校準資料集工作流程
 - [Evidently AI, LLM-as-a-judge: a complete guide](https://www.evidentlyai.com/llm-guide/llm-as-a-judge)

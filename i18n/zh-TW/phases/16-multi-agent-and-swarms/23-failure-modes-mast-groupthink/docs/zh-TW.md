@@ -1,6 +1,6 @@
 # 失效模式——MAST 分類體系、群體盲從、單一文化與連鎖崩潰（Failure Modes — MAST, Groupthink, Monoculture, Cascading Errors）
 
-> 2026 年多 Agent 領域的權威失效分類標準當屬 **MAST**（Cemri 等人，NeurIPS 2025，arXiv:2503.13657），該研究深入剖析了橫跨 7 個頂尖開源多 Agent 系統的 1,642 條真實執行軌跡，揭示出高達 **41% 至 86.7% 的驚人失敗率**。三大核心根因分類為：**規格定義問題（Specification Problems）**（佔比 41.77%）——角色邊界模糊、任務目標欠缺精準約束；**協同失靈（Coordination Failures）**（佔比 36.94%）——通訊中斷、狀態不同步；**驗證缺失（Verification Gaps）**（佔比 21.30%）——缺乏獨立檢驗、客觀品質把關缺位。**群體盲從家族（Groupthink Family）**（arXiv:2508.05687）進一步歸納了：單一文化崩潰（同質基底模型導致相關性錯誤）、從眾偏見（Agent 互相迎合並強化彼此的幻覺）、心智理論缺陷、混合動機內耗以及連鎖可靠性崩潰。連鎖崩潰的典型代表為重試風暴（Retry storms）：支付微服務的瞬時抖動引發訂單 Agent 盲目重試，進而觸發庫存檢查風暴，在數秒內使庫存服務面臨 10 倍負載而全面癱瘓（必須強制配置熔斷機制）。記憶體污染：單一 Agent 的幻覺滲入共享記憶體，下游 Agent 奉為真理，導致系統準確率慢性衰退，使根因追溯極其痛苦。**STRATUS**（NeurIPS 2025）指出：透過部署專門的偵測、診斷與驗證 Agent 鐵三角，能使故障緩解成功率提升 1.5 倍。本課將各類失效模式視為一等公民的架構輸入目標。
+> 2026 年多 Agent 領域的權威失效分類標準當屬 **MAST**（Cemri 等人，NeurIPS 2025，arXiv:2503.13657），該研究深入剖析了橫跨 7 個頂尖開源多 Agent 系統的 1,642 條真實執行軌跡，揭示出高達 **41% 至 86.7% 的驚人失敗率**。三大核心根因分類為：**規格定義問題（Specification Problems）**（佔比 41.77%）——角色邊界模糊、任務目標欠缺精準約束；**協同失靈（Coordination Failures）**（佔比 36.94%）——通訊中斷、狀態不同步；**驗證缺失（Verification Gaps）**（佔比 21.30%）——缺乏獨立檢驗、客觀品質把關缺位。**群體盲從家族（Groupthink Family）**（arXiv:2508.05687）進一步歸納了：單一文化崩潰（同質基底模型導致相關性錯誤）、從眾偏見（Agent 互相迎合並強化彼此的幻覺（hallucination））、心智理論缺陷、混合動機內耗以及連鎖可靠性崩潰。連鎖崩潰的典型代表為重試風暴（Retry storms）：支付服務的瞬時抖動引發訂單 Agent 盲目重試，進而觸發庫存檢查風暴，在數秒內使庫存服務面臨 10 倍負載而全面癱瘓（必須強制配置熔斷機制）。記憶體污染：單一 Agent 的幻覺滲入共享記憶體，下游 Agent 奉為真理，導致系統準確率（accuracy）慢性衰退，使根因追溯極其痛苦。**STRATUS**（NeurIPS 2025）指出：透過部署專門的偵測、診斷與驗證 Agent 鐵三角，能使故障緩解成功率提升 1.5 倍。本課將各類失效模式視為一等公民的架構輸入目標。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -88,7 +88,7 @@ inventory service sees 10x normal load
 cluster goes down
 ```
 
-標準的救命良方：**熔斷機制（Circuit breakers）**。一旦下游微服務的錯誤率突破預設門檻，立即切斷後續呼叫，直接回傳快取結果或降級兜底方案。外加為每個單一請求配置不可逾越的重試次數硬性上限。
+標準的救命良方：**熔斷機制（Circuit breakers）**。一旦下游服務的錯誤率突破預設門檻，立即切斷後續呼叫，直接回傳快取結果或降級兜底方案。外加為每個單一請求配置不可逾越的重試次數硬性上限。
 
 熔斷機制是極少數完全無需任何 AI 改造、直接從古典分散式系統借鑒即可完美生效的強大防禦工具。
 
@@ -96,7 +96,7 @@ cluster goes down
 
 回顧第 13 課：單一 Agent 的幻覺被寫入共享記憶體並化為既定事實；下游所有 Agent 紛紛以此虛假事實為基石展開後續推理。在 MAST 的語境下，這本質上正是共享記憶體層級所發生的**驗證缺失**。
 
-慢性的精度衰退是其最顯著的臨床症狀。系統不會發生直接崩潰；而是陷入難以進行根因追溯的慢性語意漂移。
+準確率的慢性衰退是其最顯著的臨床症狀。系統不會發生直接崩潰；而是陷入難以進行根因追溯的慢性語意漂移。
 
 工程緩解之道：維持僅限附加日誌、強制綁定溯源中繼資料、配置物理唯讀的獨立驗證者。
 
@@ -104,7 +104,7 @@ cluster goes down
 
 STRATUS（NeurIPS 2025）指出，在系統中專門部署以下三位專業 Agent，能將故障緩解成功率提升 1.5 倍：
 
-- **偵測 Agent（Detection agent）。** 即時監控異常前兆模式（意見分歧率驟增、重試頻率飆升、精準度指標慢性下滑）。
+- **偵測 Agent（Detection agent）。** 即時監控異常前兆模式（意見分歧率驟增、重試頻率飆升、準確率指標慢性下滑）。
 - **診斷 Agent（Diagnosis agent）。** 依據偵測到的表象特徵，對照 MAST 分類體系精準推斷最可能的根本原因。
 - **驗證 Agent（Validation agent）。** 在工程團隊部署了修復補丁後，負責嚴密驗證該異常症狀是否確實徹底消失。
 
@@ -112,7 +112,7 @@ STRATUS（NeurIPS 2025）指出，在系統中專門部署以下三位專業 Age
 
 ### 失效模式季度審查機制（Failure-Mode Audit）
 
-2026 年領先團隊的標準工程實踐是實施每季度一次（或每次重大版本發布前）的全面失效審查：
+2026 年領先團隊的標準工程實踐是每年一次（或每次重大版本發布前）進行全面失效審查：
 
 1. **抽樣真實軌跡。** 隨機抽取約 1,000 條真實環境下的完整執行日誌。
 2. **對照歸因分類。** 針對軌跡中暴露的所有失敗，逐一歸類至 MAST 與 Groupthink 分類中。
@@ -133,7 +133,7 @@ STRATUS（NeurIPS 2025）指出，在系統中專門部署以下三位專業 Age
 
 ### 立即失效 vs 慢性衰退失效
 
-部分失效是瞬間爆發的；部分失效則是慢性滲透的。立即失效（網路逾時、Schema 結構不符、認證金鑰失效）極其容易在第一時間被捕獲。而慢性衰退失效（記憶體污染、單一文化同質漂移、角色職責泛化模糊）的偵測與防禦成本高出數個數量級。
+部分失效是瞬間爆發的；部分失效則是慢性滲透的。立即失效（網路逾時、結構描述不符、認證金鑰失效）極其容易在第一時間被捕獲。而慢性衰退失效（記憶體污染、單一文化同質漂移、角色職責泛化模糊）的偵測與防禦成本較高。
 
 2026 年的前沿工程實踐：針對各類慢性衰退失效佈設即時代理指標（Proxy metrics），以便在隱患演變為災難前及時掐死。共識達成率、重試頻率分布、輸出文字長度變異數，以及相鄰版本之間的編輯距離，皆是極具前瞻價值的核心代理指標。
 
@@ -170,7 +170,7 @@ python3 code/main.py
 正式環境中面對失效模式的工程鐵律：
 
 - **每季度強制執行 MAST 全面稽核。** 絕非形式化的年度走過場。隨著系統演進，主導性的故障類別會動態漂移。
-- **全方位無死角佈設熔斷機制。** 面向任何外部依賴微服務的每一次呼叫皆必須受其保護。預設將錯誤率跳脫門檻設定為 5-10%。
+- **全方位無死角佈設熔斷機制。** 面向任何外部相依服務的每一次呼叫皆必須受其保護。預設將錯誤率跳脫門檻設定為 5-10%。
 - **維護金牌標準測試集（Golden datasets）。** 規模保持精巧、品質極高、由人類專家親自把關。每週強制執行自動化回歸測試。
 - **組建 STRATUS 監控鐵三角。** 部署偵測、診斷與驗證 Agent 守護正式環境。初始階段可僅啟用偵測 Agent；待症狀模式豐富後再導入診斷模組。
 - **確立清晰的故障預算（Failure budget）。** 為各類別的失效設定明確的服務水準目標（SLO）。一旦實際失效率擊穿預算，立即凍結新功能交付並啟動架構修復。
@@ -185,23 +185,23 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| MAST | "The 2026 taxonomy" | Cemri 2025; 3 root categories + 14 sub-types of failures. |
-| Specification Problem | "Role ambiguity" | Task or role under-defined; agents do not know what to do. |
-| Coordination Failure | "State drift" | Communication or sync breakdown between agents. |
-| Verification Gap | "No one checked" | Outputs accepted without independent validation. |
-| Groupthink family | "Homogeneity failures" | Monoculture, conformity, deficient ToM, mixed-motive, cascading. |
-| Monoculture collapse | "Same model, same hallucinations" | Correlated errors from shared base model or training data. |
-| Retry storm | "Cascading error amplification" | One failure triggers retries which amplify load downstream. |
-| Circuit breaker | "Fail fast on error rate" | Open when error rate exceeds threshold; short-circuit with default. |
-| STRATUS | "Incident response trio" | Detection + diagnosis + validation agents. 1.5x mitigation success. |
-| Memory poisoning | "Hallucinations propagate" | Shared-memory fact tainted; downstream agents reason on poison. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| MAST | 「2026 年的分類法」 | Cemri 於 2025 年提出；涵蓋 3 大根本類別與 14 種失效子類型。 |
+| 規格定義問題 | 「角色界定不清」 | 任務或角色定義不足，Agent 不知道該做什麼。 |
+| 協同失效 | 「狀態漂移」 | Agent 之間的通訊或同步出現問題。 |
+| 驗證缺口 | 「沒有人檢查」 | 產出未經獨立驗證就被接受。 |
+| 群體盲從家族 | 「同質性失效」 | 包含單一文化、從眾、心智理論缺陷、混合動機與連鎖失效。 |
+| 單一文化崩潰 | 「同一模型、相同幻覺」 | Agent 共用基底模型或訓練資料所造成的相關性錯誤。 |
+| 重試風暴 | 「連鎖錯誤放大」 | 一項失效引發重試，進而放大下游負載。 |
+| 熔斷器 | 「錯誤率過高時快速失敗」 | 錯誤率超過門檻時開啟，以預設結果短路後續呼叫。 |
+| STRATUS | 「事件回應三人組」 | 偵測、診斷與驗證 Agent；緩解成功率提高 1.5 倍。 |
+| 記憶污染 | 「幻覺傳播」 | 共享記憶中的事實遭到污染，下游 Agent 以此為依據推理。 |
 
 ## Further Reading｜延伸閱讀
 
-- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 權威失效分類體系奠基論文，NeurIPS 2025。
-- [Groupthink failures in multi-agent LLMs](https://arxiv.org/abs/2508.05687) — 深度剖析單一文化、從眾效應與五大盲從家族的權威文獻。
-- [STRATUS — specialized agents for MAS incident response](https://neurips.cc/) — NeurIPS 2025 會議論文（偵測 + 診斷 + 驗證鐵三角架構）。
-- [Release It! — stability patterns (Nygard)](https://pragprog.com/titles/mnee2/release-it-second-edition/) — 熔斷器模式的經典架構聖經。
-- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 來自工業級正式環境的第一手失效模式與維運筆記。
+- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657)
+- [Groupthink failures in multi-agent LLMs](https://arxiv.org/abs/2508.05687)
+- [STRATUS — specialized agents for MAS incident response](https://neurips.cc/)
+- [Release It! — stability patterns (Nygard)](https://pragprog.com/titles/mnee2/release-it-second-edition/)
+- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)

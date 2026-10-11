@@ -24,12 +24,12 @@
 
 ```mermaid
 flowchart TD
-  Start[Session Start] --> Init[init_agent.py]
-  Init --> Probes[probe runtime / deps / paths / env / tests]
+  Start[工作階段開始] --> Init[init_agent.py]
+  Init --> Probes[探測執行環境、相依套件、路徑、環境變數與測試]
   Probes --> Report[init_report.json]
-  Report --> Decision{healthy?}
-  Decision -- yes --> Agent[Agent Loop]
-  Decision -- no --> Halt[fail loud, halt, surface to human]
+  Report --> Decision{健康？}
+  Decision -- yes --> Agent[Agent 迴圈]
+  Decision -- no --> Halt[大聲報錯、停止並回報人類]
 ```
 
 ### 初始化腳本所探測的核心維度
@@ -76,7 +76,7 @@ python3 code/main.py
 
 腳本會印出探針檢驗表格、寫入 `init_report.json`，在正常路徑下以狀態碼 0 退出，或在檢測失敗時以非零狀態碼退出並列舉失敗項目。
 
-## Production patterns in the wild｜真實世界中的生產級模式
+## 真實世界中的生產級模式
 
 三大實戰模式將真正實用的初始化腳本，與形式主義的擺設程式碼徹底區分開來：
 
@@ -84,7 +84,7 @@ python3 code/main.py
 
 **帶有 TTL 有效期的鎖定檔案**：在初次探針檢測成功後寫入 `prereqs.lock`。後續執行在 N 小時內（預設 24 小時）直接信任該鎖定檔案，並主動略過耗時沉重的深度探測。初始化腳本優先讀取鎖定檔；若狀態新鮮且相依清單雜湊未變，直接短路放行。這與 Docker 的映像檔層快取機制完全一致：冪等探測 + 內容雜湊 = 快速略過。
 
-**在即時熱路徑上嚴禁聯網、嚴禁呼叫大模型、杜絕驚喜**：初始化探針是確定性的底層水暖工程。企圖呼叫大模型去分類錯誤、或存取外部服務去檢查軟體授權的探針，根本不是探針，而是一套複雜的工作流程。若任何探針在 Dry-run 預演模式下耗時超過 3 秒，應將其視為工作台異味（Smell），要麼將其移出初始化環節，要麼強制對其結果實施快取。
+**在即時熱路徑上嚴禁聯網、嚴禁呼叫 LLM、杜絕意外**：初始化探針是確定性的底層水暖工程。企圖呼叫 LLM 分類錯誤、或存取外部服務去檢查軟體授權的探針，根本不是探針，而是一套複雜的工作流程。若任何探針在 Dry-run 預演模式下耗時超過 3 秒，應將其視為工作台異味（Smell），要麼將其移出初始化環節，要麼強制對其結果實施快取。
 
 ## Use It｜實際應用
 
@@ -98,12 +98,12 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-init-script.md` 能針對特定專案進行自動化分析，將前置引導工作梳理為標準探針，並產出專屬的 `init_agent.py` 以及在任何 Agent 步驟執行前強制執行的 CI 自動化工作流程。
+`outputs/skill-init-script.md` 會透過訪談了解專案，將前置設定工作分類為探針，並產出專屬的 `init_agent.py` 及在任何 Agent 步驟執行前執行的 CI 工作流程。
 
 ## Exercises｜練習
 
 1. 新增一個比對當前 Commit 與最後已知良好 Commit 的探針：若變更檔案超過 50 個，堅決拒絕啟動。
-2. 擴充腳本以寫入 `prereqs.lock` 鎖定檔案，若該鎖定檔案建立時間超過 7 天，強制要求重新探測。
+2. 擴充腳本以寫入 `prereqs.lock` 鎖定檔案，若該鎖定檔案已超過 7 天，拒絕啟動。
 3. 為腳本新增 `--fix` 自動修復旗標：能自動安裝缺失的開發相依套件，但在未經確認前絕不擅自修改正式環境依賴。
 4. 將探針定義自硬編碼函式遷移為宣告式 YAML 註冊表。深入評估此架構轉變的利弊取捨。
 5. 為每個探針配置執行時間預算。任何執行耗時超過 3 秒的探針皆應被標註為系統異味。
@@ -120,12 +120,12 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic, Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) ——長時段 Agent harness環境初始化指南
-- [GitHub Actions, composite actions for setup](https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-composite-action) ——組合式設定動作指南
+- [Anthropic, Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+- [GitHub Actions, composite actions for setup](https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-composite-action)
 - [microservices.io, GenAI dev platform: guardrails](https://microservices.io/post/architecture/2026/03/09/genai-development-platform-part-1-development-guardrails.html) ——將 Pre-commit 與 CI 檢查作為初始化防線
 - [Augment Code, How to Build Your AGENTS.md (2026)](https://www.augmentcode.com/guides/how-to-build-agents-md) ——初始化預期管理
 - [Codex Blog, Codex CLI Context Compaction](https://codex.danielvaughan.com/2026/03/31/codex-cli-context-compaction-architecture/) ——工作階段啟動時的初始化感知
-- Phase 14 · 33——本腳本所支援的實體操作規則集
+- Phase 14 · 33——本腳本所支援的操作規則集
 - Phase 14 · 34——本腳本所負責播種的持久化狀態檔案
 - Phase 14 · 38——直接消費本初始化報告的自動化驗收關卡
 - Phase 14 · 40——直接引用本初始化報告之最後已知良好狀態的階段移交封包

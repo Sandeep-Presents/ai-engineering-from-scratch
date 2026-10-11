@@ -106,7 +106,7 @@ python3 code/main.py
 
 - **交接全鏈路日誌記錄。** 每一次交接跳轉皆必須寫入追蹤事件，記錄發起 Agent、目標 Agent 以及當前上下文快照。
 - **嚴謹的上下文傳遞規則。** 明確約定在交接瞬間傳遞何種資訊：是完整歷史（代價高昂）、最近 N 則訊息，抑或高度濃縮的文字摘要。
-- **交接防禦護欄。** 當交接至具備不同高危工具權限的專家 Agent 時，必須進行身分認證審查——堅決防範惡意 prompt 注入透過誘騙交接來取得非法權限。
+- **交接防禦護欄。** 交接至具備不同工具權限的專家 agent 時，必須先進行身分驗證；否則 prompt 注入可能強迫觸發非預期的交接。
 - **交接死迴圈偵測。** 兩個 Agent 彼此互相踢皮球是極其常見的失效；透過維護一個滑動歷史視窗即可輕鬆偵測並掐死該循環。
 - **兜底降級 Agent。** 一旦交接的目標 Agent 宣告不存在或故障，系統必須能優雅回退至安全的預設處理常式。
 
@@ -120,16 +120,16 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Routine | "The agent prompt" | System prompt + tool list. Defines role and available handoffs. |
-| Handoff | "Transfer to another agent" | A tool the active agent can call that returns a new Agent. The runtime switches active agent. |
-| Stateless | "No memory between runs" | Swarm does not persist anything; memory is the caller's responsibility. |
-| Active agent | "Who's speaking now" | The agent currently holding the conversation. Handoff changes this. |
-| Context transfer | "What moves on handoff" | Policy for what history the incoming agent sees: full, last N, or summarized. |
-| Handoff loop | "Agents ping-pong" | Failure mode where two agents keep handing back to each other. |
-| OpenAI Agents SDK | "Production Swarm" | March 2025 successor; adds sessions, guardrails, tracing on top of the handoff primitive. |
-| Handoff filter | "Gate on transfer" | SDK feature to inspect and modify context at the handoff boundary. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 例行流程（Routine） | 「agent 的 prompt」 | 系統 prompt 加上工具清單，定義角色與可用的交接方式。 |
+| 交接（Handoff） | 「轉交給另一個 agent」 | 活躍 agent 可呼叫的工具，會回傳新的 Agent；執行環境隨即切換活躍 agent。 |
+| 無狀態（Stateless） | 「執行之間不保留記憶」 | Swarm 不會保存任何資料；記憶由呼叫端負責。 |
+| 活躍 agent（Active agent） | 「現在由誰發言」 | 目前持有對話的 agent；交接會切換活躍 agent。 |
+| 上下文傳遞（Context transfer） | 「交接時會帶上哪些內容」 | 決定接手的 agent 會看到哪些歷史記錄：全部、最近 N 則或摘要。 |
+| 交接迴圈（Handoff loop） | 「agent 互相踢皮球」 | 兩個 agent 不斷互相交接的失效模式。 |
+| OpenAI Agents SDK | 「正式環境版 Swarm」 | 2025 年 3 月推出的後繼者，在交接原語上加入工作階段、防護措施與追蹤功能。 |
+| 交接篩選器（Handoff filter） | 「交接時的閘門」 | SDK 功能，可在交接邊界檢查並修改上下文。 |
 
 ## Further Reading｜延伸閱讀
 

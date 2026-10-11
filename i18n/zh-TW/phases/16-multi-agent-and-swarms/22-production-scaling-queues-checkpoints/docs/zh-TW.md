@@ -72,11 +72,11 @@ coordinators:
 
 ### 非同步纖程（Async）vs 每個任務一執行緒（Thread-Per-Job）
 
-LLM 的 API 呼叫本質上屬於嚴重的 I/O 密集型任務。一個苦苦等待下一個串流 Token 回傳的作業系統執行緒，有 99% 的時間都在浪費時間陷入純粹的阻塞空轉。每個作業系統執行緒通常需要消耗約 1MB 的記憶體空間；在 10,000 個並行呼叫的衝擊下，單純維持呼叫堆疊（Stack）就需要白白浪費高達 10GB 的實體記憶體。
+LLM 的 API 呼叫本質上屬於嚴重的 I/O 密集型任務。一個苦苦等待下一個串流 Token 回傳的作業系統執行緒，有 99% 的時間都在浪費時間陷入純粹的阻塞空轉。每個作業系統執行緒通常需要消耗約 1MB 的記憶體空間；在 10,000 個並行呼叫的衝擊下，光是呼叫堆疊（Stack）就會佔用 10GB 記憶體。
 
 而纖程（Python `asyncio`、Go goroutines、Rust `tokio`）能夠在遭遇 I/O 阻塞時協同式主動讓出 CPU 核心。相同的 10,000 個並行呼叫能夠以極其輕巧的姿態輕鬆容納於單一應用程式行程中。在多 Agent 規模化擴展的維度下，非同步不再是一項單純的效能最佳化——它直接決定了整體架構的生死存亡。
 
-例外情況：對於屬於 CPU 密集型的後處理任務（例如本地 Embedding 矩陣運算、Tokenizer 複雜字元解析），依然應當交由專屬的獨立執行緒或實體行程處理。務必將你的非同步 I/O 層與密集 CPU 運算層進行物理隔離。
+例外情況：對於屬於 CPU 密集型的後處理任務（例如本地 Embedding 矩陣運算、Tokenizer 複雜字元解析），依然應當交由專屬的獨立執行緒或行程處理。務必將非同步 I/O 層與密集 CPU 運算層分開。
 
 ### Bedi 的質樸實務抗辯
 
@@ -143,7 +143,7 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-正式環境系統硬體化的必備鐵律：
+正式環境系統強化的必備鐵律：
 
 - **堅持從極簡起步（Bedi 鐵律）。** 堅守 FastAPI + Postgres，直到真實的監控指標明確證明它已無法承載。
 - **在啟動任何最佳化之前，必須先完成全鏈路埋點。** 建立單次執行延遲長條圖、超級步驟耗時統計、重試計數器以及故障分類統計。
@@ -158,26 +158,26 @@ python3 code/main.py
 2. 實現一個**發件箱（Outbox）資料表**：所有工具呼叫必須先寫入發件箱，隨後由獨立的非同步排程器取出執行。透過連續執行兩次相同的工具呼叫，驗證其底層冪等性。
 3. 模擬一次**彩虹滾動部署**：同時運作兩個不同版本的執行環境；將一半的新 thread_id 導流至新版；確認在舊版上運作中的在途執行緒完全未遭受任何中斷。
 4. 閱讀 LangGraph 執行環境官方技術文件（文末附連結）。指出該執行環境所提供的各項特性中，哪一項是在手刻的「FastAPI + Postgres」架構中最難以自行復現的？這項難度是否構成你當前立即導入該框架的充分理由？
-5. 閱讀 MegaAgent 論文（arXiv:2408.09955）第 3 節。其雙層協同架構（組內討論 + 組間管理協調）極具代表性。嘗試繪製一份架構圖，說明你該如何將其優雅映射至具備兩大主題家族的實體訊息佇列中。
+5. 閱讀 MegaAgent 論文（arXiv:2408.09955）第 3 節。其雙層協同架構（組內討論 + 組間管理協調）極具代表性。嘗試繪製一份架構圖，說明你該如何將其映射至具備兩大佇列家族的訊息佇列。
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Durable execution | "Persist the program state" | Engine writes state after each super-step; crash recovery is deterministic. |
-| Super-step | "Transactional boundary" | Unit of work between checkpoints. LangGraph term. |
-| thread_id | "Agent run identifier" | Key that binds checkpoints and resume logic. |
-| Idempotency | "Safe to retry" | Repeating a side effect produces the same result as one attempt. |
-| Outbox pattern | "Decouple side effects" | Write intent to a table; a separate executor performs and marks done. |
-| At-least-once delivery | "Possible duplicates" | Message queue semantics; dedup key makes consumer effective-once. |
-| Rainbow deploy | "Overlapping versions" | Multiple runtime versions concurrent during long-running workloads. |
-| Async fiber | "Cooperative yielding" | User-mode concurrency; cheap compared to threads for I/O-bound loads. |
-| Checkpoint | "State snapshot" | Serialized state at a super-step boundary; key for resume. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 持久化執行 | 「保存程式狀態」 | 引擎在每個超級步驟後寫入狀態；當機後可確定性地復原。 |
+| 超級步驟 | 「交易邊界」 | 兩個檢查點之間的工作單位；LangGraph 的術語。 |
+| thread_id | 「Agent 執行識別碼」 | 將檢查點與續行邏輯綁定的鍵。 |
+| 冪等性 | 「可安全重試」 | 重複執行副作用，結果與只執行一次相同。 |
+| 發件箱模式 | 「將副作用解耦」 | 先把意圖寫入資料表，再由另一個執行器執行並標記完成。 |
+| 至少一次傳遞 | 「可能重複」 | 訊息佇列語意；去重鍵可讓消費者達到實質僅一次效果。 |
+| 彩虹部署 | 「版本並行」 | 長時程工作負載期間，多個執行環境版本同時運作。 |
+| 非同步纖程 | 「協同讓出執行權」 | 使用者層級的並行方式；相較執行緒，適合 I/O 密集負載且成本較低。 |
+| 檢查點 | 「狀態快照」 | 超級步驟邊界上的序列化狀態，是續行的關鍵。 |
 
 ## Further Reading｜延伸閱讀
 
-- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — LangGraph 執行環境的深度架構設計解析。
-- [MegaAgent](https://arxiv.org/abs/2408.09955) — 單一 Agent 專屬生產者-消費者佇列；在數千個並行 Agent 規模下的雙層協同架構。
-- [Matrix](https://arxiv.org/abs/2511.21686) — 將訊息佇列作為底層協同基石的去中心化框架。
-- [Temporal docs](https://docs.temporal.io/) — 分散式持久化執行工作流引擎的業界黃金參考標準。
-- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 來自正式環境部署的實戰工程教訓，包含彩虹部署模式。
+- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents)
+- [MegaAgent](https://arxiv.org/abs/2408.09955)
+- [Matrix](https://arxiv.org/abs/2511.21686)
+- [Temporal docs](https://docs.temporal.io/)
+- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)

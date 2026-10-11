@@ -149,9 +149,9 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Kennedy & Eberhart — Particle Swarm Optimization](https://ieeexplore.ieee.org/document/488968) — 1995 年的 PSO 論文
-- [Dorigo — Ant Colony Optimization](https://www.aco-metaheuristic.org/about.html) — 1992 年 ACO 基礎
-- [LMPSO — Language Model Particle Swarm Optimization](https://arxiv.org/abs/2504.09247) — 用於結構化 LLM 輸出的 PSO
-- [Model Swarms — gradient-free LLM expert optimization](https://arxiv.org/abs/2410.11163) — 模型權重子空間上的 PSO
-- [AMRO-S — ant-colony multi-agent routing](https://arxiv.org/abs/2603.12933) — 具品質門禁的費洛蒙路由
+- [Kennedy & Eberhart — Particle Swarm Optimization](https://ieeexplore.ieee.org/document/488968)
+- [Dorigo — Ant Colony Optimization](https://www.aco-metaheuristic.org/about.html)
+- [LMPSO — Language Model Particle Swarm Optimization](https://arxiv.org/abs/2504.09247)
+- [Model Swarms — gradient-free LLM expert optimization](https://arxiv.org/abs/2410.11163)
+- [AMRO-S — ant-colony multi-agent routing](https://arxiv.org/abs/2603.12933)
 </content>

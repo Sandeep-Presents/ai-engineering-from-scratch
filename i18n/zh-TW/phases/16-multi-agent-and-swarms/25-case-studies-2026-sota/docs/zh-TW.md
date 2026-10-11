@@ -20,7 +20,7 @@
 核心實測關鍵指標：
 
 - 在內部科研評測中，相較於單一 Agent Opus 4 錄得了高達 **+90.2%** 的驚人效能飛躍。
-- BrowseComp 上 **80% 的效能變異數** 僅由 **Token 消耗總量** 即可完全解釋——多 Agent 之所以大獲全勝，本質上是因為每位子 Agent 皆享有專屬的全新純淨上下文視窗。
+- BrowseComp 上 80% 的效能變異數可單憑 Token 用量解釋——多 Agent 之所以大獲全勝，本質上是因為每位子 Agent 皆享有專屬的全新純淨上下文視窗。
 - 相較於單一 Agent，單次查詢的 Token 消耗量約為 **15 倍**。
 - 採用**彩虹部署（Rainbow deployment）**，因為各 Agent 具備長時程且有狀態的運作特質。
 
@@ -29,15 +29,15 @@
 1. **依據查詢複雜度動態適配算力投入。** 單純查詢 → 1 位 Agent 搭配 3-10 次工具呼叫。中度複雜 → 3 位 Agent。深度複雜科研 → 10 位以上子 Agent。
 2. **由寬至窄，漸進縱深。** 子 Agent 首先展開地毯式廣度搜尋；主導者進行初步綜述；隨後指派專門的子 Agent 針對核心疑點進行靶向深度挖掘。
 3. **彩虹滾動部署。** 允許多個版本的執行環境並行共存，直到在途運作中的長時程 Agent 自然排空完工，堅決杜絕暴力中斷。
-4. **驗證絕非可選裝飾。** 實測觀察到，若缺乏顯式的客觀驗證者角色，系統必定會產生嚴重的幻覺問題。
+4. **驗證絕非可選裝飾。** 實測觀察到，若缺乏明確的驗證者角色，系統會產生幻覺（hallucination）。
 
-這是監督者-工作者拓撲（第 16 課第 05 節）在真實生產規模下的權威基準。
+這是監督者-工作者拓撲（Phase 16 · 05）在真實生產規模下的權威基準。
 
 ### MetaGPT / ChatDev
 
 基於 SOP 編碼的角色分工體系在軟體工程領域的標竿之作。精讀論文 arXiv:2308.00352（MetaGPT）與 arXiv:2307.07924（ChatDev）。
 
-MetaGPT 將經典的軟體工程標準作業程式（SOP）直接編碼為各角色的專屬 Prompt：產品經理（Product Manager）、架構師（Architect）、專案經理（Project Manager）、工程師（Engineer）與 QA 測試工程師（QA Engineer）。論文提出的核心公式：`Code = SOP(Team)`。每個角色皆擁有高度聚焦且狹窄的系統 Prompt；跨角色之間的交接攜帶結構化的實體工件（PRD 需求文件、架構設計圖、原始程式碼）。
+MetaGPT 將經典的軟體工程標準作業程式（SOP）直接編碼為各角色的專屬 Prompt：產品經理（Product Manager）、架構師（Architect）、專案經理（Project Manager）、工程師（Engineer）與 QA 測試工程師（QA Engineer）。論文提出的核心公式：`Code = SOP(Team)`。每個角色皆擁有高度聚焦且狹窄的系統 Prompt；跨角色之間的交接攜帶結構化工件（PRD 需求文件、架構文件、程式碼）。
 
 ChatDev 貢獻了一項關鍵的原創機制：**通訊去幻覺（Communicative dehallucination）**。各 Agent 在給出最終結論前，會主動向同儕發起詢問確認細節——例如設計師 Agent 在草繪使用者介面之前，會先向工程師詢問預計採用何種前端語言，而非擅自臆造。論文實測證實該機制大幅削減了多 Agent 管線中的連鎖幻覺現象。
 
@@ -46,11 +46,11 @@ MacNet（arXiv:2406.07155）進一步將 ChatDev 擴展至**透過有向無環�
 核心架構啟示：
 
 1. **架構結構的重要性遠勝於單純的模型數量規模。** 一個由 5 個角色緊密咬合的嚴謹 SOP 團隊，表現能輕易碾壓 50 個缺乏組織結構的無序混亂群體。
-2. **交接契約必須白紙黑字寫死。** 跨角色之間傳遞的工件必須遵循嚴格的強型別 Schema。
+2. **交接契約必須白紙黑字寫死。** 跨角色之間傳遞的工件必須遵循嚴格的強型別結構描述（schema）。
 3. **通訊去幻覺是一項代價廉價但至關重要的關鍵模式。**
 4. **有向無環圖（DAG）的擴展力遠超純即時文字對話。** 當業務流程在物理上可預知時，堅決使用 DAG 進行編碼。
 
-這是角色專門化分工（第 16 課第 08 節）與結構化拓撲（第 16 課第 15 節）的終極參考基準。
+這是角色專門化分工（Phase 16 · 08）與結構化拓撲（Phase 16 · 15）的終極參考基準。
 
 ### OpenClaw / Moltbook 超大規模生態系
 
@@ -80,7 +80,7 @@ MacNet（arXiv:2406.07155）進一步將 ChatDev 擴展至**透過有向無環�
 
 ### 2026 年 4 月主流框架技術格局
 
-| Framework | Status | Best for | Notes |
+| 框架 | 狀態 | 適用情境 | 備註 |
 |---|---|---|---|
 | **LangGraph** (LangChain) | 正式環境領軍者 | 結構化圖 + 檢查點機制 + 人在迴圈中（HITL） | 企業正式環境部署的唯一推薦預設起點 |
 | **CrewAI** | 正式環境領軍者 | 基於角色分工的專案團隊，支援循序／階層流程 | 角色拆解與團隊模擬的最佳選擇 |
@@ -98,15 +98,15 @@ MacNet（arXiv:2406.07155）進一步將 ChatDev 擴展至**透過有向無環�
 1. **編排者 + 工作者架構（Orchestrator + workers）**（Anthropic 顯式監督者、MetaGPT 由專案經理充當實質監督者、OpenClaw 由個別 Agent 疊加網路效應）。
 2. **結構化、可驗證的交接契約**（Anthropic 嚴格規範的子任務描述、MetaGPT 強型別的 PRD／架構工件、OpenClaw 的標準 A2A 工件）。
 3. **將驗證者視為不可妥協的一等公民角色**（Anthropic 獨立的驗證者、MetaGPT 的專職 QA 工程師、OpenClaw 網路內部的獨立驗證節點）。
-4. **規模化擴展取決於拓撲與底座，絕非盲目堆砌更多 Agent**（彩虹滾動部署、MacNet 的有向無環圖 DAG、人口規模的去中心化事件受質）。
+4. **規模化擴展取決於拓撲與底座，絕非盲目堆砌更多 Agent**（彩虹滾動部署、MacNet 的有向無環圖 DAG、人口規模的去中心化底層基礎設施）。
 5. **成本是嚴肅的物理約束，必須全程透明披露**（15 倍 Token 開銷、MetaGPT 的角色級別預算、Moltbook 的單次互動定價）。
 6. **安全防禦姿態必須顯式落盤**（Anthropic 的沙盒隔離、MetaGPT 的角色權限嚴格劃分、OpenClaw 將 Prompt 注入視為已知的首要受攻擊面）。
 
 ### 為你的下一個專案挑選最佳參考基準
 
-- **深度科研調研／海量知識提煉類任務 → 首選 Anthropic Research。** 享有全新純淨獨立上下文視窗的子 Agent 必定大獲全勝。
+- **深度科研調研／海量知識提煉類任務 → 首選 Anthropic Research。** 使用全新上下文的子 Agent 表現較佳。
 - **軟體工程／工具鏈複雜流水線任務 → 首選 MetaGPT / ChatDev。** 嚴謹的角色分工 + SOP + 明確的交接契約。
-- **具備網路效應的開放式社群產品 → 深入研讀 OpenClaw / Moltbook。** 去中心化事件底座 + 自發湧現的微觀經濟激勵。
+- **具備網路效應的開放式社群產品 → 深入研讀 OpenClaw / Moltbook。** 去中心化底層基礎設施 + 自發湧現的經濟活動。
 - **傳統企業內部業務流程自動化 → 果斷選用 CrewAI 或 LangGraph**（當前最穩健成熟的工業級執行環境）。
 
 ### 2026 最新技術現狀總結
@@ -116,7 +116,7 @@ MacNet（arXiv:2406.07155）進一步將 ChatDev 擴展至**透過有向無環�
 - **底層框架正在高度收斂。** 對 MCP 與 A2A 的原生支援已成為無可爭議的行業標配。交接跳轉的底層語意成為剩餘唯一的架構設計抉擇。
 - **評測體系全面邁向硬派嚴格。** 迎來了 SWE-bench Pro、MARBLE 與 STRATUS 故障緩解等標準化評測。Pro 是當前唯一具備抗資料污染能力的現實照妖鏡。
 - **正式環境的真實失敗率已被客觀量化**（Cemri 2025 年 MAST 研究證實：真實多 Agent 系統的失敗率高達 41% 至 86.7%）。整個產業已徹底告別「展示影片看似無比美好」的天真時代。
-- **成本成為最核心的架構工程約束。** 單任務 Token 成本、單次互動的端到端耗時、彩虹部署的系統開銷。多 Agent 系統贏在精度、輸在成本——這項取捨本質上是一場嚴肅的商業抉擇。
+- **成本成為最核心的架構工程約束。** 單任務 Token 成本、單次互動的端到端耗時、彩虹部署的系統開銷。多 Agent 系統在準確率（accuracy）上勝出、但成本較高——這項取捨本質上是一場嚴肅的商業抉擇。
 - **法律法規監管已成為迫在眉睫的架構輸入，絕非遙遠的背景雜訊。** 各國政府的監管立法反應速度，已正式超越了單一產品的技術研發週期。
 
 ```figure
@@ -148,25 +148,25 @@ a5-orchestrator-scale
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |------|----------------|------------------------|
-| Anthropic Research | "The supervisor reference" | Claude Opus 4 + Sonnet 4 subagents; 15x tokens; +90.2% over single-agent. |
-| MetaGPT | "SOP as prompts" | Role decomposition for software engineering; `Code = SOP(Team)`. |
-| ChatDev | "Agents as roles" | Designer / programmer / reviewer / tester; communicative dehallucination. |
-| MacNet | "Scale ChatDev via DAG" | arXiv:2406.07155; 1000+ agents via explicit DAG routing. |
-| OpenClaw | "Local ReAct-loop agents" | Steinberger's project; 247k stars by March 2026. |
-| Moltbook | "Agent-only social network" | 2.3M agent accounts; acquired by Meta March 2026. |
-| Rainbow deploy | "Multiple versions concurrent" | Keep old runtime versions alive for in-flight long-running agents. |
-| Communicative dehallucination | "Ask before answering" | Agents request specifics from peers instead of guessing. |
-| WMAC 2026 | "The AAAI workshop" | April 2026 community focal point for multi-agent coordination. |
+| Anthropic Research | 「監督者參考案例」 | Claude Opus 4 搭配 Sonnet 4 子 Agent；Token 用量為 15 倍；比單一 Agent 高 90.2%。 |
+| MetaGPT | 「把 SOP 寫成 prompt」 | 軟體工程的角色拆解；`Code = SOP(Team)`。 |
+| ChatDev | 「以 Agent 扮演角色」 | 設計師／程式設計師／審查者／測試者；通訊去幻覺。 |
+| MacNet | 「透過 DAG 擴展 ChatDev」 | arXiv:2406.07155；以明確的 DAG 路由支援 1,000 個以上 Agent。 |
+| OpenClaw | 「本機 ReAct 迴圈 Agent」 | Steinberger 的專案；截至 2026 年 3 月有 24.7 萬顆星。 |
+| Moltbook | 「僅供 Agent 使用的社交網路」 | 有 230 萬個 Agent 帳號；於 2026 年 3 月由 Meta 收購。 |
+| 彩虹部署 | 「多個版本並行」 | 長時程 Agent 執行期間，讓舊執行環境版本繼續運作。 |
+| 通訊去幻覺 | 「回答前先詢問」 | Agent 向同儕確認細節，而不是自行猜測。 |
+| WMAC 2026 | 「AAAI 工作坊」 | 2026 年 4 月的多 Agent 協同社群焦點。 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 監督者-工作者架構在正式環境落地的權威參考基準。
-- [MetaGPT — Meta Programming for Multi-Agent Collaborative Framework](https://arxiv.org/abs/2308.00352) — SOP 角色拆解奠基之作。
-- [ChatDev — Communicative Agents for Software Development](https://arxiv.org/abs/2307.07924) — 通訊去幻覺機制的原創論文。
-- [MacNet — scaling role-based agents to 1000+](https://arxiv.org/abs/2406.07155) — 基於有向無環圖 DAG 實現千級 Agent 擴展的突破性研究。
-- [OpenClaw on Wikipedia](https://en.wikipedia.org/wiki/OpenClaw) — 生態系歷史全貌與客觀發展概述。
-- [WMAC 2026](https://multiagents.org/2026/) — AAAI 2026 Bridge 計畫多 Agent 協同工作坊官方頁面。
-- [LangGraph docs](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 當前正式環境中的領軍框架官方技術文件。
-- [CrewAI docs](https://docs.crewai.com/en/introduction) — 基於角色分工的領先框架官方技術指南。
+- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)
+- [MetaGPT — Meta Programming for Multi-Agent Collaborative Framework](https://arxiv.org/abs/2308.00352)
+- [ChatDev — Communicative Agents for Software Development](https://arxiv.org/abs/2307.07924)
+- [MacNet — scaling role-based agents to 1000+](https://arxiv.org/abs/2406.07155)
+- [OpenClaw on Wikipedia](https://en.wikipedia.org/wiki/OpenClaw)
+- [WMAC 2026](https://multiagents.org/2026/)
+- [LangGraph docs](https://docs.langchain.com/oss/python/langgraph/workflows-agents)
+- [CrewAI docs](https://docs.crewai.com/en/introduction)

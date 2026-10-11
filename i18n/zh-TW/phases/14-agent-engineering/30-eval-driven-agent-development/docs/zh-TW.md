@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-Agent 往往能順利跑通精心準備的 Demo 展示。然而一旦投入正式環境，它們卻會以 Demo 永遠無法預測的方式崩潰。公開基準僅能回答「這款大模型是否具備泛化能力？」，卻無法回答「該 Agent 能否為你的專屬產品產出正確無誤的修復補丁？」。唯一解法是：建立三層持續執行的自動化評測體系，將每道安全護欄與學到的規則皆轉化為可執行的測試案例。
+Agent 往往能順利跑通精心準備的 Demo 展示。然而一旦投入正式環境，它們卻會以 Demo 永遠無法預測的方式崩潰。公開基準僅能回答「這款大型語言模型是否具備廣泛能力？」，卻無法回答「該 Agent 能否為你的專屬產品產出正確無誤的修復補丁？」。唯一解法是：建立三層持續執行的自動化評測體系，將每道安全護欄與學到的規則皆轉化為可執行的測試案例。
 
 ## The Concept｜核心概念
 
@@ -24,8 +24,8 @@ Agent 往往能順利跑通精心準備的 Demo 展示。然而一旦投入正�
 
 1. **靜態公開基準（Static benchmarks）**：針對程式碼修復的 SWE-bench Verified（第 19 課）、針對網頁與桌面操作的 WebArena / OSWorld（第 20 課）、針對全能推理的 GAIA（第 19 課）、針對工具呼叫的 BFCL V4（第 06 課）。用於跨模型橫向對比與阻斷嚴重回歸退步。資料污染問題真實存在：SWE-bench+ 實證揭露高達 32.67% 的解法洩漏；對外一律以 Verified 或經去污染審計的分數為準。
 2. **自訂離線評測（Custom offline evals）**：針對你專屬產品業務形態的特化評測：
-   - 大模型即裁判（LLM-as-judge，結合 Langfuse、Phoenix、Opik——第 24 課）；
-   - 基於實體執行的驗收（套用補丁、實跑單元測試）；
+   - LLM 即裁判（LLM-as-judge，結合 Langfuse、Phoenix、Opik——第 24 課）；
+   - 基於實際執行的驗收（套用補丁、實跑單元測試）；
    - 基於動作軌跡的驗收（將動作序列與專家黃金標準對比；OSWorld-Human 實測揭露頂尖 Agent 往往耗費人類 1.4 至 2.7 倍的多餘步數）。
 3. **線上正式環境評測（Online evals）**：即時正式環境中的持續守護：
    - 工作階段完整重播（Langfuse）；
@@ -48,7 +48,7 @@ Agent 往往能順利跑通精心準備的 Demo 展示。然而一旦投入正�
 - 每次發起 PR 時，由 CI 自動化管線強制全量執行；
 - 以評測得分作為 PR 合併的硬性門檻（例如「相較於 main branch，指標回歸退步不得超過 5%」）；
 - 每一道安全護欄，皆對應一組專屬的 Evals 測試案例；
-- 每一條沉澱的經驗規則（Reflexion、學習規則），皆對應一個曾經真實發生過的失敗案例。
+- 每一條沉澱的經驗規則（Reflexion、pro-workflow learn-rule），皆對應一個曾經發生過的失敗案例。
 
 ### 將 Phase 14 全部章節融會貫通
 
@@ -80,7 +80,7 @@ Phase 14 中的每一課，皆能直接衍生出具體的 Evals 測試案例：
 ### 評測驅動開發的常見陷阱
 
 - **缺乏基準線 Baseline**：若缺乏「已知良好狀態」作為基準線，評測分數將毫無解讀價值。務必持久化儲存 Baseline。
-- **缺乏事實錨定的 LLM 裁判**：大模型裁判自己同樣會產生幻覺。牢記第 05 課的 CRITIC 原則——裁判必須依賴外部實體工具進行客觀驗證。
+- **缺乏事實錨定的 LLM 裁判**：LLM 裁判自己同樣會產生幻覺。牢記第 05 課的 CRITIC 原則——裁判必須依賴外部工具進行客觀驗證。
 - **過度擬合評測集**：單純為了刷高評測分數而過度調校，會與真實業務實用性脫節。定期輪換測試案例。
 - **測試案例充斥隨機波動（Flaky evals）**：非確定性的案例會頻繁引發虛假報警。固定隨機種子、對狀態進行快照存檔。
 
@@ -90,7 +90,7 @@ ae-eval-three-layers
 
 ## Build It｜動手實作
 
-`code/main.py` 以純 Python 標準函式庫實作了一套評測 harness：
+`code/main.py` 以純 Python 標準函式庫實作了一套評測 harness（執行框架）：
 
 - 包含三大類別（公開基準、自訂離線、線上生產）的測試案例註冊表；
 - 受測的腳本化 Agent 模組；
@@ -129,17 +129,17 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Static benchmark | 「公開權威基準」 | SWE-bench、GAIA、AgentBench、WebArena、OSWorld |
-| Custom offline eval | 「自訂領域評測」 | 針對特定業務形態實施的 LLM-as-judge、實體執行或軌跡評測 |
-| Online eval | 「線上生產評測」 | 工作階段重播、安全護欄報警、逐步驟成本與延遲監控 |
-| Evaluator-optimizer | 「提案—審核—修正」 | 提案者與評估者交替循環直到驗收通過的緊密閉環 |
-| CI gate | 「PR 合併阻斷卡點」 | 當評測指標發生回歸退步時，強制阻斷程式碼合併的品質防線 |
-| Baseline | 「歷史最優基準線」 | 用以比對是否發生回歸退步的參考歷史基準得分 |
-| Trajectory efficiency | 「軌跡執行效率」 | Agent 實際執行的步數除以人類專家黃金步數之比值 |
+| 靜態基準測試（Static benchmark） | 「公開權威基準」 | SWE-bench、GAIA、AgentBench、WebArena、OSWorld |
+| 自訂離線評測（Custom offline eval） | 「自訂領域評測」 | 針對特定業務形態實施的 LLM-as-judge、實際執行或軌跡評測 |
+| 線上評測（Online eval） | 「線上生產評測」 | 工作階段重播、安全護欄報警、逐步驟成本與延遲監控 |
+| 評估器－最佳化器（Evaluator-optimizer） | 「提案—審核—修正」 | 提案者與評估者交替循環直到驗收通過的緊密閉環 |
+| CI 閘門（CI gate） | 「PR 合併阻斷卡點」 | 當評測指標發生回歸退步時，強制阻斷程式碼合併的品質防線 |
+| 基準（Baseline） | 「最後已知良好基準」 | 用以比對是否發生回歸退步的參考分數 |
+| 軌跡效率（Trajectory efficiency） | 「軌跡執行效率」 | Agent 實際執行的步數除以人類專家黃金步數之比值 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——「從簡潔出發，以評測為導向進行最佳化」官方指南
+- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——「從簡單開始，以評測進行最佳化」
 - [OpenAI, SWE-bench Verified](https://openai.com/index/introducing-swe-bench-verified/) ——人工精選審核基準
-- [Berkeley Function Calling Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html) ——工具使用權威評測
-- [Langfuse docs](https://langfuse.com/) ——生產級 Evals 與工作階段重播實務手冊
+- [Berkeley Function Calling Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html) ——工具使用評測基準
+- [Langfuse docs](https://langfuse.com/) ——eval 與工作階段重播實務

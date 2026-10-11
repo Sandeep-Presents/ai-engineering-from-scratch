@@ -144,7 +144,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Park et al. — Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442) — 參考架構
-- [UIST '23 paper page](https://dl.acm.org/doi/10.1145/3586183.3606763) — 發表場合
-- [Smallville code release](https://github.com/joonspk-research/generative_agents) — 參考 Python 實作
-- [Hayes-Roth 1985 — A Blackboard Architecture for Control](https://www.sciencedirect.com/science/article/abs/pii/0004370285900639) — 結構化記憶 Agent 的先前研究
+- [Park et al. — Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442)
+- [UIST '23 paper page](https://dl.acm.org/doi/10.1145/3586183.3606763)
+- [Smallville code release](https://github.com/joonspk-research/generative_agents)
+- [Hayes-Roth 1985 — A Blackboard Architecture for Control](https://www.sciencedirect.com/science/article/abs/pii/0004370285900639)

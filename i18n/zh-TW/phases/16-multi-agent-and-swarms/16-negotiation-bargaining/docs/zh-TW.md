@@ -134,7 +134,7 @@ python3 code/main.py
 
 - **分開 scratchpad。** 私有狀態絕不進入對手的上下文。這點不可妥協。
 - **確定性的報價生成。** 價格、數量、交期都用計算得出，不靠 prompt。
-- **在協定邊界驗證所有收到的報價**是否符合 schema；落在 ZOPA 之外的報價在邊界直接拒絕。
+- **在協定邊界驗證所有收到的報價**是否符合結構描述；落在 ZOPA 之外的報價在邊界直接拒絕。
 - **設定輪次上限。** 最多 3–5 輪；僵局時升級給調解人。
 - **持續量測成交率與收益變異。** 成交率下降是一個徵兆，通常代表 prompt 漂移或對手端的攻擊。
 - **記錄所有被拒的提案**及其確定性的理由。在合約網中，落選的投標者需要知道原因。
@@ -162,8 +162,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [NegotiationArena](https://arxiv.org/abs/2402.05863) — 談判基準；揭示人格操縱與剝削
-- [Measuring Bargaining Abilities of Language Models](https://arxiv.org/abs/2402.15813) — OG-Narrator 與買方比賣方更難的結果
-- [Large-Scale Autonomous Negotiation Competition](https://arxiv.org/abs/2503.06416) — 約 18 萬次談判；思維鏈隱匿獲勝
-- [LLM-Stakeholders Interactive Negotiation (NeurIPS 2024)](https://proceedings.neurips.cc/paper_files/paper/2024/file/984dd3db213db2d1454a163b65b84d08-Paper-Datasets_and_Benchmarks_Track.pdf) — 具秘密效用的多方可計分博弈
-- [Smith 1980 — The Contract Net Protocol](https://ieeexplore.ieee.org/document/1675516) — 經典機制，IEEE Transactions on Computers
+- [NegotiationArena](https://arxiv.org/abs/2402.05863)
+- [Measuring Bargaining Abilities of Language Models](https://arxiv.org/abs/2402.15813)
+- [Large-Scale Autonomous Negotiation Competition](https://arxiv.org/abs/2503.06416)
+- [LLM-Stakeholders Interactive Negotiation (NeurIPS 2024)](https://proceedings.neurips.cc/paper_files/paper/2024/file/984dd3db213db2d1454a163b65b84d08-Paper-Datasets_and_Benchmarks_Track.pdf)
+- [Smith 1980 — The Contract Net Protocol](https://ieeexplore.ieee.org/document/1675516)

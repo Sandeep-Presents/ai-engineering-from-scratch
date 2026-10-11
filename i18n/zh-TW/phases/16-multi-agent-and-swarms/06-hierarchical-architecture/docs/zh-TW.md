@@ -35,7 +35,7 @@
 
 ### 該模式大放異彩的優勢場景
 
-- **清晰精準對映真實組織部門。** 若業務需求本質上是跨部門審核（「法務部門審核文件、財務部門審核合約、工程部門評估可行性，最後向執行長匯報總結」），階層式架構是極具直觀性的對照投影。
+- **清晰精準對映真實組織部門。** 若業務需求本質上是跨部門審核（「法務部門審核文件、財務部門審核文件、工程部門審核文件，最後向高層彙整報告」），階層式架構是極具直觀性的對照投影。
 - **逐層就地摘要（Local summarization）。** 每個副經理在向頂層總經理匯報之前，會先將自身團隊的產出提煉為高度濃縮的摘要。總經理僅需閱讀三個副經理的綜述，而無需被迫塞入十五個基層工作者的原始細節。
 
 ### 該模式容易崩潰的致命缺陷
@@ -63,7 +63,7 @@ CrewAI 的 `Process.hierarchical` 透過一個全域經理 LLM 統籌管轄多�
 
 ### 基於圖結構框架的實作（LangGraph）
 
-LangGraph 採用巢狀呼叫 `create_supervisor` 的方式建構階層樹。內層監督者擁有專屬的內部圖；外層監督者將內層圖視為一個黑箱的不透明節點。在除錯維度上，這種模式比 CrewAI 更加清晰乾淨（你能單獨單步除錯每一張子圖），但缺點是在執行環境較難以靈活表達動態重構樹狀結構的需求。
+LangGraph 採用巢狀呼叫 `create_supervisor` 的方式建構階層樹。內層監督者擁有專屬的內部圖；外層監督者將內層圖視為一個黑箱的不透明節點。在除錯維度上，這種模式比 CrewAI 更加清晰乾淨（你能單獨單步除錯每一張子圖），但較難表達樹狀結構的動態重組。
 
 參考文獻：https://reference.langchain.com/python/langgraph-supervisor.
 
@@ -97,7 +97,7 @@ python3 code/main.py
 
 若你必須在正式環境部署階層式架構，請務必恪守以下四大鐵律：
 
-- **嚴格將樹的深度限制在 2 層以內。** 一旦邁入 3 層以上，系統的可觀測性將徹底雪崩，人類將完全喪失排查中層失真的能力。
+- **嚴格將樹的深度限制在 2 層以內。** 三層以上會讓多數錯誤難以從可觀測性中發現。
 - **配置明確硬性的協商輪次預算。** 設定頂層經理強制輸出最終結論的最大輪次上限。通常為 2 輪。
 - **每一次綜述皆必須強制附帶資料溯源鏈條（Provenance）。** 每個非葉節點的總結報告中，必須明確標註該結論具體源自底層哪些葉節點的輸出。
 - **針對任務拆解漂移設定即時告警。** 在每一步記錄經理的任務拆解；自動對照原始使用者查詢進行語意比對。一旦發現拆解結果已經無法覆蓋原始查詢，立即引爆告警。
@@ -112,15 +112,15 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Hierarchical | "Org chart pattern" | Supervisors over supervisors; only leaves do work. |
-| Manager LLM | "The boss" | The LLM that decomposes, assigns, and validates at an internal node. |
-| Decomposition drift | "The boss lost the plot" | Top manager's split no longer covers the original question. |
-| Reconciliation loop | "Endless meetings" | Sub-managers disagree; top re-delegates; workers re-run; loop until budget exhausted. |
-| Depth-2 ceiling | "Don't go deeper than 2 levels" | Empirical guardrail: 3+ levels collapses observability. |
-| Canary question | "Ground truth at every level" | A worker that is always asked the original query unchanged, to detect drift. |
-| Provenance chain | "Who said what" | Trace from each synthesis back to the leaf outputs that produced it. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 階層式架構（Hierarchical） | 「組織圖模式」 | 監督者之上還有監督者；只有葉節點執行工作。 |
+| 管理者 LLM（Manager LLM） | 「老闆」 | 在內部節點負責分解、指派及驗證工作的 LLM。 |
+| 分解漂移（Decomposition drift） | 「老闆偏離原本方向」 | 最上層管理者的拆解不再涵蓋原始問題。 |
+| 協調循環（Reconciliation loop） | 「沒完沒了的會議」 | 子管理者意見不合；上層重新委派，工作者重跑，直到預算用盡。 |
+| 深度 2 上限（Depth-2 ceiling） | 「最多兩層」 | 根據實證的防護界線：三層以上會使可觀測性崩潰。 |
+| 金絲雀查詢（Canary question） | 「每一層都有真實標籤」 | 始終使用未經修改的原始查詢詢問工作者，以偵測漂移。 |
+| 來源追溯鏈（Provenance chain） | 「誰說了什麼」 | 從每次綜整追溯到產生該結果的葉節點輸出。 |
 
 ## Further Reading｜延伸閱讀
 

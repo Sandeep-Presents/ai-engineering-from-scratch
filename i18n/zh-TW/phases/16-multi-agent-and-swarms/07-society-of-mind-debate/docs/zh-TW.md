@@ -23,7 +23,7 @@
 2. 進入辯論輪次 r = 2..R：向每位 agent 展示其他 agent 在第 r-1 輪給出的答案與推理，並提示：「綜合考量上述論點，請給出你更新後的答案。」
 3. 經過 R 輪交鋒後，對最終輪次的所有答案執行多數決投票（majority-vote）。
 
-該研究在 MMLU、GSM8K、人物傳記生成、MATH 以及各類事實性基準測試上展開了詳盡評測。多 Agent 辯論在所有基準上持續穩定地超越單純的思維鏈（CoT）與自我反思（Self-Reflection）。
+該研究在 MMLU、GSM8K、人物傳記生成、MATH 以及各類事實性基準測試上展開了詳盡評測。多 agent 辯論的表現一向優於單純的思維鏈（CoT）與自我反思（Self-Reflection）。
 
 ### 兩個各自獨立的調控旋鈕
 
@@ -42,7 +42,7 @@
 
 ### 異質模型辯論（Heterogeneous Debate）
 
-A-HMAD 及相關後續研究進一步在不同 agent 席位上採用了**完全不同的基底模型**。讓 Llama、Claude 與 GPT 共同同台辯論，能有效遏止單一模型家族的單一文化崩潰（Monoculture collapse，詳見第 26 課），因為單一模型架構所特有的固有偏見不會在其他異質家族中同步重現。
+A-HMAD 及相關後續研究進一步在不同 agent 席位上採用了**完全不同的基底模型**。讓 Llama、Claude 與 GPT 共同同台辯論，能有效遏止單一模型家族的單一文化崩潰（Monoculture collapse，詳見第 26 課），因為單一模型家族的相關誤差不會在其他家族中重現。
 
 潛在代價：若辯論體系中混入了能力過弱的模型，它可能會以錯誤的雜訊將整體共識拉向深淵（詳見《Should we be going MAD?》，arXiv:2311.17371）。
 
@@ -99,16 +99,16 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Society of Mind | "Minsky's idea" | Intelligence as interacting specialists; 1986 framing now operationalized via LLM debate. |
-| Multi-agent debate | "Agents argue" | N agents propose, critique each other, revise over R rounds, majority-vote. |
-| Consensus | "They agree" | Not epistemic truth — just fraction-on-majority-answer. Can be confidently wrong. |
-| Rounds | "Exchange steps" | One round = each agent reads the others and updates once. |
-| Heterogeneous debate | "Mix model families" | Using different base models to decorrelate errors. |
-| Sycophancy cascade | "Everyone agrees with the loud one" | Debate failure where agents defer to the most confident agent regardless of correctness. |
-| NLSOM | "129-agent society" | Natural-language society of mind; Zhuge et al.'s scaled version. |
-| Correlated error | "Same model, same bug" | Why self-consistency saturates; debate across different views decorrelates. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 心智社會（Society of Mind） | 「Minsky 的構想」 | 智慧來自專業角色的互動；這個 1986 年提出的框架，如今透過 LLM 辯論付諸實踐。 |
+| 多 agent 辯論（Multi-agent debate） | 「agent 彼此爭論」 | N 個 agent 提出想法、互相批判，在 R 輪中修訂，最後以多數決定案。 |
+| 共識（Consensus） | 「大家都同意」 | 不代表認知上的真相，只表示多數答案所占的比例；仍可能充滿自信地答錯。 |
+| 輪次（Rounds） | 「交換步驟」 | 一輪是每個 agent 讀取其他 agent 的意見並更新一次。 |
+| 異質辯論（Heterogeneous debate） | 「混合模型家族」 | 使用不同基底模型，降低誤差間的相關性。 |
+| 諂媚級聯（Sycophancy cascade） | 「大家都附和最強勢的人」 | 一種辯論失效：agent 不論答案是否正確，都順從最有自信的 agent。 |
+| NLSOM | 「129 個 agent 組成的心智社會」 | 自然語言心智社會；Zhuge 等人擴展後的版本。 |
+| 相關誤差（Correlated error） | 「同一模型、同一錯誤」 | 自我一致性會達到飽和的原因；透過不同觀點辯論可降低誤差相關性。 |
 
 ## Further Reading｜延伸閱讀
 

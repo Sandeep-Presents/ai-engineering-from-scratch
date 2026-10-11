@@ -126,20 +126,20 @@ python3 code/main.py
 2. 在選取器中加入「單一 Agent 最大發言次數限制」規則。觀察這對最終的對話品質與流暢度產生了何種實質影響？
 3. 實現基於目標達成的終止條件：當審查員回傳「approved」字眼時自動結束對話。在多大比例的測試中，該機制能在觸及輪次上限前順利提前結束？
 4. 閱讀 AutoGen 官方 GroupChat 穩定版文件 (https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/design-patterns/group-chat.html)。指出 `GroupChatManager` 預設採用的選取器類型。
-5. 閱讀 AG2 官方儲存庫 (https://github.com/ag2ai/ag2)，並將其 v0.2 GroupChat 架構與 v0.4 事件驅動版本進行深度對比。v0.4 究竟在哪些具體維度上（吞吐量、容錯性、可組合性）實現了實質架構躍升？
+5. 閱讀 AG2 社群儲存庫 (https://github.com/ag2ai/ag2)，並將其 v0.2 GroupChat 架構與 v0.4 事件驅動版本進行深度對比。v0.4 究竟在哪些具體維度上（吞吐量、容錯性、可組合性）實現了實質架構躍升？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| GroupChat | "Agents in one chat room" | Shared message pool + selector function. AutoGen / AG2 primitive. |
-| Speaker selection | "Who talks next" | The function that picks the next agent. Round-robin, LLM-selected, or custom. |
-| GroupChatManager | "The meeting host" | AutoGen component that owns the selector and loops over turns. |
-| ConversableAgent | "The base agent" | AutoGen base class; an agent that can send and receive messages. |
-| Termination token | "The 'stop' word" | Sentinel string (usually `TERMINATE`) that ends the chat. |
-| Hot speaker | "One agent dominates" | Failure mode where the selector keeps picking the same agent. |
-| Context bloat | "Pool grows unbounded" | Each agent reads every prior message; context grows with turns. |
-| Projection | "Scoped view" | Role-specific view into the shared pool to prevent context bloat. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| GroupChat | 「agent 都在同一個聊天室」 | 共享訊息池加上選取器函式，是 AutoGen／AG2 的基本元件。 |
+| 發言者選取（Speaker selection） | 「接下來誰發言」 | 決定下一個發言 agent 的函式，可採輪詢、由 LLM 選取或自訂方式。 |
+| GroupChatManager | 「會議主持人」 | AutoGen 元件，負責管理選取器並逐輪執行對話。 |
+| ConversableAgent | 「基礎 agent」 | AutoGen 基底類別，能傳送與接收訊息的 agent。 |
+| 終止 token（Termination token） | 「停止用語」 | 結束對話的哨兵字串（通常是 `TERMINATE`）。 |
+| 發言者壟斷（Hot speaker） | 「一個 agent 獨占發言」 | 選取器不斷挑選同一個 agent 的失效模式。 |
+| 上下文膨脹（Context bloat） | 「訊息池不斷變大」 | 每個 agent 都讀取所有先前訊息，因此上下文隨輪次增加。 |
+| 投影視圖（Projection） | 「限縮範圍的視圖」 | 依角色提供的共享訊息池視圖，以避免上下文膨脹。 |
 
 ## Further Reading｜延伸閱讀
 

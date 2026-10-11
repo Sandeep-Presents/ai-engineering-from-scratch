@@ -1,6 +1,6 @@
 # 監督者／編排者-工作者模式（Supervisor / Orchestrator-Worker Pattern）
 
-> 一位主導 Agent 負責統籌規劃與任務委派；多位專注特定領域的工作者（Worker）在彼此平行的獨立上下文中並行執行並匯報成果。這正是 Anthropic 的 Research 研究系統（由 Claude Opus 4 充當主導者，Sonnet 4 充當子 agent）背後的核心架構模式，其在內部科研評測中相較於單一 Agent Opus 4 取得了高達 +90.2% 的驚人效能提升。Anthropic 發布的工程技術文章指出：在 BrowseComp 評測中，高達 80% 的效能變異數僅由「Token 消耗總量」即可完全解釋——多 Agent 架構之所以能大獲全勝，本質上是因為每位子 Agent 皆獲得了一個全新且純淨的獨立上下文視窗。本課將基於底層原語親手實現監督者模式，並全面解析源自真實正式環境部署的 2026 年最新工程教訓。
+> 一位主導 Agent 負責統籌規劃與任務委派；多位專注特定領域的工作者（Worker）在彼此平行的獨立上下文中並行執行並匯報成果。這正是 Anthropic 的 Research 研究系統（由 Claude Opus 4 充當主導者，Sonnet 4 充當子 agent）背後的核心架構模式，其在內部科研評測中相較於單一 Agent Opus 4 取得了高達 +90.2% 的驚人效能提升。Anthropic 發布的工程技術文章指出：在 BrowseComp 評測中，高達 80% 的效能變異數可由「Token 消耗總量」解釋——多 Agent 架構之所以能大獲全勝，本質上是因為每位子 Agent 皆獲得了一個全新且純淨的獨立上下文視窗。本課將基於底層原語親手實現監督者模式，並全面解析源自真實正式環境部署的 2026 年最新工程教訓。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `threading`)
@@ -13,7 +13,7 @@
 
 監督者模式徹底解決了這個痛點：由一位主導 Agent 負責擬定搜尋規劃，將每個子問題精準委派給專門的工作者，最後進行成果綜述提煉。每位工作者皆享有專屬於該單一具體子問題的獨立 200k token 上下文視窗。主導 Agent 永遠不需要通讀原始論文全文——它僅需閱讀由工作者所產出的高度濃縮摘要。
 
-Anthropic 的正式環境 Research 系統在內部科研評測中相較於單一 Opus 4 錄得了 +90.2% 的巨大增幅。其工程團隊在報告中特別指出：在 BrowseComp 上，80% 的效能變異數*僅由 Token 消耗量即可完全解釋*。為每個子 Agent 配備全新純淨的上下文，正是該模式制勝的最核心物理機制。
+Anthropic 的正式環境 Research 系統在內部科研評測中相較於單一 Opus 4 錄得了 +90.2% 的巨大增幅。其工程團隊在報告中特別指出：在 BrowseComp 上，80% 的效能變異數*可由 Token 消耗量解釋*。為每個子 Agent 配備全新純淨的上下文，正是該模式制勝的最核心物理機制。
 
 ## Concept｜核心概念
 
@@ -47,7 +47,7 @@ Anthropic 的正式環境 Research 系統在內部科研評測中相較於單一
 
 ### 來自正式環境的工程教訓（Anthropic 2025）
 
-Anthropic 的技術文章總結了多項至今依然是 2026 年黃金標準的正式環境實戰教訓：
+Anthropic 的技術文章總結了多項至今在 2026 年仍然適用的正式環境實戰教訓：
 
 - **動態適配算力投入與查詢複雜度。** 面對簡單查詢：單一 agent 搭配 3-10 次工具呼叫足矣。面對複雜難題：動態喚醒 10 位以上 agent。主導 Agent 必須具備動態評估難度的能力，而非將複雜度估算踢給外層使用者。
 - **由寬至窄逐步推進（Broad then narrow）。** 首先將大問題拆解為宏觀的寬泛子問題，隨後若特定子領域的初步答案展現出深度價值，再針對該子領域動態衍生更多工作者進行縱深挖掘。
@@ -116,16 +116,16 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Supervisor | "Lead agent" | An orchestrator agent that plans, delegates, and synthesizes. Does not do the work itself. |
-| Worker | "Subagent" | A focused agent invoked by the supervisor with narrow scope and its own context window. |
-| Orchestrator-worker | "Supervisor pattern" | Same thing, different name. The 2026 literature uses both. |
-| Fresh context | "Clean window" | A worker's context starts from its system prompt and assigned question, not the lead's history. |
-| Rainbow deployment | "Gradual rollout" | Long-running stateful agents need versioned drain-and-replace, not blue-green. |
-| Token dominance | "Context is the variable" | 80% of research-eval variance comes from total tokens used, not model choice, per Anthropic. |
-| Scale effort | "Match agent count to complexity" | Lead estimates query difficulty, spawns 1 vs 10+ workers accordingly. |
-| Synthesis conflict | "Workers disagree" | Two workers return contradictory facts; the lead must surface disagreement, not silently pick one. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 監督者（Supervisor） | 「主導 agent」 | 負責規劃、委派及綜整的編排 agent；本身不執行工作。 |
+| 工作者（Worker） | 「子 agent」 | 由監督者呼叫、範圍明確且有獨立上下文視窗的 agent。 |
+| 編排者－工作者（Orchestrator-worker） | 「監督者模式」 | 同一種模式的不同名稱；2026 年的文獻兩種名稱都有使用。 |
+| 新上下文（Fresh context） | 「乾淨的視窗」 | 工作者的上下文從自身的系統 prompt 和指派問題開始，不包含主導者的歷史記錄。 |
+| 彩虹部署（Rainbow deployment） | 「漸進式推出」 | 長時間執行且有狀態的 agent 需要採用版本化的排空與取代，而非藍綠部署。 |
+| token 主導性（Token dominance） | 「上下文才是變數」 | 根據 Anthropic，研究評測的變異有 80% 來自 token 使用量，而非模型選擇。 |
+| 調整投入（Scale effort） | 「依複雜度調整 agent 數量」 | 主導者估計查詢難度，再據此生成 1 個或 10 個以上工作者。 |
+| 綜整衝突（Synthesis conflict） | 「工作者意見不一」 | 兩位工作者回傳相互矛盾的事實；主導者必須揭示分歧，不可默默選邊。 |
 
 ## Further Reading｜延伸閱讀
 

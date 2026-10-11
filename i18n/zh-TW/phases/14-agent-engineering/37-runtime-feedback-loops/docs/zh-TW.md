@@ -18,18 +18,18 @@
 
 Agent 宣稱「現在開始執行單元測試」。下一條訊息則自信滿滿地表示「所有測試全數通過」。而殘酷的真相卻是：底層根本沒有執行任何測試。Agent 憑空捏造了輸出；或者它雖然發起了指令卻從未讀取結果；抑或是它讀取了結果卻悄悄將關鍵的報錯行截斷忽略了。
 
-回饋執行器徹底消除了此道鴻溝。所有指令皆強制透過執行器發起。每筆記錄皆忠實攜帶：執行的精確指令、捕獲的 stdout 與 stderr、結束狀態碼、實體掛鐘耗時，以及 Agent 自行記錄的一行預期備註。Agent 在下一個對話回合主動讀取該記錄；驗收關卡在任務結束時對照該記錄進行嚴格驗收。
+回饋執行器徹底消除了此道鴻溝。所有指令皆強制透過執行器發起。每筆記錄皆忠實攜帶：執行的精確指令、捕獲的 stdout 與 stderr、結束狀態碼、掛鐘耗時，以及 Agent 自行記錄的一行預期備註。Agent 在下一個對話回合主動讀取該記錄；驗收關卡在任務結束時對照該記錄進行嚴格驗收。
 
 ## The Concept｜核心概念
 
 ```mermaid
 flowchart LR
-  Agent[Agent Loop] --> Runner[run_with_feedback.py]
+  Agent[Agent 迴圈] --> Runner[run_with_feedback.py]
   Runner --> Shell[subprocess]
-  Shell --> Capture[stdout / stderr / exit / duration]
+  Shell --> Capture[標準輸出 / 標準錯誤 / 結束碼 / 耗時]
   Capture --> Record[feedback_record.jsonl]
   Record --> Agent
-  Record --> Gate[Verification Gate]
+  Record --> Gate[驗收關卡]
 ```
 
 ### 回饋記錄的核心欄位
@@ -50,7 +50,7 @@ flowchart LR
 
 ### 即時回饋 vs 維運遙測
 
-維運遙測（第 23 課，OTel GenAI 規範）面向的是人類維運團隊跨越宏觀時間軸審視全域執行狀況。而即時回饋則專門服務於當前執行的「下一個對話回合」。兩者雖然共享部分底層欄位，但存放在不同的實體檔案中，且具備完全不同的保留淘汰策略。
+維運遙測（第 23 課，OTel GenAI 規範）面向的是人類維運團隊跨越宏觀時間軸審視全域執行狀況。而即時回饋則專門服務於當前執行的「下一個對話回合」。兩者雖然共享部分底層欄位，但存放在不同的檔案中，且具備完全不同的保留淘汰策略。
 
 ### 缺失回饋則堅決拒絕推進流程
 
@@ -76,11 +76,11 @@ python3 code/main.py
 
 輸出會呈現追加至 `feedback_record.jsonl` 的三筆回饋記錄，並將最新結果逐行印出。在多次重跑時持續查看該檔案，親眼觀察迴圈如何有條不紊地累積客觀事實。
 
-## Production patterns in the wild｜真實世界中的生產級模式
+## 真實世界中的生產級模式
 
 三大實戰模式確保了回饋執行器具備足夠的強度邁向正式環境：
 
-**在寫入磁碟時即時抹除，而非在讀取時才脫敏**：任何觸及 stdout 或 stderr 的記錄皆可能意外洩漏機密憑證。執行器在將資料追加寫入 JSONL 檔案之前，強制執行正則脫敏過濾：抹除匹配 `^Bearer `、`password=`、`api[_-]?key=`、`AKIA[0-9A-Z]{16}`（AWS 金鑰）與 `xox[baprs]-`（Slack 權杖）的機密行。在讀取時才進行脫敏是極度危險的安全隱患；因為磁碟上的實體檔案才是攻擊者真正能竊取的目標。每季針對正式環境出現的最新金鑰格式，對脫敏規則進行嚴格審計與更新。
+**在寫入磁碟時即時抹除，而非在讀取時才脫敏**：任何觸及 stdout 或 stderr 的記錄皆可能意外洩漏機密憑證。執行器在將資料追加寫入 JSONL 檔案之前，強制執行正則脫敏過濾：抹除匹配 `^Bearer `、`password=`、`api[_-]?key=`、`AKIA[0-9A-Z]{16}`（AWS 金鑰）與 `xox[baprs]-`（Slack 權杖）的機密行。在讀取時才進行脫敏是極度危險的安全隱患；因為磁碟上的檔案才是攻擊者真正能竊取的目標。每季針對正式環境出現的最新金鑰格式，對脫敏規則進行嚴格審計與更新。
 
 **落實檔案輪替歸檔，而非無限制寫入單一檔案**：為 `feedback_record.jsonl` 設定單檔 1 MB 的大小上限；一旦溢位，自動輪替為 `.1`、`.2` 並主動淘汰丟棄 `.5`。Agent 迴圈僅需讀取當前最新的活躍檔案，確保執行環境的記憶體與 I/O 開銷始終受控。CI 產物儲存庫則保留完整的輪替檔案全集。缺乏輪替機制會使該檔案在日後演變為每次載入時的效能死穴。
 
@@ -94,7 +94,7 @@ python3 code/main.py
 - **LangGraph 節點**：將任何 Shell 節點包裹於該執行器中，確保客觀日誌完整持久化保留於狀態圖之外。
 - **CI 自動化日誌**：將產出的 JSONL 直接傳輸至 CI 產物儲存庫中；審核人員無需重新執行對話即可完美重播復原任何歷史指令。
 
-回饋執行器是一層極其輕薄的包裝器，因為它牢牢掌控了資料記錄的實體結構，使系統能無畏於未來的任何框架架構遷移。
+回饋執行器是一層極其輕薄的包裝器，因為它牢牢掌控了資料記錄的結構，使系統能無畏於未來的任何框架架構遷移。
 
 ## Ship It｜交付成果
 
@@ -115,17 +115,17 @@ python3 code/main.py
 | Feedback record | 「指令執行日誌」 | 包含精確指令、輸出文字、結束碼與耗時的標準 JSONL 條目 |
 | Tail truncation | 「日誌安全截斷」 | 確定性保留頭部與尾部資訊的截斷機制，確保不超出 Token 預算 |
 | Refuse-on-null | 「無結束碼即阻斷」 | 當 `exit_code` 為 null 時，強制禁止 Agent 推進任何後續流程 |
-| Agent note | 「預期備註」 | Agent 在實體讀取指令執行結果前所寫下的一行前置預測說明 |
+| Agent note | 「預期備註」 | Agent 在讀取指令執行結果前所寫下的一行前置預測說明 |
 | Telemetry split | 「雙軌日誌切分」 | 回饋日誌專供下次回合消費，遙測資料專供維運人員宏觀審查 |
 
 ## Further Reading｜延伸閱讀
 
-- [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) ——遙測維度的標準 Schema
-- [Anthropic, Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) ——長時段 Agent harness環境指引
-- [Guardrails AI x MLflow](https://guardrailsai.com/blog/guardrails-mlflow) ——將脫敏模式作為回歸測試的實踐手冊
-- [Aport.io, Best AI Agent Guardrails 2026: Pre-Action Authorization](https://aport.io/blog/best-ai-agent-guardrails-2026-pre-action-authorization-compared/) ——動作執行前後的日誌捕獲對比
-- [Andrii Furmanets, AI Agents in 2026: Practical Architecture](https://andriifurmanets.com/blogs/ai-agents-2026-practical-architecture-tools-memory-evals-guardrails) ——實用可觀測性架構解析
+- [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/)
+- [Anthropic, Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+- [Guardrails AI x MLflow](https://guardrailsai.com/blog/guardrails-mlflow)
+- [Aport.io, Best AI Agent Guardrails 2026: Pre-Action Authorization](https://aport.io/blog/best-ai-agent-guardrails-2026-pre-action-authorization-compared/)
+- [Andrii Furmanets, AI Agents in 2026: Practical Architecture](https://andriifurmanets.com/blogs/ai-agents-2026-practical-architecture-tools-memory-evals-guardrails)
 - Phase 14 · 23——遙測維度的 OTel GenAI 標準規範
 - Phase 14 · 24——Agent 可觀測性專用平台（Langfuse、Phoenix、Opik）
-- Phase 14 · 33——在宣稱完工前強制要求出示實體回饋的操作規則
+- Phase 14 · 33——在宣稱完工前強制要求出示回饋的操作規則
 - Phase 14 · 38——直接讀取並驗證該 JSONL 回饋日誌的自動化驗收關卡

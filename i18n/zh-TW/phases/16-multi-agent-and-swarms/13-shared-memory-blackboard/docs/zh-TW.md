@@ -1,6 +1,6 @@
 # 共享記憶體與黑板架構模式（Shared Memory and Blackboard Patterns）
 
-> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一擁有狀態的實體——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。業界最富盛名的參考失效模式當屬**記憶體污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，導致整座系統的準確率呈現緩慢的不可逆衰退——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實現這兩種拓撲結構、人為注入記憶體污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
+> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一具有狀態的部分——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。業界最富盛名的參考失效模式當屬**記憶體污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，使整個系統的準確率逐漸下降——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實現這兩種拓撲結構、人為注入記憶體污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `threading`)
@@ -9,7 +9,7 @@
 
 ## Problem｜問題
 
-多 Agent 系統必須提供一處供各 Agent 共享客觀事實的實體空間。最直觀的粗暴解法是「在訊息中攜帶一切上下文」——但這只不過是用沉重的記憶體複製開銷重新發明了低劣的共享狀態。另一種做法是「為全員提供一份全域日誌」——然而全域日誌會無界膨脹，且極易引發全域記憶體污染。第三種做法則是「為每個 Agent 剪裁專屬的投影視圖」——具備極佳的水平擴展性，但需要前期嚴謹的 Schema 結構設計。
+多 Agent 系統必須提供一處供各 agent 共享事實的空間。最直觀的粗暴解法是「在訊息中攜帶一切上下文」——但這只不過是用沉重的記憶體複製開銷重新發明了低劣的共享狀態。另一種做法是「為全員提供一份全域日誌」——然而全域日誌會無界膨脹，且極易引發全域記憶體污染。第三種做法則是「為每個 Agent 剪裁專屬的投影視圖」——具備極佳的水平擴展性，但需要前期嚴謹的 結構描述設計。
 
 當其中某個 Agent 產生了幻覺、並將該虛假陳述寫入共享狀態時，所有讀取該狀態的下游 Agent 都會自動將該幻覺奉為既定事實。當人類在最終報告中察覺不對勁時，推理鏈條早已深入展開了五個層級，而罪魁禍首往往是最初寫入的第三則微小訊息。在多 Agent 系統中，排查這種慢性的精度衰退，遠比除錯一次直接當機崩潰要艱難得多。
 
@@ -29,7 +29,7 @@ agent-B ──write──▶ │                │ ◀──read── agent-E
 agent-C ──write──▶ └────────────────┘ ◀──read── agent-F
 ```
 
-**基於主題訂閱的黑板架構（Blackboard with subscription）。** 各 Agent 僅對外宣告自身感興趣的特定主題標籤；底層受質（substrate）僅向其精準投遞與該主題嚴格相關的訊息。CA-MCP（arXiv:2601.11595）與 Matrix 去中心化框架（arXiv:2511.21686）正是此模式的代表。具備優異的規模化擴展能力，但需要前期深思熟慮的 Schema 分類設計，才能確保主題訂閱具備實質語意價值。
+**基於主題訂閱的黑板架構（Blackboard with subscription）。** 各 Agent 僅對外宣告自身感興趣的特定主題標籤；底層受質（substrate）僅向其精準投遞與該主題嚴格相關的訊息。CA-MCP（arXiv:2601.11595）與 Matrix 去中心化框架（arXiv:2511.21686）正是此模式的代表。具備優異的規模化擴展能力，但需要前期深思熟慮的 結構描述分類設計，才能確保主題訂閱具備實質語意價值。
 
 ```
                    ┌─ topic: prices ──┐
@@ -62,7 +62,7 @@ agent-C ──pub────▶ │                  │ ──▶ agent-F (sub
 
 ### 為什麼這屬於系統結構性缺陷
 
-若缺乏共享狀態，Agent A 的幻覺將被嚴格封閉在 A 自己的獨立上下文之內。下游 Agent 被迫必須親自重新抓取或獨立推導，從而有極高機率及時糾正該錯誤。然而在未經防護的陽春共享狀態中，A 的私有雜訊瞬間被洗白為全域的客觀共識，幻覺就此被正式洗白為既定事實。
+若缺乏共享狀態，Agent A 的幻覺將被嚴格封閉在 A 自己的獨立上下文之內。下游 agent 會重新抓取或推導，並可能發現這項錯誤。然而在未經防護的陽春共享狀態中，A 的私有雜訊瞬間被洗白為全域的客觀共識，幻覺就此被正式洗白為既定事實。
 
 問題的核心不在於共享狀態本身——而在於**缺乏資料溯源（Provenance）中繼資料、且缺乏獨立客觀驗證者把關的無防備共享狀態**。工業界已被驗證有效的三大實務緩解支柱：
 
@@ -78,7 +78,7 @@ agent-C ──pub────▶ │                  │ ──▶ agent-F (sub
 
 純粹的黑板架構會為同一主題下的所有訂閱者提供完全一致的視圖。而更為激進且高效的設計是**針對個別 Agent 的投影視圖（Per-agent projection）**：每個 Agent 僅能看見依據其角色權限深度定制剪裁後的特定視圖。LangGraph 的狀態整合器（State reducers）是 2026 年最經典的現代實踐——其 reducer 函式負責將全域龐雜狀態優雅摺疊為符合特定角色所需的最小切片。
 
-按 Agent 投影的架構具備極限的水平擴展性，但強烈依賴前期嚴謹的 Schema 設計。若缺乏統一 Schema，你將被迫在每個 Agent 的 prompt 中笨拙地硬編碼各種臨時剪裁規則。
+按 Agent 投影的架構具備極限的水平擴展性，但強烈依賴前期嚴謹的結構描述設計。若缺乏統一的結構描述，你將被迫在每個 Agent 的 prompt 中笨拙地硬編碼各種臨時剪裁規則。
 
 ### 寫入並行競爭（Write-Contention）的應對模式
 
@@ -149,21 +149,21 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Message pool | "Shared chat history" | Append-only log that every agent reads. Full transparency, poor scaling. |
-| Blackboard | "Shared workspace" | Topic-keyed pub/sub. Agents subscribe to relevant topics. Scales farther. |
-| Provenance | "Who wrote what" | Metadata on each write: writer, timestamp, prompt, sources. |
-| Memory poisoning | "Hallucinations spreading" | One agent's error enters shared state, downstream agents adopt it as fact. |
-| Append-only | "No in-place updates" | Corrections are new entries that supersede. Preserves audit trail. |
-| Unwritable verifier | "Independent auditor" | Read-only agent that re-fetches sources and flags inconsistencies. |
-| Projection | "Scoped view" | Per-agent view computed from global state. LangGraph reducers are the canonical case. |
-| Knowledge Source | "Specialist agent" | Hayes-Roth's 1985 term for a blackboard participant. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 訊息池（Message pool） | 「共享聊天記錄」 | 每個 agent 都會讀取的僅追加日誌；完全透明，但擴展性差。 |
+| 黑板（Blackboard） | 「共享工作區」 | 以主題為索引的發布／訂閱機制；agent 訂閱相關主題，擴展性較好。 |
+| 來源追溯（Provenance） | 「誰寫了什麼」 | 每次寫入的中繼資料：寫入者、時間戳記、prompt 與來源。 |
+| 記憶體污染（Memory poisoning） | 「幻覺四處傳播」 | 一個 agent 的錯誤進入共享狀態，下游 agent 接著把它當成事實。 |
+| 僅追加（Append-only） | 「不就地更新」 | 修正會以新項目取代舊項目，保留稽核軌跡。 |
+| 唯讀驗證者（Unwritable verifier） | 「獨立稽核者」 | 只讀取資料、重新抓取來源並標示不一致處的 agent。 |
+| 投影視圖（Projection） | 「限縮範圍的視圖」 | 依全域狀態計算出的個別 agent 視圖；LangGraph reducers 是典型案例。 |
+| 知識來源（Knowledge Source） | 「專家 agent」 | Hayes-Roth 於 1985 年提出的黑板參與者稱呼。 |
 
 ## Further Reading｜延伸閱讀
 
-- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 失效分類體系；深入剖析記憶體污染作為協同失靈子家族的本質。
-- [CA-MCP — Context-Aware Multi-Server MCP](https://arxiv.org/abs/2601.11595) — 專為多伺服器 MCP 協同設計的共享上下文儲存庫規範。
-- [Matrix — decentralized multi-agent framework](https://arxiv.org/abs/2511.21686) — 基於分散式訊息佇列運作的純粹去中心化黑板架構。
-- [LangGraph state and reducers](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 正式環境中針對個別 Agent 實作投影視圖的經典模式。
-- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 來自工業級正式環境部署的資料溯源與客觀驗證實戰筆記。
+- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 分類；記憶體污染是協調失敗的子類型。
+- [CA-MCP — Context-Aware Multi-Server MCP](https://arxiv.org/abs/2601.11595) — 為協同 MCP 伺服器而設的共享上下文儲存庫。
+- [Matrix — decentralized multi-agent framework](https://arxiv.org/abs/2511.21686) — 以訊息佇列為基礎、沒有中央編排者的黑板架構。
+- [LangGraph state and reducers](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 正式環境中的個別 agent 投影模式。
+- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 正式環境部署中的來源追溯與驗證說明。

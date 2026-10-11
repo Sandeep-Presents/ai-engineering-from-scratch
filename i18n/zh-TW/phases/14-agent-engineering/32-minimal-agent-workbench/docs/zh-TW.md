@@ -110,7 +110,7 @@ python3 code/main.py
 1. 為 `agent_state.json` 新增 `last_run` 時間戳記。若該檔案距離上次更新已超過 24 小時，除非有人類工程師顯式確認，否則堅決拒絕啟動。
 2. 為任務看板新增 `priority` 優先級欄位，並修改任務提取邏輯，使其始終優先提取最高優先級的 `todo` 條目。
 3. 將 `task_board.json` 遷移為 JSON Lines 格式（每行一個獨立任務），以利於在 Git 版本控制中獲得乾淨俐落的 Diff 差異。
-4. 撰寫一個 `lint_workbench.py` 檢查腳本：若 `AGENTS.md` 超過 80 行或引用了不存在的實體檔案，強制報錯失敗。
+4. 撰寫一個 `lint_workbench.py` 檢查腳本：若 `AGENTS.md` 超過 80 行或引用了不存在的檔案，強制報錯失敗。
 5. 深入思考：若必須從這三個檔案中遺失其中一個，哪一個的損失最為慘重？提出完整的架構論證。
 
 ## Key Terms｜關鍵術語
@@ -118,9 +118,9 @@ python3 code/main.py
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
 | Router | `AGENTS.md` | 引導 Agent 深入閱讀特定專項文件與檔案的精簡根目錄檔案 |
-| State file | 「工作筆記」 | 機器可讀的實體狀態記錄，記錄 Agent 身處何方，每輪強制讀寫 |
+| State file | 「工作筆記」 | 機器可讀的狀態記錄，記錄 Agent 身處何方，每輪強制讀寫 |
 | Task board | 「任務待辦看板」 | 記錄工作狀態、責任指派與驗收標準的 JSON 任務佇列 |
-| System of record | 「最高事實來源」 | 當聊天歷史被截斷或遺失時，工作台唯一視為法定權威的實體檔案 |
+| System of record | 「最高事實來源」 | 當聊天歷史被截斷或遺失時，工作台唯一視為權威的檔案 |
 
 ## Further Reading｜延伸閱讀
 
@@ -132,4 +132,4 @@ python3 code/main.py
 - [The Prompt Shelf, AGENTS.md Best Practices: Structure, Scope, and Real Examples](https://thepromptshelf.dev/blog/agents-md-best-practices/) ——章節排版與架構最佳實務
 - [Anthropic, Claude Code subagents](https://code.claude.com/docs/en/sub-agents) ——子 agent 官方規範
 - Phase 14 · 31——本極簡架構所專門負責吸收防禦的核心失效模式
-- Phase 14 · 34——本課所提前預覽的持久化狀態 Schema 規範
+- Phase 14 · 34——本課所預覽的持久化狀態結構描述

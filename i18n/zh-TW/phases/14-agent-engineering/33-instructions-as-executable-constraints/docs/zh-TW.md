@@ -1,6 +1,6 @@
 # Agent 指引即具備可執行力的約束（Executable Constraints）
 
-> 以純文字散文形式撰寫的指引僅是空洞的願望；以硬性約束（Constraints）形式撰寫的指引才是嚴謹的測試。工作台將每條操作規則轉化為：Agent 在執行環境能主動自我檢核、審核人員在事後能客觀驗證的實體工程契約。
+> 以純文字散文形式撰寫的指引僅是空洞的願望；以硬性約束（Constraints）形式撰寫的指引才是嚴謹的測試。工作台將每條操作規則轉化為：Agent 在執行環境能主動自我檢核、審核人員在事後能客觀驗證的具體工程契約。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -22,14 +22,14 @@
 
 ## The Concept｜核心概念
 
-規則應當獨立存放在 `docs/agent-rules.md` 中，與簡短的根目錄路由器分開。每條規則皆擁有唯一名稱、所屬分類以及一項實體檢查常式。
+規則應當獨立存放在 `docs/agent-rules.md` 中，與簡短的根目錄路由器分開。每條規則皆擁有唯一名稱、所屬分類以及一項具體檢查函式。
 
 ```mermaid
 flowchart LR
   Router[AGENTS.md] --> Rules[docs/agent-rules.md]
   Rules --> Checker[rule_checker.py]
   Checker --> Report[rule_report.json]
-  Report --> Reviewer[Reviewer]
+  Report --> Reviewer[審核者]
 ```
 
 ### 涵蓋絕大多數場景的五大核心分類
@@ -50,7 +50,7 @@ flowchart LR
 
 ### 規則對 Git Diff 高度友善
 
-規則在單一 Markdown 檔案中依章節標題嚴格以「一條規則佔據一個 H2/H3」排列。重命名在 Git Diff 中清晰可見。新規則置於所屬分類的頂端。過時的舊規則直接物理刪除，絕不使用註解隱藏——因為工作台是實體系統的最高事實來源，而非記錄團隊上個季度主觀感受的對話日誌。
+規則在單一 Markdown 檔案中依章節標題嚴格以「一條規則佔據一個 H2/H3」排列。重命名在 Git Diff 中清晰可見。新規則置於所屬分類的頂端。過時的舊規則直接刪除，絕不使用註解隱藏——因為工作台是正式記錄系統，而非記錄團隊上個季度主觀感受的對話日誌。
 
 ### 規則 vs 框架層安全護欄
 
@@ -72,7 +72,7 @@ docs/
 feature_list.json          # the backlog (Phase 14 · 36)
 ```
 
-| 架構層級 | 實體存放位置 | 讀取與載入時機 | 容量配額預算 |
+| 架構層級 | 存放位置 | 讀取與載入時機 | 容量配額預算 |
 |---|---|---|---|
 | Router（路由器） | `AGENTS.md` | 每個工作階段啟動時，始終強制載入 | 嚴格控制在 50 行以內 |
 | Rules（規則集） | `docs/agent-rules.md` | 每個工作階段啟動時載入 | 每個分類約一面螢幕容量 |
@@ -100,7 +100,7 @@ python3 code/main.py
 
 輸出包含：已解析的規則集清單、執行軌跡、逐條規則的通過／失敗判定，並於同級目錄下持久化產出 `rule_report.json` 診斷檔案。
 
-## Production patterns in the wild｜真實世界中的生產級模式
+## 真實世界中的生產級模式
 
 三大實戰模式將能存活一個季度的優秀規則集，與在一週內迅速腐化廢棄的脆弱設定徹底區分開來：
 
@@ -136,17 +136,17 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Operational rule | 「實體操作規則」 | 工作台能夠在執行環境直接執行自動化檢查的硬性約束 |
+| Operational rule | 「可執行規則」 | 工作台能夠在執行環境直接執行自動化檢查的硬性約束 |
 | Aspirational rule | 「空洞道德叮囑」 | 缺乏對應檢查機制的軟性願望；應當升級為可執行檢查或直接刪除 |
-| Definition of done | 「完工驗收標準」 | 客觀、背後具備實體檔案檢驗依據、確鑿證明任務已完工的契約 |
+| Definition of done | 「完工驗收標準」 | 客觀、具備檔案檢驗依據、確鑿證明任務已完工的契約 |
 | Block severity | 「強制阻斷級別」 | 一旦違規立刻強制中止執行；除非有人類工程師介入否則無法略過 |
 | Rule expiry | 「過期規則清理機制」 | 連續 N 天未曾被觸發的規則自動進入退役審查流程，防止系統膨脹 |
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI Agents SDK guardrails](https://openai.github.io/openai-agents-python/guardrails/) ——護欄機制官方文件
-- [LangGraph interrupts](https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/breakpoints/) ——中斷斷點實踐手冊
-- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——高效 Agent 建構指南
+- [OpenAI Agents SDK guardrails](https://openai.github.io/openai-agents-python/guardrails/)
+- [LangGraph interrupts](https://langchain-ai.github.io/langgraph/how-tos/human_in_the_loop/breakpoints/)
+- [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 - [Rick Hightower, Agent RuleZ: A Deterministic Policy Engine](https://medium.com/@richardhightower/agent-rulez-a-deterministic-policy-engine-for-ai-coding-agents-9489e0561edf) ——正式環境中的 block/warn/info 分級策略實戰
 - [Cloudflare, Orchestrating AI Code Review at Scale](https://blog.cloudflare.com/ai-code-review/) ——覆蓋 13 萬次審查執行的規則編排經驗總結
 - [microservices.io, GenAI development platform — part 1: guardrails](https://microservices.io/post/architecture/2026/03/09/genai-development-platform-part-1-development-guardrails.html) ——規則與 CI 之間的深度縱深防禦

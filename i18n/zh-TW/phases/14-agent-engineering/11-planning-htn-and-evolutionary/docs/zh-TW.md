@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 深入解釋階層式任務網路（HTN）的核心要素：任務（Tasks）、方法（Methods）、算子（Operators）、前置條件（Preconditions）與效果（Effects）。
-- 描述 ChatHTN 的混合協同迴圈——以符號搜尋為主幹，輔以大模型降級拆解。
+- 描述 ChatHTN 的混合協同迴圈——以符號搜尋為主幹，輔以大型語言模型降級拆解。
 - 闡明 AlphaEvolve 的演化搜尋閉環，以及為何它必須嚴格依賴可程式化驗證的評估器。
 - 以純 Python 標準函式庫實作極簡的 HTN 規劃器與演化搜尋演算法。
 

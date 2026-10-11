@@ -1,6 +1,6 @@
 # 自動化驗收關卡（Verification Gates）
 
-> Agent 絕對沒有自己給自己的工作成果打勾標記完工的特權。自動化驗收關卡（Verification Gate）嚴格讀取範疇契約、回饋日誌、規則報告與實體 Git Diff，並回答一個單一核心問題：該任務是否在客觀上真正完工？若驗收關卡判定未通過，無論聊天視窗中的模型語言多麼動聽自信，該任務皆被堅決判定為未完工。
+> Agent 絕對沒有自己給自己的工作成果打勾標記完工的特權。自動化驗收關卡（Verification Gate）嚴格讀取範疇契約、回饋日誌、規則報告與 Git Diff，並回答一個單一核心問題：該任務是否在客觀上真正完工？若驗收關卡判定未通過，無論聊天視窗中的模型語言多麼動聽自信，該任務皆被堅決判定為未完工。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -19,7 +19,7 @@
 Agent 宣告成功往往過於輕率。三種典型的欺騙性失效反覆出現：
 
 - 「看似正確」：模型親自通讀了自己的 Git Diff，並主觀宣稱毫無瑕疵。
-- 「測試通過」：言之鑿鑿自稱測試全數通過，然而底層根本沒有任何實體執行測試的客觀紀錄。
+- 「測試通過」：言之鑿鑿自稱測試全數通過，然而底層根本沒有任何實際執行測試的客觀紀錄。
 - 「符合驗收條件」：對驗收合格條件進行過度寬泛的主觀曲解，將「任何看起來差不多沾邊的產物」皆宣告為已完工。
 
 工作台的硬性解法是**單一確定性驗收關卡**：讀取 Agent 先前產出的客觀產物並做出公正裁決。該關卡具備完全的確定性；該關卡受版本控制系統管理；該關卡直接接入 CI 管線。Agent 絕無任何空間能賄賂或繞過它。
@@ -28,21 +28,21 @@ Agent 宣告成功往往過於輕率。三種典型的欺騙性失效反覆出�
 
 ```mermaid
 flowchart TD
-  Diff[Diff] --> Gate[verify_agent.py]
+  Diff[差異] --> Gate[verify_agent.py]
   Scope[scope_report.json] --> Gate
   Rules[rule_report.json] --> Gate
   Feedback[feedback_record.jsonl] --> Gate
   Gate --> Verdict[verification_report.json]
-  Verdict --> Pass{passed?}
-  Pass -- yes --> Review[Reviewer Agent]
-  Pass -- no --> Refuse[refuse done + surface to human]
+  Verdict --> Pass{通過？}
+  Pass -- 是 --> Review[審核 Agent]
+  Pass -- 否 --> Refuse[拒絕標記完工並回報人類]
 ```
 
 ### 驗收關卡所檢核的核心面向
 
 | 檢核條款 | 客觀證據來源產物 | 嚴重性等級 |
 |---|---|---|
-| 所有驗收指令皆確實被實體執行過 | `feedback_record.jsonl` | block（阻斷） |
+| 所有驗收指令皆確實執行過 | `feedback_record.jsonl` | block（阻斷） |
 | 所有驗收指令皆以狀態碼 0 成功退出 | `feedback_record.jsonl` | block |
 | 範疇檢查未包含任何絕對禁止寫入 | `scope_report.json` | block |
 | 範疇檢查未包含任何越界額外寫入 | `scope_report.json` | block 或 warn |
@@ -54,11 +54,11 @@ flowchart TD
 
 ### 確定性驗收，而非機率性評分
 
-驗收關卡面對完全相同的產物集合時，必須在每一次執行中產出百分之百相同的裁決結果。絕不允許在此處呼叫大模型裁判（LLM judges）。大模型裁判專屬於後續的審核者階段（第 39 課）——負責定性程式碼品質與架構風格，而非裁決客觀任務狀態。
+驗收關卡面對完全相同的產物集合時，必須在每一次執行中產出百分之百相同的裁決結果。絕不允許在此處呼叫LLM 裁判。LLM 裁判專屬於後續的審核者階段（第 39 課）——負責定性程式碼品質與架構風格，而非裁決客觀任務狀態。
 
 ### 單一報告路徑，確立唯一事實來源
 
-關卡在任務結算時，針對每個任務統一輸出唯一的 `verification_report.json`，持久化存放於 `outputs/verification/<task_id>.json` 路徑下。CI 管線讀取完全相同的實體檔案。若存在多個路徑互異的驗收關卡，只會引發事實來源的分裂。
+關卡在任務結算時，針對每個任務統一輸出唯一的 `verification_report.json`，持久化存放於 `outputs/verification/<task_id>.json` 路徑下。CI 管線讀取完全相同的檔案。若存在多個路徑互異的驗收關卡，只會引發事實來源的分裂。
 
 ### 阻斷性缺陷絕不允許例外放行
 
@@ -85,15 +85,15 @@ python3 code/main.py
 
 輸出包含：三份各自獨立的裁決報告，並持久化儲存於腳本同級目錄下。
 
-## Production patterns in the wild｜真實世界中的生產級模式
+## 真實世界中的生產級模式
 
 四大實戰模式將驗收關卡從「又一條繁瑣的程式碼檢查檢查」升格為「捍衛系統生死的最高防線」：
 
 **縱深防禦，而非單一關卡**：Pre-commit 掛鉤 → CI 狀態檢查 → 工具執行前置授權掛鉤 → 合併前終審關卡。每道防線皆具備確定性，確保任何一層失守皆會被下一層即時捕獲。microservices.io 於 2026 年 3 月的實戰指南明確指出：Pre-commit 掛鉤具備不可繞過性，因為它與模型側的 Prompt 提示不同，它完全不依賴於 Agent 是否「自願遵守規則」。驗收關卡則穩穩鎮守於 CI 與合併前夕。
 
-**確定性檢查負責客觀事實，大模型裁判僅負責定性語感**：Anthropic 於 2026 年提出的混合規範（Hybrid Norm）組合拳：可驗證的客觀獎勵（單元測試、Schema 校驗、結束狀態碼）回答「程式碼是否真正解決了問題？」；而大模型評分手冊則回答「程式碼是否可讀、優雅且符合設計模式？」。驗收關卡專職負責前者；審核 Agent（第 39 課）專職負責後者。兩者混為一談只會導致信號失真崩塌。
+**確定性檢查負責客觀事實，LLM 裁判僅負責定性語感**：Anthropic 於 2026 年提出的混合規範（Hybrid Norm）組合拳：可驗證的客觀依據（單元測試、結構描述檢查、結束狀態碼）回答「程式碼是否真正解決了問題？」；而 LLM 評分規準則回答「程式碼是否可讀、安全且符合程式風格？」。驗收關卡專職負責前者；審核 Agent（第 39 課）專職負責後者。兩者混為一談只會導致信號失真崩塌。
 
-**簽名覆寫日誌，而非 Slack 聊天紀錄**：任何人工覆寫皆必須在 `outputs/verification/overrides.jsonl` 中寫入一筆具備時間戳記、缺陷代號、覆寫理由、簽名人員與當前 HEAD Commit 的結構化日誌。執行環境堅決拒絕任何缺乏實體簽名的口頭覆寫；審計追蹤直接納入 Git 版本控制。這是真正具備法律效力的授權策略與形式主義過場之間的本質分水嶺。
+**簽名覆寫日誌，而非 Slack 聊天紀錄**：任何人工覆寫皆必須在 `outputs/verification/overrides.jsonl` 中寫入一筆具備時間戳記、缺陷代號、覆寫理由、簽名人員與當前 HEAD Commit 的結構化日誌。執行環境堅決拒絕任何缺少簽名的口頭覆寫；審計追蹤直接納入 Git 版本控制。這是真正具備法律效力的授權策略與形式主義過場之間的本質分水嶺。
 
 **測試覆蓋率底線作為一等公民檢核項**：以 `coverage_report.json` 輸入 `coverage_floor` 檢查（預設 80%）。若實測覆蓋率低於底線、或相較於前次合併基準下降超過 1 個百分點，關卡直接宣告失敗。若缺乏該項防禦，Agent 在遭遇測試報錯時往往會悄悄「直接刪除報錯的單元測試」，導致驗收報告表面全綠、實質程式碼裸奔。
 
@@ -133,8 +133,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic, Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) ——長時段 Agent harness設計指南
-- [OpenAI Agents SDK guardrails](https://openai.github.io/openai-agents-python/guardrails/) ——安全護欄官方手冊
+- [Anthropic, Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
+- [OpenAI Agents SDK guardrails](https://openai.github.io/openai-agents-python/guardrails/)
 - [microservices.io, GenAI dev platform: guardrails](https://microservices.io/post/architecture/2026/03/09/genai-development-platform-part-1-development-guardrails.html) ——Pre-commit 與 CI 之間的縱深防禦實踐
 - [ICMD, The 2026 Playbook for Agentic AI Ops](https://icmd.app/article/the-2026-playbook-for-agentic-ai-ops-guardrails-costs-and-reliability-at-scale-1776661990431) ——審批階梯與門檻治理手冊
 - [Type-Checked Compliance: Deterministic Guardrails (arXiv 2604.01483)](https://arxiv.org/pdf/2604.01483) ——確定性關卡的極限形式化驗證研究

@@ -27,7 +27,7 @@
 
 兩者皆有其獨特價值。工作流程成本更低、速度更快，且極易進行單元測試與除錯。自主 Agent 則能解鎖開放性的未知探索難題，但其失效模式極難進行形式化推理。
 
-### 增強型大模型（The Augmented LLM）
+### 增強型大型語言模型（The Augmented LLM）
 
 所有五大模式的共同原子基石：單一 LLM 整合三大外圍能力——搜尋檢索（Retrieval）、工具呼叫（Actions）與記憶體（Persistence）。任何常規 API 呼叫皆能直接享用這些能力。
 
@@ -57,7 +57,7 @@
 
 ### 伴隨的脈絡工程學（Context Engineering）
 
-Anthropic 於 2025 年發布的《Effective context engineering for AI agents》正式界定了其配套學科：200k 視窗是一筆有限的預算，而非容器。清楚界定該納入什麼、何時實施壓縮、何時允許脈絡自然增長。脈絡壓縮的細節見 Phase 14 相關課程（重新編號前為第 06 課）。
+Anthropic 於 2025 年發布的《Effective context engineering for AI agents》正式界定了其配套學科：200k 視窗是一筆有限的預算，而非容器。清楚界定該納入什麼、何時實施壓縮、何時允許脈絡自然增長。脈絡壓縮的細節見相關課程（重新編號前為 Phase 14 · 06）。
 
 ```figure
 workflow-chain

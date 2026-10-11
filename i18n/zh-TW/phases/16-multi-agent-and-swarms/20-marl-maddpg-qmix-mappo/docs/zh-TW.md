@@ -38,7 +38,7 @@ critic update:   TD on Q_i(x, a_1..n) given next-state joint estimate
 
 為何用 CTDE：訓練時我們知道每個人的動作，用來降低每位 critic 的變異。部署時，每個 Agent 只看見 `o_i`，並呼叫 `mu_i(o_i)`。
 
-失效模式：critic 隨 Agent 數量 N 增長（輸入包含所有動作）。若沒有近似，超過約 10 個 Agent 就難以擴展。
+失效模式：critic 的輸入維度隨 Agent 數量 N 線性增長（需拼接所有 Agent 的動作）。若沒有近似，超過約 10 個 Agent 就難以擴展。
 
 ### QMIX（2018）——價值分解
 
@@ -159,9 +159,9 @@ MARL 在正式環境中並不常見。若要使用：
 
 ## Further Reading｜延伸閱讀
 
-- [Lowe et al. — Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/abs/1706.02275) — MADDPG；NeurIPS 2017
-- [Rashid et al. — QMIX: Monotonic Value Function Factorisation for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/abs/1803.11485) — QMIX；ICML 2018
-- [Yu et al. — The Surprising Effectiveness of PPO in Cooperative Multi-Agent Games](https://arxiv.org/abs/2103.01955) — MAPPO；NeurIPS 2022
-- [BAIR blog post on MAPPO](https://bair.berkeley.edu/blog/2021/07/14/mappo/) — 對 MAPPO 結果的易讀說明
-- [SMAC repository](https://github.com/oxwhirl/smac) — 星海爭霸多 Agent 挑戰
+- [Lowe et al. — Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/abs/1706.02275)
+- [Rashid et al. — QMIX: Monotonic Value Function Factorisation for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/abs/1803.11485)
+- [Yu et al. — The Surprising Effectiveness of PPO in Cooperative Multi-Agent Games](https://arxiv.org/abs/2103.01955)
+- [BAIR blog post on MAPPO](https://bair.berkeley.edu/blog/2021/07/14/mappo/)
+- [SMAC repository](https://github.com/oxwhirl/smac)
 </content>
