@@ -1,6 +1,6 @@
 # 自然語言推論（natural language inference，NLI）——文本蘊涵（textual entailment）
 
-> 「t 蘊涵 h」的意思是，人讀了 t 會認定 h 為真。NLI 是預測蘊涵、矛盾或中立的任務。表面無聊，在正式環境（production）裡卻是不可或缺的基礎。
+> 「t 蘊涵 h」的意思是，人讀了 t 會認定 h 為真。NLI 是預測蘊涵（entailment）、矛盾（contradiction）或中立（neutral）的任務。表面無聊，在正式環境（production）裡卻是不可或缺的基礎。
 
 **Type:** Learn
 **Languages:** Python
@@ -15,7 +15,7 @@
 
 你要把 1 萬篇新聞按主題分類。你沒有訓練標籤（label）。能不能重用一個模型？
 
-這三個問題都化成自然語言推論（natural language inference，NLI）。NLI 問的是：給定前提 `t` 和假設 `h`，`h` 是被 `t` 蘊涵、被矛盾，還是中立（無關）？
+這三個問題都化成自然語言推論（natural language inference，NLI）。NLI 問的是：給定前提（premise）`t` 和假設（hypothesis）`h`，`h` 是受前提蘊涵、與 `t` 矛盾，還是中立（無關）？
 
 - **幻覺檢查：** `t` 是來源文件，`h` 是摘要裡的主張。不是蘊涵，就是幻覺。
 - **有依據的問答：** `t` 是檢索到的段落，`h` 是生成的答案。不是蘊涵，就是捏造。
