@@ -2,5 +2,6 @@
   "phases/18-ethics-safety-alignment/01-instruction-following-alignment-signal/docs/en.md": "b44320de740d56cf3ef7e2a639064e74d75f3f3e9186098b04f11edc5ee39173",
   "phases/18-ethics-safety-alignment/02-reward-hacking-goodhart/docs/en.md": "3e90c0c2d439be3c3ec415fcc573adf961c6665ef952fb44caa4e463e6bfb77f",
   "phases/18-ethics-safety-alignment/03-direct-preference-optimization-family/docs/en.md": "b081d3ff98e2096b63994d4e43ae025601085616183954e99751f4c3cb2bb6c7",
-  "phases/18-ethics-safety-alignment/04-sycophancy-rlhf-amplification/docs/en.md": "69d9da689ec1286230b6974ac1671544a23e60d82955206a42349813e6270f64"
+  "phases/18-ethics-safety-alignment/04-sycophancy-rlhf-amplification/docs/en.md": "69d9da689ec1286230b6974ac1671544a23e60d82955206a42349813e6270f64",
+  "phases/18-ethics-safety-alignment/05-constitutional-ai-rlaif/docs/en.md": "4ee2d7f1d7b5a647091064fcf0ee5d9cd1a87f19a90bb1ba286b14701ed0dcdc"
 }

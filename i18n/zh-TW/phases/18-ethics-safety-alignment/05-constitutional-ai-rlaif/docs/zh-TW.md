@@ -1,0 +1,112 @@
+# 憲法 AI 與基於 AI 反饋的強化學習（Constitutional AI and RLAIF）
+
+> Bai 等人（arXiv:2212.08073，2022）提出了一個深邃的問題：如果我們將昂貴且易受干擾的人類標註員，替換為一個通讀明文原則清單的 AI 評判模型，會發生什麼？憲法 AI（Constitutional AI, CAI）包含兩大核心階段——依據憲法條款展開自我批判與修正（Critique-and-revise），隨後執行基於 AI 反饋的強化學習（RLAIF）。這項技術創造了 RLAIF 這一術語，並在 Claude 1 的後訓練管線中首次正式上線。2026 年 1 月 21 日，Anthropic 發布了全新重寫的 Claude 憲法：以解釋性推理取代生硬的規定式禁令、確立四級優先權階層架構，並創下全球頂尖實驗室正式承認「模型道德地位不確定性」的歷史先河。整份憲法以 CC0 1.0 全球公眾領域貢獻宣告開源釋出。
+
+**Type:** Learn
+**Languages:** Python (stdlib, toy self-critique-and-revise loop)
+**Prerequisites:** Phase 18 · 01 (InstructGPT), Phase 18 · 02 (Reward hacking)
+**Time:** ~60 minutes
+
+## Learning Objectives｜學習目標
+
+- 深入描述憲法 AI 的兩大核心階段（批判修正 SFT、基於 AI 反饋的強化學習 RLAIF），以及憲法原則在各階段扮演的具體角色。
+- 深刻解釋為何用 AI 標註員取代人類偏好標註員絕非單純的「廉價版 RLHF」——它在根本上重塑了系統的潛在失效模式分佈。
+- 梳理 2026 年全新 Claude 憲法的四級優先權階層架構，並說明其相較於 2023 年舊版的重大範式轉變。
+- 剖析憲法分類器（Constitutional Classifiers）的工作機制，以及運算開銷如何從 v1 的 23.7% 驟降至 v2（2026 年）的約 1%。
+
+## The Problem｜問題
+
+傳統 RLHF 嚴重依賴人類標註員。人類標註員速度緩慢、主觀偏見叢生，且費用極度昂貴。一個極具吸引力的解法是用一個遵循顯式原則列表的大模型來替代人類。Bai 等人提出的憲法 AI 是該替代思維的第一套嚴密形式化實作。其成效之顯著，使得如今全球每一家前沿頂尖實驗室皆已在後訓練中深度整合了某種形式的 AI 反饋機制。
+
+然而關鍵的架構挑戰在於：當前的偏好反饋訊號，是由你正在訓練的同級別模型自身產生的。標註模型內部暗藏的偏見（如今表現為對憲法原則的理解偏差與幻覺）極易在強化學習中被持續放大而非抑制。第 18 課第 04 節揭示的諂媚討好在 RLAIF 體系中依然存在；只不過標註員從外部人類被挪進了系統內部的迴圈中。
+
+## The Concept｜核心概念
+
+### 階段一：監督式自我批判與修正（Phase 1 — Supervised self-critique and revision）
+
+起點是一個樂於助人但尚未具備無害安全性的 SFT 模型。面對紅隊攻擊 Prompt，模型首先給出一個可能包含安全隱患的原始初始回答。隨後，第二個模型（或同一個模型在第二輪對話中）讀取從憲法中隨機抽取的一條具體原則，並對該初始回答展開犀利批判。第三步，模型依據這項批判重新修訂回答，輸出消除安全隱患的合規內容。這份最終修訂後的回答，成為該階段 SFT 的黃金訓練目標。
+
+憲法本質上是一組自然語言原則清單。Bai 等人在 2022 年最初使用了 16 條精簡原則，包括「優先選擇最無害且符合道德的回答」、「避免居高臨下的說教與指責」、「助手應當始終保持有用、誠實且無害（HHH）」。初期刻意維持微小規模，以確保批判聚焦。
+
+### 階段二：基於 AI 反饋的強化學習（RLAIF）（Phase 2 — RL from AI Feedback (RLAIF)）
+
+策略模型針對 Prompt 並行生成一對候選回答。一個專門的「反饋評估模型（Feedback model）」對照隨機抽取的憲法原則，為這對回答進行成對排序打分。這個由 AI 模型自主生成的排序，直接充當訓練獎勵模型的偏好訊號源。隨後在該 AI 偏好獎勵模型之上執行 PPO 強化學習。其餘全部工程流程與第 18 課第 01 節的 InstructGPT 完全一致。
+
+「RLAIF」的本質定義 = 偏好標註訊號完全由 AI 模型自動生成。其餘後續訓練管線依然保持標準 RLHF 架構。
+
+### 為何這絕非單純的「廉價版 RLHF」（Why this is not just "cheaper RLHF"）
+
+- 標註偏差的來源發生了根本位移：從多變的人類個體心理偏見，轉移為對憲法原則的語意理解偏差。AI 標註員對「保持誠實」的執行嚴格程度在全資料集維度上高度均勻一致，徹底消除了人類評分員之間的隨機噪聲。
+- 偏好訊號具備極高的透明度與可解釋性——你可以隨時調閱被抽取的憲法原則、AI 產出的具體批判文字，以及最終的修訂版本。人類標註員的內心決策則是一團黑盒。
+- 系統失效模式發生了結構性重組。諂媚討好被大幅壓低（因為 AI 標註員沒有取悅人類的世俗動機）。然而古德哈特定律依然死死籠罩（代理指標轉變為「AI 模型對憲法原則集合 X 的詮釋」，這依然是一項不完美的代理度量）。
+
+憲法 AI 在 2022 年確立的核心宣稱：在資料量相當的前提下，CAI 訓練出的模型比純人類 RLHF 模型更為無害，且有用性絲毫不落下風。這項結論已在後續各大實驗室中獲得了廣泛實證。
+
+### 2026 年 Claude 憲法全面重寫（The 2026 Claude constitution rewrite）
+
+Anthropic 於 2026 年 1 月 21 日正式公布了全面重構的全新 Claude 憲法。關鍵範式轉變：
+
+1. **以解釋性推理取代機械的規定式禁令**。舊版硬性禁令（如「禁止生成特定危險內容」）被全面擴展為「原則 + 底層邏輯推導」（「因為此類行為會給弱者帶來不可逆的巨大傷害，...」），期望模型能在複雜邊界情境下自主展現道德泛化泛用能力。
+2. **四級優先權階層架構（Four-tier priority structure）**：
+   - 第一階層（最高優先權）：杜絕災難性極限後果（防範大規模傷亡、保護關鍵國家基礎設施安全）。
+   - 第二階層：遵循 Anthropic 的操作準則（操作員覆蓋規則、平台合規協議）。
+   - 第三階層：遵循廣泛的客觀倫理道德（標準的 HHH 有用、誠實、無害原則）。
+   - 第四階層：保持高度樂於助人且真誠坦率。
+   任何倫理衝突一律由上至下嚴格裁決。
+3. **全球主流大廠首次在正式文件中承認「模型道德地位的不確定性」**（深度銜接第 18 課第 19 節模型福祉研究）。
+4. **採用 CC0 1.0 公眾領域宣告全面開放開源**。全球任何團隊皆可毫無阻礙地自由引用、借鑑或修改。
+
+### 憲法分類器（Constitutional Classifiers）
+
+一條與模型訓練並行發展的重要防禦支線：不直接改動大模型自身的權重參數，而是專門訓練一組極輕量的輔助分類器模型，即時通讀憲法原則並在推論出口處對模型輸出進行即時攔截。2023 年的 v1 版本引入了高達 23.7% 的額外運算開銷；而在 2026 年的 v2 版本中，開銷被極限壓低至約 1%，並在 Anthropic 公開測試過的所有防禦機制中斬獲了最低的攻擊成功率。截至 2026 年初，業界尚未發現能擊穿該體系的通用越獄攻擊。
+
+這是一套經典的縱深防禦模型：憲法 AI 在模型內部雕琢行為邊界；憲法分類器則在輸出邊界處硬性守護底線。兩者單獨使用皆不充分。
+
+### 憲法 AI 在對齊家族中的座標（Where CAI fits in the family）
+
+- InstructGPT：人類偏好訊號、顯式獎勵模型、PPO 強化學習。
+- CAI / RLAIF：基於原則的 AI 自動生成偏好訊號、顯式獎勵模型、PPO 強化學習。
+- DPO 及其家族：直接在偏好資料上封閉求導（偏好訊號可由人類或 AI 生成）。
+- 自我獎勵／自我批判體系：憲法原則被深度內化進模型內部，模型在不同回合中兼任生成者與裁判。
+
+這條演進軸線的核心在於「偏好訊號究竟從何而來」。CAI 論文是全球前沿大模型史上，第一次嚴肅且成功地將對齊訊號源從人類全面移交給 AI 的偉大嘗試。
+
+```figure
+constitutional-ai
+```
+
+## Use It｜實際應用
+
+`code/main.py` 在一個微型詞彙環境中模擬了憲法 AI 的「批判與修正」核心迴圈。一條預設的「憲法原則」精確定義了一組有害字元標籤。面對初始回答，批判常式即時精準識別出有害字元，修正常式隨後將其替換為合規文字。在經歷 200 次迭代後，「訓練就緒」的模型成功內化了這套修訂規則。程式隨後在未見過的測試 Prompt 集上，橫向比對裸 Base 模型、傳統 RLHF 模型與 CAI 模型在安全性上的顯著表現差異。
+
+## Ship It｜交付成果
+
+本課交付標準實戰產物 `outputs/skill-constitution-writer.md`。輸入特定垂直業務領域（智慧客服、醫療臨床診斷、程式碼輔助助理、學術調研工具），該 Skill 將自動遵循 2026 年 Claude 憲法標準，為你起草一套完備的四級階層式企業專屬憲法（災難防範、平台規則、行業倫理、主動助人）。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。橫向比對 Base 裸模型與經過 CAI 訓練之模型在有害字元輸出率上的巨大差距。通常需要多少次修訂迭代才能使有害率收斂逼近於零？
+2. 研讀 Anthropic 2026 年發布的全新憲法全文（anthropic.com/news/claudes-constitution）。分別挑選出一條應當歸入第一階層的原則與一條應當歸入第四階層的原則。為何明確確立階層優先權對於解決真實業務衝突具有決定性意義？
+3. 為一款企業級 AI 程式碼輔助助手設計一套專屬憲法。精準定義其第一階層（災難性後果：如未經人工確認嚴禁執行具備毀滅性的破壞指令）、第二階層、第三階層與第四階層。每個階層控制在 3 至 5 條原則之內。
+4. 憲法 AI 以 AI 標註員徹底取代了人類標註員。思考並指出一種類似於諂媚討好、但在純 RLAIF 體系內部依然會悄然滋生的新型失效模式，並為其設計一套針對性的檢測方案。
+5. 仔細研讀憲法分類器 v2 的方法論。從工程落地的視角深刻論述：為何將運算額外開銷從 23.7% 壓低至約 1%，在資安防護層面構成了一次質的飛躍？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Constitutional AI | "AI trained with principles" | Two-phase pipeline: self-critique-and-revise SFT, then RL from AI feedback |
+| RLAIF | "RLHF without humans" | RL with preferences generated by an AI labeler; the rest of the pipeline is unchanged |
+| Constitution | "the principles" | An ordered list of natural-language rules the critique/labeler model consults |
+| Critique-and-revise | "the SFT loop" | Produce response → critique under a principle → revise → SFT target |
+| Constitutional Classifier | "the output gate" | Lightweight classifier that evaluates outputs against the constitution and blocks/logs |
+| Four-tier priority | "the conflict resolver" | 2026 Claude constitution hierarchy: catastrophic > platform > ethics > helpful |
+| Feedback model | "the AI labeler" | The model that reads a principle and ranks a pair of completions |
+
+## Further Reading｜延伸閱讀
+
+- [Bai et al. — Constitutional AI: Harmlessness from AI Feedback (arXiv:2212.08073)](https://arxiv.org/abs/2212.08073) — 憲法 AI 兩階段管線原創奠基論文。
+- [Anthropic — Claude's Constitution (Jan 2026)](https://www.anthropic.com/news/claudes-constitution) — 2026 全新重寫的四級優先權憲法全文，採 CC0 1.0 釋出。
+- [Anthropic — Constitutional Classifiers (2024-2026)](https://www.anthropic.com/research/constitutional-classifiers) — 僅具備約 1% 開銷的輸出防護閘門權威報告。
+- [Lee et al. — RLAIF vs RLHF: Scaling Reinforcement Learning from Human Feedback (arXiv:2309.00267)](https://arxiv.org/abs/2309.00267) — RLAIF 與傳統 RLHF 的大規模經驗實測對比。
+- [Kundu et al. — Specific versus General Principles for Constitutional AI (arXiv:2310.13798)](https://arxiv.org/abs/2310.13798) — 憲法原則顆粒度對模型行為影響的深度研究。
