@@ -25,7 +25,7 @@
 
 **海量語料庫挑戰（Large corpus problem）**：當系統擁有 200 萬個區塊，正確答案位於第 1,847,293 號區塊。你的 top-5 檢索撈出了第 14 號、第 89,201 號、第 1,200,000 號、第 44 號與第 901,333 號區塊。它們在 embedding 空間中確實很近，但全都不包含實質答案。在此規模下，近似最近鄰（approximate nearest neighbor）搜尋引入了足夠的近似搜尋造成的誤差，將真正相關的結果擠出了 top-k 之外。
 
-基礎 RAG 之所以失效，是因為向量相似度並不等同於問題關聯度。一個區塊可以在語意上與查詢高度相似，卻對解答問題毫無實質幫助。進階 RAG 透過四大關鍵技術破解此困境：混合搜尋（加入關鍵字精確比對）、重新排序（對候選名單進行再次評分候選文件）、查詢轉換（在搜尋前重構查詢語句），以及更精細的分塊設計（以合適粒度檢索）。
+基礎 RAG 之所以失效，是因為向量相似度並不等同於問題關聯度。一個區塊可以在語意上與查詢高度相似，卻對解答問題毫無實質幫助。進階 RAG 透過四大關鍵技術破解此困境：混合搜尋（加入關鍵字精確比對）、重新排序（對候選文件再次評分）、查詢轉換（在搜尋前重構查詢語句），以及更精細的分塊設計（以合適粒度檢索）。
 
 ## The Concept｜核心概念
 
@@ -33,7 +33,7 @@
 
 語意搜尋（向量相似度）擅長掌握抽象概念。「如何取消我的訂閱？」能精準命中「終止方案的具體步驟」，即便兩者沒有任何共享詞彙。但它極易漏掉精確的符號比對。如果 embedding 模型將特定的錯誤碼視為無意義雜訊，它便可能無法精準檢索包含「錯誤碼 E-4021」的技術手冊。
 
-關鍵字搜尋（BM25）則恰恰相反。它在字面精確比對上能精確比對。「E-4021」能完全吻合；但若文件寫著「終止方案」，搜尋「取消訂閱」便會完全沒有結果。
+關鍵字搜尋（BM25）則恰恰相反。它擅長字面精確比對。「E-4021」能完全吻合；但若文件寫著「終止方案」，搜尋「取消訂閱」便會完全沒有結果。
 
 混合搜尋同時平行執行這兩套機制，並將結果融合。
 
@@ -69,18 +69,18 @@ RRF 能自然權衡兩路訊號。在兩份清單中皆名列前茅的文件會�
 
 初步檢索（無論是純向量、純關鍵字或混合搜尋）追求的是速度，精度相對粗糙。它採用雙編碼器（Bi-encoders）：查詢與文件各自獨立向量化並比對，文件向量能事先預先計算並快取，進而能輕易擴展至數百萬文件規模。
 
-重新排序則採用交叉編碼器（Cross-encoders）：將查詢與候選文件合併輸入至單一模型中，直接預測細緻的關聯度評分。模型能同時綜觀雙方文字，精準捕捉字詞間深度的交叉互動。交叉編碼器能清晰理解「第三季獲利是多少？」與包含「Q3 數字為 4,720 萬美元」的區塊具有極高關聯，即使雙編碼器未能辨識此關聯了這層關聯。
+重新排序則採用交叉編碼器（Cross-encoders）：將查詢與候選文件合併輸入至單一模型中，直接預測細緻的關聯度評分。模型能同時綜觀雙方文字，精準捕捉字詞間深度的交叉互動。交叉編碼器能清晰理解「第三季獲利是多少？」與包含「Q3 數字為 4,720 萬美元」的區塊具有極高關聯，即使雙編碼器漏掉了這層關聯。
 
-其權衡在於速度：交叉編碼器比雙編碼器慢 100 到 1000 倍，因為它必須對每對「查詢—文件」重新執行完整的推論計算，不可能事先為數百萬文件預算分數。標準解決方案：先以混合搜尋快速撈出較大的候選清單（如 top-50），再由交叉編碼器進行重新排序，取回最終 top-5的 top-5。
+其權衡在於速度：交叉編碼器比雙編碼器慢 100 到 1000 倍，因為它必須對每對「查詢—文件」重新執行完整的推論計算，不可能事先為數百萬文件預算分數。標準解決方案：先以混合搜尋快速撈出較大的候選清單（如 top-50），再由交叉編碼器重新排序，取回最終 top-5。
 
 ```mermaid
 graph LR
-    Q["Query"] --> H["Hybrid Search"]
-    H --> C50["Top 50 candidates"]
-    C50 --> RR["Cross-Encoder Reranker"]
-    RR --> C5["Top 5 final results"]
-    C5 --> P["Build prompt"]
-    P --> LLM["Generate answer"]
+    Q["查詢"] --> H["混合搜尋"]
+    H --> C50["top 50 個候選項"]
+    C50 --> RR["Cross-Encoder 重新排序器"]
+    RR --> C5["top 5 個最終結果"]
+    C5 --> P["組成 prompt"]
+    P --> LLM["生成答案"]
 ```
 
 主流重新排序模型（2026 最新陣容）：
@@ -123,18 +123,18 @@ HyDE 的代價是在檢索前增加了一次 LLM 呼叫，會額外引入 500 �
 
 ```mermaid
 graph TD
-    P["Parent chunk (512 tokens)<br/>Full section about refund policy"]
-    C1["Child chunk (128 tokens)<br/>Standard plan: 30-day refund"]
-    C2["Child chunk (128 tokens)<br/>Enterprise: 60-day pro-rated"]
-    C3["Child chunk (128 tokens)<br/>Processing time: 5-7 days"]
-    C4["Child chunk (128 tokens)<br/>How to submit a request"]
+    P["父區塊（512 tokens）<br/>退款政策的完整章節"]
+    C1["子區塊（128 tokens）<br/>標準方案：30 天退款"]
+    C2["子區塊（128 tokens）<br/>企業方案：60 天按比例退款"]
+    C3["子區塊（128 tokens）<br/>處理時間：5-7 天"]
+    C4["子區塊（128 tokens）<br/>如何提交申請"]
 
     P --> C1
     P --> C2
     P --> C3
     P --> C4
 
-    Q["Query: enterprise refund?"] -.->|"matches child"| C2
+    Q["查詢：企業方案退款？"] -.->|"matches child"| C2
     C2 -.->|"return parent"| P
 ```
 
@@ -162,11 +162,11 @@ graph TD
 
 ```mermaid
 graph TD
-    subgraph "Evaluation Framework"
-        Q["Test questions<br/>+ expected answers<br/>+ relevant doc IDs"]
-        Q --> Ret["Retrieval evaluation<br/>Recall@k: are right<br/>docs retrieved?"]
-        Q --> Faith["Faithfulness evaluation<br/>Is answer grounded<br/>in retrieved docs?"]
-        Q --> Correct["Correctness evaluation<br/>Does answer match<br/>expected answer?"]
+    subgraph "評估架構"
+        Q["測試問題<br/>+ 預期答案<br/>+ 相關文件 ID"]
+        Q --> Ret["檢索評估<br/>Recall@k：是否檢索到<br/>正確文件？"]
+        Q --> Faith["忠實度評估<br/>答案是否以檢索文件<br/>為依據？"]
+        Q --> Correct["正確性評估<br/>答案是否符合<br/>預期答案？"]
     end
 ```
 
