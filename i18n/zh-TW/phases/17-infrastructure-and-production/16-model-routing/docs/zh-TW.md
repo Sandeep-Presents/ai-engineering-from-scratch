@@ -1,6 +1,6 @@
 # 作為成本縮減原語的模型路由（Model Routing as a Cost-Reduction Primitive）
 
-> 動態調度代理（Broker）即時評估每個流入的請求（任務類別、Token 長度、向量 Embedding 相似度、置信度分數），將單純簡單的查詢路由至極低廉的輕量模型，並僅將真正棘手的複雜任務升級升級至前沿旗艦模型。該架構亦被稱為模型串聯瀑布（Model cascading）。跨美、英、歐盟的正式環境實戰案例證實：在完全維持同等輸出品質（Iso-quality）的前提下，模型路由能直接削減 20% 至 60% 的推論帳單；在高並行 SaaS 產品線上，僅僅 30% 的路由效率提升即可在年度財報中省下六位數美元的淨現金。2026 年的宏觀產業背景是：LLM 推論單價正以每年約 10 倍的速度雪崩式驟降——具備 GPT-4 水準的單百萬 Token 成本從 2022 年底的 20 美元暴跌至 2026 年的約 0.40 美元。這項降幅的核心推動力在於推論服務堆疊架構的持續突破（第 17 課第 04-09 節），而非單純依賴硬體製程。模型路由正是你在不損害產品核心品質的前提下，將該產業價格紅利直接轉化為商業毛利的最高效原語。其最致命的失效模式是輕量模型無聲漂移（Cheap-model drift）：路由器盲目將 40% 的流量強行塞給能力較弱的模型，導致複雜推理任務的品質暗中下滑 3% 至 5%，且連續數個季度未被察覺。必須強制使用線上即時品質閘門，絕不可盲目依賴線下靜態評測集。
+> 動態調度代理（Broker）即時評估每個流入的請求（任務類別、Token 長度、向量 Embedding 相似度、信心分數），將單純簡單的查詢路由至極低廉的輕量模型，並僅將真正棘手的複雜任務升級至前沿旗艦模型。該架構亦被稱為模型串聯瀑布（Model cascading）。跨美、英、歐盟的正式環境實戰案例證實：在完全維持同等輸出品質（Iso-quality）的前提下，模型路由能直接削減 20% 至 60% 的推論帳單；在高並行 SaaS 產品線上，僅僅 30% 的路由效率提升即可在年度財報中省下六位數美元的淨現金。2026 年的宏觀產業背景是：LLM 推論單價正以每年約 10 倍的速度雪崩式驟降——具備 GPT-4 水準的單百萬 Token 成本從 2022 年底的 20 美元暴跌至 2026 年的約 0.40 美元。這項降幅的核心推動力在於推論服務堆疊架構的持續突破（第 17 課第 04-09 節），而非單純依賴硬體製程。模型路由正是你在不損害產品核心品質的前提下，將該產業價格紅利直接轉化為商業毛利的最高效原語。其最致命的失效模式是輕量模型無聲漂移（Cheap-model drift）：路由器盲目將 40% 的流量強行塞給能力較弱的模型，導致複雜推理任務的品質暗中下滑 3% 至 5%，且連續數個季度未被察覺。必須強制使用線上即時品質閘門，絕不可盲目依賴線下靜態評測集。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy cascading router simulator)
@@ -9,8 +9,8 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入解釋模型串聯瀑布（Model cascading）：首選輕量便宜模型並進行置信度驗證，僅在低置信度時動態升級至旗艦模型。
-- 梳理四大關鍵路由決策訊號（任務分類、Prompt 長度、與已知困難集的向量相似度、首輪推論的自評置信度）。
+- 深入解釋模型串聯瀑布（Model cascading）：首選輕量便宜模型並進行信心驗證，僅在信心偏低時動態升級至旗艦模型。
+- 梳理四大關鍵路由決策訊號（任務分類、Prompt 長度、與已知困難集的向量相似度、首輪推論的自評信心）。
 - 依據給定的目標路由切分比例與品質容忍下限，精確推算系統的加權混合成本。
 - 指出能精準揪出輕量模型無聲侵蝕（Cheap-model creep）的線上品質監控指標與自動化閘門機制。
 
@@ -30,13 +30,13 @@
 
 3. **與已知高難度集的向量相似度（Embedding similarity to known-hard set）**：若輸入查詢與歷史標記的高難度問答集餘弦相似度大於閾值（例如 Cosine > 0.88），直接無條件升級指派給旗艦模型。
 
-4. **首輪推論的自評置信度（Self-confidence from first-pass）**：先將請求派發給輕量模型；若模型的 Log-probs 機率值展現出極低置信度、或模型主動輸出猶豫推諉之詞（Hedging language），立即觸發容錯重試並升級至旗艦模型。該策略雖然為約 10% 的升級流量引入了額外的 P95 延遲，卻為其餘 90% 的龐大流量省下了 50% 以上的雲端帳單。
+4. **首輪推論的自評信心（Self-confidence from first-pass）**：先將請求派發給輕量模型；若模型的 Log-probs 機率值顯示信心極低、模型主動使用猶豫措辭（Hedging language），或拒絕回答，立即觸發容錯重試並升級至旗艦模型。該策略雖然為約 10% 的升級流量引入了額外的 P95 延遲，卻為其餘 90% 的龐大流量省下了 50% 以上的雲端帳單。
 
 ### 三大核心架構模式（Three patterns）
 
 **前置分類路由（Pre-route）**：在請求最前端部署超輕量分類器；額外引入約 5 至 10 ms 網路微延遲；全域耗時最快。
 
-**瀑布級聯串聯（Cascade）**：便宜模型首發，低置信度時動態升級；中位數延遲約為 1.2 倍（包含輕量模型運算 + 驗證評估），被升級請求延遲約為 2 倍；具備最堅實的輸出品質底線。
+**瀑布級聯串聯（Cascade）**：便宜模型首發，信心偏低時動態升級；中位數延遲約為 1.2 倍（包含輕量模型運算 + 驗證評估），被升級請求延遲約為 2 倍；具備最堅實的輸出品質底線。
 
 **全並行集成挑選（Ensemble route）**：針對部分採樣流量同時並行呼叫輕量與旗艦模型，由獎勵模型（Reward model）即時挑選最優輸出；品質最高、成本最重；通常僅用於極度嚴肅的產品 A/B 灰度測試。
 
@@ -90,22 +90,22 @@ model-cascade-router
 1. 執行 `code/main.py`。在何種準確率底線條件下，瀑布級聯模式（Cascade）的綜合經濟效益會超越前置分類模式（Pre-route）？
 2. 你的使用者群體呈現鮮明的二元結構：30% 為付費企業版使用者（主要送出長程複雜查詢），70% 為免費用戶（主要提出簡短對話）。設計一套標準的路由分流策略。哪一項線上監控指標應當作為該架構的核心發布閘門？
 3. 某項路由策略雖然讓輸出品質微幅下滑了 2%，但節省了高達 40% 的推論帳單。這項改動究竟是否值得發布至正式環境？立足於具體產品型態給出兩面論述。
-4. 基於 OpenAI 或 Anthropic API 暴露的 Log-probs 機率資訊，實作一套即時置信度校驗常式。你建議將初始門檻設定在什麼具體數值？
+4. 基於 OpenAI 或 Anthropic API 暴露的 Log-probs 機率資訊，實作一套即時信心校驗常式。你建議將初始門檻設定在什麼具體數值？
 5. 在過去六個月中，系統的動態升級率從 8% 一路飆升至 22%。列出引發該現象的三項最可能架構原因，並針對每一項分別給出標準修復方案。
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Model routing | "cost broker" | Dynamic choice of model per request |
-| Model cascade | "cheap-first escalate" | Run cheap, fall through to frontier on low confidence |
-| Pre-route | "classify first" | Classifier up front; no re-run |
-| Ensemble route | "parallel pick" | Run multiple, reward-model picks best |
-| Escalation rate | "uprouted %" | Fraction of cascade requests that escalated |
-| RouteLLM | "LMSYS router" | OSS router library |
-| Not Diamond | "commercial router" | SaaS model-routing product |
-| Drift | "cheap creep" | Distribution shift without router noticing |
-| Online quality gate | "live check" | Automated LLM-judge sampling live traffic |
+| Model routing | 「成本仲介」 | 依每個請求動態選擇模型 |
+| Model cascade | 「先用便宜模型，不足再升級」 | 先執行便宜模型，信心不足時改用前沿模型 |
+| Pre-route | 「先分類」 | 先用分類器判斷，不會重新執行 |
+| Ensemble route | 「並行挑選」 | 同時執行多個模型，再由獎勵模型選出最佳結果 |
+| Escalation rate | 「升級比例」 | 瀑布式請求中升級至更強模型的比例 |
+| RouteLLM | 「LMSYS 路由器」 | 開源路由函式庫 |
+| Not Diamond | 「商業路由器」 | SaaS 模型路由產品 |
+| Drift | 「便宜模型悄然退化」 | 路由器未察覺的資料分布變化 |
+| Online quality gate | 「即時檢查」 | 對線上流量抽樣並自動進行 LLM 評審 |
 
 ## Further Reading｜延伸閱讀
 

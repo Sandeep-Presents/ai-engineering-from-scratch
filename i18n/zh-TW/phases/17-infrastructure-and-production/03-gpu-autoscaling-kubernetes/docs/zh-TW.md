@@ -1,6 +1,6 @@
 # Kubernetes 上的 GPU 自動擴縮——Karpenter、KAI 排程器、Gang 排程（GPU Autoscaling on Kubernetes — Karpenter, KAI Scheduler, Gang Scheduling）
 
-> 自動擴縮包含三層架構，絕非單一層級所能涵蓋。Karpenter 負責動態佈建節點（耗時 1 分鐘以內，比傳統 Cluster Autoscaler 快 40%）。KAI 排程器（KAI Scheduler）負責 Gang 原子排程、硬體拓撲感知與多階層佇列——能徹底杜絕「8 張 GPU 僅就緒 7 張」的致命部分分配陷阱（其餘 7 個節點無限期空轉燃燒經費，苦等最後 1 張缺漏的 GPU）。應用程式層級的自動擴縮器（如 NVIDIA Dynamo Planner、llm-d Workload Variant Autoscaler）則依據推論專屬的業務特徵訊號進行擴縮——排隊深度、KV 快取利用率——而非盲目依賴 CPU 或 DCGM 佔空比。傳統 HPA 最經典的致命誤區在於：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比度量，100% 可能代表正在處理 10 個並行請求，也可能代表 100 個；且 vLLM 預設預先分配顯存作為 KV 快取，導致記憶體用量永遠高掛 90%，根本無法觸發縮容。本課教你如何深度串聯這三大層級，並避開 Karpenter 預設的 `WhenEmptyOrUnderutilized` 政策在推論中途暴力終止運作中 GPU 任務的慘痛災難。
+> 自動擴縮包含三層架構，絕非單一層級所能涵蓋。Karpenter 負責動態佈建節點（耗時 1 分鐘以內，比傳統 Cluster Autoscaler 快 40%）。KAI 排程器（KAI Scheduler）負責 Gang 原子排程、硬體拓撲感知與多階層佇列——能徹底杜絕「8 張 GPU 僅就緒 7 張」的致命部分分配陷阱（其餘 7 個節點無限期空轉燃燒經費，苦等最後 1 張缺漏的 GPU）。應用程式層級的自動擴縮器（如 NVIDIA Dynamo Planner、llm-d Workload Variant Autoscaler）則依據推論專屬的業務特徵訊號進行擴縮——排隊深度、KV 快取利用率——而非盲目依賴 CPU 或 DCGM 佔空比。傳統 HPA 最經典的致命誤區在於：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比度量，100% 可能代表正在處理 10 個並行請求，也可能代表 100 個；且 vLLM 預設預先分配 GPU 顯示記憶體作為 KV 快取，導致記憶體用量永遠高掛 90%，根本無法觸發縮容。本課教你如何深度串聯這三大層級，並避開 Karpenter 預設的 `WhenEmptyOrUnderutilized` 政策在推論中途暴力終止運作中 GPU 任務的慘痛災難。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy queue-depth autoscaler simulator)
@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你的團隊在 Kubernetes 上交付了一套 LLM 推論服務。你配置了以 `DCGM_FI_DEV_GPU_UTIL` 作為監控訊號的常規 HPA。在正常上班時間內，GPU 利用率死死卡在 100%。然而 HPA 卻從不自動擴容——因為它誤以為目前容量已經飽和剛好。當你手動強行新增一個 Pod 副本時，TTFT 首字延遲應聲腰斬；然而 HPA 依然紋絲不動。這個監控訊號從頭到尾都在向你說謊。
+你的團隊在 Kubernetes 上交付了一套 LLM 推論服務。你配置了以 `DCGM_FI_DEV_GPU_UTIL` 作為監控訊號的常規 HPA。在正常上班時間內，GPU 利用率死死卡在 100%。然而 HPA 卻從不自動擴容——因為它誤以為目前容量已經飽和剛好。當你手動強行新增一個 Pod 副本時，TTFT 首字延遲下降；然而 HPA 依然紋絲不動。這個監控訊號從頭到尾都在向你說謊。
 
 在另一個維度，你使用傳統的 Cluster Autoscaler 來管理底層節點。半夜 2 點突然湧入一段 100 萬 Token 的巨型 Prompt 請求；叢集耗費了整整 3 分鐘才將底層 GPU 節點佈建完成，用戶端的請求早已超時中斷。
 
@@ -58,7 +58,7 @@ KAI 通常作為輔助排程器與原生 kube-scheduler 並行部署；你只需
 
 **傳統 HPA 監控指標的致命盲區**：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比（Duty-cycle）度量——它度量的是在特定採樣間隔內 GPU 是否正在執行指令。100% 的利用率可能意味著當前有 10 個並行請求，也可能意味著有 100 個；在這兩種情況下 GPU 皆處於滿載運算狀態。依據佔空比進行擴縮容，無異於盲人摸象。
 
-更棘手的是，vLLM 等現代推論引擎預設會預先分配絕大部分 GPU 顯存作為 KV 快取（通常透過 `--gpu-memory-utilization` 參數鎖定至 90% 以上）。因此即便僅有 1 個請求流入，記憶體佔用率依然高掛在 90% 附近。基於記憶體使用率的傳統 HPA 永遠無法觸發自動縮容。
+更棘手的是，vLLM 等現代推論引擎預設會預先分配絕大部分 GPU 顯示記憶體作為 KV 快取（通常透過 `--gpu-memory-utilization` 參數鎖定至 90% 以上）。因此即便僅有 1 個請求流入，記憶體佔用率依然高掛在 90% 附近。基於記憶體使用率的傳統 HPA 永遠無法觸發自動縮容。
 
 **2026 年工業級黃金替代訊號**：
 
@@ -81,7 +81,7 @@ NVIDIA Dynamo Planner 與 llm-d Workload Variant Autoscaler 直接監聽並消�
 
 ### Prefill 與 Decode 拆解架構使一切更具挑戰（Disaggregated prefill/decode complicates everything）
 
-若你導入了 Prefill 與 Decode 拆解架構（第 17 課第 17 節），系統中將存在兩類截然不同的 Pod 類別，且各自擁有不同的擴縮容觸發機制：Prefill 節點依據排隊深度進行擴充，而 Decode 節點則依據 KV 快取顯存壓力進行擴充。llm-d 將它們抽象為獨立的 `Services`，並分別綁定專屬的 HPA 策略。切忌試圖在兩者前方掛載單一且未經區分的 HPA。
+若你導入了 Prefill 與 Decode 拆解架構（第 17 課第 17 節），系統中將存在兩類截然不同的 Pod 類別，且各自擁有不同的擴縮容觸發機制：Prefill 節點依據排隊深度進行擴充，而 Decode 節點則依據 KV 快取的顯示記憶體壓力進行擴充。llm-d 將它們抽象為獨立的 `Services`，並分別綁定專屬的 HPA 策略。切忌試圖在兩者前方掛載單一且未經區分的 HPA。
 
 ### 冷啟動延遲在此同樣關鍵（Cold start matters here too）
 
@@ -116,18 +116,18 @@ autoscaling
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Karpenter | "the node provisioner" | Kubernetes node autoscaler; sub-minute provisioning |
-| Cluster Autoscaler | "the old scaler" | Kubernetes node autoscaler predecessor; slower, group-based |
-| KAI Scheduler | "the GPU scheduler" | Secondary scheduler for gang + topology + queues |
-| Gang scheduling | "all or nothing" | Schedule N pods atomically or defer all of them |
-| Topology awareness | "rack-aware" | Place pods based on NVLink/IB/rack placement |
-| `DCGM_FI_DEV_GPU_UTIL` | "GPU utilization" | Duty-cycle metric; NOT a scaling signal for LLMs |
-| Queue depth | "waiting requests" | Correct HPA signal for prefill-bound scaling |
-| KV cache utilization | "memory pressure" | Correct HPA signal for decode-bound scaling |
-| Consolidation | "Karpenter consolidation" | Node termination to cheaper instance type |
-| `WhenEmpty + 1h` | "safe consolidation" | Policy that doesn't evict running GPU jobs |
+| Karpenter | 「節點佈建器」 | Kubernetes 節點自動擴縮器；佈建時間不到 1 分鐘 |
+| Cluster Autoscaler | 「舊版擴縮器」 | Kubernetes 節點自動擴縮器的前身；速度較慢，以節點群組為單位 |
+| KAI Scheduler | 「GPU 排程器」 | 負責 Gang 排程、拓撲感知與佇列管理的次級排程器 |
+| Gang scheduling | 「全有或全無」 | 以原子方式排程 N 個 Pod，或全部延後 |
+| Topology awareness | 「機架感知」 | 依 NVLink、IB 與機架位置放置 Pod |
+| `DCGM_FI_DEV_GPU_UTIL` | 「GPU 利用率」 | 佔空比指標；不適用於 LLM 擴縮 |
+| Queue depth | 「等待中的請求」 | 適用於 Prefill 受限擴縮的 HPA 訊號 |
+| KV cache utilization | 「記憶體壓力」 | 適用於 Decode 受限擴縮的 HPA 訊號 |
+| Consolidation | 「Karpenter 節點整併」 | 終止節點並改用更便宜的執行個體類型 |
+| `WhenEmpty + 1h` | 「安全整併」 | 不會驅逐執行中 GPU 工作的政策 |
 
 ## Further Reading｜延伸閱讀
 

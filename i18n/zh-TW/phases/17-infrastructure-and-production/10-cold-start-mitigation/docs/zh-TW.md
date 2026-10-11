@@ -1,6 +1,6 @@
 # 無伺服器 LLM 的冷啟動抑制機制（Cold Start Mitigation for Serverless LLMs）
 
-> 一個體積為 20 GB 的模型映像檔，在裸機上從完全冰冷到具備推論服務能力，往往需要耗費 5 至 10 分鐘（7B 模型）乃至超過 20 分鐘（70B 模型）。在真正的無伺服器（Serverless）架構中，這絕非正常的預熱——這是一場嚴重的服務中斷事故。抑制手段深跨五大架構層次：預植節點映像檔（AWS Bottlerocket 的雙磁區架構）、模型串流載入（NVIDIA Run:ai Model Streamer，在 vLLM 中原生支援）、GPU 記憶體快照（Modal 檢查點技術，重啟速度提升高達 10 倍）、常駐預熱池（`min_workers=1`）、分層階梯式載入（ServerlessLLM 打造的 NVMe→DRAM→HBM 階梯管線，實現 10 至 200 倍延遲驟降），以及僅遷移輸入 Token（KB 級）而非龐大 KV 快取（GB 級）的即時線上遷移。Modal 官方標稱以 2 至 4 秒作為冷啟動基準線；Baseten 預設為 5 至 10 秒，配合預熱甚至能達到次秒級。本課教你如何嚴密測量、規劃預算，並將這五大防禦層有機疊加。
+> 20 GB 的模型映像檔從冷啟動到可提供服務，往往需要耗費 5 至 10 分鐘（7B 模型）乃至超過 20 分鐘（70B 模型）。在真正的無伺服器（Serverless）架構中，這絕非正常的預熱——這是一場嚴重的服務中斷事故。抑制手段深跨五大架構層次：預植節點映像檔（AWS Bottlerocket 的雙磁區架構）、模型串流載入（NVIDIA Run:ai Model Streamer，在 vLLM 中原生支援）、GPU 記憶體快照（Modal 檢查點技術，重啟速度提升高達 10 倍）、常駐預熱池（`min_workers=1`）、分層階梯式載入（ServerlessLLM 打造的 NVMe→DRAM→HBM 階梯管線，實現 10 至 200 倍延遲驟降），以及僅遷移輸入 Token（KB 級）而非龐大 KV 快取（GB 級）的即時線上遷移。Modal 官方標稱以 2 至 4 秒作為冷啟動基準線；Baseten 預設為 5 至 10 秒，配合預熱甚至能達到次秒級。本課教你如何嚴密測量、規劃預算，並將這五大防禦層有機疊加。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy cold-start path simulator)
@@ -11,7 +11,7 @@
 
 - 列出冷啟動抑制機制的五大架構層次，並指出每一層對應的一項核心工具或架構設計模式。
 - 精確將 70B 模型的總冷啟動時間拆解為四大物理耗時總和：(node provision) + (weights download) + (weights load into HBM) + (engine init)。
-- 深刻解釋為何即時線上遷移選擇傳輸輕量的輸入 Token（KB 級）而非龐大的 KV 快取（GB 級），以及系統為此付出的微小重算代價。
+- 深刻解釋為何即時線上遷移選擇傳輸輕量的輸入 Token（KB 級）而非龐大的 KV 快取（GB 級），以及系統為此付出的重算代價。
 - 透視預熱池的經典工程權衡（為閒置 GPU 付費 vs 默默承受長尾冷啟動延遲），並給出 `min_workers > 0` 成為絕對強制的關鍵 SLA 臨界門檻。
 
 ## The Problem｜問題
@@ -19,8 +19,8 @@
 你的無伺服器 LLM 端點在深夜沒有流量時自動縮容歸零（Scale-to-zero）。清晨 8 點業務高峰流量突然湧入。然而第一個不幸的使用者請求被迫陷入無盡的漫長等待：
 
 1. Karpenter 動態佈建全新 GPU 實體節點：耗時 45 至 60 秒。
-2. 容器引擎開始從映像檔倉庫拉取高達 30 GB 包含權重的映像檔：耗時 120 至 300 秒。
-3. 推論引擎將龐大權重自磁碟載入至 HBM 顯存：依據模型大小與儲存頻寬，耗時 45 至 120 秒。
+2. 容器引擎開始從映像檔儲存庫拉取高達 30 GB 包含權重的映像檔：耗時 120 至 300 秒。
+3. 推論引擎將龐大權重自磁碟載入至 HBM 顯示記憶體：依據模型大小與儲存頻寬，耗時 45 至 120 秒。
 4. vLLM 或 TRT-LLM 開始初始化 CUDA Graphs、KV 快取記憶體池與 Tokenizer：耗時 10 至 30 秒。
 
 全部耗時累計：高達 220 至 510 秒（大約 3 至 8 分鐘），系統才能吐出第一個字。而你的業務 SLA 承諾是 2 秒。團隊隨後匆忙配置了預熱池（`min_workers=1`），表面上冷啟動卡頓瞬間消失——但現在你必須 7x24 小時為一張昂貴且大部分時間完全閒置的 GPU 支付全額機時費。若你的後台同時維運 5 款產品且各自維持 1 個預熱副本，這意味著每月必須固定消耗 5 * 24 * 30 = 3,600 個 GPU-hours，無論這期間是否有真實使用者造訪。
@@ -31,25 +31,25 @@
 
 ### 第 1 層——預植節點映像檔（Bottlerocket）
 
-在 AWS 上，Bottlerocket 專為容器最佳化的作業系統採用了獨特的雙磁區（Dual-volume）架構，將底層 OS 與業務資料完全實體解耦。你可以將預先拉取好龐大模型映像檔的資料磁區製作為 EBS 快照；隨後在 Karpenter 的 `EC2NodeClass` 中直接引用該快照 ID。當新節點開闢時，啟動的本機 NVMe 磁碟上早已預載了完整的模型權重——步驟 2（網路拉取）與大部分步驟 3 瞬間化為烏有。該方案原生無縫整合 Karpenter。典型收益：為超大模型在每次冷啟動時直接節省 2 至 4 分鐘寶貴時間。
+在 AWS 上，Bottlerocket 專為容器最佳化的作業系統採用了獨特的雙磁區（Dual-volume）架構，將底層 OS 與業務資料完全實體解耦。你可以將預先拉取好龐大模型映像檔的資料磁區製作為 EBS 快照；隨後在 Karpenter 的 `EC2NodeClass` 中直接引用該快照 ID。當新節點開闢時，啟動的本機 NVMe 磁碟上早已預載了完整的模型權重——步驟 2 及部分步驟 3 可省去。該方案原生無縫整合 Karpenter。典型收益：為超大模型在每次冷啟動時直接節省 2 至 4 分鐘寶貴時間。
 
 在 GCP 上的等價物是包含預烘焙容器層的客製化 VM Image；在 Azure 上則是採用受控磁碟快照（Managed Disk Snapshot）實現相同模式。
 
 ### 第 2 層——模型串流載入（Run:ai Model Streamer）
 
-傳統做法必須等完整的巨型權重檔案完全讀入記憶體後才開始接客；串流載入則打破該限制，逐層將權重以串流方式推送至 GPU 顯存，並在第一個 Transformer 區塊載入就緒的瞬間立即著手處理輸入文字。NVIDIA Run:ai Model Streamer 在 2026 年的 vLLM 中已原生支援。它相容 S3、GCS 與本機高效能 NVMe。透過將底層 I/O 讀取與計算環境初始化深度重疊，大模型的權重載入耗時被直接腰斬。
+傳統做法必須等完整的巨型權重檔案完全讀入記憶體後才開始接客；串流載入則打破該限制，逐層將權重以串流方式推送至 GPU 顯示記憶體，並在第一個 Transformer 區塊載入就緒的瞬間立即著手處理輸入文字。NVIDIA Run:ai Model Streamer 在 2026 年的 vLLM 中已原生支援。它相容 S3、GCS 與本機高效能 NVMe。透過將底層 I/O 讀取與計算環境初始化深度重疊，大模型的權重載入耗時被直接腰斬。
 
 ### 第 3 層——GPU 記憶體快照（Modal）
 
-Modal 在模型首次完成載入與初始化後，直接對 GPU 的完整實體狀態（靜態權重、編譯後的 CUDA Graphs、已初始化的 KV 快取區塊）進行二進位快照（Checkpoint）。後續冷啟動時，系統直接將快照二進位反序列化倒灌進 HBM 顯存——重啟速度比從零初始化狂飆 10 倍。這是業界眼下最接近「2 秒內喚醒一張溫熱 GPU」的神技。工程代價：該快照與特定的 GPU 實體硬體拓撲死鎖；若 Karpenter 將你的任務排程至另一種不同架構的機型上，必須重新進行快照打點。
+Modal 在模型首次完成載入與初始化後，直接對 GPU 的完整實體狀態（靜態權重、編譯後的 CUDA Graphs、已初始化的 KV 快取區塊）進行二進位快照（Checkpoint）。後續冷啟動時，系統直接將快照二進位反序列化倒灌進 HBM 顯示記憶體——重啟速度比從零初始化狂飆 10 倍。這是業界眼下最接近「2 秒內喚醒一張溫熱 GPU」的神技。工程代價：該快照與特定的 GPU 實體硬體拓撲死鎖；若 Karpenter 將你的任務排程至另一種不同架構的機型上，必須重新進行快照打點。
 
 ### 第 4 層——預熱資源池（min_workers=1）
 
-最純粹直觀的抑制手段：永遠在顯存中常駐一個熱備副本。財務代價是一張 GPU 7x24 小時的全額租賃費率。這筆數學帳在微型模型上極其不划算（你每小時花費 0.85 至 1.50 美元，僅僅為了規避 30 秒的短暫延遲）；但放在超大模型上卻是極具性價比的投資（每小時花費 4 美元，換取規避長達 5 分鐘的致命癱瘓）。觸發預熱池成為剛性必選的 SLA 門檻：針對 70B 以上模型，一旦產品要求 TTFT P99 必須小於 60 秒，預熱池便不再可選。
+最純粹直觀的抑制手段：永遠在 GPU 顯示記憶體中常駐一個熱備副本。財務代價是一張 GPU 7x24 小時的全額租賃費率。這筆數學帳在微型模型上極其不划算（你每小時花費 0.85 至 1.50 美元，僅僅為了規避 30 秒的短暫延遲）；但放在超大模型上卻是極具性價比的投資（每小時花費 4 美元，換取規避長達 5 分鐘的致命癱瘓）。觸發預熱池成為剛性必選的 SLA 門檻：針對 70B 以上模型，一旦產品要求 TTFT P99 必須小於 60 秒，預熱池便不再可選。
 
 ### 第 5 層——分層階梯式載入（ServerlessLLM）
 
-ServerlessLLM 將儲存體系抽象為清晰的金字塔階梯：NVMe（容量巨大且高速）、DRAM 主記憶體（容量適中但層級居中）、HBM 顯存（容量微小但吞吐極致）。靜態模型權重長駐於主機 DRAM 記憶體中；僅在推論請求抵達時才依需極速灌入 GPU 的 HBM。其原著論文指出，相較於天真的磁碟至 HBM 載入，此分層架構在冷載入時實現了高達 10 至 200 倍的驚人延遲縮短。目前雖然處於產業早期，但社群已陸續推出針對 vLLM 的開源整合。
+ServerlessLLM 將儲存體系抽象為清晰的金字塔階梯：NVMe（容量巨大且高速）、DRAM 主記憶體（容量適中但層級居中）、HBM 顯示記憶體（容量微小但吞吐極致）。靜態模型權重長駐於主機 DRAM 記憶體中；僅在推論請求抵達時才依需極速灌入 GPU 的 HBM。其原著論文指出，相較於天真的磁碟至 HBM 載入，此分層架構在冷載入時實現了高達 10 至 200 倍的驚人延遲縮短。目前雖然處於產業早期，但社群已陸續推出針對 vLLM 的開源整合。
 
 ### 第 6 層——即時線上遷移（額外進階模式）
 
@@ -67,15 +67,15 @@ ServerlessLLM 將儲存體系抽象為清晰的金字塔階梯：NVMe（容量�
 
 以單張全新實體節點冷啟動 70B 模型為例，其經典耗時解剖如下：
 
-| Phase | Time | Mitigation |
+| 階段 | 時間 | 緩解方式 |
 |-------|------|-----------|
-| Node provision | 50s | Bottlerocket + pre-seeded image, warm pool |
-| Image pull | 180s | Pre-seeded data volume (eliminate) |
-| Weights to HBM | 75s | Model streamer (halve); GPU snapshot (eliminate) |
-| Engine init | 20s | Persistent CUDA graph cache |
-| First forward | 3s | Min inherent latency |
-| **Total cold** | **328s** | |
-| **Total with mitigations** | **~15s** | 22x reduction |
+| 節點佈建 | 50s | Bottlerocket + 預先植入映像檔、預熱池 |
+| 映像檔拉取 | 180s | 預先植入資料磁碟區（消除拉取時間） |
+| 權重載入至 HBM | 75s | 模型串流載入（減半）；GPU 快照（消除載入時間） |
+| 引擎初始化 | 20s | 持續保存 CUDA graph 快取 |
+| 首次前向傳遞 | 3s | 最低固有延遲 |
+| **冷啟動總計** | **328s** | |
+| **套用緩解措施後總計** | **~15s** | 縮短 22 倍 |
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
@@ -102,23 +102,23 @@ cold-start-pipeline
 1. 執行 `code/main.py`。計算臨界請求頻率：當每日請求量達到多少次以上時，維持 1 個全天候預熱副本的開銷，會低於因冷啟動違背 SLO 而引發的請求丟棄罰金？
 2. 團隊交付了一款 13B 參數模型，業務要求 P99 TTFT 必須嚴格小於 3 秒。挑選出一套達成該指標所需的最簡抑制技術堆疊（使用最少的架構層次）。
 3. Bottlerocket 預植技術完全消除了網路拉取映像檔的耗時，但權重依然必須從 EBS 快照讀取進 HBM。若基於快照的本機 NVMe 循序讀取頻寬為 7 GB/s，精確推算 70B 模型的實體物理讀取時鐘耗時。
-4. 某無伺服器供應商支援 GPU 顯存快照（如 Modal），但你的資訊安全團隊以「快照可能殘留歷史使用者的個資 PII」為由拒絕導入。以架構師的視角同時列出雙方的論證焦點——真實的資安攻擊面在哪裡？有哪些對應的合規防禦措施（暫態快照、顯存加密、命名空間實體隔離）？
+4. 某無伺服器供應商支援 GPU 顯示記憶體快照（如 Modal），但你的資訊安全團隊以「快照可能殘留歷史使用者的個資 PII」為由拒絕導入。以架構師的視角同時列出雙方的論證焦點——真實的資安攻擊面在哪裡？有哪些對應的合規防禦措施（暫態快照、顯示記憶體加密、命名空間實體隔離）？
 5. 設計一套分級預熱池調度策略：付費企業用戶、免費試用用戶與背景離線批次任務，各應當分配多少預熱副本？列出背後支撐決策的數學算式。
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Cold start | "the big pause" | Time from request to first token on a fresh replica |
-| Warm pool | "always-on minimum" | `min_workers >= 1` to keep at least one replica ready |
-| Pre-seeded image | "baked AMI" | Node image with container weights pre-resident |
-| Bottlerocket | "AWS node OS" | AWS container-optimized OS with dual-volume snapshot support |
-| Model streamer | "streaming load" | Overlap weights I/O with compute setup |
-| GPU snapshot | "checkpoint to HBM" | Serialize post-load GPU state; deserialize on restart |
-| Tiered loading | "NVMe + DRAM + HBM" | Hierarchy of storage tiers; load on demand |
-| Live migration | "move tokens" | Transfer input (KB), recompute KV on destination |
-| `min_workers` | "warm replicas" | Serverless minimum keep-alive count |
-| Scale-to-zero | "full serverless" | No cost when idle; accept full cold-start tax |
+| Cold start | 「漫長停頓」 | 從全新副本收到請求到輸出首個 token 的時間 |
+| Warm pool | 「常駐最低數量」 | 以 `min_workers >= 1` 至少保留一個就緒副本 |
+| Pre-seeded image | 「預先製作的 AMI」 | 預先載入容器映像檔及權重的節點映像檔 |
+| Bottlerocket | 「AWS 節點作業系統」 | AWS 的容器最佳化作業系統，支援雙磁碟區快照 |
+| Model streamer | 「串流載入」 | 將權重 I/O 與運算環境設定重疊執行 |
+| GPU snapshot | 「HBM 檢查點」 | 序列化載入後的 GPU 狀態，並在重新啟動時還原 |
+| Tiered loading | 「NVMe、DRAM、HBM」 | 分層儲存架構；依需求載入 |
+| Live migration | 「移轉 token」 | 傳輸輸入（KB），並在目的端重算 KV |
+| `min_workers` | 「預熱副本」 | 無伺服器環境中最低保留的副本數 |
+| Scale-to-zero | 「完全無伺服器」 | 閒置時不產生費用，但需接受完整冷啟動成本 |
 
 ## Further Reading｜延伸閱讀
 

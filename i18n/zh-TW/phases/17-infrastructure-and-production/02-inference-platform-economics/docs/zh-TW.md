@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你評估過各大超大規模雲端平台後，得出結論：你需要更聚焦、推論延遲更低的專業服務商——追求極致延遲選 Fireworks、追求全模型覆蓋選 Together、部署自研 fine-tuning 模型選 Baseten。然而當你面對六家真實廠商的定價頁面時，卻發現維度完全無法對齊：Fireworks shows $/M tokens; Baseten shows $/minute; Modal shows $/second; Replicate shows $/prediction. 在不對真實負載建立數學模型的前提下，你根本無法將它們放在同一個基準上橫向對比。
+你評估過各大超大規模雲端平台後，得出結論：你需要更聚焦、推論延遲更低的專業服務商——追求極致延遲選 Fireworks、追求全模型覆蓋選 Together、部署自研 fine-tuning 模型選 Baseten。然而當你面對六家真實廠商的定價頁面時，卻發現維度完全無法對齊：各家定價頁的標示單位分別為「Fireworks shows $/M tokens; Baseten shows $/minute; Modal shows $/second; Replicate shows $/prediction」。 在不對真實負載建立數學模型的前提下，你根本無法將它們放在同一個基準上橫向對比。
 
 更棘手的是，每份定價頁面背後的商業邏輯截然不同。Fireworks 在共享 GPU 上運作自研的 FireAttention 專屬推論引擎，其每 Token 費率直接反映了其算力利用率曲線；Baseten 提供 Truss 打包框架與獨佔專屬 GPU，其按分鐘計費反映的是資源專有權；Modal 則是徹底的 Python 無伺服器（Serverless）架構——提供按秒計費與亞秒級的冷啟動體驗。產出完全相同的文字（一段 LLM 回應），背後卻對應三種本質迥異的成本函數。
 
@@ -96,7 +96,7 @@ cost-per-token
 
 ## Use It｜實際應用
 
-`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。直接計算 Reports $/day and effective $/M tokens. 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
+`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出內容為 $/day and effective $/M tokens（每日成本與有效每百萬 Token 費率）。 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
 
 ## Ship It｜交付成果
 
@@ -112,17 +112,17 @@ cost-per-token
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Custom silicon | "non-GPU chips" | Groq LPU, Cerebras WSE, SambaNova RDU — optimized for decode |
-| FireAttention | "Fireworks engine" | Custom attention kernel; marketed at 4x lower latency than vLLM |
-| Truss | "Baseten's format" | Model packaging manifest; dependencies + secrets + serving config |
-| Per-token | "API pricing" | Charge by tokens consumed; pay for no idle |
-| Per-minute | "dedicated pricing" | Charge by wall-clock GPU time; wins at high utilization |
-| Per-prediction | "Replicate pricing" | Charge per model invocation; common for image/video |
-| RayTurbo | "Anyscale engine" | Proprietary inference on Ray; competes with vLLM on Ray clusters |
-| Batch tier | "50% off" | Non-interactive queue at reduced rate; common on Fireworks, OpenAI |
-| Fine-tuned at base rate | "Fireworks LoRA" | Charge LoRA-served requests at base model's rate (differentiator) |
+| Custom silicon | 「非 GPU 晶片」 | Groq LPU、Cerebras WSE、SambaNova RDU；針對解碼最佳化 |
+| FireAttention | 「Fireworks 引擎」 | 自訂注意力核心；宣稱延遲比 vLLM 低 4 倍 |
+| Truss | 「Baseten 的格式」 | 模型封裝資訊清單，列出相依套件、密鑰與服務設定 |
+| Per-token | 「API 計價」 | 依使用的 token 計費；不需支付閒置成本 |
+| Per-minute | 「專屬資源計價」 | 依 GPU 實際運作時間計費；高利用率時較有利 |
+| Per-prediction | 「Replicate 計價」 | 每次模型呼叫計費；常用於影像／影片模型 |
+| RayTurbo | 「Anyscale 引擎」 | Ray 上的專有推論引擎；在 Ray 叢集上與 vLLM 競爭 |
+| Batch tier | 「五折方案」 | 以較低費率處理非互動式佇列；Fireworks、OpenAI 等提供此方案 |
+| Fine-tuned at base rate | 「Fireworks LoRA」 | 使用 LoRA 服務的請求依基礎模型費率計費（差異化之處） |
 
 ## Further Reading｜延伸閱讀
 

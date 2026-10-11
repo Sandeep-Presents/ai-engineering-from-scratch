@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你的團隊即將啟動一項私有化自建大模型推論服務。一位工程師強推 Ollama，另一位工程師非 vLLM 不用，第三位工程師則好奇發問「Hugging Face 的 TGI 難道不能開箱即用嗎？」這三種主張放在特定的孤立語境下皆有其道理，但沒有任何一個引擎能通吞全場。
+你的團隊即將啟動一項私有化自建大模型推論服務。一位工程師強推 Ollama，另一位工程師非 vLLM 不用，第三位工程師則好奇發問「Hugging Face 的 TGI 難道不能開箱即用嗎？」這三種主張放在特定的孤立語境下皆有其道理，但沒有任何一個引擎適用所有情境。
 
 在 2026 年，選型決策樹擁有不可顛倒的優先順序：硬體維度第一、並行規模第二、業務特徵第三。此外，一項發生在 2025 年底的標誌性產業大事件——TGI 於 12 月 11 日正式轉入維護模式——徹底改寫了新創專案的預設起點。
 
@@ -40,7 +40,7 @@
 
 **NVIDIA Hopper 架構（H100 / H200）** → vLLM、SGLang 與 TRT-LLM 皆屬頂級梯隊。三者皆能充分釋放第四代 Tensor Core 的強悍潛力。
 
-**NVIDIA Blackwell 架構（B200 / GB200）** → TRT-LLM 憑藉對 NVFP4 與原生硬體微縮放指令的極致壓榨在吞吐量上領跑全場（第 17 課第 07 節）。vLLM 與 SGLang 緊隨其後。
+**NVIDIA Blackwell 架構（B200 / GB200）** → TRT-LLM 在吞吐量上領先（第 17 課第 07 節）。vLLM 與 SGLang 緊隨其後。
 
 **Apple Silicon（M 系列晶片）** → llama.cpp（底層調用 Metal GPU）。Ollama 本質上是對其進行了外層包裝。
 
@@ -48,7 +48,7 @@
 
 **單人 / 本機開發測試** → 果斷選用 Ollama。單行指令拉起，數秒內輸出第一個字。
 
-**10 至 100 位並行使用者 / 中小微團隊內部工具** → vLLM 單機單卡或小型單機多卡。
+**10 至 100 位並行使用者 / 中小微團隊內部工具** → vLLM 單 GPU。
 
 **100 至 10,000 位並行使用者 / 商業化正式環境** → vLLM production-stack（第 17 課第 18 節）或 SGLang。
 
@@ -58,7 +58,7 @@
 
 **常規開放式對話 / 簡短問答** → vLLM 憑藉其最全面的通用調校穩操勝券。
 
-**多輪對話 Agent 智慧代理（頻繁工具呼叫、動態規劃、記憶體檢索）** → SGLang 的 RadixAttention 基數樹快取（第 17 課第 06 節）展現出絕對統治力。
+**多輪對話 Agent 智慧代理（頻繁工具呼叫、動態規劃、記憶檢索）** → SGLang 的 RadixAttention 基數樹快取（第 17 課第 06 節）展現出絕對統治力。
 
 **前綴高度重複的巨型 RAG 檢索** → 毫無懸念首選 SGLang。
 
@@ -74,7 +74,7 @@ Hugging Face 官方於 2025 年 12 月 11 日正式宣告 TGI 轉入維護模式
 
 ### 漸進式流水線模式（The pipeline pattern）
 
-開發環境（Ollama） → 預發布測試環境（llama.cpp） → 正式環境（vLLM / SGLang）。不同引擎吃完全不同的二進位權重格式——llama.cpp 家族吃量化封裝後的 GGUF，而現代 GPU 推論引擎吃原生 Hugging Face safetensors 格式——因此在跨階段推進時，工程管線中必須明確架構格式轉換環節。工程師在筆電上極速開發；測試環境精確映射正式環境的量化行為；正式環境全額釋放 GPU 算力。
+開發環境（Ollama） → 預發布測試環境（llama.cpp） → 正式環境（vLLM / SGLang）。不同引擎吃完全不同的二進位權重格式——llama.cpp 家族使用量化封裝後的 GGUF，而現代 GPU 推論引擎使用原生 Hugging Face safetensors 格式——因此跨階段時，工程管線中可能需要安排格式轉換。工程師在筆電上極速開發；測試環境精確映射正式環境的量化行為；正式環境全額釋放 GPU 算力。
 
 ### Ollama 的邊界警示（Ollama caveat）
 
@@ -113,17 +113,17 @@ data-parallel
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| llama.cpp | "the CPU one" | Widest model support, fastest on CPU |
-| Ollama | "the laptop one" | One-command install, dev-grade throughput |
-| TGI | "HF's serving" | Maintenance mode since Dec 2025 |
-| vLLM | "the default" | Broad production baseline 2026 |
-| SGLang | "the agentic one" | Prefix-heavy, RadixAttention |
-| TRT-LLM | "NVIDIA-locked" | Blackwell throughput leader, NVIDIA only |
-| GGUF | "llama.cpp format" | Bundled K-quant variants |
-| Production-stack | "vLLM K8s" | Phase 17 · 18 reference deployment |
-| Pipeline pattern | "dev→stage→prod" | Ollama → llama.cpp → vLLM; weight formats differ per engine |
+| llama.cpp | 「CPU 專用」 | 支援的模型最廣，在 CPU 上速度最快 |
+| Ollama | 「筆電用」 | 一個指令即可安裝，吞吐量適合開發用途 |
+| TGI | 「HF 的推論服務」 | 自 2025 年 12 月起進入維護模式 |
+| vLLM | 「預設選項」 | 2026 年通用的正式環境基準方案 |
+| SGLang | 「agent 專用」 | 適合前綴密集型工作負載，採用 RadixAttention |
+| TRT-LLM | 「綁定 NVIDIA」 | Blackwell 吞吐量領先，僅支援 NVIDIA |
+| GGUF | 「llama.cpp 格式」 | 封裝多種 K-quant 變體 |
+| Production-stack | 「vLLM Kubernetes」 | 第 17 課第 18 節的參考部署 |
+| Pipeline pattern | 「開發→預備→正式」 | Ollama → llama.cpp → vLLM；各引擎使用不同權重格式 |
 
 ## Further Reading｜延伸閱讀
 

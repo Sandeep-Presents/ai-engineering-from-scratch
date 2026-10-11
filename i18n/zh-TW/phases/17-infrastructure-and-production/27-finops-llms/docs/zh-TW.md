@@ -1,6 +1,6 @@
 # LLM FinOps 財務維運——單位經濟學與多租戶成本歸因（FinOps for LLMs — Unit Economics and Multi-Tenant Attribution）
 
-> 傳統的雲端財務維運（FinOps）面對大模型推論支出時全面失效。大模型的費用本質上是離散的 Token 事務交易，而非伺服器資源的實體運作時數。傳統標籤（Tags）在此失去意義——一次 API 呼叫是一筆即時交易，而非一項靜態雲端資產。工程架構決策（Prompt 模板設計、上下文視窗大小、最大輸出長度限制）直接等價於企業的財務決策。2026 年的成熟操作手冊要求從上線第一天起強制埋點三大歸因維度：按使用者維度（`user_id`）服務於席位定價與帳戶擴展、按任務維度（`task_id` + `route`）服務於產品功能成本拆解與研發優先權、按租戶維度（`tenant_id`）服務於單位經濟效益核算與合約續約談判。精細劃分四大 Token 成本層次——Prompt 輸入、工具呼叫、長程記憶、模型回應——將它們混為一談只會讓成本黑洞徹底隱形。面向多租戶 SaaS 產品的三級強制執行階梯：按租戶實施速率限制（預設為峰值預期的 2 至 3 倍，嚴格回傳 429 與 Retry-After）；每日支出軟上限（合約額度的 1.5 至 3 倍，觸發速率收緊並警報客戶成功團隊）；終極熔斷斷路器（當單日支出 Z-score > 4 時自動凍結租戶並呼叫值班工程師）。六大歸因架構模式：打標聚合、遙測連接（基於 Trace-ID 關聯帳單，精度最高）、隨機採樣推估、模型回歸推導、事件溯源、即時串流儀表板。衡量單位指標：每解決一次客戶諮詢的成本、每生成一份業務工件的成本——絕非單純供應商術語中的「每百萬 Token 美元」。事後溯源打標永遠存在死角；必須在請求建立的發起點強制注入中繼資料。
+> 傳統的雲端財務維運（FinOps）面對大模型推論支出時全面失效。大模型的費用本質上是離散的 Token 事務交易，而非伺服器資源的實體運作時數。傳統標籤（Tags）在此失去意義——一次 API 呼叫是一筆即時交易，而非一項靜態雲端資產。工程架構決策（Prompt 模板設計、上下文視窗大小、最大輸出長度限制）直接等價於企業的財務決策。2026 年的成熟操作手冊要求從上線第一天起強制埋點三大歸因維度：按使用者維度（`user_id`）服務於席位定價與帳戶擴展、按任務維度（`task_id` + `route`）服務於產品功能成本拆解與研發優先權、按租戶維度（`tenant_id`）服務於單位經濟效益核算與合約續約談判。精細劃分四大 Token 成本層次——Prompt 輸入、工具呼叫、長程記憶、模型回應——將它們混為一談只會讓成本黑洞徹底隱形。面向多租戶 SaaS 產品的三級強制執行階梯：按租戶實施速率限制（預設為峰值預期的 2 至 3 倍，嚴格回傳 429 與 Retry-After）；每日支出軟上限（合約額度的 1.5 至 3 倍，觸發速率收緊並警報客戶成功團隊）；終極熔斷斷路器（當單日支出 Z-score > 4 時自動凍結租戶並呼叫值班工程師）。六大歸因架構模式：打標聚合、遙測連接（基於 Trace-ID 關聯帳單，精度最高）、隨機採樣推估、模型回歸推導、事件溯源、即時串流儀表板。衡量單位指標：每個已解決查詢的成本、每件生成產物的成本——絕非單純供應商術語中的「每百萬 Token 美元」。事後溯源打標永遠存在死角；必須在請求建立的發起點強制注入中繼資料。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy cost-attribution simulator with kill switch)
@@ -103,7 +103,7 @@ trace_id: abc123
 - 模型動態路由（第 17 課第 16 節）：將低難度任務分流至輕量模型，再省 60%。
 - 智慧閘道容錯與退避（第 17 課第 19 節）：消除冗餘重試與網路死耗。
 
-全套疊加的最佳實踐效果：總帳單能被壓縮至原始天真同步未快取基準線的約 **5% 至 10%**。絕大多數平庸團隊僅啟用了其中一至兩項操作槓桿；唯有將四者全部打通，才能在商業競爭中建立無可匹敵的毛利護城河。
+全套疊加的最佳實踐效果：總帳單能被壓縮至原始天真同步未快取基準線的約 **5% 至 10%**。大多數團隊已啟用其中 2 至 3 項槓桿；只有少數團隊將四項全部疊加。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
@@ -135,18 +135,18 @@ i4-spend-ladder
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Per-user attribution | "user-level cost" | `user_id` stamped on every call |
-| Per-task attribution | "feature cost" | `task_id` + `route` identify product surface |
-| Per-tenant attribution | "customer cost" | `tenant_id`; drives unit economics |
-| Four token layers | "cost layers" | prompt + tool + memory + response |
-| Rate limit | "429 guard" | Per-tenant ceiling enforced at gateway |
-| Daily spend cap | "daily ceiling" | Tenant-scoped budget with alert |
-| Kill switch | "auto-pause" | Spend z-score > 4 triggers auto-suspension |
-| Cost per resolved | "product unit metric" | Cost tied to product outcome, not tokens |
-| Telemetry joiner | "trace-to-billing" | Highest-accuracy attribution pattern |
-| Stacked optimization | "cache+batch+route+gateway" | Compounding savings to ~5-10% baseline |
+| Per-user attribution | 「使用者層級成本」 | 每次呼叫都標記 `user_id` |
+| Per-task attribution | 「功能成本」 | 以 `task_id` + `route` 識別產品功能 |
+| Per-tenant attribution | 「客戶成本」 | 以 `tenant_id` 歸因，支援單位經濟分析 |
+| Four token layers | 「成本層次」 | prompt + tool + memory + response |
+| Rate limit | 「429 防護」 | 由閘道執行的租戶層級上限 |
+| Daily spend cap | 「每日上限」 | 租戶層級的預算與警示 |
+| Kill switch | 「自動暫停」 | 支出 z-score > 4 時觸發自動暫停 |
+| Cost per resolved | 「產品單位指標」 | 以產品成果而非 token 計算成本 |
+| Telemetry joiner | 「追蹤資料連結帳單」 | 精確度最高的歸因模式 |
+| Stacked optimization | 「快取 + 批次 + 路由 + 閘道」 | 疊加後可將成本降至基準的約 5% 至 10% |
 
 ## Further Reading｜延伸閱讀
 

@@ -16,9 +16,9 @@
 
 ## The Problem｜問題
 
-你的推論服務同時跨越 us-east-1、us-west-2 與 eu-west-1 三大區域運作。你在前端掛載了一台傳統 ALB 負載平衡器，並配置了經典的循環輪替（round-robin）策略。上線後正式環境的前綴快取命中率暴跌至 8%。P50 TTFT 首字延遲暴增為原先的三倍。vLLM 的底層日誌無情揭示：每一個請求都在顯存中重複支付完整的 Prefill 算力代價。
+你的推論服務同時跨越 us-east-1、us-west-2 與 eu-west-1 三大區域運作。你在前端掛載了一台傳統 ALB 負載平衡器，並配置了經典的循環輪替（round-robin）策略。上線後正式環境的前綴快取命中率暴跌至 8%。P50 TTFT 首字延遲暴增為原先的三倍。vLLM 的底層日誌無情揭示：每一個請求都在重複支付完整的 Prefill 算力代價。
 
-循環輪替演算法是為無狀態（Stateless）微服務量身打造的完美策略。然而大模型推論在本質上高度有狀態——KV 快取深深刻錄著模型過去所看過的一切歷史。盲目的負載均衡，無異於將請求持續送進錯誤的顯存空洞中。
+循環輪替演算法是為無狀態（Stateless）微服務量身打造的完美策略。然而大模型推論在本質上高度有狀態——KV 快取深深刻錄著模型過去所看過的一切歷史。盲目的負載均衡，無異於將請求持續送進錯誤的快取中。
 
 與此同時，你的團隊制定了一套災難復原（DR）計畫。你們定期將模型權重跨區域同步備份至 S3。某個清晨某個主區域突發嚴重斷網；你們匆忙啟動異地容錯移轉（Failover）；然而新拉起的副本卻報錯拒絕啟動。排查發現：tokenizer.json、量化配置參數與 RoPE 頻率縮放設定被放置在另一個未同步的獨立儲存貯體中。
 
@@ -28,7 +28,7 @@
 
 ### 快取感知路由機制（Cache-aware routing）
 
-當攜帶 Prompt 的新請求抵達時：路由器首先對其公共前綴進行雜湊運算（例如截取前 512 個 Token 的 Hash 值）；隨後向叢集內的所有推論副本發起快速檢索：「你們誰的顯存中已經快取了這個前綴？」。推論副本在內部動態配置或釋放 KV Block 時，會透過 Pub/Sub 事件佇列即時廣播 KV 快取生命週期事件。路由器直接命中持有該前綴的副本；若全場皆無快取，則優雅降級回退至依據當前 GPU 佇列深度進行最優負載均衡。
+當攜帶 Prompt 的新請求抵達時：路由器首先對其公共前綴進行雜湊運算（例如截取前 512 個 Token 的 Hash 值）；隨後向叢集內的所有推論副本發起快速檢索：「你們誰已經快取了這個前綴？」。推論副本在內部動態配置或釋放 KV Block 時，會透過 Pub/Sub 事件佇列即時廣播 KV 快取生命週期事件。路由器直接命中持有該前綴的副本；若全場皆無快取，則優雅降級回退至依據當前 GPU 佇列深度進行最優負載均衡。
 
 **vLLM Router**（2026 年以 Rust 深度重構的工業級路由元件）：在背景即時監聽 `kv.cache.block_added` 等微事件，在記憶體中維護高效率的 prefix-hash → replica 倒排索引，實現 O(1) 極速路由檢索。在完全未命中時自動回退至最小排隊深度調度。
 
@@ -51,7 +51,7 @@
 - us-east-1 ↔ eu-west-1：約 75 ms。
 - us-east-1 ↔ ap-southeast-1：高達約 220 ms。
 
-若路由器為了追求命中熱門前綴，強行將發源於 us-east-1 的請求跨大洋路由至 ap-southeast-1，那麼即便在 Prefill 階段節省了 720 ms（800 ms → 80 ms），這份收益也將被高達 440 ms 的跨洋網路往返傳輸與 TLS 握手徹底吃乾抹淨。2026 年最新前沿研究 GORGO 將這項權衡數學化：系統必須聯合最佳化 `prefill_time + network_latency` 的總和，絕非單純盲目追求顯存快取命中。成熟架構的標準策略是：快取路由嚴格限制在本區域內部；唯有當面對需要消耗數秒運算的多兆位元組（Multi-MB）超長巨型前綴時，跨洲跨區調度才具備實質正向收益。
+若路由器為了追求命中熱門前綴，強行將發源於 us-east-1 的請求跨大洋路由至 ap-southeast-1，那麼即便在 Prefill 階段節省了 720 ms（800 ms → 80 ms），這份收益也會受到 440 ms 跨區域網路往返延遲的顯著影響。2026 年最新前沿研究 GORGO 將這項權衡數學化：系統必須聯合最佳化 `prefill_time + network_latency` 的總和，絕非單純盲目追求快取命中。通常應將路由留在區域內；只有在超大多 MB 前綴的 prefill 優勢足以抵銷網路延遲時，才考慮跨區。
 
 ### 商業「跨區域推論」在此無法提供實質幫助（Commercial "cross-region inference" does not help here）
 
@@ -61,7 +61,7 @@ AWS Bedrock 的跨區域推論（Cross-Region Inference, CRI）能夠在某個�
 
 ### 災難復原紀律——致命的 32% 設定缺漏問題（DR hygiene — the 32% missing-files problem）
 
-2026 年業界權威統計數字：高達 32% 的大模型災難復原演練之所以遭遇慘痛失敗，純粹是因為工程團隊只備份了龐大的權重權重，卻將以下關鍵檔案拋諸腦後：
+2026 年業界權威統計數字：高達 32% 的大模型災難復原演練之所以遭遇慘痛失敗，純粹是因為工程團隊只備份了龐大的權重，卻將以下關鍵檔案拋諸腦後：
 
 - `tokenizer.json` 或 `tokenizer.model` 字典檔案。
 - 量化配置描述檔（`quantize_config.json`、AWQ 縮放矩陣、GPTQ 零點檔案）。
@@ -70,7 +70,7 @@ AWS Bedrock 的跨區域推論（Cross-Region Inference, CRI）能夠在某個�
 
 標準解法是落實嚴格的「災備三合一資訊清單（DR Manifest）」：
 
-1. HuggingFace 模型倉庫路徑下的全量檔案（權重 + 完整 Config + Tokenizer）。
+1. HuggingFace 模型儲存庫路徑下的全量檔案（權重 + 完整 Config + Tokenizer）。
 2. 推論服務引擎專屬的組態配置檔。
 3. 容器部署清單（K8s 宣告式 YAML、Dockerfile、相依套件精確鎖定檔）。
 
@@ -109,17 +109,17 @@ cache-aware-router
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Cache-aware routing | "smart LB" | Route on prefix-hash match to KV-cache-holding replica |
-| KV-cache events | "cache pub-sub" | Replicas publish block add/evict; router indexes |
-| Prefix hash | "cache key" | Hash of first N tokens used as router lookup |
-| GORGO | "cross-region routing research" | arXiv 2602.11688; network latency as explicit term |
-| Cross-region inference | "Bedrock CRI" | AWS product; availability failover, not TTFT awareness |
-| DR manifest | "the backup list" | Every file needed to restore — not just weights |
-| Data residency | "GDPR boundary" | Legal constraint on which region sees user data |
-| RTT | "round-trip time" | Network latency; 75 ms US-EU, 220 ms US-APAC |
-| LLM-aware LB | "cache-hit LB" | Cache-aware router as a product category |
+| Cache-aware routing | 「智慧型 LB」 | 依前綴雜湊比對，將請求路由至持有 KV 快取的副本 |
+| KV-cache events | 「快取發布／訂閱」 | 副本發布區塊新增／逐出事件；路由器建立索引 |
+| Prefix hash | 「快取索引鍵」 | 將前 N 個 token 雜湊後，供路由器查詢 |
+| GORGO | 「跨區域路由研究」 | arXiv 2602.11688；將網路延遲列為明確項目 |
+| Cross-region inference | 「Bedrock CRI」 | AWS 產品；處理可用性容錯移轉，不會感知 TTFT |
+| DR manifest | 「備份清單」 | 還原所需的所有檔案，不只有權重 |
+| Data residency | 「GDPR 邊界」 | 限制哪些區域可以接觸使用者資料的法律規範 |
+| RTT | 「往返時間」 | 網路延遲；美國－歐洲為 75 ms，美國－亞太為 220 ms |
+| LLM-aware LB | 「快取命中負載平衡器」 | 快取感知路由器這類產品的分類 |
 
 ## Further Reading｜延伸閱讀
 

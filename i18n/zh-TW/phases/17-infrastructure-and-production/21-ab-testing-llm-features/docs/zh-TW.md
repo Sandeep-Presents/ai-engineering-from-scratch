@@ -1,6 +1,6 @@
 # LLM 功能的 A/B 測試——GrowthBook、Statsig 與「憑感覺上線」的終結（A/B Testing LLM Features — GrowthBook, Statsig, and the Vibes Problem）
 
-> 傳統的 A/B 測試框架並非為具備隨機非確定性（Non-deterministic）的 LLM 量身打造。兩者存在本質分工邊界：離線評測（Evals）回答「模型是否有能力勝任該任務？」線上 A/B 測試則回答「真實使用者究竟在不在意這項改變？」兩者皆屬不可或缺的硬性要求；純憑個人主觀感覺（Vibe checks）拍板發布的草莽時代已經終結。2026 年核心測試三大維度：Prompt 工程（措辭修飾）、模型選型（GPT-4 vs GPT-3.5 vs 開源模型；精度 vs 成本 vs 延遲的三角權衡），以及生成參數（Temperature、Top-p）。真實經典實戰成效：某對話機器人採用獎勵模型調校變體後，平均對話輪數激增 +70%、使用者留存率提升 +30%；Nextdoor 在精修獎勵函數後點閱率（CTR）實現了 +1% 的淨增長；可汗學院（Khan Academy）的 Khanmigo 助手則在延遲與數學精確度之間找到了最佳平衡點。平台雙雄格局：**Statsig**（於 2025 年 9 月被 OpenAI 以 11 億美元強勢收購）——原生整合循序檢定（Sequential testing）、CUPED 變異數縮減與全端一體化控制台。**GrowthBook**——採 MIT 授權開源，原生生長於雲端資料倉儲之上，提供貝氏、頻率學派與循序檢定三大引擎，完整實裝 CUPED、SRM 樣本失配校驗，以及 Benjamini-Hochberg 與 Bonferroni 多重比較校正。選型取決於企業對資料倉儲 SQL 的偏好，以及貴公司是否介意採用「已被 OpenAI 納入麾下」的商業軟體。
+> 傳統的 A/B 測試框架並非為具備隨機非確定性（Non-deterministic）的 LLM 量身打造。兩者存在本質分工邊界：離線評測（Evals）回答「模型是否有能力勝任該任務？」線上 A/B 測試則回答「真實使用者究竟在不在意這項改變？」兩者皆屬不可或缺的硬性要求；純憑個人主觀感覺（Vibe checks）拍板發布的草莽時代已經終結。2026 年核心測試三大維度：Prompt 工程（措辭修飾）、模型選型（GPT-4 vs GPT-3.5 vs 開源模型；準確率 vs 成本 vs 延遲的三角權衡），以及生成參數（Temperature、Top-p）。真實經典實戰成效：某對話機器人採用獎勵模型調校變體後，平均對話輪數激增 +70%、使用者留存率提升 +30%；Nextdoor 在精修獎勵函數後點閱率（CTR）實現了 +1% 的淨增長；可汗學院（Khan Academy）的 Khanmigo 助手則反覆調整延遲與數學準確率之間的取捨。平台雙雄格局：**Statsig**（於 2025 年 9 月被 OpenAI 以 11 億美元強勢收購）——原生整合循序檢定（Sequential testing）、CUPED 變異數縮減與全端一體化控制台。**GrowthBook**——採 MIT 授權開源，原生生長於雲端資料倉儲之上，提供貝氏、頻率學派與循序檢定三大引擎，完整實裝 CUPED、SRM 樣本失配校驗，以及 Benjamini-Hochberg 與 Bonferroni 多重比較校正。選型取決於企業對資料倉儲 SQL 的偏好，以及貴公司是否介意採用「已被 OpenAI 納入麾下」的商業軟體。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy sequential test simulator)
@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-你手動調校了一段新的系統 Prompt。你讀起來覺得語氣舒服多了。你直接將其全量發布至正式環境。隨後產品的轉化率在統計噪聲區間內微幅震盪。你把責任推給指標不靈敏。或者你發布了一款新模型，而轉化率紋絲不動——究竟是模型發生了隱微的退化，還是這項改動本身太過微小根本無法被偵測？你完全無法得出客觀結論，因為你從未經過嚴密的 A/B 雙盲實驗。
+你手動調校了一段新的系統 Prompt。你讀起來覺得語氣舒服多了。你直接將其全量發布至正式環境。隨後產品的轉化率在統計雜訊區間內微幅震盪。你把責任推給指標不靈敏。或者你發布了一款新模型，而轉化率紋絲不動——究竟是模型發生了隱微的退化，還是這項改動本身太過微小根本無法被偵測？你完全無法得出客觀結論，因為你從未經過嚴密的 A/B 雙盲實驗。
 
 離線 Evals 只能驗證模型在已標註的固定資料集上是否具備特定任務能力。它絲毫無法回答真實使用者是否真心偏好這項輸出。唯有在線上對真實使用者展開受控的隨機分流實驗才能給出確鑿答案——且前提是該實驗具備足夠的統計檢定力（Power）、妥善控制了 LLM 的底層非確定性，並嚴格實施了多重假設檢定校正。
 
@@ -26,7 +26,7 @@
 
 **離線評測（Evals）**——離線執行、依賴已標註測試集、由評估器評判（評分量表 Rubric、LLM-as-a-judge 或人工審查）。回答的核心問題：「在當前這份固定資料分佈下，模型的輸出是否足夠正確、有幫助且安全？」
 
-**線上 A/B 測試（A/B test）**——即時線上、面向真實活躍使用者、嚴格隨機雙盲分流。回答的核心問題：「這個候選新版本是否真正推動了業務層面最核心的使用者指標？」
+**線上 A/B 測試（A/B test）**——在線上面向真實使用者，以隨機方式分派。回答的核心問題：「這個候選新版本是否真正推動了業務層面最核心的使用者指標？」
 
 兩者缺一不可。Evals 在模型接觸真實使用者前攔截回歸缺陷；A/B 測試則在發布後實時確認對產品業務的實質影響。
 
@@ -75,19 +75,19 @@ Controlled-experiments Using Pre-Experiment Data（基於實驗前資料的受�
 
 ### 工業級真實案例實效（Real case outcomes）
 
-- 某對話機器人透過獎勵模型調校版本：平均單次 Session 對話長度提升 +70%，使用者次月留存率提升 +30%。
+- 某對話機器人透過獎勵模型調校版本：平均單次 Session 對話長度提升 +70%，使用者留存率提升 +30%。
 - Nextdoor 社交平台 AI 郵件主旨行實驗：在經過精細化獎勵函數迭代後，郵件點閱率（CTR）取得 +1% 淨增長。
-- 可汗學院 Khanmigo 教育助手：在推論延遲與高難度數學解題精確度之間找到了最優的帕累托平衡點。
+- 可汗學院 Khanmigo 教育助手：在推論延遲與高難度數學解題準確率之間調整取捨。
 
 ### 致命反模式：憑個人感覺拍板發布（The anti-pattern: shipping on vibes）
 
-任何一位資深工程師都能隨口舉出數個因為某位主管「覺得語氣變好聽了」而未經 A/B 盲目發布的災難案例。絕大多數此類功能在無聲無息中重創了核心業務轉化指標，團隊往往耗費數月才猛然發現。嚴謹的 A/B 線上實驗是阻止團隊盲目自信的唯一硬性約束。
+任何一位資深工程師都能隨口舉出數個因為某位主管「覺得語氣變好聽了」而未經 A/B 盲目發布的災難案例。大多數此類功能都會使產品指標退步，團隊往往耗費數月才猛然發現。嚴謹的 A/B 線上實驗是阻止團隊盲目自信的唯一硬性約束。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
 - Statsig 併購案：2025 年 9 月被 OpenAI 以 11 億美元收購。
 - GrowthBook：遵循 MIT 開源協議；集齊貝氏、頻率學派與循序檢定三大引擎。
-- CUPED 變異數縮減成效：實測可消減 30% 至 70% 的統計噪聲。
+- CUPED 變異數縮減成效：實測可消減 30% 至 70% 的統計雜訊。
 - 大模型非確定性緩衝係數：實驗樣本量需額外增加 30% 至 50%。
 
 ```figure
@@ -112,19 +112,19 @@ mx-sequential-test
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Eval | "offline test" | Labeled-set evaluation of model capability |
-| A/B test | "experiment" | Live randomized comparison on users |
-| CUPED | "variance reduction" | Pre-period regression to reduce variance |
-| Sequential test | "peek-ok test" | Always-valid procedure allowing early stop |
-| Multiple comparison | "the family error" | Running many tests inflates false positives |
-| Bonferroni | "tight correction" | Divide α by number of tests |
-| Benjamini-Hochberg | "BH FDR" | False-discovery-rate control, less conservative |
-| SRM | "bad split" | Sample ratio mismatch; assignment bug |
-| Statsig | "OpenAI owned" | Commercial all-in-one, acquired 2025 |
-| GrowthBook | "the OSS one" | MIT warehouse-native platform |
-| mSPRT | "sequential probability ratio test" | Classical sequential procedure |
+| Eval | 「離線測試」 | 使用標註資料集評估模型能力 |
+| A/B test | 「實驗」 | 對使用者進行線上隨機比較 |
+| CUPED | 「變異數縮減」 | 利用實驗前資料進行迴歸以降低變異數 |
+| Sequential test | 「可提早停止的檢定」 | 可在任何檢視時點保持有效並允許提早停止的程序 |
+| Multiple comparison | 「整體錯誤率」 | 同時執行多項測試會增加偽陽性 |
+| Bonferroni | 「嚴格校正」 | 將 α 除以測試數量 |
+| Benjamini-Hochberg | 「BH 假發現率」 | 控制假發現率，較不保守 |
+| SRM | 「分流異常」 | 樣本比例失配，可能是指派錯誤 |
+| Statsig | 「OpenAI 旗下」 | 2025 年收購的商業一體化平台 |
+| GrowthBook | 「開源版本」 | MIT 授權、資料倉儲原生的平台 |
+| mSPRT | 「序貫機率比檢定」 | 傳統的序貫檢定程序 |
 
 ## Further Reading｜延伸閱讀
 

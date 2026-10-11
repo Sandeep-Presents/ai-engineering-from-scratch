@@ -2,7 +2,7 @@
 
 > **定價快照日期：2026-04。** 以下數值宣稱反映本課發布時所擷取的各供應商官方費率表；在將其引用至下游決策之前，請務必點選連結查驗最新官方文件。
 
-> 快取發生在兩大獨立層次。L2（供應商層級）Prompt/前綴快取針對重複前綴重複利用注意力 KV——Anthropic 官方 Prompt 快取文件宣稱在長 Prompt 上最高可降低 90% 的成本與 85% 的延遲；在 Claude 3.5 Sonnet 上，快取讀取單價為每百萬 Token 0.30 美元，相比於全新輸入的 3.00 美元便宜 10 倍，預設具備 5 分鐘 TTL，並提供寫入溢價為 2 倍的 1 小時 TTL 選項（docs.anthropic.com，2026-04）。OpenAI 的 Prompt 快取則對大於等於 1,024 Token 的 Prompt 自動生效，快取輸入相較於全新輸入給予約 90% 的折扣（platform.openai.com，2026-04）；確切的各模型快取費率取決於即時費率表。L1（應用程式層級）語意快取則在 Embedding 向量相似度命中時，直接徹底繞過 LLM 推論。廠商標稱的「95% 準確率」指的是回傳快取的語意匹配正確性，而非命中率——實測正式環境中的真實命中率從 10%（開放式閒聊）跨越至 70%（結構化 FAQ）；兩大供應商皆未發布官方基準線，因此請將其視為社群實測經驗而非絕對保證。兩大經典正式環境陷阱：並行呼叫會徹底殺死快取（在首次快取寫入完成前發出的 N 個並行請求會導致帳單暴增數倍），以及前綴內部夾雜動態內容會導致快取完全無法命中。ProjectDiscovery 實測報告指出，僅僅透過將動態文字移出可快取前綴，其快取命中率便從 7% 暴衝至 74%（2025-11）。
+> 快取分成兩個層次。L2（供應商層級）Prompt/前綴快取針對重複前綴重複利用注意力 KV——Anthropic 官方 Prompt 快取文件宣稱在長 Prompt 上最高可降低 90% 的成本與 85% 的延遲；在 Claude 3.5 Sonnet 上，快取讀取單價為每百萬 Token 0.30 美元，相比於全新輸入的 3.00 美元便宜 10 倍，預設具備 5 分鐘 TTL，並提供寫入溢價為 2 倍的 1 小時 TTL 選項（docs.anthropic.com，2026-04）。OpenAI 的 Prompt 快取則對大於等於 1,024 Token 的 Prompt 自動生效，快取輸入相較於全新輸入給予約 90% 的折扣（platform.openai.com，2026-04）；確切的各模型快取費率取決於即時費率表。L1（應用程式層級）語意快取則在 Embedding 向量相似度命中時，直接徹底繞過 LLM 推論。廠商標稱的「95% 準確率」指的是回傳快取的語意匹配正確性，而非命中率——實測正式環境中的真實命中率從 10%（開放式閒聊）跨越至 70%（結構化 FAQ）；兩大供應商皆未發布官方基準線，因此請將其視為社群實測經驗而非絕對保證。兩大經典正式環境陷阱：並行呼叫會徹底殺死快取（在首次快取寫入完成前發出的 N 個並行請求會導致帳單暴增數倍），以及前綴內部夾雜動態內容會導致快取完全無法命中。ProjectDiscovery 實測報告指出，僅僅透過將動態文字移出可快取前綴，其快取命中率便從 7% 暴衝至 74%（2025-11）。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy two-layer cache simulator)
@@ -28,13 +28,13 @@
 
 ### L2——雲端供應商級 Prompt/前綴快取（L2 — provider prompt/prefix caching）
 
-供應商在實體顯存中保存可快取前綴的注意力 KV 快取，並在下一個完全匹配該前綴的請求抵達時直接重複利用。你只需在首次未命中時支付一次性寫入成本，後續讀取費用近乎免費。
+供應商會儲存可快取前綴的注意力 KV，並在下一個符合該前綴的請求中重複使用。你只需在首次未命中時支付一次性寫入成本，後續讀取費用近乎免費。
 
 **Anthropic（Claude 3.5 / 3.7 / 4 系列）**：在請求結構中強制顯式標註 `cache_control`。你親自指定哪些區塊具備可快取性。TTL 生命週期：5 分鐘（寫入成本為基準費率的 1.25 倍）或 1 小時（寫入成本為基準費率的 2 倍）。快取讀取單價：在 Claude 3.5 Sonnet 上僅為 0.30 美元/百萬 Token，相對於全新輸入的 3.00 美元足足便宜 10 倍（docs.anthropic.com，截至 2026-04）。不同模型（Opus/Haiku）費率獨立公布；務必對照即時定價頁面。
 
 **OpenAI**：針對長度大於等於 1,024 Token 的 Prompt 自動開啟快取（platform.openai.com，2026-04）。無需在請求中顯式標記任何開關。在現行 gpt-4o/gpt-5 費率表下，快取輸入單價約為全新輸入的十分之一。官方文件與版本紀錄皆未給出基準命中率保證；社群在精細化 Prompt 模板設計下實測回報約為 30% 至 60%。持續監控 `usage.cached_tokens` 指標以度量你自身的真實收益。
 
-**Google（Gemini）**：透過顯式 Context Caching API 運作；面對百萬級 Token 的超長上下文，快取的經濟效益更是呈現指數級放大。
+**Google（Gemini）**：透過顯式 Context Caching API 運作；面對百萬級 Token 的超長上下文，快取效益更高。
 
 **開源自建（vLLM、SGLang）**：第 17 課第 06 節詳述的 RadixAttention——在私有算力上實踐完全相同的架構哲學。
 
@@ -49,7 +49,7 @@
 - 開放式自由對話：10% 至 15%。
 - 結構化業務 FAQ 與客服：40% 至 70%。
 - 程式碼輔助生成：20% 至 30%（極微小的變數命名改動即會打破語意匹配）。
-- 固定語音助理的前置引導指令：50% 至 80%。
+- 重複 prompt 的語音 agent：50% 至 80%（採用固定語音正規化）。
 
 ### 並行反模式（The parallelization anti-pattern）
 
@@ -117,17 +117,17 @@ semantic-cache-hit
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| L2 prompt cache | "prefix cache" | Provider stores KV for repeated prefix |
-| `cache_control` | "Anthropic cache marker" | Explicit attribute marking cacheable blocks |
-| Cache write premium | "write tax" | Extra cost for first miss-to-cache (1.25x or 2x) |
-| L1 semantic cache | "embedding cache" | App-level hash-and-embed before calling LLM |
-| GPTCache | "LLM caching lib" | Popular OSS L1 cache library |
-| Cache hit rate | "hits / total" | Fraction of requests served from cache |
-| Parallelization anti-pattern | "the N-write trap" | N parallel requests miss cache N times |
-| Dynamic content trap | "the time-in-prompt trap" | Dynamic bytes in prefix kill hit rate |
-| RadixAttention | "intra-replica cache" | SGLang's prefix-cache implementation |
+| L2 prompt cache | 「前綴快取」 | 供應商儲存重複前綴的 KV |
+| `cache_control` | 「Anthropic 快取標記」 | 用來標記可快取區塊的明確屬性 |
+| Cache write premium | 「寫入額外費用」 | 首次未命中並寫入快取時產生的額外成本（1.25 倍或 2 倍） |
+| L1 semantic cache | 「embedding 快取」 | 呼叫 LLM 前，在應用層對內容雜湊並產生 embedding |
+| GPTCache | 「LLM 快取函式庫」 | 常見的開源 L1 快取函式庫 |
+| Cache hit rate | 「命中次數／總次數」 | 由快取提供服務的請求比例 |
+| Parallelization anti-pattern | 「N 次寫入陷阱」 | N 個並行請求各自都未命中快取，造成 N 次寫入 |
+| Dynamic content trap | 「prompt 中的時間陷阱」 | 前綴中的動態內容會破壞快取命中率 |
+| RadixAttention | 「副本內快取」 | SGLang 的前綴快取實作 |
 
 ## Further Reading｜延伸閱讀
 

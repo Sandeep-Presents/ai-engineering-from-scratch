@@ -1,6 +1,6 @@
 # 正式環境中的 LLM 混沌工程（Chaos Engineering for LLM Production）
 
-> 針對大語言模型系統的混沌工程在 2026 年已獨立演進為一門專門學科。在正式環境中展開主動破壞性實驗前，必須嚴格具備五大先決條件：明確的 SLI/SLO 目標、覆蓋 Trace+Metric+Log 的全鏈路可觀測性、秒級自動化回滾機制、標準化維運手冊（Runbook）以及專職值班人員。完整架構橫跨四大平面：控制平面（實驗排程調度器）、目標平面（微服務、實體架構、資料儲存層）、安全平面（防護欄 + 緊急終止按鈕 + 流量過濾器）、可觀測性平面（指標 + 追蹤 + 日誌），並形成反哺 SLO 動態調整的回饋閉環。安全防護欄是不可妥協的硬約束：燃盡率（Burn-rate）警報在單日錯誤預算消耗速度超過預期 2 倍時強制自動暫停實驗；靜默窗口與 Trace-ID 關聯機制可徹底消除混沌測試對值班人員的警報雜訊干擾。推薦實施節奏：每週進行小規模金絲雀驗證與 SLO 覆盤；每月舉行跨團隊防災演練日（Game Day）並產出故障覆盤檢討報告；每季度展開跨團隊系統韌性稽核與依賴圖譜梳理。大模型專屬五大經典混沌實驗：顯存超載、網路中斷、模型供應商大面積癱瘓、惡意畸形 Prompt 炸彈、KV 快取驅逐風暴。主流工具鏈：Harness Chaos Engineering（AI 輔助推薦、爆炸半徑自動降級、MCP 工具鏈原生整合）、LitmusChaos（CNCF 畢業級專案）、Chaos Mesh（CNCF 雲原生專案）。
+> 針對大語言模型系統的混沌工程在 2026 年已獨立演進為一門專門學科。在正式環境中展開主動破壞性實驗前，必須嚴格具備五大先決條件：明確的 SLI/SLO 目標、覆蓋 Trace+Metric+Log 的全鏈路可觀測性、秒級自動化回滾機制、標準化維運手冊（Runbook）以及專職值班人員。完整架構橫跨四大平面：控制平面（實驗排程調度器）、目標平面（微服務、實體架構、資料儲存層）、安全平面（防護欄 + 緊急終止按鈕 + 流量過濾器）、可觀測性平面（指標 + 追蹤 + 日誌），並形成反哺 SLO 動態調整的回饋閉環。安全防護欄是不可妥協的硬約束：燃盡率（Burn-rate）警報在單日錯誤預算消耗速度超過預期 2 倍時強制自動暫停實驗；靜默窗口會抑制爆炸半徑內的非實驗告警，並以 Trace-ID 關聯去重。推薦實施節奏：每週進行小規模金絲雀驗證與 SLO 覆盤；每月舉行跨團隊防災演練日（Game Day）並產出故障覆盤檢討報告；每季度展開跨團隊系統韌性稽核與依賴圖譜梳理。大模型專屬五大經典混沌實驗：顯存超載、網路中斷、模型供應商大面積癱瘓、惡意畸形 Prompt 炸彈、KV 快取驅逐風暴。主流工具鏈：Harness Chaos Engineering（AI 輔助推薦、爆炸半徑自動降級、MCP 工具鏈原生整合）、LitmusChaos（CNCF 畢業級專案）、Chaos Mesh（CNCF 雲原生專案）。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy chaos experiment runner)
@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-傳統微服務技術堆疊下的混沌工程早已成熟。然而大語言模型系統引入了前所未見的全新失效模式。一段長達 4k Token 且深嵌了特殊毒性字元的惡意 Prompt，直接導致 Tokenizer 陷入死循環卡死整整 12 秒。上游模型供應商突發 HTTP 429 限流；前端 Gateway 盲目啟動自動重試；瞬間產生的放大並行流量引發後端服務集體顯存溢位（OOM）崩潰。一次突發波峰負載觸發了 KV 快取驅逐風暴，引發全場序列排隊重新執行 Prefill，最終將 GPU 運算資源徹底吞噬。
+傳統微服務技術堆疊下的混沌工程早已成熟。然而大語言模型系統引入了前所未見的全新失效模式。一段長達 4k Token 且深嵌了特殊毒性字元的惡意 Prompt，直接導致 Tokenizer 停滯 12 秒。上游模型供應商突發 HTTP 429 限流；前端 Gateway 盲目啟動自動重試；瞬間產生的放大並行流量引發後端服務集體顯存溢位（OOM）崩潰。一次突發波峰負載觸發了 KV 快取驅逐風暴，引發全場序列排隊重新執行 Prefill，最終將 GPU 運算資源徹底吞噬。
 
 上述極端狀況在常規單元測試中完全隱形。混沌工程正是為了在真實使用者遭遇災難之前，主動在受控環境下將這些潛在暗病徹底逼出水面。
 
@@ -48,8 +48,8 @@
 
 ### 防護欄是絕對的剛性約束（Guardrails are mandatory）
 
-- **錯誤預算燃盡率警報（Burn-rate alert）**：一旦混沌實驗導致當日錯誤預算的消耗速度超過基準預期的 2 倍，安全平面強制自動觸發熔斷、終止實驗並秒級清理現場。
-- **警報抑制窗口（Suppression windows）**：在實驗進行期間，精準靜默爆炸半徑內部預期會觸發的常規警報，防止值班群組被海量雜訊淹沒。
+- **錯誤預算燃盡率警報（Burn-rate alert）**：若當日錯誤預算的消耗速度超過預期的 2 倍，安全平面會暫停實驗。
+- **警報抑制窗口（Suppression windows）**：在實驗進行期間，精準抑制爆炸半徑內的非實驗告警，防止值班群組被大量告警淹沒。
 - **Trace-ID 標籤關聯**：所有由混沌實驗注入的故障流量與異常日誌，必須強制打上專屬混沌標籤，以便值班工程師在檢索時一鍵去重。
 
 ### 五大大模型專屬混沌實驗（Five LLM-specific experiments）
@@ -113,22 +113,22 @@ i4-chaos-guard
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| SLI / SLO | "service targets" | Indicator + objective; required prerequisite |
-| Blast radius | "scope" | Set of services / users affected by experiment |
-| Burn-rate alert | "budget gate" | Fires when error-budget burn rate > 2x expected |
-| Game day | "monthly drill" | Scheduled cross-team chaos exercise |
-| LitmusChaos | "CNCF workflow" | Graduated CNCF Kubernetes chaos tool |
-| Chaos Mesh | "CNCF CRD" | CNCF sandbox Kubernetes-native chaos |
-| Harness CE | "commercial AI-assisted" | Harness chaos with AI recommendations |
-| Malformed prompt | "tokenizer bomb" | Input that stalls tokenization |
-| KV eviction storm | "preemption cascade" | Mass eviction triggering re-prefills |
+| SLI / SLO | 「服務目標」 | 指標與目標；必要的先決條件 |
+| Blast radius | 「影響範圍」 | 實驗影響的服務與使用者集合 |
+| Burn-rate alert | 「預算閘門」 | 錯誤預算消耗率高於預期兩倍時觸發 |
+| Game day | 「每月演練」 | 定期舉行的跨團隊混沌演練 |
+| LitmusChaos | 「CNCF 工作流程」 | CNCF 畢業專案的 Kubernetes 混沌工具 |
+| Chaos Mesh | 「CNCF CRD」 | CNCF sandbox 的 Kubernetes 原生混沌工具 |
+| Harness CE | 「商用 AI 輔助工具」 | Harness 混沌工程，提供 AI 建議 |
+| Malformed prompt | 「tokenizer 炸彈」 | 會使 tokenizer 停滯的輸入 |
+| KV eviction storm | 「搶佔連鎖」 | 大量快取驅逐導致重複 prefill |
 
 ## Further Reading｜延伸閱讀
 
 - [DevSecOps School — Chaos Engineering 2026 Guide](https://devsecopsschool.com/blog/chaos-engineering/) — 2026 混沌工程架構指南。
-- [Ankush Sharma — Observability for LLMs (book)](https://www.amazon.com/Observability-Large-Language-Models-Engineering-ebook/dp/B0DJSR65TR) — 大模型可觀測性與系統韌性專著。
+- [Ankush Sharma — Observability for Large Language Models (Apress, 2026)](https://link.springer.com/book/10.1007/979-8-8688-2827-0) — 大型語言模型可觀測性與系統韌性專著。
 - [LitmusChaos (CNCF)](https://litmuschaos.io/) — 官方網站與架構手冊。
 - [Chaos Mesh (CNCF)](https://chaos-mesh.org/) — 雲原生混沌網格專案主頁。
 - [Harness Chaos Engineering](https://www.harness.io/products/chaos-engineering) — 商業級智慧混沌工程平台。

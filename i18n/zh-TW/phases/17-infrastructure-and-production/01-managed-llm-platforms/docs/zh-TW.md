@@ -1,6 +1,6 @@
 # 託管式 LLM 平台——Bedrock、Vertex AI、Azure OpenAI（Managed LLM Platforms — Bedrock, Vertex AI, Azure OpenAI）
 
-> 三大超大規模雲端供應商（Hyperscaler），三種涇渭分明的戰略路徑。AWS Bedrock 是一座模型市集——將 Claude、Llama、Titan、Stability 與 Cohere 統一整合於單一 API 後方。Azure OpenAI 是 OpenAI 的獨家深度合作夥伴，並提供用於專屬容量的預置吞吐量單元（PTU）。Vertex AI 則是 Gemini 優先，擁有最強悍的超長上下文與多模態敘事能力。2026 年 Artificial Analysis 實測指出，在等價的 Llama 3.1 405B 等級部署上，Azure OpenAI 的首字延遲中位數約為 50 ms，而 Bedrock 則約為 75 ms——PTU 的專屬容量優勢完全解釋了這項落差，因為專用算力必然碾壓共享的隨需（On-demand）排隊。決策鐵律絕非「哪家最快」，而是「哪家的模型型錄與 FinOps 成本歸因面能精準貼合你的產品需求」。本課教你拋開主觀感覺，基於白紙黑字的工程權衡做出冷靜選型。
+> 三大超大規模雲端供應商（Hyperscaler），三種涇渭分明的戰略路徑。AWS Bedrock 是一座模型市集——將 Claude、Llama、Titan、Stability 與 Cohere 統一整合於單一 API 後方。Azure OpenAI 是 OpenAI 的獨家深度合作夥伴，並提供用於專屬容量的預置吞吐量單元（PTU）。Vertex AI 則是 Gemini 優先，擁有最強悍的超長上下文與多模態敘事能力。2026 年 Artificial Analysis 實測指出，在等價的 Llama 3.1 405B 等級部署上，Azure OpenAI 的首字延遲中位數約為 50 ms，而 Bedrock 則約為 75 ms——PTU 的專屬容量有助解釋這項差距，因為專屬容量通常比共享隨需容量有較低的延遲。決策鐵律絕非「哪家最快」，而是「哪家的模型型錄與 FinOps 成本歸因面能精準貼合你的產品需求」。本課教你拋開主觀感覺，基於白紙黑字的工程權衡做出冷靜選型。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy cost-and-latency comparator)
@@ -100,17 +100,17 @@ i4-platform-lanes
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Bedrock | "AWS LLM service" | Model marketplace across Claude, Llama, Titan, Mistral, Cohere |
-| Azure OpenAI | "Azure's ChatGPT" | Exclusive OpenAI models in Azure datacenters with enterprise controls |
-| Vertex AI | "Google's LLM" | Gemini-first platform with Model Garden for third-party models |
-| PTU | "dedicated capacity" | Provisioned Throughput Unit — reserved inference GPUs, priced per hour |
-| Application Inference Profile | "Bedrock tagging" | Per-product cost/usage profile with tags, CloudWatch-native |
-| Model Garden | "Vertex catalog" | Vertex AI's third-party model section, separate from Gemini |
-| Two-provider minimum | "LLM redundancy" | Policy of running every critical LLM path across ≥2 hyperscalers |
-| BAA | "HIPAA paperwork" | Business Associate Agreement; required for PHI; provided by all three |
-| Abuse monitoring | "the log watcher" | Provider-side safety scan on prompts/outputs; opt-out in enterprise |
+| Bedrock | 「AWS 的 LLM 服務」 | 涵蓋 Claude、Llama、Titan、Mistral 與 Cohere 的模型市集 |
+| Azure OpenAI | 「Azure 的 ChatGPT」 | Azure 資料中心中的獨家 OpenAI 模型，並提供企業級控制項 |
+| Vertex AI | 「Google 的 LLM」 | 以 Gemini 為優先的平台，並透過 Model Garden 提供第三方模型 |
+| PTU | 「專屬容量」 | 預置吞吐量單元；按小時計價的預留推論 GPU |
+| Application Inference Profile | 「Bedrock 標籤」 | 依產品建立成本／用量設定檔，原生整合 CloudWatch |
+| Model Garden | 「Vertex 型錄」 | Vertex AI 中獨立於 Gemini 的第三方模型區段 |
+| Two-provider minimum | 「LLM 備援」 | 要求每條關鍵 LLM 路徑跨至少兩家超大規模雲端供應商運作的政策 |
+| BAA | 「HIPAA 法規文件」 | 商業夥伴協議；PHI 相關流程所需，三家皆提供 |
+| Abuse monitoring | 「日誌監看」 | 供應商端對 prompt 與輸出內容執行的安全掃描；企業方案可選擇退出 |
 
 ## Further Reading｜延伸閱讀
 

@@ -40,7 +40,7 @@
 
 ### 原始碼金鑰掃描（Secret scanning）
 
-- **TruffleHog**——基於正則與熵值演算法深度掃描歷史 commit。
+- **TruffleHog**——使用正則表達式與熵值掃描 commit。
 - **GitGuardian**——企業級商用方案，具備極高的準確率。
 - **Gitleaks**——輕量開源，專門整合進 CI/CD 自動化阻斷管線。
 
@@ -48,7 +48,7 @@
 
 ### 零信任安全架構（Zero-trust posture）
 
-- 所有管理後台與生產帳號強制啟用 MFA 多因素驗證。
+- 所有帳號都必須啟用 MFA 多因素驗證。
 - 全面基於 SAML / OIDC 實施企業級 SSO 單一登入。
 - 採用 RBAC（基於角色）或 ABAC（基於屬性）實現極細粒度的權限控制。
 - 簽發短時效存取憑證（時效以小時計，絕不可長達數天）。
@@ -69,7 +69,7 @@
 
 輸入端：主動攔截已知的 Prompt 越獄注入、過濾法律禁止的敏感話題、依據使用者 ID 實施嚴格限流。
 
-輸出端：正則掃描模型吐出的文字是否意外洩漏了內部 API Key 或敏感憑證，並由輕量分類器審查是否違背合規規範。
+輸出端：以正則掃描模型輸出，檢查是否意外洩漏內部 API Key、敏感憑證，或拒答情境中的電子郵件格式；並由輕量分類器審查是否違背合規規範。
 
 ### 網路出站白名單（Network egress whitelist）
 
@@ -117,26 +117,26 @@ i4-vault-rotation
 
 ## Exercises｜練習
 
-1. 執行 `code/main.py`。連續發送兩條引用了完全相同身分證字號的 Prompt。確認兩者是否被精準替換為了完全相同的佔位符。
+1. 執行 `code/main.py`。連續發送兩條引用同一組 SSN 的 Prompt。確認兩者是否被精準替換為了完全相同的佔位符。
 2. 為一個在 EKS 上運作、需要同時存取 OpenAI、Anthropic 與 Weaviate 向量資料庫的推論微服務，設計一套嚴密的網路出站安全政策（NetworkPolicy）。
-3. 你在 Git 歷史 commit 紀錄中偶然翻出了一枚兩年前遺留的舊 API 金鑰。標準且合規的應急響應程序是什麼——立即在供應商後台吊銷金鑰、透過 git-filter-repo 清理歷史，還是兩者同步執行？給出嚴密論證。
+3. 你在 Git 歷史 commit 紀錄中偶然翻出了一枚兩年前遺留的舊 API 金鑰。標準且合規的應急應變流程是什麼——立即在供應商後台吊銷金鑰、透過 git-filter-repo 清理歷史，還是兩者同步執行？給出嚴密論證。
 4. 企業的推論稽核日誌每日以 10 GB 的速度暴增。設計一套標準的生命週期分層階梯儲存方案（熱資料長駐 30 天、溫資料長駐 12 個月、冷資料歸檔 6 年）。
 5. 深入辯論「反向 Token 化（將真實數值重新替換回模型回應中）」相較於直接向終端使用者呈現安全佔位符，其所增加的架構複雜度是否真正值得？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Vault | "secrets store" | Centralized credential management service |
-| IAM role | "identity-based auth" | Role assumed by app; returns short-lived creds |
-| OIDC for CI/CD | "cloud-issued tokens" | No static keys in CI — identity via OIDC |
-| TruffleHog / GitGuardian / Gitleaks | "secret scanners" | Commit-time secret detection |
-| RBAC / ABAC | "access control" | Role-based vs attribute-based |
-| PII scrubbing | "data masking" | Remove or tokenize sensitive entities |
-| Consistent tokenization | "stable placeholders" | Same value → same token each time |
-| Mesh approach | "Mesh tokenization" | Semantic-preserving tokenization pattern |
-| Egress whitelist | "outbound allowlist" | Only permitted domains reachable |
-| Audit log | "immutable history" | Append-only record for compliance |
+| Vault | 「機密儲存庫」 | 集中管理憑證的服務 |
+| IAM role | 「以身分為基礎的驗證」 | 應用程式承擔的角色；會提供短效憑證 |
+| OIDC for CI/CD | 「雲端簽發的 token」 | CI 不使用靜態金鑰，改以 OIDC 驗證身分 |
+| TruffleHog / GitGuardian / Gitleaks | 「機密掃描器」 | 在 commit 時偵測機密 |
+| RBAC / ABAC | 「存取控制」 | 以角色為基礎與以屬性為基礎的控制方式 |
+| PII scrubbing | 「資料遮罩」 | 移除或 token 化敏感實體 |
+| Consistent tokenization | 「穩定佔位符」 | 同一個值每次都映射到相同 token |
+| Mesh approach | 「Mesh token 化」 | 保留語意的 token 化模式 |
+| Egress whitelist | 「出站允許清單」 | 僅允許連線至核准網域 |
+| Audit log | 「不可變歷史記錄」 | 僅追加寫入的合規記錄 |
 
 ## Further Reading｜延伸閱讀
 

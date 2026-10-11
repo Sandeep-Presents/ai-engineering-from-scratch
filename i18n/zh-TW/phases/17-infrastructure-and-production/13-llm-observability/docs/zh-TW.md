@@ -1,6 +1,6 @@
 # LLM 可觀測性技術堆疊選型（LLM Observability Stack Selection）
 
-> 2026 年的大模型可觀測性市場清晰分化為兩大陣營。研發一體化平台（LangSmith、Langfuse、Comet Opik）將指標監控與 Eval 評測、Prompt 版本管理以及 Session 對話重放深度捆綁。Gateway 與遙測工具（Helicone、SigNoz、OpenLLMetry、Phoenix）則專注於極簡高吞吐的追蹤（Trace）收集。Langfuse 核心採 MIT 授權開源，在社群與企業級功能間取得了最佳平衡（雲端版每月免費 5 萬事件）。Phoenix 則在 Elastic License 2.0 下原生擁抱 OpenTelemetry——在 RAG 檢索管線視覺化與資料漂移排查上表現極其驚豔，但並非專為長久儲存的正式環境後端而設計。Arize AX 則透過零拷貝的 Iceberg/Parquet 資料湖整合，宣稱在大規模流量下成本比傳統單體可觀測性平台低 100 倍。LangSmith 是 LangChain/LangGraph 生態下的絕對霸主，每使用者每月 39 美元，私有自建僅限頂級企業版。Helicone 採反向代理架構，15 至 30 分鐘即可極速接入，每月提供 10 萬次免費請求，但在多步驟 Agent 複雜鏈路上深度略顯不足。成熟的工業級黃金實務：前端 Gateway（Helicone/Portkey）+ 評測平台（Phoenix/TruLens），兩者透過標準 OpenTelemetry 協定無縫黏合。
+> 2026 年的大模型可觀測性市場清晰分化為兩大陣營。研發一體化平台（LangSmith、Langfuse、Comet Opik）將指標監控與 Eval 評測、Prompt 版本管理以及 Session 對話重放深度捆綁。Gateway 與遙測工具（Helicone、SigNoz、OpenLLMetry、Phoenix）則專注於極簡高吞吐的追蹤（Trace）收集。Langfuse 核心採 MIT 授權開源，在社群與企業級功能間取得了最佳平衡（雲端版每月免費 5 萬事件）。Phoenix 則在 Elastic License 2.0 下原生擁抱 OpenTelemetry——在 RAG 檢索管線視覺化與資料漂移排查上表現極其驚豔，但並非專為長久儲存的正式環境後端而設計。Arize AX 則透過零拷貝的 Iceberg/Parquet 資料湖整合，宣稱在大規模流量下成本比傳統單體可觀測性平台低 100 倍。LangSmith 在 LangChain/LangGraph 生態中領先，每使用者每月 39 美元，私有自建僅限頂級企業版。Helicone 採反向代理架構，15 至 30 分鐘即可極速接入，每月提供 10 萬次免費請求，但在多步驟 Agent 複雜鏈路上深度略顯不足。成熟的工業級黃金實務：前端 Gateway（Helicone/Portkey）+ 評測平台（Phoenix/TruLens），兩者透過標準 OpenTelemetry 協定無縫黏合。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy trace-sampling simulator)
@@ -117,23 +117,23 @@ i4-otel-glue
 1. 某團隊全面採用 LangChain 打造應用，但公司法規強制要求必須採用開源且私有化自建的可觀測性方案。在 Langfuse 與 Opik 之間做出抉擇並給出充分論證。
 2. 某業務系統日均產生 500 萬次 Trace 呼叫，Datadog 報價為每月 15 萬美元。若採用 Arize AX 搭配 S3 Parquet 自建資料湖，計算其年度損益平衡點。
 3. 為你所在企業設計一套 OpenTelemetry GenAI 必填屬性標準清單，要求所有接入推論服務的業務團隊強制在 SDK 層級注入該中繼資料。
-4. 深入剖析為何單純依靠 Phoenix 往往不足以支撐高並行正式環境。在何種具體的維運場景下它會暴露出能力短板？
+4. 討論 Phoenix 單獨用於正式環境是否足夠；在什麼情況下會不足？
 5. Helicone 的代理架構引入了約 20 ms 的網路轉發延遲。若你服務的 P99 TTFT 預算為 300 ms，該開銷是否在可接受範圍內？若 SLA 門檻嚴格收緊至 100 ms 呢？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| OpenLLMetry | "OTel for LLMs" | Open-source OpenTelemetry instrumentation for LLMs |
-| GenAI conventions | "OTel attributes" | Standard OTel attribute names for LLM calls |
-| LangSmith | "LangChain observability" | Commercial platform bundled with LangChain ecosystem |
-| Langfuse | "OSS LangSmith" | MIT OSS with similar feature set |
-| Phoenix | "Arize dev tool" | OpenTelemetry-native dev/eval platform |
-| Arize AX | "scale observability" | Commercial zero-copy Iceberg/Parquet observability |
-| Helicone | "proxy observability" | HTTP proxy collecting LLM telemetry + gateway features |
-| Opik | "Comet LLM" | Apache 2.0 OSS dev platform from Comet |
-| Session replay | "trace rerun" | Replay a full agent session with tool calls |
-| Eval | "offline test" | Running candidate model/prompt over labeled dataset |
+| OpenLLMetry | 「LLM 的 OTel」 | 開源的 LLM OpenTelemetry 插樁工具 |
+| GenAI conventions | 「OTel 屬性」 | LLM 呼叫使用的標準 OTel 屬性名稱 |
+| LangSmith | 「LangChain 可觀測性」 | 與 LangChain 生態系整合的商業平台 |
+| Langfuse | 「開源版 LangSmith」 | 具備類似功能的 MIT 授權開源平台 |
+| Phoenix | 「Arize 開發工具」 | 以 OpenTelemetry 為基礎的開發／評估平台 |
+| Arize AX | 「大規模可觀測性」 | 採用 Iceberg／Parquet 零拷貝方式的商業可觀測性平台 |
+| Helicone | 「代理伺服器可觀測性」 | 透過 HTTP 代理伺服器收集 LLM 遙測資料，並提供 gateway 功能 |
+| Opik | 「Comet 的 LLM 工具」 | Comet 推出的 Apache 2.0 開源開發平台 |
+| Session replay | 「追蹤重播」 | 重播包含工具呼叫的完整 agent 工作階段 |
+| Eval | 「離線測試」 | 在有標籤的資料集上執行候選模型或 prompt |
 
 ## Further Reading｜延伸閱讀
 

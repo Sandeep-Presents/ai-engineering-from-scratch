@@ -78,7 +78,7 @@ SLO 是一項多維度的邏輯「且」複合約束。單一請求唯有在同�
 - **NVIDIA GenAI-Perf**：在計算 ITL 時嚴格將首字 TTFT 剔除。ITL 僅從第 2 個 Token 開始統計。
 - **LLMPerf**：將首字 TTFT 直接納入整體耗時計算分母。ITL 從第 1 個 Token 開始計算。
 
-假設單一請求的 TTFT 為 500 ms，隨後花費 700 ms 解碼產出 100 個 Token（總耗時 1,200 ms）。GenAI-Perf 回報的 `ITL = 700/99 = 7.07 ms`；而 LLMPerf 回報的 `ITL = 1200/100 = 12.00 ms`。工具選型的不同會直接將帳面數字扭曲近一倍。
+假設單一請求的 TTFT 為 500 ms，隨後花費 700 ms 解碼產出 100 個 Token（總耗時 1,200 ms）。GenAI-Perf 回報的 `ITL = 700/99 = 7.07 ms`；而 LLMPerf 回報的 `ITL = 1200/100 = 12.00 ms`。工具選擇會使計算結果有所不同。
 
 在呈報任何評測成果時，必須強制註明所使用的工具名稱，並白紙黑字附上其數學計算定義。
 
@@ -122,17 +122,17 @@ throughput-latency
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| TTFT | "time to first token" | Queue + network + prefill; dominated by prefill at long prompts |
-| TPOT | "time per output token" | Memory-bound decode cost per token after first |
-| ITL | "inter-token latency" | Same as TPOT in most tools (not all — see GenAI-Perf) |
-| E2E | "end to end" | TTFT + TPOT * output_len; response-side network on top |
-| Throughput | "tok/s" | Fleet efficiency; useless without latency percentiles |
-| Goodput | "SLO-met rate" | Fraction of requests meeting every SLO constraint simultaneously |
-| P99 | "tail" | 1-in-100 worst-case latency; the user experience metric |
-| SLO multi-constraint | "the joint" | AND of all three latency bounds; a request fails if any one is violated |
-| GenAI-Perf vs LLMPerf | "the tool trap" | Tools disagree on whether ITL includes TTFT |
+| TTFT | 「首個 token 的時間」 | 佇列、網路與 Prefill 時間的總和；長 Prompt 下主要由 Prefill 決定 |
+| TPOT | 「每個輸出 token 的時間」 | 首個 token 之後，每個 token 的記憶體頻寬受限解碼成本 |
+| ITL | 「token 間延遲」 | 多數工具中與 TPOT 相同（但並非全部，見 GenAI-Perf） |
+| E2E | 「端到端」 | TTFT + TPOT * output_len，再加上回應端網路時間 |
+| Throughput | 「tok/s」 | 整體服務效率；若沒有延遲百分位數，參考價值有限 |
+| Goodput | 「符合 SLO 的比率」 | 同時符合每項 SLO 限制條件的請求比例 |
+| P99 | 「長尾」 | 每 100 筆中最差的延遲；反映使用者體驗的指標 |
+| SLO multi-constraint | 「合併條件」 | 三項延遲上限的 AND 條件；任一上限未達成，該請求就不合格 |
+| GenAI-Perf vs LLMPerf | 「工具差異陷阱」 | 兩種工具對 ITL 是否包含 TTFT 的定義不同 |
 
 ## Further Reading｜延伸閱讀
 

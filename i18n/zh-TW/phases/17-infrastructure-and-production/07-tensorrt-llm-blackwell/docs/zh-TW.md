@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 深刻解釋為何即便模型權重已被極限壓縮至 NVFP4，KV 快取與注意力機制依然必須嚴格堅守 FP8 底線。
-- 精確計算前沿頂尖模型在 BF16、FP8 與 NVFP4 精度下的 HBM 顯存佔用量，並從底層推導顯存節省的核心來源。
+- 精確計算前沿頂尖模型在 BF16、FP8 與 NVFP4 精度下的 HBM 顯示記憶體佔用量，並從底層推導顯示記憶體節省的核心來源。
 - 列出 TRT-LLM 深度榨乾的 Blackwell 專屬硬體原語（Day-0 FP4 權重、MTP、拆解式推論服務、All-to-All 通訊原語）。
 - 客觀權衡並判定：何時 TRT-LLM 帶來的 7 倍成本鴻溝足以合理化對 NVIDIA 生態系的單一深度綁定。
 
@@ -43,7 +43,7 @@ NVFP4（2025-2026 年成熟）專門適用於模型靜態權重與動態活化�
 - **多 Token 預測（Multi-token prediction, MTP）**：底層思維與 EAGLE（第 17 課第 05 節）一致，但其草稿產生核心被直接緊密編譯進 TRT-LLM 的底層二進位中。
 - **拆解式服務（Disaggregated serving）**：將 Prefill 與 Decode 物理切分至完全獨立的專屬 GPU 資源池，兩者之間的 KV 快取透過 NVLink 或 InfiniBand 高速匯流排實現零拷貝傳遞。設計哲學與 Dynamo（第 17 課第 20 節）一脈相承。
 - **All-to-All 集合通訊原語**：NVLink 5 將 MoE 架構下跨卡路由 Token 至各專家 GPU 的通訊延遲相較於 Hopper 降低了 3 倍。TRT-LLM 的 MoE 核心針對此硬體原語進行了極限手工調優。
-- **NVFP4 + MXFP8 微縮放硬體指令**：Blackwell 第五代 Tensor Core 提供原生硬體加速的動態縮放因子運算。
+- **NVFP4 + MXFP8 微縮放硬體指令**：Blackwell Tensor Core 提供原生硬體加速的動態縮放因子運算。
 
 ### 務必銘記的核心關鍵數字（The numbers you should memorize）
 
@@ -66,7 +66,7 @@ TRT-LLM 核心完全由 C++ 與 CUDA 編寫，並深嵌大量未公開原始碼�
 
 ### 2026 年實戰落地處方（2026 practical recipe）
 
-對於年推論支出超過 1 億美元的超級體量企業而言，繼續固守 Hopper + vLLM 意味著白白在桌面上拱手讓出了 7 至 10 倍的財務淨利潤。果斷將承載主要成本的成熟主力模型移轉至 Blackwell + TRT-LLM + Dynamo 體系；同時將用於快速實驗與模型迭代的沙盒環境保留在 H100 + vLLM 之上。在正式發布之前，對每一個量化轉換為 NVFP4 的模型展開嚴密品質驗收。
+對於年推論支出超過 1 億美元的超級體量企業而言，繼續固守 Hopper + vLLM 意味著仍有 7 至 10 倍的成本改善空間。果斷將承載主要成本的成熟主力模型移轉至 Blackwell + TRT-LLM + Dynamo 體系；同時將用於快速實驗與模型迭代的沙盒環境保留在 H100 + vLLM 之上。在正式發布之前，對每一個量化轉換為 NVFP4 的模型展開嚴密品質驗收。
 
 ### 拆解式服務帶來的疊加增益（The disaggregation bonus）
 
@@ -78,7 +78,7 @@ pipeline-parallel
 
 ## Use It｜實際應用
 
-`code/main.py` 針對給定模型，精確計算橫跨三種主流技術堆疊的 HBM 顯存佔用、解碼端記憶體頻寬受限下的極限吞吐量，以及每百萬 Token 的美金成本：H100 + BF16 + vLLM、H100 + FP8 + vLLM，以及 B200 + NVFP4/FP8 + TRT-LLM。執行該腳本，量化透視每一項架構變更究竟為最終的 7 倍差距貢獻了多少百分比。
+`code/main.py` 針對給定模型，精確計算橫跨三種主流技術堆疊的 HBM 顯示記憶體佔用、解碼端記憶體頻寬受限下的極限吞吐量，以及每百萬 Token 的美金成本：H100 + BF16 + vLLM、H100 + FP8 + vLLM，以及 B200 + NVFP4/FP8 + TRT-LLM。執行該腳本，量化透視每一項架構變更究竟為最終的 7 倍差距貢獻了多少百分比。
 
 ## Ship It｜交付成果
 
@@ -90,20 +90,20 @@ pipeline-parallel
 2. 某企業客戶當前每年在 H100 + vLLM 上支出 200 萬美元推論費用。在 Blackwell 具備 7 倍經濟優勢的前提下，若要在 12 個月內完全打平移轉至 TRT-LLM 的工程轉換成本，他們至少需要採購多少張 Blackwell GPU？
 3. 在將權重轉換至 NVFP4 後，你觀察到模型在 MATH 基準測試上的得分下跌了 3 個百分點。給出兩條挽救精度的工程路徑：一條以品質優先（回退至 FP8 權重），另一條以成本優先（使用領域專屬資料展開精細化校準）。
 4. 仔細研讀 MLPerf v6.0 的正式推論實測報告。哪一項基準任務展現出的 Blackwell-over-Hopper 效能差距最小？背後的底層物理瓶頸為何？
-5. 精確推算在 NVFP4 權重搭配 FP8 KV 快取、且上下文長度達到 128k 的極限條件下，運作 405B 巨型模型所需的 HBM 總顯存容量。單一 GB200 NVL72 節點能否將其完整吞下？
+5. 精確推算在 NVFP4 權重搭配 FP8 KV 快取、且上下文長度達到 128k 的極限條件下，運作 405B 巨型模型所需的 HBM 總顯示記憶體容量。單一 GB200 NVL72 節點能否將其完整吞下？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| FP8 | "eight-bit float" | 8-bit floating point; used for KV cache and attention due to dynamic range |
-| NVFP4 | "four-bit micro" | NVIDIA's 4-bit microscaling FP format; weights and activations on Blackwell |
-| MXFP8 | "MX eight" | Microscaling FP8 variant; hardware-accelerated on Blackwell Tensor Cores |
-| Day-0 FP4 | "ship FP4 weights" | Model providers release weights already in FP4; no post-train conversion step |
-| MTP | "multi-token prediction" | TRT-LLM's integrated speculative-decoding draft (Phase 17 · 05) |
-| Disaggregated serving | "split prefill/decode" | Prefill and decode on separate GPU pools; KV transferred over NVLink/IB |
-| All-to-all | "MoE expert comm" | Communication pattern routing tokens to expert GPUs; NVLink 5 cuts 3x |
-| InferenceX | "SemiAnalysis inference bench" | The 2026 industry-accepted cost-per-token benchmark |
+| FP8 | 「8 位元浮點格式」 | 8 位元浮點數；因動態範圍需求而用於 KV 快取與注意力 |
+| NVFP4 | 「4 位元微縮放格式」 | NVIDIA 的 4 位元微縮放浮點格式；Blackwell 上用於權重與活化值 |
+| MXFP8 | 「MX 8 位元格式」 | 微縮放 FP8 變體；由 Blackwell Tensor Core 加速 |
+| Day-0 FP4 | 「出廠提供 FP4 權重」 | 模型供應商直接發布 FP4 權重；不需後訓練轉換 |
+| MTP | 「多 token 預測」 | 整合在 TRT-LLM 中的推測解碼草稿機制（Phase 17 · 05） |
+| Disaggregated serving | 「拆分 Prefill／Decode」 | Prefill 與 Decode 使用不同 GPU 資源池；KV 透過 NVLink／IB 傳輸 |
+| All-to-all | 「MoE 專家通訊」 | 將 token 路由至專家 GPU 的通訊模式；NVLink 5 可將延遲降低 3 倍 |
+| InferenceX | 「SemiAnalysis 推論基準測試」 | 2026 年業界採用的每 token 成本基準測試 |
 
 ## Further Reading｜延伸閱讀
 

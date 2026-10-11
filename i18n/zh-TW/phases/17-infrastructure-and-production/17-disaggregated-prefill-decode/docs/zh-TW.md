@@ -1,6 +1,6 @@
 # Prefill 與 Decode 拆解架構——NVIDIA Dynamo 與 llm-d（Disaggregated Prefill/Decode — NVIDIA Dynamo and llm-d）
 
-> Prefill 是運算受限（Compute-bound）操作；Decode 是記憶體頻寬受限（Memory-bound）操作。將兩者強行混部在同一張 GPU 上，必然導致其中一項昂貴資源被白白浪費。拆解式架構（Disaggregation）將兩者實體切分至獨立的專屬資源池，並透過 NIXL（支援 RDMA/InfiniBand，具備 TCP 降級備援）在兩者之間高速傳輸 KV 快取。NVIDIA Dynamo（GTC 2025 發表，現已 1.0 GA 正式發布）架構於 vLLM/SGLang/TRT-LLM 之上——其 Planner Profiler 與 SLA Planner 能自動精準調配 Prefill 與 Decode 的資源池比例以嚴格履約 SLO。NVIDIA 官方公布的吞吐量數字顯示：在 GB200 NVL72 + Dynamo 組合下，在中延遲區間運作 DeepSeek-R1 MoE 能取得約 6 倍提升（developer.nvidia.com，2025-06）；Dynamo 官方首頁更標稱相較於 Hopper 取得高達 50 倍的 MoE 吞吐量飛躍。社群口耳相傳的「30 倍」是跨 Blackwell + Dynamo + DeepSeek-R1 全端技術堆疊的綜合粗估；目前尚無單一一手文獻精確標註 30 倍，因此請將其視為方向性參考指標。llm-d（由 Red Hat 與 AWS 聯合主導）則是 Kubernetes 原生實踐：將 Prefill、Decode 與 Router 拆分為獨立的 K8s Service，並綁定專屬的 HPA。llm-d 0.5 引入了多階層 KV 卸載、快取感知 LoRA 路由、UCCL 網路層與縮容歸零（Scale-to-zero）。在財務維度：多個客戶揭露的內部綜合資料指出，在維持相同 SLA 延遲的前提下，從傳統混部架構遷移至基於 Dynamo 的拆解式架構，能在 200 萬美元級別的年度推論帳單上節省 30% 至 40%（即每年節省 60 至 80 萬美元）；此 60 至 80 萬美元是內部綜合模型估算，並非單一公開實例——請將其視為數量級錨點，而非引用依據。若業務充滿小於 512 Token 且輸出極短的微型 Prompt，跨節點傳輸 KV 的網路開銷將反向吞噬收益。
+> Prefill 是運算受限（Compute-bound）操作；Decode 是記憶體頻寬受限（Memory-bound）操作。將兩者強行混部在同一張 GPU 上，必然導致其中一項昂貴資源被白白浪費。拆解式架構（Disaggregation）將兩者實體切分至獨立的專屬資源池，並透過 NIXL（支援 RDMA/InfiniBand，具備 TCP 降級備援）在兩者之間高速傳輸 KV 快取。NVIDIA Dynamo（GTC 2025 發表，現已 1.0 GA 正式發布）架構於 vLLM/SGLang/TRT-LLM 之上——其 Planner Profiler 與 SLA Planner 能自動精準調配 Prefill 與 Decode 的資源池比例以嚴格履約 SLO。NVIDIA 官方公布的吞吐量數字顯示：在 GB200 NVL72 + Dynamo 組合下，在中延遲區間運作 DeepSeek-R1 MoE 能取得約 6 倍提升（developer.nvidia.com，2025-06）；Dynamo 官方產品頁面標示相較於 Hopper 可達 50 倍 MoE 吞吐量（頁面未標日期）。社群口耳相傳的「30 倍」是跨 Blackwell + Dynamo + DeepSeek-R1 全端技術堆疊的綜合粗估；目前尚無單一一手文獻精確標註 30 倍，因此請將其視為方向性參考指標。llm-d（由 Red Hat 與 AWS 聯合主導）則是 Kubernetes 原生實踐：將 Prefill、Decode 與 Router 拆分為獨立的 K8s Service，並綁定專屬的 HPA。llm-d 0.5 引入了多階層 KV 卸載、快取感知 LoRA 路由、UCCL 網路層與縮容歸零（Scale-to-zero）。在財務維度：多個客戶揭露的內部綜合資料指出，在維持相同 SLA 延遲的前提下，從傳統混部架構遷移至基於 Dynamo 的拆解式架構，能在 200 萬美元級別的年度推論帳單上節省 30% 至 40%（即每年節省 60 至 80 萬美元）；此 60 至 80 萬美元是內部綜合模型估算，並非單一公開實例——請將其視為數量級錨點，而非引用依據。若業務充滿小於 512 Token 且輸出極短的微型 Prompt，跨節點傳輸 KV 的網路開銷將反向吞噬收益。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy disaggregated-vs-colocated simulator)
@@ -9,18 +9,18 @@
 
 ## Learning Objectives｜學習目標
 
-- 深刻解釋為何 Prefill 與 Decode 擁有截然不同的最適 GPU 硬體配置，並量化兩者混部（Colocation）所帶來的算力與顯存浪費。
+- 深刻解釋為何 Prefill 與 Decode 擁有截然不同的最適 GPU 硬體配置，並量化兩者混部（Colocation）所帶來的算力與顯示記憶體浪費。
 - 精確繪製拆解式推論架構圖：Prefill 專屬池、Decode 專屬池、基於 NIXL 的 KV 快取高速傳輸網格、智慧路由器。
 - 指出拆解式架構絕對不划算的臨界條件（極短 Prompt、極短輸出）。
 - 嚴格區分 NVIDIA Dynamo（架構於引擎之上的獨立編排層）與 llm-d（Kubernetes 原生技術堆疊），並將各自精準映射至最優維運情境。
 
 ## The Problem｜問題
 
-你在 8 張 H100 上部署了 Llama 3.3 70B 模型。在混合業務負載下（長 Prompt + 短輸出），GPU 在 Decode 階段大量空轉閒置，因為絕大多數算力皆被消耗在前期龐大的 Prefill 運算中。而在另一種業務情境下（短 Prompt + 長輸出），局面完全反轉——GPU 運算核心大幅閒置，顯存頻寬被 Decode 吐字徹底打滿。將 Prefill 與 Decode 混部在同一張實體 GPU 上，意味著你必須針對兩者的峰值同時進行昂貴的過度佈建。
+你在 8 張 H100 上部署了 Llama 3.3 70B 模型。在混合業務負載下（長 Prompt + 短輸出），GPU 在 Decode 階段大量空轉閒置，因為絕大多數算力皆被消耗在前期龐大的 Prefill 運算中。而在另一種業務情境下（短 Prompt + 長輸出），局面完全反轉——GPU 運算核心大幅閒置，顯示記憶體頻寬被 Decode 吐字徹底打滿。將 Prefill 與 Decode 混部在同一張實體 GPU 上，意味著你必須針對兩者的峰值同時進行昂貴的過度佈建。
 
 財務影響觸目驚心：高達 20% 至 40% 的 GPU 機時被無辜浪費在錯誤的硬體資源瓶頸上。你採購昂貴的 H100 運算力去跑記憶體受限的 Decode，或是購買昂貴的 HBM 頻寬去等待運算受限的 Prefill。兩者皆是極其奢侈的資本浪費。
 
-拆解式架構將 Prefill 與 Decode 分拆至完全獨立的專屬資源池，並針對各自的物理瓶頸精準配置硬體規格。Prefill 池產出的 KV 快取透過極速互連匯流排，零拷貝傳輸至 Decode 池繼續吐字。
+拆解式架構將 Prefill 與 Decode 分拆至完全獨立的專屬資源池，並針對各自的物理瓶頸精準配置硬體規格。Prefill 池產出的 KV 快取透過高速互連傳輸至 Decode 池繼續吐字。
 
 ## The Concept｜核心概念
 
@@ -28,9 +28,9 @@
 
 **Prefill 階段**——在單次前向傳播（Forward pass）中一口氣運算完整的輸入 Prompt。矩陣乘法佔據絕對主導地位；典型運算受限（Compute-bound）。H100 在 FP8 精度下能提供約 2,000 TFLOPS 的恐怖有效運算力。批次利用效率極高——單次運算即可並行處理海量 Token。
 
-**Decode 階段**——一次僅產出一個 Token，且每次迭代皆必須將全量靜態模型權重從顯存完整讀取一遍。典型記憶體頻寬受限（Memory-bandwidth-bound）。H100 的 HBM3 頻寬約為 3 TB/s。批次利用效率唯有在高並行壓力下才展現優勢——此時多條序列能均攤這 3 TB/s 的權重搬移開銷。
+**Decode 階段**——一次僅產出一個 Token，且每次迭代皆必須將全量靜態模型權重從顯示記憶體完整讀取一遍。典型記憶體頻寬受限（Memory-bandwidth-bound）。H100 的 HBM3 頻寬約為 3 TB/s。批次利用效率唯有在高並行壓力下才展現優勢——此時多條序列能均攤這 3 TB/s 的權重搬移開銷。
 
-若將兩者混部：你被迫採購能同時兼顧兩者的頂級 GPU。H100 固然兩者皆強，但機時單價高昂。在超大規模下，最理性的配置是：Prefill 池採用 H100 等算力巨獸；Decode 池採用 H200 等大顯存頻寬怪獸，或配合激進的量化壓縮。
+若將兩者混部：你被迫採購能同時兼顧兩者的頂級 GPU。H100 固然兩者皆強，但機時單價高昂。在超大規模下，最理性的配置是：Prefill 池採用 H100 等算力巨獸；Decode 池採用顯示記憶體頻寬較高的 H200，或配合激進的量化壓縮。
 
 ### 系統架構拓撲（The architecture）
 
@@ -58,7 +58,7 @@ NIXL 是 NVIDIA 打造的跨節點極速傳輸層。在硬體支援時走 RDMA/I
 - 內建 Planner Profiler 即時監控業務特徵，SLA Planner 自動動態調整 Prefill 與 Decode 資源池的最佳配比。
 - 採用 Rust 打造極致核心，外層提供豐富的 Python 擴充能力。
 - 吞吐量實測：NVIDIA 官方報告指出，在中等延遲條件下於 GB200 NVL72 + Dynamo 上運作 DeepSeek-R1 MoE 能取得約 6 倍提升（developer.nvidia.com，2025-06）；社群標稱的「高達 30 倍」缺乏單一一手文獻支撐，請視為方向性指標。
-- GB300 NVL72 + Dynamo：官方宣稱相較於 Hopper 取得高達 50 倍的 MoE 吞吐量跨越。
+- GB300 NVL72 + Dynamo：NVIDIA 官方產品頁面標示相較於 Hopper 可達 50 倍 MoE 吞吐量（頁面未標日期）。
 
 **llm-d**（Red Hat 與 AWS 聯合主導，Kubernetes 原生技術堆疊）：
 - 將 Prefill、Decode 與 Router 抽象為完全獨立的 Kubernetes 原生 Service。
@@ -83,9 +83,9 @@ NIXL 是 NVIDIA 打造的跨節點極速傳輸層。在硬體支援時走 RDMA/I
 ### 何時絕不應拆解（When NOT to disaggregate）
 
 - 輸入 Prompt 小於 512 Token 且輸出小於 200 Token：網路傳輸稅直接吃乾抹淨一切收益。
-- 超小型微型叢集（小於 4 張 GPU）：資源池缺乏足夠的分割彈性。
+- 超小型微型群集（小於 4 張 GPU）：資源池缺乏足夠的分割彈性。
 - 維運團隊缺乏管理兩套獨立 GPU 資源池及角色級別自動擴縮的能力：Dynamo 雖有助益但並非毫無學習門檻。
-- 叢集缺乏 RDMA 極速網路互連：走純 TCP 傳輸所帶來的延遲代價過於沉重。
+- 群集缺乏 RDMA 極速網路互連：走純 TCP 傳輸所帶來的延遲代價過於沉重。
 
 ### 路由器與第 17 課第 11 節無縫咬合（The router integrates with Phase 17 · 11）
 
@@ -93,14 +93,14 @@ NIXL 是 NVIDIA 打造的跨節點極速傳輸層。在硬體支援時走 RDMA/I
 
 ### Blackwell 上的 MoE 才是真正的威力所在（MoE on Blackwell is where the real numbers are）
 
-在 GB300 NVL72 叢集上搭配 Dynamo，MoE 模型的吞吐量相較於 Hopper 基準展現出高達 50 倍的跨越。MoE 的專家路由在 Prefill 階段極度消耗運算力，但在 Decode 階段卻高度受限於顯存頻寬（各專家的動態快取切換），因此拆解式架構在 MoE 上斬獲了雙重勝利。2026 年的前沿頂尖模型幾乎已全面轉向 MoE 架構（DeepSeek-V3 以及未來的各類前沿旗艦）。
+在 GB300 NVL72 群集上搭配 Dynamo，MoE 模型的吞吐量相較於 Hopper 基準可達 50 倍。MoE 專家路由在 Prefill 階段偏重運算，在 Decode 階段則較耗用記憶體，因此拆解式架構對兩者都能帶來好處。2026 年的前沿模型服務以 MoE 為主流（DeepSeek-V3，以及未來的 GPT-5 變體）。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
 跑分數字隨時間演進——NVIDIA 與開源推論社群每季皆會發布全新測評。引用前請核對最新文件。
 
 - DeepSeek-R1 在 GB200 NVL72 + Dynamo 上：在中等延遲條件下取得約 6 倍吞吐量提升（developer.nvidia.com，2025-06）；社群標稱的「高達 30 倍」屬於全端技術堆疊的綜合預估。
-- GB300 NVL72 + Dynamo：相較於 Hopper 取得高達 50 倍的 MoE 吞吐量飛躍。
+- GB300 NVL72 + Dynamo：NVIDIA 官方產品頁面標示相較於 Hopper 可達 50 倍 MoE 吞吐量（頁面未標日期）。
 - 成本節省錨點（內部綜合模型）：在維持相同 SLA 下，從 200 萬美元年支出中省下 60 至 80 萬美元。
 - 拆解經濟效益生效門檻：輸入 Prompt > 512 Token 且輸出 > 200 Token。
 - 透過 NIXL 跨節點傳輸 KV 快取延遲：在 70B FP8 模型下搬移 4k Prompt 快取通常耗時約 20 至 80 ms。
@@ -115,29 +115,29 @@ prefill-decode-split
 
 ## Ship It｜交付成果
 
-本課交付標準實戰產物 `outputs/skill-disaggregation-decider.md`。輸入具體業務負載特徵曲線與現有 GPU 叢集硬體拓撲，該 Skill 將自動進行財務與延遲精算，並對是否應當實施 Prefill/Decode 物理拆解給出權威的架構判決。
+本課交付標準實戰產物 `outputs/skill-disaggregation-decider.md`。輸入具體業務負載特徵曲線與現有 GPU 群集硬體拓撲，該 Skill 將自動進行財務與延遲精算，並對是否應當實施 Prefill/Decode 物理拆解給出權威的架構判決。
 
 ## Exercises｜練習
 
 1. 執行 `code/main.py`。在輸入 Prompt 達到多少 Token 以上時，拆解式服務的端到端表現才開始全面碾壓傳統混部架構？
-2. 針對 P99 前綴長度為 8k、平均輸出為 300 Token 的企業級 RAG 檢索服務，精準設計其 Prefill 池與 Decode 池的實體 GPU 數量配比。
-3. 深入對比 Dynamo 與 llm-d：針對一間百分之百依賴純 Kubernetes、且底層缺乏專職 Python 維運工程師的雲原生技術團隊，哪一款工具是唯一理性的選型？
+2. 針對 P99 前綴長度為 8k、輸出 300 Token 的企業級 RAG 檢索服務，精準設計其 Prefill 池與 Decode 池的實體 GPU 數量配比。
+3. 深入對比 Dynamo 與 llm-d：針對一支只使用 Kubernetes、且不偏好特定 Python 執行環境的雲原生團隊，哪一款工具是唯一理性的選型？
 4. 精算 KV 快取跨節點傳輸開銷：在 70B FP8 模型下，4k Token 的 Prefill 將產出約 500 MB 的 KV 快取。在 100 GB/s 的 RDMA 網格下傳輸僅需 5 ms；而在 10 GB/s 的傳統 TCP 網路下需要 50 ms。這 45 ms 的落差對你的業務 SLA 會產生何種致命影響？
-5. MoE 混合專家架構下的動態路由徹底改變了顯存存取模式。深入論證：當每個 Token 皆會動態啟動不同專家時，拆解式架構是如何在物理層面化解專家快取顯存顛簸的？
+5. MoE 混合專家架構的路由會改變 KV 存取模式。當每個 Token 會啟用不同專家時，拆解式服務會如何運作？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Disaggregated serving | "split prefill/decode" | Separate GPU pools for each phase |
-| NIXL | "NVIDIA transport" | Dynamo's inter-node KV transfer (RDMA/TCP) |
-| NVIDIA Dynamo | "the orchestrator" | Stack-above coordinator for vLLM/SGLang/TRT-LLM |
-| llm-d | "Kubernetes native" | Red Hat + AWS K8s disaggregated stack |
-| Planner Profiler | "Dynamo auto-config" | Measures workload, configures pool ratios |
-| SLA Planner | "Dynamo policy" | Auto-rate-matches prefill:decode to meet SLOs |
-| `packDomain: rack` | "llm-d topology" | Pack prefill+decode on same rack for fast KV |
-| UCCL | "unified collective" | llm-d 0.5 networking layer for scale-to-zero |
-| MoE expert routing | "expert per token" | DeepSeek-V3 pattern; disaggregation helps |
+| Disaggregated serving | 「拆分 prefill/decode」 | Prefill 與 Decode 各自使用獨立的 GPU 資源池 |
+| NIXL | 「NVIDIA 傳輸層」 | Dynamo 用於跨節點傳輸 KV 的方式（RDMA/TCP） |
+| NVIDIA Dynamo | 「編排器」 | 位於 vLLM／SGLang／TRT-LLM 之上的協調器 |
+| llm-d | 「Kubernetes 原生」 | Red Hat + AWS 的 Kubernetes 拆解式堆疊 |
+| Planner Profiler | 「Dynamo 自動設定」 | 測量工作負載並設定資源池比例 |
+| SLA Planner | 「Dynamo 政策」 | 自動調整 Prefill 與 Decode 比例以符合 SLO |
+| `packDomain: rack` | 「llm-d 拓撲」 | 將 Prefill 與 Decode 放在同一機架，以加快 KV 傳輸 |
+| UCCL | 「統一 collective」 | llm-d 0.5 用於縮容至零的網路層 |
+| MoE expert routing | 「每個 Token 選專家」 | DeepSeek-V3 使用的模式；拆解式服務有助益 |
 
 ## Further Reading｜延伸閱讀
 

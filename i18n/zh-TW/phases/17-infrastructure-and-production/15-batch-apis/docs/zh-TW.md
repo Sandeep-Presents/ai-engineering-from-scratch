@@ -30,7 +30,7 @@ Batch API 是大模型成本治理工具箱中門檻最低、節省幅度最驚�
 
 **Anthropic Message Batches**：同樣採 JSONL 檔案批次上傳機制。承諾 24 小時非同步履約。全線 5 折。原生完整支援 `cache_control`——快取寫入顯式標註，同一批次內部的後續請求自動享有快取讀取折扣。
 
-**Google Vertex AI Batch Prediction**：支援直接以 BigQuery 資料表或 GCS 物件儲存作為資料來源與目標。針對 Gemini 全系列模型提供同等 50% 折扣。深度整合進 GCP 的 Vertex Pipelines 工作流。
+**Google Vertex AI Batch Prediction**：輸入可來自 BigQuery 或 GCS。針對 Gemini 全系列模型提供同等 50% 折扣。深度整合進 GCP 的 Vertex Pipelines 工作流。
 
 ### 語意本質：非同步，而非緩慢（Semantic: asynchronous, not slow）
 
@@ -40,7 +40,7 @@ Batch 的真實語意是「我承諾在 24 小時以內將結果交給你」—�
 
 以 50,000 份文件摘要且共享相同的 4k Token 系統 Prompt 為例：
 
-- 同步未快取：50000 × ($input × 4000 + $output × 200) at full rates.
+- 同步未快取：50000 × ($input × 4000 + $output × 200)，依原價計費。
 - 同步有快取：系統 Prompt 在首次寫入後成功落盤；其餘 49,999 次呼叫享有便宜 10 倍的輸入單價。
 - 批次有快取：在上述快取巨大節省的基礎之上，對讀取費率、寫入費率與輸出費率全額再次砍半（打 5 折）。
 
@@ -101,16 +101,16 @@ batch-lane-triage
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| Batch API | "async discount" | 50% off with 24h turnaround |
-| JSONL | "batch format" | One JSON request per line; OpenAI/Anthropic standard |
-| Message Batches | "Anthropic batch" | Anthropic's batch API product name |
-| Batch prediction | "Vertex batch" | Vertex AI's batch API product |
-| Turnaround SLA | "24h promise" | Guarantee, not typical; typical is 2-6h |
-| Workload triage | "interactivity decision" | Interactive / semi / batch routing decision |
-| Output schema | "response format" | Per-provider JSONL layout; not portable |
-| Stacked discount | "batch + cache" | ~10% of uncached sync bill when both apply |
+| Batch API | 「非同步折扣」 | 24 小時內完成並享有 50% 折扣 |
+| JSONL | 「批次格式」 | 每行一個 JSON 請求；OpenAI／Anthropic 標準格式 |
+| Message Batches | 「Anthropic 批次」 | Anthropic 批次 API 的產品名稱 |
+| Batch prediction | 「Vertex 批次」 | Vertex AI 的批次 API 產品 |
+| Turnaround SLA | 「24 小時承諾」 | 這是履約保證而非常見耗時；通常需 2 至 6 小時 |
+| Workload triage | 「互動性判斷」 | 判定採互動、半互動或批次處理 |
+| Output schema | 「回應格式」 | 各供應商不同的 JSONL 格式，無法通用 |
+| Stacked discount | 「批次 + 快取」 | 兩者同時適用時，費用約為未快取同步處理的 10% |
 
 ## Further Reading｜延伸閱讀
 

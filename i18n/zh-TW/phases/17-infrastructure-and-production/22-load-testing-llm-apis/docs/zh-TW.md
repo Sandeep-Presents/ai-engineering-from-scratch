@@ -1,6 +1,6 @@
 # LLM API 的壓力負載測試——為何 k6 與 Locust 會向你說謊（Load Testing LLM APIs — Why k6 and Locust Lie）
 
-> 傳統的負載壓測工具並非為文字串流傳輸（Streaming）、動態輸出長度、Token 級微度量以及 GPU 飽和特性而設計。兩大經典陷阱常讓團隊慘遭誤導。GIL 鎖定陷阱：Locust 的 Token 級計時在 Python 全域直譯器鎖（GIL）下執行 Tokenize，在極限並行下用戶端自身的運算瓶頸與請求發送激烈爭奪 CPU，Tokenize 積壓會嚴重虛胖呈報的 Token 間延遲——此時真正的效能瓶頸在你的測試用戶端，而非後端推論伺服器。Prompt 同質化陷阱：在迴圈中使用單一固定 Prompt 僅僅測試了 Token 分佈空間上的孤立單點；真實業務流量具備高度隨機的長度波動與多樣的前綴匹配。LLMPerf 透過 `--mean-input-tokens` 與 `--stddev-input-tokens` 徹底根治了該問題。2026 年壓測工具矩陣：專用型工具（GenAI-Perf、LLMPerf、LLM-Locust、guidellm）守護 Token 級精確度；**k6 v2026.1.0** 搭配 **k6 Operator 1.0 GA（2025 年 9 月發布）** 支援原生串流感知，透過 TestRun 與 PrivateLoadZone 等 CRD 原生融入 Kubernetes 分散式測試，是 CI/CD 發布閘門的最佳首選；Vegeta 適用於 Go 語言極致恆定速率 HTTP 飽和壓測；原生 Locust 2.43.3 唯有掛載 LLM-Locust 擴充套件後才具備合法串流度量能力。四大標準壓測模式：平穩穩態（Steady-state）、漸進遞增（Ramp）、突發尖峰（Spike，檢驗自動擴縮）、長時浸泡（Soak，檢驗顯存洩漏）。
+> 傳統的負載壓測工具並非為文字串流傳輸（Streaming）、動態輸出長度、Token 級微度量以及 GPU 飽和特性而設計。兩大經典陷阱常讓團隊慘遭誤導。GIL 鎖定陷阱：Locust 的 Token 級計時在 Python 全域直譯器鎖（GIL）下執行 Tokenize，在極限並行下用戶端自身的運算瓶頸與請求發送激烈爭奪 CPU，Tokenize 積壓會嚴重虛胖呈報的 Token 間延遲——此時真正的效能瓶頸在你的測試用戶端，而非後端推論伺服器。Prompt 同質化陷阱：在迴圈中使用單一固定 Prompt 僅僅測試了 Token 分佈空間上的孤立單點；真實業務流量具備高度隨機的長度波動與多樣的前綴匹配。LLMPerf 透過 `--mean-input-tokens` 與 `--stddev-input-tokens` 改善了這個問題。2026 年壓測工具矩陣：專用型工具（GenAI-Perf、LLMPerf、LLM-Locust、guidellm）守護 Token 級精確度；**k6 v2026.1.0** 搭配 **k6 Operator 1.0 GA（2025 年 9 月發布）** 支援原生串流感知，透過 TestRun 與 PrivateLoadZone 等 CRD 原生融入 Kubernetes 分散式測試，是 CI/CD 發布閘門的最佳首選；Vegeta 適用於 Go 語言極致恆定速率 HTTP 飽和壓測；原生 Locust 2.43.3 唯有掛載 LLM-Locust 擴充套件後才具備合法串流度量能力。四大標準壓測模式：平穩穩態（Steady-state）、漸進遞增（Ramp）、突發尖峰（Spike，檢驗自動擴縮）、長時浸泡（Soak，檢驗記憶體洩漏）。
 
 **Type:** Build
 **Languages:** Python (stdlib, toy realistic-prompt generator + latency collector)
@@ -12,7 +12,7 @@
 - 深刻解釋導致傳統通用壓測工具在面對 LLM API 時頻繁說謊的兩大反模式（GIL 陷阱與 Prompt 同質化陷阱）。
 - 根據具體壓測目標精準完成工具選型：LLMPerf（基準性能對齊）、k6 搭配串流擴充（CI 阻斷閘門）、guidellm（巨量擬真合成壓測）、GenAI-Perf（NVIDIA 官方標準）。
 - 設計四大標準負載模式（平穩穩態、階梯遞增、突發衝擊、長時浸泡），並明確指出每一種模式所專門捕捉的系統崩潰特徵。
-- 學會使用輸入 Token 的均值與標準差建構高度擬真的常態分佈 Prompt 測試集，而非採用死板的固定長度文本。
+- 學會使用輸入 Token 的平均值與標準差建構擬真的輸入 Token 長度分布，而非採用固定長度文本。
 
 ## The Problem｜問題
 
@@ -41,13 +41,13 @@ Locust 完全基於 Python 開發，其用戶端的 Token 級計時必須在 Pyt
 1. **平穩穩態（Steady-state）**——維持恆定 RPS 壓力持續執行 30 至 60 分鐘。捕捉：基準線性能回歸缺陷。
 2. **階梯遞增（Ramp）**——在 15 分鐘內將 RPS 從 0 線性推升至目標上限。捕捉：系統容量極限崩潰點（Breakpoint）與冷啟動預熱異常。
 3. **突發尖峰（Spike）**——在 2 分鐘內突然注入 3 至 10 倍的暴增負載隨後迅速回調。捕捉：Kubernetes 自動擴縮的反應延遲、排程佇列飽和崩潰，以及冷啟動雪崩。
-4. **長時浸泡（Soak）**——在穩態壓力下持續不間斷壓測 4 至 8 小時。捕捉：GPU/CPU 顯存記憶體洩漏、連線池耗盡漂移，以及可觀測性日誌儲存溢位。
+4. **長時浸泡（Soak）**——在穩態壓力下持續不間斷壓測 4 至 8 小時。捕捉：記憶體洩漏、連線池耗盡漂移，以及可觀測性日誌儲存溢位。
 
 ### 2026 年主流壓測工具選型全貌（2026 tool mapping）
 
 **LLMPerf**（Anyscale 出品）——雖然基於 Python，但底層 Tokenize 完全交由 Rust 高性能核心接管。原生支援基於均值/標準差的動態文本生成與串流計時。是目前推論基準性能壓測的最佳首選。
 
-**NVIDIA GenAI-Perf**——NVIDIA 官方出品的權威參考實作。原生支援 Triton 用戶端，具備極致全方位的指標覆蓋。注意其計算 ITL 時排除了首字 TTFT；與 LLMPerf 存在工具定義偏差。
+**NVIDIA GenAI-Perf**——NVIDIA 官方出品的權威參考實作。原生支援 Triton 用戶端，具備極致全方位的指標覆蓋。注意其計算 ITL 時排除了首字 TTFT；兩者對同一伺服器回報的 TPOT 不同：GenAI-Perf 計算 ITL 時排除 TTFT，而 LLMPerf 的定義包含 TTFT。
 
 **LLM-Locust**（TrueFoundry 出品）——專為大模型改良的 Locust 擴充套件，徹底消除了 Python GIL 鎖定陷阱。提供熟悉的 Locust DSL 語法與串流指標度量。
 
@@ -88,7 +88,7 @@ load-pattern-waves
 
 ## Use It｜實際應用
 
-`code/main.py` 模擬了一套具備真實常態分佈 Prompt 的負載測試框架，精確度量端到端有效 TPOT，並在終端機中直觀揭示：單一固定 Prompt 如何透過人為刷高前綴快取命中率從而向工程師撒下彌天大謊。
+`code/main.py` 模擬了一套依據擬真輸入 Token 長度分布產生 Prompt 的負載測試框架，精確度量端到端有效 TPOT，並在終端機中直觀揭示：單一固定 Prompt 如何透過人為刷高前綴快取命中率從而向工程師撒下彌天大謊。
 
 ## Ship It｜交付成果
 
@@ -96,7 +96,7 @@ load-pattern-waves
 
 ## Exercises｜練習
 
-1. 執行 `code/main.py`。橫向比對單一固定 Prompt 與擬真常態分佈 Prompt 的壓測結果——兩者帳面吞吐量與實質吐字間隔的差距究竟從何而來？
+1. 執行 `code/main.py`。橫向比對單一固定 Prompt 與依據擬真輸入 Token 長度分布產生的 Prompt 的壓測結果——兩者帳面吞吐量與實質吐字間隔的差距究竟從何而來？
 2. 為團隊的 CI 自動化管線撰寫一段標準 k6 驗收腳本：在 100 個並行使用者壓力下持續壓測 5 分鐘，要求 P95 TTFT 必須嚴格小於 800 ms。
 3. 你的長時浸泡測試（Soak test）顯示推論節點的實體顯存每小時固定上漲 50 MB。列出引發該記憶體洩漏的三項最可能架構原因，並說明應當掛載何種監控指標予以精確定位。
 4. 針對系統發起從 10 RPS 瞬間飆升至 100 RPS 的突發尖峰測試。在已部署 Karpenter 與 vLLM production-stack 的前提下（第 17 課第 03 與 18 節），系統的預期自動自癒復原耗時應當落在哪個區間？
@@ -104,19 +104,19 @@ load-pattern-waves
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| LLMPerf | "the LLM harness" | Anyscale benchmark tool, streaming-aware |
-| GenAI-Perf | "NVIDIA tool" | NVIDIA reference harness |
-| LLM-Locust | "Locust for LLMs" | Locust extension fixing GIL trap |
-| guidellm | "synthetic benchmark" | Large-scale synthetic tool |
-| k6 Operator | "K8s k6" | CRD-based distributed k6 |
-| GIL trap | "Python client overhead" | Tokenization backlog inflates reported latency |
-| Prompt-uniformity trap | "single-prompt lie" | Loop with same prompt hits cache, inflates throughput |
-| Steady-state | "constant load" | Flat RPS for N minutes |
-| Ramp | "linear up" | 0 to target over duration |
-| Spike | "burst test" | Sudden multiplier then revert |
-| Soak | "long test" | Hours for leak detection |
+| LLMPerf | 「LLM 執行環境」 | Anyscale 基準測試工具，支援串流感知 |
+| GenAI-Perf | 「NVIDIA 工具」 | NVIDIA 的參考測試執行環境 |
+| LLM-Locust | 「LLM 的 Locust」 | 修正 GIL 陷阱的 Locust 擴充套件 |
+| guidellm | 「合成基準測試」 | 大規模合成測試工具 |
+| k6 Operator | 「Kubernetes 的 k6」 | 以 CRD 為基礎的分散式 k6 |
+| GIL trap | 「Python 用戶端開銷」 | Tokenization 積壓會拉高回報的延遲 |
+| Prompt-uniformity trap | 「單一 Prompt 的假象」 | 迴圈重用相同 Prompt 命中快取，使吞吐量虛高 |
+| Steady-state | 「固定負載」 | 持續 N 分鐘的固定 RPS |
+| Ramp | 「線性升載」 | 在指定期間從 0 線性增加到目標負載 |
+| Spike | 「突發測試」 | 突然提高負載倍數，再恢復原狀 |
+| Soak | 「長時間測試」 | 持續數小時以偵測記憶體洩漏 |
 
 ## Further Reading｜延伸閱讀
 

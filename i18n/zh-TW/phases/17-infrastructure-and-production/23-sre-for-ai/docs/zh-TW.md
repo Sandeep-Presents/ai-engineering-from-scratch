@@ -1,6 +1,6 @@
 # AI SRE 架構——多 Agent 事故響應、維運手冊與預測性偵測（SRE for AI — Multi-Agent Incident Response, Runbooks, Predictive Detection）
 
-> AI SRE 透過 RAG 技術將 LLM 錨定於真實基礎架構資料（日誌、Runbook 維運手冊、微服務拓撲圖譜）之上，將事故排查、文檔沉澱與跨團隊協同全流程自動化。2026 年的權威架構模式是多 Agent 協同編排——專職子 Agent（日誌專家、指標專家、手冊專家）由全域 Supervisor 統一統籌；AI 負責推導假說、生成查詢並彙整證據，人類工程師專注於審批最終決策。Datadog Bits AI 與微軟 Azure SRE Agent 皆已作為全託管商用產品正式上線。Runbook 維運手冊亦在深刻演進：NeuBird Hawkeye 引入了對抗式雙模型交叉評估（兩大獨立模型深度剖析同一起事故；意見一致 = 高置信度，意見分歧 = 存在不確定性需升級審批）；系統運維組織記憶可跨越人員離職交接而持久留存。自動自癒（Auto-remediation）依然嚴格維持審慎原則：AI 負責給出建議，人類最終簽字授權。完全自主的閉環操作被嚴格限制在極狹窄的安全集合中（重啟 Pod、回滾特定版本部署），並受限於硬性防護欄——任何向你兜售「完全放手全自動運維」的廠商皆屬於過度誇大。新興技術前沿：事故前預測性偵測。MIT 2025 年最新研究指出，基於歷史日誌、GPU 溫度時序與 API 錯誤特徵專門訓練的 LLM，能在正式事故爆發前 10 至 15 分鐘精確預警 89% 的雲端中斷。業界權威預測：到 2026 年底，全球 95% 的企業級大模型推論叢集皆將全面實裝自動化故障容錯移轉。
+> AI SRE 透過 RAG 技術將 LLM 錨定於真實基礎架構資料（日誌、Runbook 維運手冊、微服務拓撲圖譜）之上，將事故排查、文件整理與跨團隊協同全流程自動化。2026 年的權威架構模式是多 Agent 協同編排——專職子 Agent（日誌專家、指標專家、手冊專家）由全域 Supervisor 統一統籌；AI 負責推導假說、生成查詢並彙整證據，人類工程師專注於審批最終決策。Datadog Bits AI 與微軟 Azure SRE Agent 皆已作為全託管商用產品正式上線。Runbook 維運手冊亦在深刻演進：NeuBird Hawkeye 引入了對抗式雙模型交叉評估（兩大獨立模型深度剖析同一起事故；意見一致 = 高信心，意見分歧 = 存在不確定性需升級審批）；系統運維組織記憶可跨越人員離職交接而持久留存。自動自癒（Auto-remediation）依然嚴格維持審慎原則：AI 負責給出建議，人類最終簽字授權。完全自主的閉環操作被嚴格限制在極狹窄的安全集合中（重啟 Pod、回滾特定版本部署），並受限於硬性防護欄——任何向你兜售「完全放手全自動運維」的廠商皆屬於過度誇大。新興技術前沿：事故前預測性偵測。MIT 2025 年最新研究指出，基於歷史日誌、GPU 溫度時序與 API 錯誤特徵專門訓練的 LLM，能在正式事故爆發前 10 至 15 分鐘精確預警 89% 的雲端中斷。預測到 2026 年底，95% 的企業級 LLM 將具備自動容錯移轉能力。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy multi-agent incident triage simulator)
@@ -11,7 +11,7 @@
 
 - 精確繪製多 Agent AI SRE 協同架構圖：Supervisor 統籌者 + 專職 Agent（日誌、指標、維運手冊） + 人在迴圈中（HITL）審批閘門。
 - 深刻解釋為何自動自癒必須嚴格限制在狹窄的安全原子操作（重啟 Pod、回滾部署），絕不可賦予其寬泛的系統重構權限。
-- 掌握對抗式交叉評估設計模式（NeuBird Hawkeye）：雙模型獨立推導、結論一致代表高度置信、結論分歧立即升級人工介入。
+- 掌握對抗式交叉評估設計模式（NeuBird Hawkeye）：雙模型獨立推導、結論一致代表信心較高、結論分歧立即升級人工介入。
 - 引用 MIT 89% 事故前早期預警的研究結論，並直面殘酷的工程約束：缺乏自動執行機制的純預測，本質上只是一面會叫的監控儀表板。
 
 ## The Problem｜問題
@@ -59,7 +59,7 @@ Supervisor 統籌者將事故警報拆解為平行的子任務查詢。各專職
 
 ### 對抗式交叉驗證（NeuBird Hawkeye）（Adversarial evaluation (NeuBird Hawkeye)）
 
-由兩款完全獨立的大語言模型在同一時間、針對同一起事故日誌展開背靠背的平行推導。若兩者對事故根因的判定高度一致，系統賦予其高置信度標籤。若兩者結論產生分歧，系統立即自動升級警報並將雙方的分歧假說並列呈報給人類工程師。這是一項極其簡潔優雅的架構模式，能以極低成本有效過濾模型無中生有的虛假幻覺根因。
+由兩款完全獨立的大語言模型在同一時間、針對同一起事故日誌展開背靠背的平行推導。若兩者對事故根因的判定高度一致，系統賦予其高信心標籤。若兩者結論產生分歧，系統立即自動升級警報並將雙方的分歧假說並列呈報給人類工程師。這是一項極其簡潔優雅的架構模式，能以極低成本有效過濾模型無中生有的虛假幻覺根因。
 
 ### 運維組織記憶（Operational memory）
 
@@ -67,7 +67,7 @@ Supervisor 統籌者將事故警報拆解為平行的子任務查詢。各專職
 
 ### 事故前預測性偵測（Pre-incident prediction）
 
-MIT 2025 年最新科研成果：針對歷史系統日誌、實體 GPU 晶片溫度時序曲線與 API 錯誤分佈特徵進行深度學習訓練的大模型，在測試集中成功在正式故障爆發前 10 至 15 分鐘，以 89% 的驚人準確率預言了雲端癱瘓的來臨。
+MIT 2025 年最新科研成果：針對歷史系統日誌、實體 GPU 晶片溫度時序曲線與 API 錯誤分佈特徵進行深度學習訓練的大模型，在測試集中提前 10 至 15 分鐘預測了 89% 的服務中斷。
 
 冷靜的工程審視：缺乏自動執行機制的純預測，充其量只是一面會頻繁發出噪音的儀表板。真正的維運挑戰在於「一旦模型給出預測，系統該採取何種具體動作？」提前排空流量？呼叫值班工程師？自動彈性擴容？這必須依據企業自身的具體策略白紙黑字寫死。
 
@@ -85,10 +85,10 @@ MIT 2025 年最新科研成果：針對歷史系統日誌、實體 GPU 晶片溫
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
-- MIT 事故預警模型：提前 10 至 15 分鐘成功預測 89% 的雲端中斷事故。
+- MIT 事故預警模型：在測試集中提前 10 至 15 分鐘預測了 89% 的服務中斷。
 - 多 Agent 事故響應標準架構：Supervisor 統籌者 + (日誌、指標、手冊專職 Agent) + 人類審核閘門。
 - 允許自動自癒的安全操作範疇：重啟 Pod、回滾特定版本部署、在預先核准範圍內自動擴縮。
-- 對抗式交叉驗證模式：雙模型背靠背獨立推導；結論一致 = 高置信度。
+- 對抗式交叉驗證模式：雙模型背靠背獨立推導；結論一致 = 高信心。
 
 ```figure
 i4-incident-agents
@@ -112,17 +112,17 @@ i4-incident-agents
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| AI SRE | "agent for on-call" | LLM-backed incident investigation + coordination |
-| Supervisor agent | "the orchestrator" | Top-level agent breaking incidents into sub-queries |
-| Specialized agent | "domain agent" | Sub-agent with tool access (logs, metrics, runbooks) |
-| Auto-remediation | "AI fixes it" | Narrow pre-approved action; NOT broad re-architecture |
-| Operational memory | "vector runbooks" | Post-mortems + runbooks in vector DB for RAG |
-| Adversarial eval | "two-model check" | Independent analyses; agreement = confidence |
-| NeuBird Hawkeye | "the adversarial one" | Product with adversarial-eval + memory pattern |
-| Bits AI | "Datadog's SRE agent" | Datadog-managed AI SRE |
-| Pre-incident prediction | "early detection" | 10-15 min lead time on outage prediction |
+| AI SRE | 「值班 agent」 | 以 LLM 支援的事故調查與協調 |
+| Supervisor agent | 「協調者」 | 將事故拆成子查詢的頂層 agent |
+| Specialized agent | 「領域 agent」 | 可使用日誌、指標與 runbook 工具的子 agent |
+| Auto-remediation | 「AI 自動修復」 | 預先核准的狹窄操作，不包含廣泛重新設計 |
+| Operational memory | 「向量 runbook」 | 存入向量資料庫供 RAG 使用的事故檢討與 runbook |
+| Adversarial eval | 「雙模型檢查」 | 獨立分析；結論一致代表信心較高 |
+| NeuBird Hawkeye | 「對抗式評估工具」 | 採用對抗式評估與記憶模式的產品 |
+| Bits AI | 「Datadog 的 SRE agent」 | Datadog 託管的 AI SRE |
+| Pre-incident prediction | 「提早偵測」 | 提前 10 至 15 分鐘預測服務中斷 |
 
 ## Further Reading｜延伸閱讀
 
