@@ -154,7 +154,7 @@ def kneser_ney_bigram_model(corpus_tokens, discount=0.75):
 
 三個關鍵組成部分。`continuation_prob` 捕捉「這個詞出現在多少種不同脈絡？」（Kneser-Ney 的創新）。`lambda_prev` 是折扣釋放出的質量，用來加權後退。最終機率是折扣後的主項，加上加權的延續項。
 
-### 步驟 4：用取樣生成文字
+### 步驟 4：用取樣（sampling）生成文字
 
 ```python
 import random
