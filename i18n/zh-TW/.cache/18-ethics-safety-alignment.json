@@ -14,5 +14,6 @@
   "phases/18-ethics-safety-alignment/13-many-shot-jailbreaking/docs/en.md": "27a1efae78e594530ccd35f01fedacd8a1e4aeaec537bb40c419728f001bc261",
   "phases/18-ethics-safety-alignment/14-ascii-art-visual-jailbreaks/docs/en.md": "49b3da88ca8fbe445a353426bbec66f0488f177c0a34b9ddb2f76269f964b2e8",
   "phases/18-ethics-safety-alignment/15-indirect-prompt-injection/docs/en.md": "c45f346b585ff1881733b061f7e55d034eacaf23e912374d001ee27dac87df38",
-  "phases/18-ethics-safety-alignment/16-red-team-tooling-garak-llamaguard-pyrit/docs/en.md": "380a3437c4bb05212e34be0ea75e0dca5f86e377a4f0465fed9befa2fc4f3dd8"
+  "phases/18-ethics-safety-alignment/16-red-team-tooling-garak-llamaguard-pyrit/docs/en.md": "380a3437c4bb05212e34be0ea75e0dca5f86e377a4f0465fed9befa2fc4f3dd8",
+  "phases/18-ethics-safety-alignment/17-wmdp-dual-use-evaluation/docs/en.md": "9cd15aab7f11142663fed3dd4f3c093b45e6d48333468186cff4db555a61af65"
 }
