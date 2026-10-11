@@ -10,5 +10,6 @@
   "phases/16-multi-agent-and-swarms/09-parallel-swarm-networks/docs/en.md": "2dde437ce309db7e43e69e34bb091b8ca019d5e4c55293e582f7497776dd21c9",
   "phases/16-multi-agent-and-swarms/10-group-chat-speaker-selection/docs/en.md": "cb20c86f615eac8c5d965b4469eb737401e21b92e94ad8360fdac07d144a0c03",
   "phases/16-multi-agent-and-swarms/11-handoffs-and-routines/docs/en.md": "87bf3b0e0988f7b46dfb666e546210d339b7cd640e840cb49152a19e1521674b",
-  "phases/16-multi-agent-and-swarms/12-a2a-protocol/docs/en.md": "64266b28fc18ceb78fc5bc7d7b0902de21e051cdf4631ebb1574412c24d4cdd2"
+  "phases/16-multi-agent-and-swarms/12-a2a-protocol/docs/en.md": "64266b28fc18ceb78fc5bc7d7b0902de21e051cdf4631ebb1574412c24d4cdd2",
+  "phases/16-multi-agent-and-swarms/13-shared-memory-blackboard/docs/en.md": "7e7a61e06f94de6a99a218705ffcb297058136ace1c363d03e0dce8896a9b8e8"
 }

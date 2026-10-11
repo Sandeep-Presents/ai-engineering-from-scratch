@@ -1,0 +1,169 @@
+# 共享記憶體與黑板架構模式（Shared Memory and Blackboard Patterns）
+
+> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一擁有狀態的實體——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。業界最富盛名的參考失效模式當屬**記憶體污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，導致整座系統的準確率呈現緩慢的不可逆衰退——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實現這兩種拓撲結構、人為注入記憶體污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
+
+**Type:** Learn + Build
+**Languages:** Python (stdlib, `threading`)
+**Prerequisites:** Phase 16 · 04 (Primitive Model), Phase 16 · 09 (Parallel Swarm Networks)
+**Time:** ~75 minutes
+
+## Problem｜問題
+
+多 Agent 系統必須提供一處供各 Agent 共享客觀事實的實體空間。最直觀的粗暴解法是「在訊息中攜帶一切上下文」——但這只不過是用沉重的記憶體複製開銷重新發明了低劣的共享狀態。另一種做法是「為全員提供一份全域日誌」——然而全域日誌會無界膨脹，且極易引發全局記憶體污染。第三種做法則是「為每個 Agent 剪裁專屬的投影視圖」——具備極佳的水平擴展性，但需要前期嚴謹的 Schema 結構設計。
+
+當其中某個 Agent 產生了幻覺、並將該虛假陳述寫入共享狀態時，所有讀取該狀態的下游 Agent 都會自動將該幻覺奉為既定事實。當人類在最終報告中察覺不對勁時，推理鏈條早已深入展開了五個層級，而罪魁禍首往往是最初寫入的第三則微小訊息。在多 Agent 系統中，排查這種慢性的精度衰退，遠比除錯一次直接當機崩潰要艱難得多。
+
+這正是所謂的記憶體污染。它是 MAST 失效分類體系（Cemri 等人，arXiv:2503.13657）中被文獻記錄最為詳盡的第二大故障家族，且具備嚴重的結構性特質：任何缺乏資料溯源（Provenance）中繼資料與唯讀客觀驗證者的共享記憶體設計，遲早都會不可避免地遭遇此類污染。
+
+## Concept｜核心概念
+
+### 兩大主流拓撲結構
+
+**全域完整訊息池（Full message pool）。** 每個 Agent 皆能無差別讀取全場每一則歷史訊息。AutoGen GroupChat 與 MetaGPT 皆採用此模式。架構直觀、透明度極高、除錯時易於單步排查，但一旦 Agent 數量突破約 10 位便徹底喪失擴展性，因為每個 Agent 的上下文視窗會瞬間被其他同儕的大量中間工作雜訊所淹沒。
+
+```
+agent-A ──write──▶ ┌────────────────┐ ◀──read── agent-D
+                   │ message pool   │
+agent-B ──write──▶ │                │ ◀──read── agent-E
+                   │ (global log)   │
+agent-C ──write──▶ └────────────────┘ ◀──read── agent-F
+```
+
+**基於主題訂閱的黑板架構（Blackboard with subscription）。** 各 Agent 僅對外宣告自身感興趣的特定主題標籤；底層受質（substrate）僅向其精準投遞與該主題嚴格相關的訊息。CA-MCP（arXiv:2601.11595）與 Matrix 去中心化框架（arXiv:2511.21686）正是此模式的代表。具備優異的規模化擴展能力，但需要前期深思熟慮的 Schema 分類設計，才能確保主題訂閱具備實質語意價值。
+
+```
+                   ┌─ topic: prices ──┐
+agent-A ──pub────▶ │                  │ ──▶ agent-D (subscribed)
+                   ├─ topic: orders ──┤
+agent-B ──pub────▶ │                  │ ──▶ agent-E (subscribed)
+                   ├─ topic: alerts ──┤
+agent-C ──pub────▶ │                  │ ──▶ agent-F (subscribed)
+                   └──────────────────┘
+```
+
+### 各自大顯身手的優勢場景
+
+- **全域完整訊息池** 最適合在 Agent 數量較少（< 10）、成員角色高度異質、且對話時程相對短暫的場景下大顯身手。當所有人皆能看清全場時，分析「誰說了什麼」極其輕鬆自然。
+- **黑板架構** 則在 Agent 規模極為龐大、角色高度同質但執行個體眾多（群體 Swarm 體系）、且對話需要長期運作的場景中取得壓倒性勝利。精準的主題路由能大幅節省 token 成本並徹底根絕上下文污染。
+
+在真實正式環境中，系統通常採用混合編制：頂層規劃層採用小型全域訊息池，而底層各工作者群體則全面接入黑板主題事件網格。
+
+### 記憶體污染（Memory Poisoning）的一幕真實縮影
+
+設想三位協同展開深度科研調研任務的 Agent：Agent A 是資料抓取員；Agent B 是摘要提煉員；Agent C 是戰略分析師。
+
+1. A 抓取了一份網頁，並在共享狀態中寫入訊息：「該研究報告指出系統準確率提升了 42%。」
+2. 然而原始網頁的真實數字實際上是「提升了 4.2%」。A 在讀取時因幻覺遺漏了小數點。
+3. B 在通讀共享狀態後，信心滿滿地寫下：「實測錄得了高達 42% 的巨大準確率躍升（資料來源：A）。」
+4. C 讀取了 B 的總結，做出戰略決策：「強烈建議全面導入——42% 的效能提升具有顛覆性變革價值。」
+5. 最終交付給管理階層的報告赫然引述了一個在現實世界中根本從未存在過的 42% 虛假數字。
+
+沒有任何 Agent 拋出例外。沒有任何單元測試亮起紅燈。系統「運作無比流暢」。但這項致命的幻覺，卻藉由共享狀態悄悄從單一 Agent 的私有上下文，徹底轉移並深植進所有下游 Agent 的核心決策推理之中。
+
+### 為什麼這屬於系統結構性缺陷
+
+若缺乏共享狀態，Agent A 的幻覺將被嚴格封閉在 A 自己的獨立上下文之內。下游 Agent 被迫必須親自重新抓取或獨立推導，從而有極高機率及時糾正該錯誤。然而在未經防護的陽春共享狀態中，A 的私有雜訊瞬間被洗白為全域的客觀共識，幻覺就此被正式洗白為既定事實。
+
+問題的核心不在於共享狀態本身——而在於**缺乏資料溯源（Provenance）中繼資料、且缺乏獨立客觀驗證者把關的無防備共享狀態**。工業界已被驗證有效的三大實務緩解支柱：
+
+1. **為每一次寫入嚴格附加溯源中繼資料（Attribute provenance）。** 寫入共享狀態的每一筆記錄皆必須強行標註：由誰寫入、何時寫入、在何種系統 prompt 下生成，以及（若適用）該結論引述了哪份原始資料來源。下游 Agent 必須依據其來源可信度抱持健康的審慎懷疑視角進行消費。
+2. **對寫入實施版本控制，並視為「僅限附加（Append-only）」。** 任何修正操作必須表現為一筆明確宣告廢止舊記錄的全新條目，嚴禁進行就地覆寫（In-place update）。完整保留不可磨滅的稽核軌跡。
+3. **部署至少一位絕對無法向共享狀態寫入的特殊 Agent。** 配置一位專屬的「唯讀驗證者（Read-only verifier）」Agent，負責持續抽樣各項條目、獨立重新抓取原始外部資料，並主動對不一致處提出警告。正因為它被剝奪了向池中寫入的權限，它在物理上絕對不會被共享池中的雜訊所反向污染。
+
+### 黑板架構的歷史淵源（Hayes-Roth，1985）
+
+黑板架構模式的誕生遠早於當代 LLM 四十年之久。Hayes-Roth 在其 1985 年的奠基論文《A Blackboard Architecture for Control》中，便深刻描述了由一群專門的「知識來源（Knowledge Sources）」負責監聽全域黑板、向其貢獻局部碎片化解答，並引發其他知識來源連鎖反應的系統。2026 年的現代黑板（如 CA-MCP、Matrix）本質上是完全相同的哲學——只不過當年的知識來源被換成了現代的 LLM Agent，而局部解答則表現為標準化的 JSON 物件。古典文獻中針對並行寫入競爭、伺機性控制以及一致性維護所提出的成熟解法，正在當代被各大新興框架重新汲取與應用。
+
+### 投影視圖 vs 全域完整視圖
+
+純粹的黑板架構會為同一主題下的所有訂閱者提供完全一致的視圖。而更為激進且高效的設計是**針對個別 Agent 的投影視圖（Per-agent projection）**：每個 Agent 僅能看見依據其角色權限深度定制剪裁後的特定視圖。LangGraph 的狀態整合器（State reducers）是 2026 年最經典的現代實踐——其 reducer 函式負責將全局龐雜狀態優雅摺疊為符合特定角色所需的最小切片。
+
+按 Agent 投影的架構具備極限的水平擴展性，但強烈依賴前期嚴謹的 Schema 設計。若缺乏統一 Schema，你將被迫在每個 Agent 的 prompt 中笨拙地硬編碼各種臨時剪裁規則。
+
+### 寫入並行競爭（Write-Contention）的應對模式
+
+多個 Agent 同時發起寫入本質上是一個經典的分散式並行問題，而非單純的 AI 議題。業界驗證有效的三大模式：
+
+- **循序串列寫入者（單一生產者模式）。** 所有寫入操作皆必須統一途經單一協調者 Agent 進行循序序列化排隊。架構最為純粹，但協調者易成為效能瓶頸。
+- **附帶版本號的樂觀並行控制（Optimistic concurrency with versioning）。** 每筆記錄皆攜帶單調遞增的版本號；當寫入者遭遇版本衝突時宣告寫入失敗並啟動重試。這是成熟的經典資料庫技術。
+- **主題嚴格分割分區（Topic partitioning）。** 不同的 Agent 獨佔掌控各自不同的主題領域。徹底消除跨主題的寫入碰撞。但要求前期對業務邊界進行高度清晰的劃分。
+
+絕大多數 2026 年的框架預設採用循序寫入者模式，原因在於 LLM 的單次推論耗時顯著較長，並行寫入碰撞在日常業務中相對低頻，因此該單點瓶頸尚不至於對總體效能造成致命傷害。
+
+### 具備不可寫屬性的獨立驗證者（Unwritable Verifier）
+
+在所有防禦手段中，最具實質承重價值的是**唯讀驗證者**。其實作必須恪守以下鐵律：
+
+- 驗證者與全體團隊共享底層狀態（即能夠完整閱讀黑板或訊息池中的內容）。
+- 驗證者在物理架構上絕對不具備向共享狀態寫入的控制權——它唯一的輸出途徑是一條完全獨立的專屬驗證通道。
+- 驗證者必須具備完全獨立重新調閱外部原始資料的能力，以對池中宣稱的論點進行交叉比對，並對事實矛盾發出刺耳警報。
+- 驗證者自身產出的判定結論必須直接路由至人類審查員或獨立的高階仲裁 Agent，絕不允許被重新餵回共享池中。
+
+若缺乏這層物理隔離，驗證者的輸出結果將不可避免地淪為池中的全新條目，這意味著一旦共享池遭受污染，驗證者也將被迅速同化，最終導致其驗證邏輯徹底崩潰瓦解。
+
+```figure
+swarm-blackboard
+```
+
+## Build It｜動手實作
+
+`code/main.py` 透過純 Python 標準函式庫完整實作了這兩種主流拓撲結構，並內建了一個玩具級的記憶體污染攻擊模擬與相應的三大防禦緩解體系：
+
+- `MessagePool`——具備執行緒安全保證、僅限附加且支援全域讀取的高效日誌。
+- `Blackboard`——基於主題索引、支援個別 Agent 獨立訂閱的發布／訂閱中樞。
+- `ProvenanceEntry`——每一次寫入皆強制記錄 (writer, timestamp, prompt_hash, source_uri) 等溯源中繼資料。
+- `PoisoningScenario`——模擬三位 Agent 展開深度科研，其中 Agent A 因幻覺遺漏小數點並輸出錯誤數字。
+- `Verifier`——一位具備獨立重新抓取原始資料權限、能即時揪出矛盾的唯讀驗證者 Agent。展示程式會在存在與不存在該驗證者的兩種條件下分別運作該場景。
+
+執行指令：
+
+```
+python3 code/main.py
+```
+
+預期終端輸出：
+- 執行情境一（未配置驗證者）：被篡改的 42% 虛假數字一路暢行無阻，最終被堂而皇之地寫入最終決策報告。
+- 執行情境二（配置唯讀驗證者）：驗證者精準捕捉到資料矛盾，共享池被即時打上「存疑（flagged）」標記，最終報告主動附加了針對該虛假數字的撤回聲明。
+
+## Use It｜實際應用
+
+`outputs/skill-memory-auditor.md` 是一項專業的架構審查 skill，能全面稽核任何多 Agent 系統的共享記憶體架構：評估其資料溯源完整性、版本控制嚴謹度，以及驗證者物理隔離強度。在將任何多 Agent 架構推向正式環境之前，務必使用該工具進行全面安全盤點。
+
+## Ship It｜交付成果
+
+任何共享記憶體系統推向正式環境前的必備檢查清單：
+
+- **每一次寫入皆強制綁定完整溯源中繼資料**：包含 `(writer, timestamp, prompt_hash, tool_calls_cited, source_uri)`。
+- **日誌強制維持「僅限附加」特性**。任何修訂皆必須表現為明確引用舊記錄的全新補充條目。
+- **至少部署一位具備獨立外部資料抓取權限的唯讀驗證者 Agent**。
+- **驗證者的警告輸出必須走獨立專屬通道**，堅決杜絕被重新灌回共享訊息池中。
+- **嚴密監控「修正覆蓋（supersessions）」佔總寫入的比例**——該比例的異常攀升，是底層系統浮現嚴重幻覺模式的早期前兆訊號。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。確認情境一是否順利復現了幻覺的擴散傳播，以及情境二中的驗證者是否精準攔截了該錯誤。
+2. 在情境中注入第二處幻覺：讓 Agent B 憑空捏造一個資料集規模數字。驗證者是否能在無需任何人工專屬調優的前提下，同時揪出這兩處獨立的矛盾？
+3. 將全域訊息池切換為帶有特定主題分區（`prices`、`summaries`、`analyses`）的黑板架構。分析主題分區能夠讓哪一類記憶體污染變得更加難以得逞？又對哪一類污染完全無能為力？
+4. 閱讀 Hayes-Roth 1985 年的奠基論文《A Blackboard Architecture for Control》。挑選兩項該論文中提出、但本課未深入展開的經典控制模式，思考 2026 年的現代系統能從中汲取何種工程養分。
+5. 閱讀 CA-MCP 論文（arXiv:2601.11595）。將其提出的「共享上下文儲存庫（Shared Context Store）」映射至 `code/main.py` 中的 MessagePool 或 Blackboard 類別。CA-MCP 在此基礎上額外追加了哪些關鍵原語？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Message pool | "Shared chat history" | Append-only log that every agent reads. Full transparency, poor scaling. |
+| Blackboard | "Shared workspace" | Topic-keyed pub/sub. Agents subscribe to relevant topics. Scales farther. |
+| Provenance | "Who wrote what" | Metadata on each write: writer, timestamp, prompt, sources. |
+| Memory poisoning | "Hallucinations spreading" | One agent's error enters shared state, downstream agents adopt it as fact. |
+| Append-only | "No in-place updates" | Corrections are new entries that supersede. Preserves audit trail. |
+| Unwritable verifier | "Independent auditor" | Read-only agent that re-fetches sources and flags inconsistencies. |
+| Projection | "Scoped view" | Per-agent view computed from global state. LangGraph reducers are the canonical case. |
+| Knowledge Source | "Specialist agent" | Hayes-Roth's 1985 term for a blackboard participant. |
+
+## Further Reading｜延伸閱讀
+
+- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 失效分類體系；深入剖析記憶體污染作為協同失靈子家族的本質。
+- [CA-MCP — Context-Aware Multi-Server MCP](https://arxiv.org/abs/2601.11595) — 專為多伺服器 MCP 協同設計的共享上下文儲存庫規範。
+- [Matrix — decentralized multi-agent framework](https://arxiv.org/abs/2511.21686) — 基於分散式訊息佇列運作的純粹去中心化黑板架構。
+- [LangGraph state and reducers](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 正式環境中針對個別 Agent 實作投影視圖的經典模式。
+- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 來自工業級正式環境部署的資料溯源與客觀驗證實戰筆記。
