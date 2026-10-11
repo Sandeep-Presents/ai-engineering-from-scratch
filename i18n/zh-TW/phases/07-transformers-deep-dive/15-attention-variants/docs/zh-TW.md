@@ -1,6 +1,6 @@
 # 注意力變體——滑動視窗（sliding window）、稀疏（sparse）、差分（differential）
 
-> 完整注意力的矩陣形狀是正方形。每個 token 都看得到每個 token，記憶體（memory）需求也隨之增加。四種變體把圓的形狀折彎，把一半的成本拿回來。
+> 完整注意力像一個圓。每個 token 都看得到每個 token，記憶體（memory）需求也隨之增加。四種變體把圓的形狀折彎，把一半的成本拿回來。
 
 **Type:** Build
 **Languages:** Python
