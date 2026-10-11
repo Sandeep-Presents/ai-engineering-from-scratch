@@ -224,7 +224,7 @@ python3 -m unittest discover tests -v
 | Request-scoped SSE | 綁定於單一請求生命週期的 POST 回應事件串流，包含相關進度通知與最終回應 |
 | `subscriptions/listen` | 長期存活的 POST 監聽請求，用於接收主動訂閱的清單或資源變更事件推送 |
 | Header mismatch | 當 HTTP 同步標頭與 JSON-RPC 內文出現矛盾時回傳的 HTTP `400` 與 `-32020` 錯誤 |
-| Origin validation | 針對傳入連線實施的 DNS 重綁定防禦機制；僅是安全過濾，絕不能充當身分認證 |
+| Origin validation | 針對傳入連線實施的 DNS 重綁定防禦機制；僅是安全過濾，絕不能充當身分驗證 |
 | Explicit state handle | 在業務層作為常規引數傳遞的不透明業務狀態識別碼，取代黑箱的協定工作階段 |
 | Legacy bridge | 為了向下相容既有舊版用戶端而獨立隔離維護的傳統傳輸處理路徑 |
 

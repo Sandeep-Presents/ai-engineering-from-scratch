@@ -75,7 +75,7 @@ Token 層級的細部事件可作為事件附掛至 span 上：
 - `gen_ai.content.completion` ——輸出訊息內容。
 - `gen_ai.content.tool_call` ——記錄下來的具體工具呼叫。
 
-所有事件在 span 內部皆嚴格依時間戳記排序，利於日後的高精度重播復原。
+所有事件在 span 內部皆嚴格依時間戳記排序，利於日後的詳細重播復原。
 
 ### 匯出器生態系（Exporters）
 

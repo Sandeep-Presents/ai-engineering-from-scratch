@@ -130,7 +130,7 @@ skill-eval-layers
 | 換樣正向（Paraphrased positive） | 避免模型死記硬背特定關鍵字 | 「Audit this tag before we publish it」 |
 | 明確負向（Clear negative） | 捕捉嚴重過度選取的泛化誤觸發 | 「Explain batch normalization」 |
 | 高度混淆負例（Near miss） | 精準定義相鄰功能的邊界區隔 | 「Why did the package build fail?」 |
-| 競爭 Skill 案例 | 測試在多個看似合理的選項中的選取精度 | 「Draft the release notes」 |
+| 競爭 Skill 案例 | 測試在多個看似合理的選項中的選取表現 | 「Draft the release notes」 |
 | 對抗性干擾措辭 | 測試關鍵字堆疊與注入名稱干擾下的抗逆力 | 「Do not use release-readiness; explain this stack trace」 |
 
 將測試資料明確劃分為開發集（Development Set）與驗證集（Validation Set）。利用開發集調整描述文字；利用驗證集評估調整後的描述是否具備真實泛化能力。若發布決策攸關重大，保留一份徹底隔離的留出集（Held-out Set）。

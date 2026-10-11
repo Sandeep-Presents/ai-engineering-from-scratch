@@ -156,7 +156,7 @@ sequenceDiagram
 值得特別關注的關鍵細節：
 - **Skills（技能）** 代表 agent 能夠執行的具體工作。每一項技能皆包含 ID、標籤（tags）以及支援的輸入／輸出 MIME 類型。用戶端 agent 正是依據這些中繼資料，來研判該遠端 agent 是否有能力處理自身的請求。
 - **supportedInterfaces** 列出了多種協定綁定途徑。單一 agent 能夠同時支援 JSON-RPC、REST 與 gRPC 介面。
-- **安全性（Security）** 整合於卡片結構中：`securitySchemes` 定義了各項認證方案，而 `securityRequirements` 則指明了具體的適用規則。用戶端在發起任何實質請求之前，便能明確獲知所需的安全憑證。
+- **安全性（Security）** 整合於卡片結構中：`securitySchemes` 定義了各項驗證方案，而 `securityRequirements` 則指明了具體的適用規則。用戶端在發起任何實質請求之前，便能明確獲知所需的安全憑證。
 
 #### 任務生命週期（Task Lifecycle）
 
@@ -1082,7 +1082,7 @@ function signPayload(identity: AgentIdentity, payload: string): string {
     .toString("hex");
 }
 ```
-這鏡射了真實的 ANP 身分模型：agent 擁有包含獨立身分認證金鑰、金鑰協議金鑰以及人類授權金鑰的 DID 文件。`IdentityRegistry` 在本機模擬了 DID 解析流程（在正式環境中，這將表現為針對 agent 網域發起的 HTTP 請求）。
+這鏡射了真實的 ANP 身分模型：agent 擁有包含獨立身分驗證金鑰、金鑰協議金鑰以及人類授權金鑰的 DID 文件。`IdentityRegistry` 在本機模擬了 DID 解析流程（在正式環境中，這將表現為針對 agent 網域發起的 HTTP 請求）。
 
 ### 步驟六：協定閘道器（Protocol Gateway）
 
@@ -1478,6 +1478,6 @@ graph TD
 - [IBM/BeeAI ACP specification](https://github.com/i-am-bee/acp) -- 專門針對 agent 執行與軌跡中繼資料定義的 OpenAPI 3.1 規格
 - [Agent Network Protocol](https://github.com/agent-network-protocol/AgentNetworkProtocol) -- 基於 DID 的去中心化身分、E2EE 與元協定動態協商
 - [Model Context Protocol docs](https://modelcontextprotocol.io/) -- Anthropic 的 MCP 規格（詳見 Phase 13）
-- [W3C Decentralized Identifiers](https://www.w3.org/TR/did-core/) -- 支撐 ANP 底層架構的身分認證標準
+- [W3C Decentralized Identifiers](https://www.w3.org/TR/did-core/) -- 支撐 ANP 底層架構的身分驗證標準
 - [RFC 9180 (HPKE)](https://www.rfc-editor.org/rfc/rfc9180) -- ANP 用於實現端對端加密（E2EE）的核心加密演算法標準
 - [FIPA Agent Communication Language](http://www.fipa.org/specs/fipa00061/SC00061G.html) -- 當代 agent 通訊協定的經典學術前身

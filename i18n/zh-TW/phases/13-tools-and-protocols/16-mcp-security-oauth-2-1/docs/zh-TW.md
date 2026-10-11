@@ -1,4 +1,4 @@
-# MCP 授權認證：CIMD、簽發者綁定、PKCE 與權限動態提升（MCP Authorization: CIMD, Issuer Binding, PKCE, and Step-Up）
+# MCP 授權：CIMD、簽發者綁定、PKCE 與權限動態提升（MCP Authorization: CIMD, Issuer Binding, PKCE, and Step-Up）
 
 > 遠端 MCP 請求是無狀態的，但其授權審查絕非匿名。將每一份憑證深度綁定至建立它的簽發者（Issuer），並將每一枚存取 Token 嚴格綁定至接收它的目標資源（Resource）。
 
@@ -18,7 +18,7 @@
 
 ## The Problem｜問題
 
-遠端執行的 MCP 伺服器隨時可能讀取私有資料庫、寫入外部生產系統或觸發高昂的非同步任務。身分認證（Authentication）僅僅解決了「是誰出示了這張憑證」；而授權鑑權（Authorization）還必須回答五大核心問題：
+遠端執行的 MCP 伺服器隨時可能讀取私有資料庫、寫入外部生產系統或觸發高昂的非同步任務。身分驗證（Authentication）僅僅解決了「是誰出示了這張憑證」；而授權鑑權（Authorization）還必須回答五大核心問題：
 
 - 這張憑證具體是由哪一家授權伺服器簽發的？
 - 這枚 Token 究竟被授權給哪一個具體的 MCP 資源？
@@ -36,7 +36,7 @@
 
 - **MCP 用戶端（MCP client）**：代表資源擁有者發起呼叫的主控程式。
 - **MCP 資源伺服器（MCP resource server）**：驗證 Access Token 並對外提供 MCP 實體端點的服務。
-- **授權伺服器（Authorization server）**：負責對資源擁有者進行身分驗證、採集使用者授權同意，並簽發 Token 的權威認證中心。
+- **授權伺服器（Authorization server）**：負責對資源擁有者進行身分驗證、採集使用者授權同意，並簽發 Token 的權威授權中樞。
 
 資源伺服器與授權伺服器在物理上可由同一個團隊運維，但在識別碼、信任邊界與安全校驗職責上必須保持嚴格分離。
 
@@ -296,7 +296,7 @@ python3 -m unittest discover code/tests -v
 
 ## Further Reading｜延伸閱讀
 
-- [MCP 2026-07-28 authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization) ——MCP 授權認證官方最新規範
+- [MCP 2026-07-28 authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization) ——MCP 授權官方最新規範
 - [RFC 9728: OAuth 2.0 Protected Resource Metadata](https://www.rfc-editor.org/rfc/rfc9728) ——受保護資源中繼資料標準
 - [RFC 8707: Resource Indicators for OAuth 2.0](https://www.rfc-editor.org/rfc/rfc8707) ——資源指示器官方規格書
 - [RFC 9207: OAuth 2.0 Authorization Server Issuer Identification](https://www.rfc-editor.org/rfc/rfc9207) ——簽發者身分識別防混淆標準

@@ -89,7 +89,7 @@ Portkey 與 Kong 皆內建了高度整合的安全護欄，而 LiteLLM 則將其
 ### 常見路由策略
 
 - **靜態優先序（Static Priority）**：始終優先請求清單第一項，遭遇錯誤時依序降級。
-- **負載平衡（Load Balancing）**：採輪詢（Round-robin）或加權權重分流。
+- **負載平衡（Load Balancing）**：採循環輪替（round-robin）或加權權重分流。
 - **成本感知（Cost-Aware）**：在滿足延遲與品質門檻的前提下，自動挑選最便宜的模型。
 - **延遲感知（Latency-Aware）**：挑選過去 N 分鐘內回應速度最快的模型。
 - **任務感知（Task-Aware）**：利用輕量分類器，將寫程式任務導向特定高智能模型，將摘要任務導向高速度模型。

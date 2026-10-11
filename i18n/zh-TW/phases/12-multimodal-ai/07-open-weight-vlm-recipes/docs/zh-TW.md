@@ -89,7 +89,7 @@ Prismatic VLMs（Karamcheti 等人，2024）控制了所有設計軸。固定相
 
 綜合全部實證研究，為 2026 年全新 VLM 專案規劃的最佳預設配方如下：
 
-- 視覺編碼器：採用具備 NaFlex 原生動態解析度的 SigLIP 2 SO400m/14；若需高精度語意分割或物體定位，可在特徵維度拼接 DINOv2 ViT-g/14 的密集特徵。
+- 視覺編碼器：採用具備 NaFlex 原生動態解析度的 SigLIP 2 SO400m/14；若需語意分割或物體定位，可在特徵維度拼接 DINOv2 ViT-g/14 的密集特徵。
 - 連接器：直接採用作用於 patch token 的雙層 MLP。除非面臨極端苛刻的 token 數量預算，否則請果斷略過 Q-Former。
 - 語言模型底座：首選 Qwen2.5、Llama-3.1 或 Gemma 2；注重低成本延遲選 7B，追求極致品質選 70B。
 - 訓練資料：以 PixMo + ShareGPT4V + Cauldron 為核心基底，並混入垂直領域特定的專業指令資料。

@@ -1,6 +1,6 @@
 # A2A——Agent 間互聯通訊協定（A2A — The Agent-to-Agent Protocol）
 
-> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得全球超過 150 家企業機構的全力背書。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分認證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
+> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得全球超過 150 家企業機構的全力背書。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分驗證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `http.server`, `json`)
@@ -17,7 +17,7 @@ A2A 正是為消弭此痛點而生的通用線路通訊協定。它提供了標�
 
 ### 四大核心要素
 
-**Agent Card。** 一份部署於 `/.well-known/agent-card.json` 的 JSON 格式中繼資料文件，詳盡描述該 Agent 的核心特質：名稱、所屬技能清單、`supportedInterfaces`（端點 URL、協定綁定途徑、協定版本）、預設支援的輸入與輸出媒體型別，以及安全認證要求（`securitySchemes` 搭配 `securityRequirements`）。任何外部 Agent 皆能透過主動讀取該卡片完成服務發現。
+**Agent Card。** 一份部署於 `/.well-known/agent-card.json` 的 JSON 格式中繼資料文件，詳盡描述該 Agent 的核心特質：名稱、所屬技能清單、`supportedInterfaces`（端點 URL、協定綁定途徑、協定版本）、預設支援的輸入與輸出媒體型別，以及安全驗證要求（`securitySchemes` 搭配 `securityRequirements`）。任何外部 Agent 皆能透過主動讀取該卡片完成服務發現。
 
 ```http
 GET /.well-known/agent-card.json HTTP/1.1
@@ -93,7 +93,7 @@ sequenceDiagram
 
 若採用串流機制：向 `POST /message:stream` 發起請求即可建立 Server-Sent Events（SSE）串流（首先推送 `task` 本體，隨後持續推播 `statusUpdate` 與 `artifactUpdate` 事件），並支援透過 `/tasks/{id}:subscribe` 重新掛載至正在運作中的長任務。一旦任務抵達終端狀態，串流便會自然關閉；協定本身並不存在額外的 `final` 標記。
 
-### 身分認證架構
+### 身分驗證架構
 
 A2A 原生支援三種業界標準安全模式：
 
@@ -125,7 +125,7 @@ A2A 原生支援三種業界標準安全模式：
 在 2024 至 2026 年間誕生了數個相近領域的互補規範：
 
 - **ACP**（IBM / Linux 基金會）——A2A 的先驅探索者，作用範疇相對較窄。
-- **ANP**（Agent 網路協定）——重度聚焦於對等點對點服務發現與去中心化身分認證。
+- **ANP**（Agent 網路協定）——重度聚焦於對等點對點服務發現與去中心化身分驗證。
 - **NLIP**（Ecma 自然語言互動協定，於 2025 年 12 月通過標準化）——專注於自然語言內容型別定義。
 
 截至 2026 年 4 月，A2A 是工業界採用率最為廣泛的 Agent 對等互聯協定。參見 arXiv:2505.02279（Liu 等人，《A Survey of Agent Interoperability Protocols》）以取得權威的橫向深度比較。
@@ -160,7 +160,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-`outputs/skill-a2a-integrator.md` 能為具體的跨系統 Agent 整合任務產出完備的 A2A 架構設計：涵蓋 Agent Card 欄位定義、任務資料結構描述、認證方案選型，以及串流 vs 輪詢的傳輸策略。
+`outputs/skill-a2a-integrator.md` 能為具體的跨系統 Agent 整合任務產出完備的 A2A 架構設計：涵蓋 Agent Card 欄位定義、任務資料結構描述、驗證方案選型，以及串流 vs 輪詢的傳輸策略。
 
 ## Ship It｜交付成果
 
@@ -169,7 +169,7 @@ python3 code/main.py
 - **強制鎖定協定規格版本。** A2A 仍在高速演進中；在 `supportedInterfaces` 的每個條目中皆必須明確宣告其 `protocolVersion`，且用戶端發起請求時必須強制攜帶 `A2A-Version: 1.0` 標頭。
 - **保證任務建立的嚴格冪等性。** 網路重試引發的重複送出必須精準收斂為同一個任務。依據用戶端傳入的 `messageId` 進行全域去重。
 - **嚴格驗證工件結構描述。** 明確宣告 Agent 回傳的工件形狀；消費方必須對接收到的資料結構進行嚴密驗證。
-- **配備速率限制與身分認證。** A2A 本質上面向公開網路；必須嚴格套用現代 Web 級別的資安防禦。
+- **配備速率限制與身分驗證。** A2A 本質上面向公開網路；必須嚴格套用現代 Web 級別的資安防禦。
 - **為失敗任務建立死信佇列（Dead-letter）。** 長期監控並分析失敗任務的錯誤模式，以便精準捕捉底層循環出現的架構瑕疵。
 
 ## Exercises｜練習

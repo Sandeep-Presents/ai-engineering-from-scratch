@@ -39,7 +39,7 @@ Composio 於 2025 年發布的實戰指南量化指出：單純重構工具命�
 
 ### 說明文字標準句型
 
-能夠穩定提升模型選取精度的經典二句式樣板：
+能夠穩定提升模型選取準確率的經典二句式樣板：
 
 ```
 Use when {condition}. Do not use for {close-but-wrong-cases}.
@@ -159,13 +159,13 @@ tp-schema-routing
 | Tool schema | 「工具結構描述」 | 規範工具輸入引數型別、必填項與邊界的 JSON Schema 定義 |
 | Tool description | 「呼叫時機指南」 | 模型在選取決策時閱讀的自然語言說明簡報；直接決定呼叫準確度 |
 | Atomic tool | 「原子化單一功能工具」 | 職責單一、名稱唯一對應具體行為的高內聚工具設計 |
-| Monolithic tool | 「瑞士刀型巨石工具」 | 依賴泛化 `action` 字串在內部切換邏輯的反模式工具；模型呼叫精度極差 |
+| Monolithic tool | 「瑞士刀型巨石工具」 | 依賴泛化 `action` 字串在內部切換邏輯的反模式工具；模型呼叫準確率極差 |
 | Enum-closed set | 「閉合枚舉集合」 | 採用 `{type: "string", enum: [...]}` 明確規範邊界的分類參數型別 |
 | Tool poisoning | 「工具說明文字投毒」 | 在工具描述中蓄意植入惡意指令，以劫持或誘導 Agent 執行非授權操作的攻擊手段 |
 | Tool-selection accuracy | 「工具選取準確率」 | 模型在真實發問中，成功挑選出最佳目標工具的請求百分比 |
 | Description linter | 「結構描述靜態檢查器」 | 自動化強制落實命名、長度規範與語意排除句型的 CI 程式碼審查工具 |
 | Namespace prefix | 「命名空間前綴」 | 在大型註冊表中，為同類工具統一加上共享前綴（如 notes_*）的組織規範 |
-| StableToolBench | 「工具選取權威基準」 | 用於客觀量化不同結構描述設計對模型呼叫精度影響的公開基準評測集 |
+| StableToolBench | 「工具選取權威基準」 | 用於客觀量化不同結構描述設計對模型呼叫準確率影響的公開基準評測集 |
 
 ## Further Reading｜延伸閱讀
 

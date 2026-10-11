@@ -1,6 +1,6 @@
 # 人在迴圈中：先提議後確認寫入（Human-in-the-Loop: Propose-Then-Commit）
 
-> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆實現了完全相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻認證的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
+> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆實現了完全相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻記載的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
 
 **Type:** Learn
 **Languages:** Python (stdlib, propose-then-commit state machine with idempotency)

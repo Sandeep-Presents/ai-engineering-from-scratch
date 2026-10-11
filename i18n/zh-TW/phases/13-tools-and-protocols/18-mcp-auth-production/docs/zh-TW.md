@@ -173,7 +173,7 @@ Content-Type: application/json
 
 ### RFC 8707 複習——資源指示器（Resource Indicators）
 
-第 16 課確立了其基礎語義。正式環境的強制鐵律為：每一次向授權伺服器請求 Token 時，必須顯式包含 `resource=<canonical-mcp-url>`，且 MCP 伺服器在接收到請求時，必須逐請求強制核驗 `token.aud` 是否嚴格等於自身的資源 URL。規範定義的標準 URL 是專屬於該伺服器的最高精度標識：採用全小寫的協定與主機名稱、不帶 URL 片段，且約定不帶末尾斜線。路徑片段**絕不可**被隨意剔除——當同一個網域名稱下共存多台不同的 MCP 伺服器時，必須依賴路徑進行精確區分。`https://mcp.example.com`、`https://mcp.example.com/mcp`、`https://mcp.example.com:8443` 與 `https://mcp.example.com/server/mcp` 皆屬於合法的標準資源 URI。為每台伺服器選定一個固定識別碼，並將 `aud` 與其精確綁定。（本課教學模擬為了簡潔起見採用如 `https://notes.example.com` 的純主機名稱受眾；在同一來源下共管多台 MCP 伺服器的正式部署中，則透過路徑明確區分。）
+第 16 課確立了其基礎語義。正式環境的強制鐵律為：每一次向授權伺服器請求 Token 時，必須顯式包含 `resource=<canonical-mcp-url>`，且 MCP 伺服器在接收到請求時，必須逐請求強制核驗 `token.aud` 是否嚴格等於自身的資源 URL。規範定義的標準 URL 是專屬於該伺服器的最具體的識別碼：採用全小寫的協定與主機名稱、不帶 URL 片段，且約定不帶末尾斜線。路徑片段**絕不可**被隨意剔除——當同一個網域名稱下共存多台不同的 MCP 伺服器時，必須依賴路徑進行精確區分。`https://mcp.example.com`、`https://mcp.example.com/mcp`、`https://mcp.example.com:8443` 與 `https://mcp.example.com/server/mcp` 皆屬於合法的標準資源 URI。為每台伺服器選定一個固定識別碼，並將 `aud` 與其精確綁定。（本課教學模擬為了簡潔起見採用如 `https://notes.example.com` 的純主機名稱受眾；在同一來源下共管多台 MCP 伺服器的正式部署中，則透過路徑明確區分。）
 
 ### RFC 7636 複習——PKCE 密碼學防禦
 

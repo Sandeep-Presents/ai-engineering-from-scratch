@@ -50,7 +50,7 @@ AutoGen v0.4 將介面清晰劃分為三層：
 
 ### 常見編排拓撲
 
-- **RoundRobinGroupChat（輪詢群聊）**：多個 Agent 依固定順序輪流發言。
+- **RoundRobinGroupChat（循環輪替群聊）**：多個 Agent 依固定順序輪流發言。
 - **SelectorGroupChat（選擇器群聊）**：由專門的選擇器 Agent 依據上下文對話動態挑選下一個發言者。
 - **Magentic-One**：多 Agent 參考團隊，負責網頁瀏覽、程式碼執行與檔案處理。完全建構於 AgentChat 之上。
 
@@ -92,7 +92,7 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-actor-runtime.md` 能為任何多 Agent 任務產出極簡的 Actor 執行環境鷹架與團隊模板（支援 RoundRobin 輪詢或 Selector 選擇器拓撲）。
+`outputs/skill-actor-runtime.md` 能為任何多 Agent 任務產出極簡的 Actor 執行環境鷹架與團隊模板（支援 RoundRobin 循環輪替或 Selector 選擇器拓撲）。
 
 ## Exercises｜練習
 
@@ -112,7 +112,7 @@ python3 code/main.py
 | Runtime | 「Agent 宿主」 | 負責路由轉發訊息並隔離各類異常的事件迴圈 |
 | Topic | 「發布訂閱主題」 | Actor 之間具備名稱的發布—訂閱廣播路由通道 |
 | Fault isolation | 「任其崩潰」 | 單一 Actor 發生崩潰被限制在其內部，不影響其他 Actor |
-| RoundRobinGroupChat | 「固定輪詢團隊」 | 多個 Agent 依嚴格固定順序輪流推進對話 |
+| RoundRobinGroupChat | 「固定循環輪替團隊」 | 多個 Agent 依嚴格固定順序輪流推進對話 |
 | SelectorGroupChat | 「動態決策團隊」 | 由專責選擇器 Agent 依據上下文即時挑選下一個發言者 |
 | Magentic-One | 「微軟基準多 Agent 隊伍」 | 官方整合網頁、程式碼與檔案操作的旗艦級多 Agent 參考架構 |
 
