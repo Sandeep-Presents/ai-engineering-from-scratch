@@ -10,9 +10,9 @@
 ## Learning Objectives｜學習目標
 
 - 使用條件式 `breakpoint()` 和 `debug_print`，在訓練途中檢查張量（tensor）的形狀、dtype 和 NaN 值
-- 使用 `cProfile`、`line_profiler` 和 `tracemalloc` 對訓練迴圈做效能分析（profiling），找出瓶頸（bottleneck）
-- 偵測常見的 AI bug：形狀不相符（shape mismatch）、NaN loss、資料洩漏（data leakage）和裝置放錯的張量
-- 設定 TensorBoard，視覺化 loss 曲線、權重直方圖（histogram）和梯度分布
+- 使用 `cProfile`、`line_profiler` 和 `tracemalloc` 對訓練迴圈（training loop）做效能分析（profiling），找出瓶頸（bottleneck）
+- 偵測常見的 AI bug：形狀不相符（shape mismatch）、NaN loss、資料洩漏（data leakage）和裝置錯誤的張量（wrong-device tensors）
+- 設定 TensorBoard，視覺化 loss 曲線、權重直方圖（histogram）和梯度分布（gradient distributions）
 
 ## The Problem｜問題
 
@@ -26,9 +26,9 @@ AI 除錯（debugging）分三個層次：
 
 ```mermaid
 graph TD
-    L3["3. 訓練動態<br/>Loss 曲線、梯度範數、活化值"] --> L2
+    L3["3. 訓練動態<br/>Loss 曲線、梯度範數（gradient norms）、活化值"] --> L2
     L2["2. 張量運算<br/>形狀、dtype、裝置、NaN/Inf 值"] --> L1
-    L1["1. 標準 Python<br/>中斷點、日誌記錄、效能分析、記憶體"]
+    L1["1. 標準 Python<br/>中斷點、日誌記錄（logging）、效能分析、記憶體（memory）"]
 ```
 
 多數人會直接跳到第 3 層（盯著 TensorBoard 看）。但 80% 的 AI bug 出在第 1、2 層。
@@ -252,7 +252,7 @@ def check_shapes(model, sample_input):
 
 Loss 變成 NaN，代表某個東西爆炸了。常見原因：
 
-- 學習率太高
+- 學習率（learning rate）太高
 - 自訂損失函數中除以零
 - 對零或負數取 log
 - RNN 中的梯度爆炸
@@ -290,7 +290,7 @@ def check_data_leakage(train_set, test_set, id_column="id"):
 
 #### 裝置放錯
 
-位在不同裝置（device）上的張量（CPU 和 GPU）會造成執行階段錯誤。但有時某個張量悄悄留在 CPU，其他都在 GPU，結果訓練只是變慢。
+位在不同裝置（device）上的張量（CPU 和 GPU）會造成執行階段錯誤（runtime error）。但有時某個張量悄悄留在 CPU，其他都在 GPU，結果訓練只是變慢。
 
 ```python
 def check_devices(model, *tensors):
