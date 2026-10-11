@@ -1,6 +1,6 @@
 # Agent 狀態機——圖、節點與檢查點（Agent State Machines — Graphs, Nodes, Checkpoints）
 
-> 純手寫的 ReAct 迴圈本質上就是一個 `while True`。而將同一個迴圈以顯式的圖（Graph）形式表達，它就進化成了可設定檢查點（checkpoint）、隨時中斷（interrupt）、支援多路分岔與時光旅行的本課採用的心智模型，直接取自官方文件。Agent 的核心能力並未改變，改變的是包覆在它外層的調度框架。
+> 純手寫的 ReAct 迴圈本質上就是一個 `while True`。而將同一個迴圈以顯式的圖（Graph）形式表達，就能為它設定檢查點（checkpoint）、隨時中斷（interrupt）、支援多路分岔與時光旅行。Agent 的核心能力並未改變，改變的是包覆在它外層的調度框架。
 
 **Type:** Build
 **Languages:** Python
@@ -11,7 +11,7 @@
 
 你部署了一個具備函式呼叫能力的 agent。它流暢運作了三輪對話，接著意外降臨：模型呼叫了一個回傳 500 錯誤的工具、使用者在中途改變了心意，或者 agent 在未經人工核准的情況下逕自為訂單執行了退款操作。純手寫的 `while True:` 迴圈毫無攔截掛鉤可言：你無法暫停它、無法倒帶回溯，更無法分岔去探索「如果模型當時選了另一個工具會如何」。一旦這套系統走出展示 Demo 進入真實世界，它便淪為一個要嘛完全成功、要嘛徹底崩潰的黑盒子。
 
-一旦你看清了本質，下一步的演進便理所當然：Agent 本身早已是一座狀態機——系統提示 + 訊息歷史 + 待處理工具呼叫 + 下一步行動。將這座狀態機顯式化：定義代表「模型思考」、「工具執行」、「人工審批」的**節點（Nodes）**，以及代表它們之間條件轉移的**邊（Edges）**。一旦計算圖被顯式宣告，調度框架便能免費解鎖四大超能力：檢查點（步驟間狀態持久化）、中斷機制（暫停等待人工審核）、串流分發（逐字串流 token 與中間事件），以及時光旅行（回滾至先前狀態並探索不同分岔路徑）。
+一旦你看清了本質，下一步的演進便理所當然：Agent 本身早已是一座狀態機——system prompt + 訊息歷史 + 待處理工具呼叫 + 下一步行動。將這座狀態機顯式化：定義代表「模型思考」、「工具執行」、「人工審批」的**節點（Nodes）**，以及代表它們之間條件轉移的**邊（Edges）**。一旦計算圖被顯式宣告，調度框架便能免費解鎖四大超能力：檢查點（步驟間狀態持久化）、中斷機制（暫停等待人工審核）、串流分發（逐字串流 token 與中間事件），以及時光旅行（回滾至先前狀態並探索不同分岔路徑）。
 
 這項抽象概念的標準實作範本正是 LangGraph。它絕非傳統 LangChain 意義下那種「丟給你一個 AgentExecutor，祝你好運」的黑盒子封裝，而是一套將狀態、持久化儲存與中斷機制視為一等公民的圖執行期執行引擎（Graph Runtime）。Agent 迴圈變成了由你親自繪製的計算圖，而非在程式碼中寫死的一行行迴圈。
 
@@ -200,7 +200,7 @@ with PostgresSaver.from_conn_string("postgresql://...") as checkpointer:
 ## Further Reading｜延伸閱讀
 
 - [LangGraph documentation](https://langchain-ai.github.io/langgraph/) ——StateGraph、歸約器、檢查點儲存器與中斷機制的權威官方手冊
-- [LangGraph concepts: state, reducers, checkpointers](https://langchain-ai.github.io/langgraph/concepts/low_level/) ——本課採用的心智模型架構原創技術解析
+- [LangGraph concepts: state, reducers, checkpointers](https://langchain-ai.github.io/langgraph/concepts/low_level/) ——本課採用的心智模型，直接取自來源
 - [LangGraph Persistence and Checkpoints](https://langchain-ai.github.io/langgraph/concepts/persistence/) ——關於 Postgres/SQLite/Redis 儲存庫、檢查點命名空間與 Thread ID 的深度細節
 - [LangGraph Human-in-the-loop](https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/) ——`interrupt_before`、`interrupt_after`、`Command(resume=...)` 與狀態手動編輯模式指南
 - [Yao et al., "ReAct: Synergizing Reasoning and Acting in Language Models" (ICLR 2023)](https://arxiv.org/abs/2210.03629) ——所有 LangGraph Agent 所實作的核心 ReAct 架構模式原創論文
