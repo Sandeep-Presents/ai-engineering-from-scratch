@@ -72,7 +72,7 @@ flowchart LR
 
 ## 階段漂移危機（Stage Drift）
 
-原型程式碼最危險的時刻，莫過於在尚未確立長期維運責任歸屬的前提下，悄悄取得了真實使用者、真實資料或實體系統權限。必須在系統設定檔、存取控制清單、遙測日誌與架構文檔中，用技術手段強制劃定原型與試點的實體邊界。單純在網頁上掛一個「測試版警示橫幅」根本無濟於事。
+原型程式碼最危險的時刻，莫過於在尚未確立長期維運責任歸屬的前提下，悄悄取得了真實使用者、真實資料或實體系統權限。必須在系統設定檔、存取控制清單、遙測日誌與架構文件中，用技術手段強制劃定原型與試點的實體邊界。單純在網頁上掛一個「測試版警示橫幅」根本無濟於事。
 
 系統所處的演進階段，必須能自系統本身的底層配置直接被客觀觀測。
 
@@ -98,7 +98,7 @@ python3 -m unittest discover code/tests -v
 ## Further Reading｜延伸閱讀
 
 - [Barry Boehm, A Spiral Model of Software Development and Enhancement](https://dl.acm.org/doi/10.1145/12944.12948) ——使每次迭代的承諾投入緊密匹配已消除風險的螺旋模型論文
-- [Fagerholm et al., Building Blocks for Continuous Experimentation](https://doi.org/10.1145/2601248.2601276) ——持續運行科學實驗所必備的組織文化與技術基礎設施
+- [Fagerholm et al., Building Blocks for Continuous Experimentation](https://doi.org/10.1145/2601248.2601276) ——持續執行科學實驗所必備的組織文化與技術基礎設施
 
 ## 留存產物（What You Keep）
 

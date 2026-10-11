@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 描述 Pipecat 基於訊框的雙向管線架構：下行流 DOWNSTREAM（來源→接收端）與上行流 UPSTREAM（控制與反饋）。
+- 描述 Pipecat 基於訊框的雙向管線架構：下行流 DOWNSTREAM（來源→接收端）與上行流 UPSTREAM（控制與回饋）。
 - 指出標準語音管線的核心處理階段，以及 Pipecat 所支援的各大傳輸層協定。
 - 解釋 LiveKit Agents 的兩大語音 Agent 類別（MultimodalAgent 與 VoicePipelineAgent）及其各自的最佳適用情境。
 - 總結 2026 年正式環境中的延遲期望值，並理解這些毫秒級指標如何左右底層架構決策。
@@ -26,7 +26,7 @@
 - 核心處理鏈：`Frame` → `FrameProcessor`。
 - 兩大雙向流動通道：
   - **下行通道（DOWNSTREAM）**：來源 → 接收端（音訊輸入、LLM 思考、TTS 語音輸出）；
-  - **上行通道（UPSTREAM）**：控制與即時反饋（任務取消、效能指標回報、打斷插話 Barge-in）。
+  - **上行通道（UPSTREAM）**：控制與即時回饋（任務取消、效能指標回報、打斷插話 Barge-in）。
 - `PipelineTask` 管理整體生命週期，內建生命週期事件（`on_pipeline_started`、`on_pipeline_finished`、`on_idle_timeout`）與針對指標／追蹤／RTVI 的觀測器。
 
 典型語音管線：
@@ -37,7 +37,7 @@ VAD (Silero) → STT → LLM (context alternates user/assistant) → TTS → tra
 
 支援傳輸層：Daily、LiveKit、SmallWebRTCTransport、FastAPI WebSocket、WhatsApp。
 
-Pipecat Flows 為對話注入結構化狀態機。Pipecat Cloud 則是官方雲端代管執行時期。
+Pipecat Flows 為對話注入結構化狀態機。Pipecat Cloud 則是官方雲端代管執行環境。
 
 ### LiveKit Agents（livekit/agents）
 
@@ -62,7 +62,7 @@ Vapi（頂級最佳化堆疊下可達約 450–600ms 延遲）與 Retell（跨 1
 - **TTS 句中截斷雜音**：當管線在說話中途被突發取消時，TTS 模組若缺乏平滑衰減會爆發刺耳截斷噪音。
 - **輕忽毫秒級延遲預算**：管線上的每個環節皆會無情增加 50–200ms 延遲。在正式發布前，必須對全鏈路耗時進行嚴格累加審計。
 
-### 2026 年典型延遲預算分佈
+### 2026 年典型延遲預算分布
 
 - VAD 語音活動檢測：20–60ms
 - STT 片段語音識別：100–250ms
@@ -85,7 +85,7 @@ voice-pipeline
 - 由腳本化處理器構成的五階段標準管線（VAD → STT → LLM → TTS → transport）；
 - 演示打斷插話（Barge-in）的 UPSTREAM 取消訊框。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -109,7 +109,7 @@ python3 code/main.py
 1. 為教學管線新增效能觀測器：每秒統計每個處理階段的訊框吞吐量。延遲究竟在哪個環節累積最為嚴重？
 2. 實作帶有置信度門檻的 STT：當置信度低於閾值時，主動發送「抱歉，能否請您再說一次？」的追問。
 3. 新增語義話輪檢測規則：若文字以問號結尾，立即判定該話輪已結束。
-4. 研讀 Pipecat 傳輸文檔。將標準函式庫虛擬傳輸層改寫為 SmallWebRTCTransport 設定。
+4. 研讀 Pipecat 傳輸文件。將標準函式庫虛擬傳輸層改寫為 SmallWebRTCTransport 設定。
 5. 實測對比：在完全相同的問題下，實測 OpenAI Realtime 與 STT+LLM+TTS 級聯管線的延遲差異。文字層級的精細控制權究竟付出了多少毫秒的延遲代價？
 
 ## Key Terms｜關鍵術語
@@ -119,7 +119,7 @@ python3 code/main.py
 | Frame | 「管線訊框」 | 在管線中流動的強型別資料單元（音訊、逐字稿、文字、控制信號） |
 | Processor | 「處理節點」 | 實作 process(frame) 介面的具體管線環節 |
 | DOWNSTREAM | 「正向下行流」 | 來源至接收端的正向資料流：音訊輸入 → 大模型 → 語音朗讀輸出 |
-| UPSTREAM | 「反向上行流」 | 逆向傳播的反饋與控制流：取消信號、指標回報、打斷插話 |
+| UPSTREAM | 「反向上行流」 | 逆向傳播的回饋與控制流：取消信號、指標回報、打斷插話 |
 | VAD | 「語音活動檢測」 | 毫秒級即時判定使用者當前是否正在開口說話的感測演算法 |
 | Semantic turn detection | 「語義話輪檢測」 | 基於模型語義理解、智慧判定使用者發言是否已經結束的演算法 |
 | MultimodalAgent | 「端到端音訊 Agent」 | 音訊直接進、音訊直接出；中間完全不經由文字轉譯轉換 |

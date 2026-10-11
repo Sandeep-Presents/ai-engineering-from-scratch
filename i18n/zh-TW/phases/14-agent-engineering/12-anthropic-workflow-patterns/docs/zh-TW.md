@@ -1,6 +1,6 @@
 # Anthropic 工作流程模式：化繁為簡的工程哲學
 
-> Schluntz 與 Zhang（Anthropic，2024 年 12 月）明確劃分了工作流程（預定義路徑）與 Agent（動態工具調用）的本質區別。五大工作流程模式足以覆蓋絕大多數真實業務場景。始終從直接的 API 呼叫出發；唯有在步驟完全無法預測時，才引入自主 Agent。
+> Schluntz 與 Zhang（Anthropic，2024 年 12 月）明確劃分了工作流程（預定義路徑）與 Agent（動態工具呼叫）的本質區別。五大工作流程模式足以覆蓋絕大多數真實業務場景。始終從直接的 API 呼叫出發；唯有在步驟完全無法預測時，才引入自主 Agent。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -22,8 +22,8 @@
 
 ### 工作流程（Workflows）vs 自主 Agent（Agents）
 
-- **工作流程（Workflow）**：透過預定義的程式碼路徑來編排 LLMs 與工具調用。**由軟體工程師全權掌控執行圖（The engineers own the graph）。**
-- **自主 Agent（Agent）**：由 LLMs 自主動態決定調用何種工具並自主推進執行步驟。**由大模型全權掌控執行圖（The model owns the graph）。**
+- **工作流程（Workflow）**：透過預定義的程式碼路徑來編排 LLMs 與工具呼叫。**由軟體工程師全權掌控執行圖（The engineers own the graph）。**
+- **自主 Agent（Agent）**：由 LLMs 自主動態決定呼叫何種工具並自主推進執行步驟。**由大模型全權掌控執行圖（The model owns the graph）。**
 
 兩者皆有其獨特價值。工作流程成本更低、速度更快，且極易進行單元測試與除錯。自主 Agent 則能解鎖開放性的未知探索難題，但其失效模式極難進行形式化推理。
 
@@ -34,8 +34,8 @@
 ### 五大核心架構模式
 
 1. **Prompt 鏈結（Prompt chaining）**：呼叫 1 的輸出直接作為呼叫 2 的輸入。適用於任務具備清晰線性分解的場景。支援在步驟之間插入程式化檢驗卡點。
-2. **意圖路由（Routing）**：由分類器 LLM 判斷應當調用哪條下游鏈或特定工具。適用於不同類型的輸入需要截然不同的專業處置時（例如一線客服、退款申請、技術錯誤、銷售諮詢）。
-3. **平行化（Parallelization）**：並發發起 N 個 LLM 呼叫，隨後聚合結果。包含兩種形態：**分段處理（Sectioning）**（分別處理不同區塊）與**投票表決（Voting）**（同一 Prompt 運行 N 次，取多數決或進行綜合提煉）。
+2. **意圖路由（Routing）**：由分類器 LLM 判斷應當呼叫哪條下游鏈或特定工具。適用於不同類型的輸入需要截然不同的專業處置時（例如一線客服、退款申請、技術錯誤、銷售諮詢）。
+3. **平行化（Parallelization）**：並發發起 N 個 LLM 呼叫，隨後聚合結果。包含兩種形態：**分段處理（Sectioning）**（分別處理不同區塊）與**投票表決（Voting）**（同一 Prompt 執行 N 次，取多數決或進行綜合提煉）。
 4. **協調者—工作者（Orchestrator-workers）**：由協調者 LLM 動態決定啟動哪些專業工作者（Worker LLMs），並綜合彙整其輸出產物。雖然類似 Agent 迴圈，但協調者絕不進行無休止的漫無目的循環。
 5. **評估者—最佳化者（Evaluator-optimizer）**：一個 LLM 產出方案初稿，另一個 LLM 進行獨立評估。交替迴圈直到評估者批准通過。這正是 Self-Refine（第 5 課）的通用化實踐。
 
@@ -63,13 +63,13 @@ workflow-chain
 
 `code/main.py` 對照腳本化模型 `ScriptedLLM` 實作了全部五大工作流程模式：
 
-- `prompt_chain(input, steps)`：循序鏈結調用。
+- `prompt_chain(input, steps)`：循序鏈結呼叫。
 - `route(input, classifier, handlers)`：分類判斷與動態分派。
 - `parallel_vote(prompt, n, aggregator)`：N 次並發呼叫並聚合結果。
 - `orchestrator_workers(task, workers)`：由協調者靈活挑選工作者。
 - `evaluator_optimizer(task, proposer, evaluator, max_iter)`：迭代修正直到評估者通過。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -81,7 +81,7 @@ python3 code/main.py
 
 - 對於絕大多數日常工程任務，直接使用原生 API 呼叫。
 - 唯有在工作流程確實需要持久化狀態機（LangGraph）、Actor 模式並發通訊（AutoGen v0.4）或高度角色模板化（CrewAI）時，方可考慮引入上層框架。
-- 當你需要 Claude Code 那種標準工程控端架構而不想從零手寫時，可直接採用 Claude Agent SDK。
+- 當你需要 Claude Code 那種標準工程harness架構而不想從零手寫時，可直接採用 Claude Agent SDK。
 
 ## Ship It｜交付成果
 
@@ -100,7 +100,7 @@ python3 code/main.py
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
 | Workflow | 「預定義工作流程」 | 由軟體工程師全權掌控的 LLM 與工具呼叫有向圖 |
-| Agent | 「自主 AI」 | 由大模型全權掌控的動態呼叫圖；自主決定工具調用 |
+| Agent | 「自主 AI」 | 由大模型全權掌控的動態呼叫圖；自主決定工具呼叫 |
 | Augmented LLM | 「帶工具的 LLM」 | 單一 LLM + 搜尋 + 工具 + 記憶體；系統最基礎的原子單元 |
 | Prompt chaining | 「循序鏈結呼叫」 | 第 N 次呼叫的輸出直接作為第 N+1 次呼叫的輸入 |
 | Routing | 「分類器意圖分派」 | 依據輸入分類動態挑選最適當的下游鏈或模型處理 |

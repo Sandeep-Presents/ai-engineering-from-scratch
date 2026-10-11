@@ -23,15 +23,15 @@
 ### Span 三大分類體系
 
 1. **模型／用戶端 Span（Model / client spans）**：涵蓋對大模型的原始 API 呼叫。由模型供應商 SDK（Anthropic、OpenAI、Bedrock）或框架的模型轉接層負責發射。
-2. **Agent Span**：包含 `create_agent`（Agent 建構初始化）與 `invoke_agent`（實體調用執行）。
-3. **工具 Span（Tool spans）**：每次工具實體調用獨立發射一個 Span；透過父子層級關係清晰掛載於所屬的 Agent Span 之下。
+2. **Agent Span**：包含 `create_agent`（Agent 建構初始化）與 `invoke_agent`（實體呼叫執行）。
+3. **工具 Span（Tool spans）**：每次工具實體呼叫獨立發射一個 Span；透過父子層級關係清晰掛載於所屬的 Agent Span 之下。
 
 ### Agent Span 命名標準
 
 - Span 名稱：若具備明確名稱則命名為 `invoke_agent {gen_ai.agent.name}`；若無則保底命名為 `invoke_agent`。
 - Span 類型（Span Kind）：
   - **CLIENT**：用於存取遠端託管的 Agent 服務（例如 OpenAI Assistants API、Bedrock Agents）。
-  - **INTERNAL**：用於在同一本機行程內運行的 Agent 框架（例如 LangChain、CrewAI、本地 ReAct 迴圈）。
+  - **INTERNAL**：用於在同一本機行程內執行的 Agent 框架（例如 LangChain、CrewAI、本地 ReAct 迴圈）。
 
 ### 核心標準屬性
 
@@ -81,10 +81,10 @@ ae-genai-span-tree
 
 - 封裝 GenAI 標準屬性 Schema 的 `Span`；
 - 支援 `start_span` 與巢狀脈絡管理的 `Tracer`；
-- 一次完整的 Agent 運行模擬，依序發射：`create_agent`、`invoke_agent`（INTERNAL 類型）、逐工具 Span，以及 LLM 呼叫的 `chat` Span；
+- 一次完整的 Agent 執行模擬，依序發射：`create_agent`、`invoke_agent`（INTERNAL 類型）、逐工具 Span，以及 LLM 呼叫的 `chat` Span；
 - 演示將 Prompt 儲存於外部安全儲存、並在 Span 中僅記錄 ID 參照的內容擷取模式。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -97,7 +97,7 @@ python3 code/main.py
 - **Datadog LLM Observability**（v1.37+）：原生深度映射該規範屬性。
 - **Langfuse / Phoenix / Opik**（第 24 課）：為現代 Agent 生態提供自動化埋點。
 - **Jaeger / Honeycomb / Grafana Tempo**：接收原始 OTel Spans，基於 GenAI 屬性自建專業儀表板。
-- **企業私有部署**：在內部運行配備 GenAI 專用處理器的 OTel Collector。
+- **企業私有部署**：在內部執行配備 GenAI 專用處理器的 OTel Collector。
 
 ## Ship It｜交付成果
 
@@ -116,9 +116,9 @@ python3 code/main.py
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
 | GenAI SIG | 「OTel 生成式 AI 工作組」 | 負責制定 Agent 與 LLM 遙測資料標準 Schema 的 OTel 工作小組 |
-| invoke_agent | 「Agent 執行 Span」 | 代表 Agent 實體運行過程的標準根 Span 名稱 |
+| invoke_agent | 「Agent 執行 Span」 | 代表 Agent 實體執行過程的標準根 Span 名稱 |
 | CLIENT span | 「遠端服務呼叫」 | 標註呼叫遠端雲端代管 Agent 服務時所發射的 Span 類型 |
-| INTERNAL span | 「本機行程內部調用」 | 標註在本機行程內部運行之開源 Agent 框架時所發射的 Span 類型 |
+| INTERNAL span | 「本機行程內部呼叫」 | 標註在本機行程內部執行之開源 Agent 框架時所發射的 Span 類型 |
 | gen_ai.provider.name | 「模型供應商標籤」 | 標準鍵名，標註 anthropic / openai / aws.bedrock / google.vertex |
 | gen_ai.data_source.id | 「RAG 資料來源 ID」 | 標註檢索操作究竟命中存取了哪個實體語料庫或資料庫 |
 | Content capture | 「Prompt 對話記錄」 | 對話內容的選擇性擷取；正式環境推薦採用外部儲存並留存 ID 參照 |

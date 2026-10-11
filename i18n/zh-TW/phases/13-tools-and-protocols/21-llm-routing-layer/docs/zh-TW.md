@@ -49,7 +49,7 @@ on 5xx: refuse
 
 ### 語意快取（Semantic Caching）
 
-完全相同或高度相近的 prompts 會直接命中本地快取，而無需重複請求外部供應商。在重複的 agent 執行迴圈中，這能節省高達 30% 到 60% 的開銷。快取索引基於語意向量（Embedding）；語意極度接近的 prompt 共享同一個快取槽位。
+完全相同或高度相近的 prompts 會直接命中本地快取，而無需重複請求外部供應商。在重複的 agent 執行迴圈中，這能節省高達 30% 到 60% 的開銷。快取索引基於embedding（Embedding）；語意極度接近的 prompt 共享同一個快取槽位。
 
 ### 閘道器護欄（Guardrails）
 
@@ -100,7 +100,7 @@ tp-router-failover
 
 ## Use It｜實際應用
 
-`code/main.py` 以約 150 行程式碼實作了一套路由閘道器：接收相容 OpenAI 的請求格式、轉換為各供應商的 stub、運行具備優先級的容錯切換鏈、逐請求精確計算成本，並對輸入資料執行 PII 去識別化。執行時包含三種情境：常規成功請求、主力供應商斷線觸發容錯降級、以及被安全護欄攔截抹除的 PII 洩漏情境。
+`code/main.py` 以約 150 行程式碼實作了一套路由閘道器：接收相容 OpenAI 的請求格式、轉換為各供應商的 stub、執行具備優先級的容錯切換鏈、逐請求精確計算成本，並對輸入資料執行 PII 去識別化。執行時包含三種情境：常規成功請求、主力供應商斷線觸發容錯降級、以及被安全護欄攔截抹除的 PII 洩漏情境。
 
 核心觀察重點：
 
@@ -115,7 +115,7 @@ tp-router-failover
 
 ## Exercises｜練習
 
-1. 運行 `code/main.py`。觸發供應商斷線情境；確認容錯切換能順利降級至第二家供應商，且呼叫成本被精確歸因。
+1. 執行 `code/main.py`。觸發供應商斷線情境；確認容錯切換能順利降級至第二家供應商，且呼叫成本被精確歸因。
 
 2. 為閘道器新增語意快取功能：以 prompt 的 SHA-256 雜湊值作為快取鍵，快取命中時立刻回傳。實測重複呼叫下的成本節省幅度。
 
@@ -133,7 +133,7 @@ tp-router-failover
 | OpenAI-compatible | 「相容 OpenAI 格式」 | 對外接收 `/v1/chat/completions` 結構，對內轉發至任意後端 |
 | Model alias | 「our_smart_model」 | 程式碼中引用的邏輯名稱，由閘道器動態映射至具體模型 |
 | Fallback chain | 「重試降級清單」 | 當主力供應商呼叫失敗時，依序嘗試的有序供應商調度鏈 |
-| Semantic caching | 「Prompt 向量快取」 | 以 prompt 語意向量為索引鍵；語意相近的請求共享命中快取 |
+| Semantic caching | 「Prompt 向量快取」 | 以 prompt embedding為索引鍵；語意相近的請求共享命中快取 |
 | Guardrails | 「輸入／輸出安全護欄」 | 抹除 PII 敏感資料、攔截違反安全規範的請求 |
 | Per-key rate limit | 「團隊預算配額」 | 綁定於特定 API Key 的存取頻率與金額消耗上限 |
 | Cost tracking | 「逐請求花費審計」 | 累加各請求 Token 用量並乘以各模型單價進行成本歸因 |

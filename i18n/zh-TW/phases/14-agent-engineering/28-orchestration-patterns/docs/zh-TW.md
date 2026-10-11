@@ -28,7 +28,7 @@
 
 主流實作：LangGraph `create_supervisor`、Anthropic 協調者—工作者模式、CrewAI 階層式流程。
 
-**2026 年 LangChain 官方推薦**：直接透過常規的工具呼叫（Tool calls）來實作監督分派，而非直接調用黑箱的 `create_supervisor`。這賦予了工程師極致精準的脈絡工程控制權——由你完全決定每位專家能看見什麼、不能看見什麼。
+**2026 年 LangChain 官方推薦**：直接透過常規的工具呼叫（Tool calls）來實作監督分派，而非直接呼叫黑箱的 `create_supervisor`。這賦予了工程師極致精準的脈絡工程控制權——由你完全決定每位專家能看見什麼、不能看見什麼。
 
 ### 群集／對等模式（Swarm / peer-to-peer）
 
@@ -94,7 +94,7 @@ orchestration-pattern
 
 所有模式皆處理完全相同的三意圖任務（退款、錯誤、銷售）。各模式的日誌結構截然不同。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -105,7 +105,7 @@ python3 code/main.py
 ## Use It｜實際應用
 
 - **LangGraph**：監督者與階層式架構（巢狀子圖）的首選。
-- **OpenAI Agents SDK**：將委派移交作為工具調用（標準監督者形態）。
+- **OpenAI Agents SDK**：將委派移交作為工具呼叫（標準監督者形態）。
 - **CrewAI Flow**：正式環境確定性工作流程的最佳實踐。
 - **自建架構**：多方辯論或需要對底層控制流程實施極致掌控時。
 

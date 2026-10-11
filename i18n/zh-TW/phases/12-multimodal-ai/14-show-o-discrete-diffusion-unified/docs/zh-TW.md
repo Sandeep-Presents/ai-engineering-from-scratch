@@ -1,6 +1,6 @@
 # Show-o 與離散擴散大一統模型（Show-o and Discrete-Diffusion Unified Models）
 
-> Transfusion 選擇了揉合連續向量與離散 token 的複合路線。Show-o（Xie 等人，2024 年 8 月）則走向了另一端：文字 token 遵循因果下一個 token 預測，而影像 token 則採用承襲自 MaskGIT 的遮蓋式離散擴散（Masked Discrete Diffusion）。兩者統一於具備混合注意力遮罩的單一 Transformer 內部。最終成果在單一骨幹網路、每種模態配置單一 Tokenizer、單一損失形式（將下一個 token 預測泛化為遮蓋還原預測）之下，完美統一了視覺問答（VQA）、文字生成圖片（T2I）、局部重繪（Inpainting）以及混合模態生成。本課深度剖析 Show-o 的架構設計——為何遮蓋式離散擴散是一種高平行度、極少步長的高效影像生成機制——並與 Transfusion 及 Emu3 展開對比。
+> Transfusion 選擇了揉合連續向量與離散 token 的複合路線。Show-o（Xie 等人，2024 年 8 月）則走向了另一端：文字 token 遵循因果下一個 token 預測，而影像 token 則採用承襲自 MaskGIT 的遮蓋式離散擴散（Masked Discrete Diffusion）。兩者統一於具備混合注意力遮罩的單一 Transformer 內部。最終成果在單一骨幹、每種模態配置單一 Tokenizer、單一損失形式（將下一個 token 預測泛化為遮蓋還原預測）之下，完美統一了視覺問答（VQA）、文字生成圖片（T2I）、局部重繪（Inpainting）以及混合模態生成。本課深度剖析 Show-o 的架構設計——為何遮蓋式離散擴散是一種高平行度、極少步長的高效影像生成機制——並與 Transfusion 及 Emu3 展開對比。
 
 **Type:** Learn
 **Languages:** Python (stdlib, masked-discrete-diffusion sampler)
@@ -103,7 +103,7 @@ masked-diffusion-unmask
 - 依據餘弦排程在 8 個步長內執行平行的遮蓋解鎖取樣。
 - 逐步印出中間狀態的遮罩幾何演進與最終產出的 token 分布。
 
-實際動手運行，親眼見證遮罩如何由模糊的空白一步步凝聚為清晰的語意實體。
+實際動手執行，親眼見證遮罩如何由模糊的空白一步步凝聚為清晰的語意實體。
 
 ## Ship It｜交付成果
 

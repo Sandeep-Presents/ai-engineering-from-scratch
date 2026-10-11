@@ -1,6 +1,6 @@
 # 函式呼叫深度剖析——OpenAI、Anthropic 與 Gemini（Function Calling Deep Dive — OpenAI, Anthropic, Gemini）
 
-> 三大前沿模型提供商在 2024 年殊途同歸地收斂至相同的工具呼叫核心迴圈，卻在所有實作細節上分道揚鑣。OpenAI 採用 `tools` 與 `tool_calls`；Anthropic 採用 `tool_use` 與 `tool_result` 區塊；Gemini 則採用 `functionDeclarations` 與唯一 ID 關聯機制。本課將三大廠商的協定細節並排對比，確保在某一提供商上順利上線的程式碼，在無縫移植到其他平台時絕不翻車。
+> 三大前沿模型服務供應商在 2024 年殊途同歸地收斂至相同的工具呼叫核心迴圈，卻在所有實作細節上分道揚鑣。OpenAI 採用 `tools` 與 `tool_calls`；Anthropic 採用 `tool_use` 與 `tool_result` 區塊；Gemini 則採用 `functionDeclarations` 與唯一 ID 關聯機制。本課將三大廠商的協定細節並排對比，確保在某一服務供應商上順利上線的程式碼，在無縫移植到其他平台時絕不翻車。
 
 **Type:** Build
 **Languages:** Python (stdlib, schema translators)
@@ -10,13 +10,13 @@
 ## Learning Objectives｜學習目標
 
 - 精準指認 OpenAI、Anthropic 與 Gemini 在函式呼叫酬載（宣告、呼叫、結果）上的三大形態結構差異。
-- 在三大提供商格式之間自由雙向轉譯單一工具宣告，並預測各家嚴格模式（Strict Mode）約束條件的不同之處。
+- 在三大服務供應商格式之間自由雙向轉譯單一工具宣告，並預測各家嚴格模式（Strict Mode）約束條件的不同之處。
 - 靈活運用各平台的 `tool_choice` 參數，實現強制呼叫、禁止呼叫或由模型自主挑選工具。
 - 掌握各廠商在正式環境中的硬性配額上限（工具總數、Schema 巢狀深度、引數長度限制），以及踩線違規時各自拋出的典型錯誤代號。
 
 ## The Problem｜問題
 
-函式呼叫的請求與回應格式，因提供商不同而存在細微卻致命的差異。來自 2026 年商業正式環境的三個具體實例：
+函式呼叫的請求與回應格式，因服務供應商不同而存在細微卻致命的差異。來自 2026 年商業正式環境的三個具體實例：
 
 **OpenAI Chat Completions / Responses API**：傳入 `tools: [{type: "function", function: {name, description, parameters, strict}}]`。模型回傳的回應包含 `choices[0].message.tool_calls: [{id, type: "function", function: {name, arguments}}]`，其中 `arguments` 是一個你必須自行手動解析的字串化 JSON。嚴格模式（`strict: true`）透過語法受限解碼強制確保引數絕對符合 Schema 規範。
 
@@ -32,7 +32,7 @@
 
 ### 共通的底層核心骨架
 
-無論哪家提供商，皆必然需要五大核心要素：
+無論哪家服務供應商，皆必然需要五大核心要素：
 
 1. **工具清單（Tool list）**：每個工具的名稱、說明指南以及輸入參數的 JSON Schema。
 2. **工具選擇策略（Tool choice）**：強制指定某工具、全面禁用工具、或交由模型自主決策。
@@ -80,7 +80,7 @@ OpenAI 預設開啟 `parallel_tool_calls: true`，會在單一 assistant 訊息�
 
 ### 串流傳輸模式
 
-三大提供商皆原生支援串流模式下的工具呼叫，但底層協定格式大相逕庭：
+三大服務供應商皆原生支援串流模式下的工具呼叫，但底層協定格式大相逕庭：
 
 - **OpenAI**：以增量碎片（Delta chunks）形式持續吐出 `tool_calls[i].function.arguments`。前端必須逐步累加字串，直至接收到 `finish_reason: "tool_calls"` 標記。
 - **Anthropic**：基於事件流（Event-stream）機制，依序發送 Block-start、Block-delta 與 Block-stop 事件。透過 `input_json_delta` 增量事件傳輸局部 JSON 碎片。
@@ -120,7 +120,7 @@ function-call-args
 
 ## Use It｜實際應用
 
-`code/main.py` 定義了統一的標準 `Tool` 資料類別（Dataclass），並實作了三套轉譯器，分別輸出符合 OpenAI、Anthropic 與 Gemini 規範的宣告 JSON。隨後，它將人工構造的三家廠商典型回應資料，精準逆向解析為同一個標準呼叫物件，雄辯地證明了三者在底層語義上的完全等價性。運行該程式碼，並排檢視三種格式的細微差異。
+`code/main.py` 定義了統一的標準 `Tool` 資料類別（Dataclass），並實作了三套轉譯器，分別輸出符合 OpenAI、Anthropic 與 Gemini 規範的宣告 JSON。隨後，它將人工構造的三家廠商典型回應資料，精準逆向解析為同一個標準呼叫物件，雄辯地證明了三者在底層語義上的完全等價性。執行該程式碼，並排檢視三種格式的細微差異。
 
 核心閱讀重點：
 
@@ -134,21 +134,21 @@ function-call-args
 
 ## Exercises｜練習
 
-1. 運行 `code/main.py`，確認三家提供商的宣告 JSON 皆能精確序列化同一個底層 `Tool` 物件。為標準工具新增一個列舉型別（Enum）引數，並驗證為何僅有 Gemini 轉譯器需要針對 OpenAPI 3.0 的特定相容性進行特殊處理。
+1. 執行 `code/main.py`，確認三家服務供應商的宣告 JSON 皆能精確序列化同一個底層 `Tool` 物件。為標準工具新增一個列舉型別（Enum）引數，並驗證為何僅有 Gemini 轉譯器需要針對 OpenAPI 3.0 的特定相容性進行特殊處理。
 
-2. 為每家提供商實作一個 `ListToolsResponse` 工具列表解析器，用以解析大模型在收到 `list_tools` 或工具探測請求時所回傳的清單。注意：OpenAI 原生並未提供類似的反射探測協定，思考此非對稱性帶來的影響。
+2. 為每家服務供應商實作一個 `ListToolsResponse` 工具列表解析器，用以解析大模型在收到 `list_tools` 或工具探測請求時所回傳的清單。注意：OpenAI 原生並未提供類似的反射探測協定，思考此非對稱性帶來的影響。
 
-3. 實作 `tool_choice` 策略轉譯函式：將標準的 `ToolChoice(mode="force", tool_name="x")` 轉換為三大提供商的對應參數形態。隨後繼續擴充實作 `mode="any"` 與 `mode="none"` 的情境，並對照本課的差異對照表進行核驗。
+3. 實作 `tool_choice` 策略轉譯函式：將標準的 `ToolChoice(mode="force", tool_name="x")` 轉換為三大服務供應商的對應參數形態。隨後繼續擴充實作 `mode="any"` 與 `mode="none"` 的情境，並對照本課的差異對照表進行核驗。
 
 4. 挑選三大廠商之一，從頭到尾精讀其官方函式呼叫指南。找出其 Schema 規範中存在、但其餘兩家完全不支援的某一專屬欄位（例如 OpenAI 的 `strict`、Anthropic 的 `disable_parallel_tool_use`、Gemini 的 `function_calling_config.allowed_function_names`）。
 
-5. 撰寫一組測試向量：構造一個引數型別故意違反 Schema 宣告的無效工具呼叫。將其傳入各提供商的校驗邏輯中（可借鑑第 01 課的標準函式庫校驗器作為代理），記錄拋出的具體錯誤形態。並據此論證：在商業正式環境中，若追求極致的強型別安全性，你會優先選用哪一家提供商？
+5. 撰寫一組測試向量：構造一個引數型別故意違反 Schema 宣告的無效工具呼叫。將其傳入各服務供應商的校驗邏輯中（可借鑑第 01 課的標準函式庫校驗器作為代理），記錄拋出的具體錯誤形態。並據此論證：在商業正式環境中，若追求極致的強型別安全性，你會優先選用哪一家服務供應商？
 
 ## Key Terms｜關鍵術語
 
 | 術語 | 常見俗稱 | 實際意義 |
 |------|----------------|------------------------|
-| Function calling | 「原生工具使用」 | 模型提供商在 API 底層直接支援輸出結構化工具呼叫的原生機制 |
+| Function calling | 「原生工具使用」 | 模型服務供應商在 API 底層直接支援輸出結構化工具呼叫的原生機制 |
 | Tool declaration | 「工具宣告規範」 | 由工具名稱、描述說明以及 JSON Schema 輸入規格構成的宣告酬載 |
 | `tool_choice` | 「工具調度策略」 | 控制模型在當前輪次該自動（Auto）、必選（Required）、禁用（None）或強制特定工具的參數 |
 | Strict mode | 「強制合法約束模式」 | OpenAI 特有的旗標，透過語法受限解碼強制模型輸出百分之百符合 Schema |

@@ -1,6 +1,6 @@
 # 打造 MCP 伺服器：無狀態 Python 與 TypeScript 實作（Building an MCP Server: Stateless Python and TypeScript）
 
-> 現代 MCP 伺服器絕不記憶交握狀態。它在每次請求時獨立校驗後設資料、執行單一處理常式，並回傳單一具型別定義的成果。
+> 現代 MCP 伺服器絕不記憶交握狀態。它在每次請求時獨立校驗中繼資料、執行單一處理常式，並回傳單一具型別定義的成果。
 
 **Type:** Build
 **Languages:** Python, TypeScript
@@ -44,9 +44,9 @@ forget request-scoped metadata
 - 每條訊息皆以標準換行符號結尾，且每一次輸出回應後必須立刻強制排空緩衝區（Flush）。
 - 當 stdin 讀取到 EOF 結尾標記時，行程必須果斷乾脆地終止退出。
 
-行程本身的存活週期純粹是實體傳輸層的生命週期，它絕不代表存在任何現代 MCP 協定層級的連線階段。
+行程本身的存活週期純粹是實體傳輸層的生命週期，它絕不代表存在任何現代 MCP 協定層級的工作階段。
 
-### 請求後設資料校驗
+### 請求中繼資料校驗
 
 每一個進來的請求皆必須具備合法的結構：
 
@@ -67,7 +67,7 @@ forget request-scoped metadata
 
 前兩個欄位（協定版本與用戶端能力）為絕對必填項。`clientInfo` 用戶端身份為建議選填項。伺服器應當校驗其資料結構的合法性，但絕不可將其視為可信的安全認證憑證。
 
-若請求的版本不受支援，伺服器必須回傳錯誤碼 `-32022` 並附帶 `requested`（請求版本）與 `supported`（支援版本清單）。若缺少必備的請求後設資料，則回傳無效引數錯誤碼 `-32602`。嚴禁從先前的歷史呼叫中自動挪用缺漏的欄位進行私自填補。
+若請求的版本不受支援，伺服器必須回傳錯誤碼 `-32022` 並附帶 `requested`（請求版本）與 `supported`（支援版本清單）。若缺少必備的請求中繼資料，則回傳無效引數錯誤碼 `-32602`。嚴禁從先前的歷史呼叫中自動挪用缺漏的欄位進行私自填補。
 
 ### 強制實作的服務發現（server/discover）
 
@@ -93,7 +93,7 @@ forget request-scoped metadata
 }
 ```
 
-服務發現的目的不是作為存取閘門。用戶端完全可以直接發起 `tools/list` 請求，因為 `tools/list` 本身就已經攜帶了完全相同的請求後設資料。
+服務發現的目的不是作為存取閘門。用戶端完全可以直接發起 `tools/list` 請求，因為 `tools/list` 本身就已經攜帶了完全相同的請求中繼資料。
 
 ### 工具（Tools）
 
@@ -141,7 +141,7 @@ def complete(payload):
 
 現代伺服器可以發送與特定用戶端請求直接關聯的通知，亦可在用戶端開啟的 `subscriptions/listen` 串流上推送變更通知。但伺服器**絕不允許**自發發起獨立的逆向 JSON-RPC 請求。
 
-當處理常式需要進行大模型取樣、發起引導式詢問（Elicitation）或存取系統根目錄時，它會向用戶端回傳一個 `input_required` 成果。用戶端在本地完成對應的輸入採集後，使用全新的請求 ID 重新調用最初的方法。第 11 課將深入剖析這套多輪往返請求（Multi Round-Trip Request）模式。
+當處理常式需要進行大模型取樣、發起引導式詢問（Elicitation）或存取系統根目錄時，它會向用戶端回傳一個 `input_required` 成果。用戶端在本地完成對應的輸入採集後，使用全新的請求 ID 重新呼叫最初的方法。第 11 課將深入剖析這套多輪往返請求（Multi Round-Trip Request）模式。
 
 ### 明確的傳統版本相容設計
 
@@ -169,11 +169,11 @@ python3 -m unittest discover tests -v
 npx tsx main.ts --demo
 ```
 
-展示常式將依序發送 `server/discover` 探測、列舉各項原語清單、發起實體工具呼叫，並觸發不支援版本時的標準錯誤處理。在日誌中確認：每一個現代請求皆重複攜帶後設資料，且每一個成功回應皆完整包含伺服器識別資訊。
+展示常式將依序發送 `server/discover` 探測、列舉各項原語清單、發起實體工具呼叫，並觸發不支援版本時的標準錯誤處理。在日誌中確認：每一個現代請求皆重複攜帶中繼資料，且每一個成功回應皆完整包含伺服器識別資訊。
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-mcp-server-scaffolder.md`。它能產生現代 MCP 伺服器的標準工程規劃書：涵蓋服務發現契約、逐請求後設資料校驗、確定性可快取清單設計，以及選用的隔離式舊版相容適配層。
+本課產出 `outputs/skill-mcp-server-scaffolder.md`。它能產生現代 MCP 伺服器的標準工程規劃書：涵蓋服務發現契約、逐請求中繼資料校驗、確定性可快取清單設計，以及選用的隔離式舊版相容適配層。
 
 ## Exercises｜練習
 
@@ -187,11 +187,11 @@ npx tsx main.ts --demo
 
 | 術語 | 實際意義 |
 |------|---------|
-| Stateless server | 無狀態伺服器；完全依據單一請求自身的後設資料進行處理，不保留協定連線記憶 |
+| Stateless server | 無狀態伺服器；完全依據單一請求自身的中繼資料進行處理，不保留協定連線記憶 |
 | `server/discover` | 強制必備的現代方法；宣告伺服器支援的協定版本、能力清單、指南與識別資訊 |
 | Complete result | 標註有 `resultType: "complete"` 的現代成功終態回應 |
 | Cacheable result | 包含必備 `ttlMs` 存活時間與 `cacheScope` 快取作用域提示的查詢或讀取結果 |
-| Deterministic list | 確定性排序清單；相同的邏輯註冊表在多次調用中保證產出絕對一致的條目排列順序 |
+| Deterministic list | 確定性排序清單；相同的邏輯註冊表在多次呼叫中保證產出絕對一致的條目排列順序 |
 | Server identity | 建議封裝於回應 `_meta` 中的 `io.modelcontextprotocol/serverInfo` 伺服器識別資訊 |
 | Tool error | 合法發起但工具自身業務執行失敗時回傳的成果，標註有 `isError: true` |
 | Protocol error | 協定格式畸形或請求非法時，直接透過 JSON-RPC `error` 欄位拋出的錯誤 |

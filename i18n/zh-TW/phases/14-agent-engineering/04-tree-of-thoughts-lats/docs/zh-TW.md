@@ -24,7 +24,7 @@
 
 ### Tree of Thoughts（Yao 等人，NeurIPS 2023）
 
-樹上的每個節點皆代表一個連貫的中繼推論步驟（即「一個思維」）。每個節點可進一步擴展出 K 個子思維節點。LLM 透過專門的評分 prompt 對每個節點進行自我評估。搜尋演算法（如廣度優先 BFS、深度優先 DFS 或束搜尋 Beam Search）在樹狀空間中系統性探索。
+樹上的每個節點皆代表一個連貫的中繼推論步驟（即「一個思維」）。每個節點可進一步擴展出 K 個子思維節點。LLM 透過專門的評分 prompt 對每個節點進行自我評估。搜尋演算法（如廣度優先 BFS、深度優先 DFS 或集束搜尋 Beam Search）在樹狀空間中系統性探索。
 
 ```
                      (root: "find 24 from 4 6 4 1")
@@ -44,7 +44,7 @@ LATS 在蒙地卡羅樹搜尋（MCTS）體系下，將 ToT、ReAct 與 Reflexion
 - **價值函數（Value function）**：對局部軌跡進行評分（ToT 風格的自我評估）。
 - **自我反思器（Self-reflector）**：遭遇失敗時，撰寫自然語言反思總結（Reflexion 風格），並用以引導後續的推演擴展。
 
-真實環境的反饋（觀察結果）會即時融入價值函數中，使樹搜尋能建立在真實工具執行的客觀事實之上，而非純粹依賴大模型的主觀揣測。論文發表時的實測成果：GPT-4 在 HumanEval 上的 pass@1 達到 92.7%（創下當時 SOTA）；GPT-3.5 在 WebShop 上取得 75.9 的平均分（逼近基於梯度的 fine-tuning 表現）。
+真實環境的回饋（觀察結果）會即時融入價值函數中，使樹搜尋能建立在真實工具執行的客觀事實之上，而非純粹依賴大模型的主觀揣測。論文發表時的實測成果：GPT-4 在 HumanEval 上的 pass@1 達到 92.7%（創下當時 SOTA）；GPT-3.5 在 WebShop 上取得 75.9 的平均分（逼近基於梯度的 fine-tuning 表現）。
 
 ### 極簡 MCTS 四步法
 
@@ -69,7 +69,7 @@ UCT 公式：`Q(s, a) + c * sqrt(ln N(s) / N(s, a))`。第一項代表利用（E
 
 ### 2026 年的業界定位
 
-大多數正式環境的生產級 agent 並不運行完整的 LATS。它們通常採用結合工具實體驗證的 ReAct 迴圈（如 CRITIC，詳見第 5 課）。樹搜尋主要出現在專門的深水區利基場景中：
+大多數正式環境的生產級 agent 並不執行完整的 LATS。它們通常採用結合工具實體驗證的 ReAct 迴圈（如 CRITIC，詳見第 5 課）。樹搜尋主要出現在專門的深水區利基場景中：
 
 - 以單元測試執行結果作為價值函數的程式碼撰寫 agent（HumanEval 形態）；
 - 探索多條並行查詢路徑的深度研究（Deep Research）agent；
@@ -89,7 +89,7 @@ tree-of-thoughts
 - 針對相同任務、具備 UCT 選擇機制的極簡 LATS MCTS 迴圈（包含 Select / Expand / Simulate / Backpropagate）；
 - 同時結合符號規則評分與自我評估評分的價值函數。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -109,7 +109,7 @@ LangGraph 將 ToT 風格的探索實作為標準子圖範式；LangChain 團隊�
 
 1. 調整極簡 LATS 中的 UCT 參數：對比 c=0.1 與 c=2.0。執行軌跡產生了何種本質變化？
 2. 將價值函數替換為帶有更多雜訊的評分器（人為加入隨機抖動）。MCTS 是否依然能找到最優葉節點？它所能容忍的最低信噪比門檻為何？
-3. 實作束搜尋（Beam-search）ToT（在每個層級僅保留 Top-k 個最優節點）並與全廣度 BFS 進行對照。在嚴格受限的 Token 預算下，哪種策略更勝一籌？
+3. 實作集束搜尋（Beam-search）ToT（在每個層級僅保留 Top-k 個最優節點）並與全廣度 BFS 進行對照。在嚴格受限的 Token 預算下，哪種策略更勝一籌？
 4. 研讀 LATS 論文第 5.1 節。推導 HumanEval 的軌跡數量：需要執行多少次模擬推演才能達到論文回報的 pass@1 水準？
 5. 研讀 LATS 論文中關於「LATS 在何種情境下收效甚微」的章節。撰寫一段決策規則，將任務特徵精準對映至合適的搜尋策略。
 
@@ -129,6 +129,6 @@ LangGraph 將 ToT 風格的探索實作為標準子圖範式；LangChain 團隊�
 ## Further Reading｜延伸閱讀
 
 - [Yao et al., Tree of Thoughts (arXiv:2305.10601)](https://arxiv.org/abs/2305.10601) ——ToT 奠基論文
-- [Zhou et al., LATS (arXiv:2310.04406)](https://arxiv.org/abs/2310.04406) ——融入 Reflexion 反思反饋的 MCTS 樹搜尋論文
+- [Zhou et al., LATS (arXiv:2310.04406)](https://arxiv.org/abs/2310.04406) ——融入 Reflexion 反思回饋的 MCTS 樹搜尋論文
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) ——搜尋子圖架構模式
 - [AlphaEvolve (arXiv:2506.13131)](https://arxiv.org/abs/2506.13131) ——結合程式化評估器的演化搜尋論文

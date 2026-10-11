@@ -11,7 +11,7 @@
 
 - 指出 Reflexion 的三大核心元件——Actor（執行者）、Evaluator（評估器）、Self-Reflector（自我反思器），以及情節記憶（Episodic memory）的關鍵定位。
 - 以純 Python 標準函式庫實作一套包含二元評估器、反思快取緩衝區與全新重試機制的 Reflexion 迴圈。
-- 針對具體的工程任務，在純量（Scalar）、啟發式（Heuristic）與模型自評（Self-evaluated）三種反饋來源間做出正確選型。
+- 針對具體的工程任務，在純量（Scalar）、啟發式（Heuristic）與模型自評（Self-evaluated）三種回饋來源間做出正確選型。
 - 深入闡明為何語言強化學習能即時捕獲並修復傳統梯度 RL 需要數千次試驗才能解決的認知錯誤。
 
 ## The Problem｜問題
@@ -44,16 +44,16 @@ Episodic memory: list of prior reflections, prepended to the next trial's prompt
 
 1. **純量評估器（Scalar）**：來自外部的二元明確信號。例如 ALFWorld 任務成功或失敗；HumanEval 單元測試全數通過或未通過。這是最簡潔、信號雜訊比最高的型別。
 2. **啟發式評估器（Heuristic）**：預先定義的失效特徵規則。例如「若 agent 連續兩次產生完全相同的動作，標記為卡死」；「若執行軌跡超過 50 步，標記為效率低下」。
-3. **模型自評估器（Self-evaluated）**：由 LLM 對自身軌跡進行自我審查評分。適用於缺乏客觀標準答案（Ground Truth）的開放性場景。信號相對較弱，通常與工具實體驗證相結合（詳見第 5 課——CRITIC）。
+3. **模型自評估器（Self-evaluated）**：由 LLM 對自身軌跡進行自我審查評分。適用於缺乏真實標籤（Ground Truth）的開放性場景。信號相對較弱，通常與工具實體驗證相結合（詳見第 5 課——CRITIC）。
 
 2026 年的主流最佳實踐是混合體系：有客觀標準時優先採用純量信號，缺乏時退化為模型自評，並始終以啟發式規則作為安全護欄。
 
 ### 為何此模式能廣泛泛化
 
-Reflexion 與其說是一項全新演算法，不如說是一種被明確定義的通用架構範式。幾乎所有現代生產級「自我修復（Self-healing）」agent 皆在運行該模式的某種衍生變體：
+Reflexion 與其說是一項全新演算法，不如說是一種被明確定義的通用架構範式。幾乎所有現代生產級「自我修復（Self-healing）」agent 皆在執行該模式的某種衍生變體：
 
 - Letta 的睡眠期運算（Sleep-time compute，第 8 課）：獨立的後台 agent 在閒暇時復盤過往對話，並將教訓寫入記憶區塊。
-- Claude Code 的 `CLAUDE.md` / 「save memory」模式：將失敗反思提煉為經驗沉澱，在未來的對話階段作業中自動前置加載。
+- Claude Code 的 `CLAUDE.md` / 「save memory」模式：將失敗反思提煉為經驗沉澱，在未來的對話工作階段中自動前置載入。
 - 專業工作流程的 `/learn-rule` 指令：將使用者的糾正即時轉化為明確的規則約束。
 - LangGraph 的反思節點（Reflection nodes）：專門評估輸出品質並在需要時將流程導向修正節點。
 
@@ -90,7 +90,7 @@ react-trace
 - `SelfReflector`：產出一行簡明的失敗診斷。
 - `EpisodicMemory`：具備容量上限與 TTL 淘汰機制的記憶緩衝區。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -100,7 +100,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory` 指令與 pro-workflow 的 `/learn-rule` 將情節記憶外部化儲存為 Markdown 文件。Letta 的睡眠期運算在系統閒置時非同步運行 Self-Reflector，確保主線 agent 的即時回應速度不受影響。OpenAI Agents SDK 雖未直接內建 Reflexion，但你可以透過自訂 Guardrail（依評分拒絕不良軌跡）搭配跨執行階段作業持久化的記憶體 `Session` 輕鬆組裝出該模式。
+LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory` 指令與 pro-workflow 的 `/learn-rule` 將情節記憶外部化儲存為 Markdown 文件。Letta 的睡眠期運算在系統閒置時非同步執行 Self-Reflector，確保主線 agent 的即時回應速度不受影響。OpenAI Agents SDK 雖未直接內建 Reflexion，但你可以透過自訂 Guardrail（依評分拒絕不良軌跡）搭配跨執行工作階段持久化的記憶體 `Session` 輕鬆組裝出該模式。
 
 ## Ship It｜交付成果
 
@@ -121,11 +121,11 @@ LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory`
 | Reflexion | 「自我糾錯機制」 | Shinn 等人 2023 年提出——Actor、Evaluator、Self-Reflector 結合情節記憶的閉環 |
 | Verbal reinforcement | 「無梯度學習」 | 將自然語言反思前置於下一次試驗的 prompt 中進行認知引導 |
 | Episodic memory | 「任務專屬反思記憶」 | 為特定任務類別維護的有界限歷史反思快取緩衝區 |
-| Scalar evaluator | 「二元成功信號」 | 依據客觀標準答案所產出的通過／失敗或數值評分 |
+| Scalar evaluator | 「二元成功信號」 | 依據真實標籤所產出的通過／失敗或數值評分 |
 | Heuristic evaluator | 「特徵規則檢測器」 | 基於預定義失效特徵（如卡死死迴圈、步驟超限）的規則檢驗器 |
 | Self-evaluator | 「模型自審自評」 | 缺乏客觀標準時由 LLM 對自身軌跡評分——需搭配工具實體驗證以防幻覺 |
 | Memory rot | 「過期記憶腐化」 | 情節緩衝區堆滿了過時或錯誤的反思；透過壓縮與 TTL 淘汰治理 |
-| Sleep-time reflection | 「非同步後台復盤」 | 脫離即時呼叫路徑在系統閒暇時非同步運行反思，確保主線維持低延遲 |
+| Sleep-time reflection | 「非同步後台復盤」 | 脫離即時呼叫路徑在系統閒暇時非同步執行反思，確保主線維持低延遲 |
 
 ## Further Reading｜延伸閱讀
 

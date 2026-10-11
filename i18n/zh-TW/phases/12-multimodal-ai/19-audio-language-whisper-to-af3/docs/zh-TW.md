@@ -46,7 +46,7 @@ Whisper 的編碼器本質上是一個 12 層的 ViT 風格 Transformer，它將
 
 在標準自動語音辨識（ASR）任務中，Whisper 的解碼器是一個交叉注意力 Transformer，以編碼器輸出為條件自回歸生成文字 token。這是經典的編碼器—解碼器架構。
 
-而在音訊大模型（ALM）的架構中，我們將 Whisper 的編碼器特徵抽取出來，作為外部強大語言模型（如 Llama 或 Qwen）的直接輸入。典型設計為：凍結 Whisper 編碼器、加裝可訓練的音訊 Q-Former，並搭配凍結或調校的底座 LLM。
+而在音訊大模型（ALM）的架構中，我們將 Whisper 的編碼器特徵抽取出來，作為外部強大型語言模型（如 Llama 或 Qwen）的直接輸入。典型設計為：凍結 Whisper 編碼器、加裝可訓練的音訊 Q-Former，並搭配凍結或調校的底座 LLM。
 
 ### BEATs 與專屬音訊特徵編碼器
 

@@ -22,9 +22,9 @@
 
 **方案二：生成後再執行外部校驗**。放任模型自由生成，隨後由外部程式解析並對照 Schema 進行校驗，一旦失敗則發起重試。此方案雖然可靠但開銷高昂——每一次重試都需要額外燃燒 API 成本，且截斷性缺陷每次都會平白浪費一整輪 token 預算。
 
-**方案三：語法約束解碼（Constrained Decoding）**。模型提供商直接在底層解碼階段對 Schema 實施強制約束。任何會破壞 Schema 結構的非法 token，在取樣機率分布中皆會被直接遮蓋清零（Mask out）。從數學上保證輸出必定能被解析為合法 JSON，且必定完全符合 Schema 定義。此時，整個系統的失效模式優雅地收斂至唯一的確定性形態：模型拒絕（Refusal，模型判定輸入內容完全無法填入該 Schema）。
+**方案三：語法約束解碼（Constrained Decoding）**。模型服務供應商直接在底層解碼階段對 Schema 實施強制約束。任何會破壞 Schema 結構的非法 token，在取樣機率分布中皆會被直接遮蓋清零（Mask out）。從數學上保證輸出必定能被解析為合法 JSON，且必定完全符合 Schema 定義。此時，整個系統的失效模式優雅地收斂至唯一的確定性形態：模型拒絕（Refusal，模型判定輸入內容完全無法填入該 Schema）。
 
-2026 年的所有主流前沿提供商，皆全面原生支援了方案三：
+2026 年的所有主流前沿服務供應商，皆全面原生支援了方案三：
 
 - **OpenAI**：配置 `response_format: {type: "json_schema", strict: true}`；若模型拒絕執行，回應中會顯式回傳 `refusal` 欄位。
 - **Anthropic**：在 `tool_use` 輸入端強制實施嚴格 Schema 約束；雖然沒有顯式的 `stop_reason: "refusal"` 停止原因，但若模型自發放棄呼叫，會輸出帶有純文字說明的 `end_turn`。
@@ -38,7 +38,7 @@
 
 ### JSON Schema 2020-12——通用協定通用語
 
-各大提供商全面遵循標準的 JSON Schema 2020-12 方言。最常運用的核心約束關鍵字：
+各大服務供應商全面遵循標準的 JSON Schema 2020-12 方言。最常運用的核心約束關鍵字：
 
 - `type`：取值限定為 `object`、`array`、`string`、`number`、`integer`、`boolean`、`null`。
 - `properties`：定義欄位名稱與對應子 Schema 的映射字典。
@@ -52,7 +52,7 @@ OpenAI 嚴格模式（Strict Mode）額外施加了三條硬性鐵律：properti
 
 ### Pydantic：Python 生態的強型別綁定
 
-Pydantic v2 能透過 `model_json_schema()` 自動自 Python 資料類別中導出合法的 JSON Schema。Pydantic AI 將其進一步封裝，開發者只需宣告：
+Pydantic v2 能透過 `model_json_schema()` 自動自 Python 資料類別中匯出合法的 JSON Schema。Pydantic AI 將其進一步封裝，開發者只需宣告：
 
 ```python
 class Invoice(BaseModel):
@@ -79,11 +79,11 @@ Zod（`z.object({customer: z.string(), ...})`）是 TypeScript 生態的對等�
 2. **結合 JSON 解析器的 Logit 動態遮蓋**：讓串流 JSON 解析器與大模型解碼器保持同步步進，在每一步動態計算當前允許出現的合法 token 候選集合。
 3. **基於校驗器的投機解碼**：由輕量級草稿模型並行預測候選 token，由嚴格校驗器直接強制把關。
 
-商業大模型提供商在雲端後台正是採用了上述機制之一。在 2026 年的技術條件下，對於簡短的結構化輸出，約束解碼的生成速度甚至快於無約束的自由文字生成。
+商業大模型服務供應商在雲端後台正是採用了上述機制之一。在 2026 年的技術條件下，對於簡短的結構化輸出，約束解碼的生成速度甚至快於無約束的自由文字生成。
 
 ### 三大核心失效模式
 
-1. **語法解析錯誤（Parse error）**：輸出端甚至不是合法的 JSON。在嚴格模式下在數學上絕無可能發生；但在非嚴格提供商上依然偶發。
+1. **語法解析錯誤（Parse error）**：輸出端甚至不是合法的 JSON。在嚴格模式下在數學上絕無可能發生；但在非嚴格服務供應商上依然偶發。
 2. **Schema 規範違規（Schema violation）**：輸出是合法的 JSON，但型別錯位、漏填必填欄位或超出數值範圍。嚴格模式下絕無可能發生；非嚴格模式下極為常見。
 3. **主動拒絕執行（Refusal）**：模型宣告輸入無法匹配目標結構。必須作為合法的強型別回傳結果予以優雅處理。
 
@@ -121,7 +121,7 @@ constrained-decoding
 
 ## Exercises｜練習
 
-1. 運行 `code/main.py`。新增第四個測試案例，使其 `total_usd` 金額為負數。驗證校驗器是否能精確捕捉到該違規，並透過 `minimum` 約束路徑予以拒絕。
+1. 執行 `code/main.py`。新增第四個測試案例，使其 `total_usd` 金額為負數。驗證校驗器是否能精確捕捉到該違規，並透過 `minimum` 約束路徑予以拒絕。
 
 2. 擴充校驗器以支援帶有鑑別器（Discriminator）的 `oneOf` 聯合型別。典型業務情境：發票中的 `line_item` 必須是「實體商品」或「專業服務」兩者之一，並由 `kind` 欄位進行標記。嚴格模式對此類語法有精細規定，請參考 OpenAI 官方結構化輸出指南。
 
@@ -135,14 +135,14 @@ constrained-decoding
 
 | 術語 | 常見俗稱 | 實際意義 |
 |------|----------------|------------------------|
-| JSON Schema 2020-12 | 「Schema 規範標準」 | 當前所有主流模型提供商共同遵循的 IETF 結構約束方言標準 |
+| JSON Schema 2020-12 | 「Schema 規範標準」 | 當前所有主流模型服務供應商共同遵循的 IETF 結構約束方言標準 |
 | Strict mode | 「保證嚴格合法」 | OpenAI 提供的專屬旗標，透過語法約束解碼強制模型輸出絕對符合宣告規範 |
 | Constrained decoding | 「Logit 遮罩約束」 | 在模型解碼的每一個時間步，動態將不符合語法的非法 token 機率直接清零的技術 |
 | Refusal | 「模型合規拒答」 | 當輸入內容完全無法填入目標結構時，模型輸出的強型別確定性拒絕執行物件 |
 | Parse error | 「JSON 語法崩潰」 | 模型輸出甚至無法被解析為合法 JSON；在嚴格模式下數學上保證絕不可能發生 |
 | Schema violation | 「型別結構違規」 | 雖然是合法 JSON，但出現了型別錯位、漏填必填或超出範圍；嚴格模式下保證不發生 |
 | `additionalProperties: false` | 「嚴禁虛構多餘欄位」 | 嚴格禁止輸出任何未預先定義的雜項欄位；為 OpenAI 嚴格模式的強制要求項 |
-| Pydantic BaseModel | 「Python 型別物件」 | 能自動導出標準 JSON Schema 並在執行期對輸入進行強型別校驗的 Python 類別 |
+| Pydantic BaseModel | 「Python 型別物件」 | 能自動匯出標準 JSON Schema 並在執行期對輸入進行強型別校驗的 Python 類別 |
 | Zod schema | 「TypeScript 型別規範」 | TypeScript 生態中的執行期型別解析器，負責驗證模型輸出的結構合法性 |
 | Grammar enforcement | 「開源狀態機約束」 | 在本地開源模型上，基於有限狀態機（FSM）實施的 Logit 動態遮蓋約束技術 |
 
@@ -150,6 +150,6 @@ constrained-decoding
 
 - [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs) ——嚴格模式、拒絕機制與 Schema 約束鐵律官方指南
 - [OpenAI — Introducing structured outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/) ——2024 年 8 月發布的約束解碼底層數學原理詳解
-- [Pydantic AI — Output](https://ai.pydantic.dev/output/) ——能自動序列化至各提供商的強型別 output_type 綁定手冊
+- [Pydantic AI — Output](https://ai.pydantic.dev/output/) ——能自動序列化至各服務供應商的強型別 output_type 綁定手冊
 - [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) ——官方標準規範指南
 - [Microsoft — Structured outputs in Azure OpenAI](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs) ——企業級雲端部署與嚴格模式避坑指南

@@ -19,7 +19,7 @@
 
 ### 一個段落了解 SWE-bench
 
-SWE-bench（Jimenez 等人）收集真實的 GitHub issue 及其基準真相（ground-truth）修補檔，並要求 agent 產出能讓既有測試套件全數通過的修補程式碼。SWE-bench Verified（OpenAI，2024 年）是一個經過人工篩選的 500 個任務子集，剔除了語意模糊與環境損壞的任務。SWE-bench Pro 則是難度更高的後繼者——專門聚焦於需要修改 10 行以上程式碼的任務，目前尖端 agent 的得分僅落在 23–59% 區間。
+SWE-bench（Jimenez 等人）收集真實的 GitHub issue 及其真實標籤（ground-truth）修補檔，並要求 agent 產出能讓既有測試套件全數通過的修補程式碼。SWE-bench Verified（OpenAI，2024 年）是一個經過人工篩選的 500 個任務子集，剔除了語意模糊與環境損壞的任務。SWE-bench Pro 則是難度更高的後繼者——專門聚焦於需要修改 10 行以上程式碼的任務，目前尖端 agent 的得分僅落在 23–59% 區間。
 
 ### 2022 至 2026 年能力曲線的真實樣貌
 
@@ -37,7 +37,7 @@ OpenHands（All-Hands-AI，arXiv:2407.16741，前身為 OpenDevin）押注了一
 這兩者的權衡取捨如下：
 
 - **JSON 工具呼叫**：每一次動作都是單輪對話；極其容易稽核；組合能力受限；由於每個呼叫都經過明確的驗證器檢查，天生預設具備較高安全性。
-- **CodeAct**：單一動作即可構成一個完整的程式；具備強大的任意組合能力；高度依賴加固的沙盒環境（OpenHands 採用 Docker 隔離）；其潛在失效模式包含沙盒執行時期所允許的任何行為。
+- **CodeAct**：單一動作即可構成一個完整的程式；具備強大的任意組合能力；高度依賴加固的沙盒環境（OpenHands 採用 Docker 隔離）；其潛在失效模式包含沙盒執行環境所允許的任何行為。
 
 這兩種架構皆已廣泛應用於正式環境。CodeAct 在開放式平台（OpenHands、smolagents）中佔據主導地位；而 JSON 工具呼叫則在代管型服務（Anthropic Managed Agents、OpenAI Assistants）中依然居於主流，因為在這些場景中供應商需要牢牢掌控執行器的每一道指令。
 

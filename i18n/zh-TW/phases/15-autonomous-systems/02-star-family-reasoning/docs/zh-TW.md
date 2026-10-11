@@ -1,6 +1,6 @@
 # STaR、V-STaR、Quiet-STaR——自我教學推理（Self-Taught Reasoning）
 
-> 最小可行的自我改進迴圈就存在於推理過程（rationale）之中。模型生成一條思維鏈，保留那些推導出正確答案的軌跡，並在這些高品質資料上進行 fine-tuning。這就是 STaR。V-STaR 額外加入了驗證器（verifier），大幅提升推論時期的選取品質。Quiet-STaR 則將推理過程下沉到每一個 token。這三種方法都確實有效。但它們絕非魔法——這個迴圈同時也會保留任何剛好碰巧得出正確答案的捷徑推理。
+> 最小可行的自我改進迴圈就存在於推理過程（rationale）之中。模型生成一條思維鏈，保留那些推匯出正確答案的軌跡，並在這些高品質資料上進行 fine-tuning。這就是 STaR。V-STaR 額外加入了驗證器（verifier），大幅提升推論時期的選取品質。Quiet-STaR 則將推理過程下沉到每一個 token。這三種方法都確實有效。但它們絕非魔法——這個迴圈同時也會保留任何剛好碰巧得出正確答案的捷徑推理。
 
 **Type:** Learn
 **Languages:** Python (stdlib, bootstrap-loop simulator)
@@ -22,7 +22,7 @@ STaR（Self-Taught Reasoner，Zelikman 等人，2022 年）提出了一個問題
 
 ## The Concept｜核心概念
 
-### STaR：基於成功經驗的拔靴引導（Bootstrap）
+### STaR：基於成功經驗的bootstrap（Bootstrap）
 
 從具備基本弱推理能力的基底模型開始。針對每個訓練題目，取樣出一個推理過程與答案。若答案與標準答案相符，則保留該（問題、推理過程、答案）三元組。接著在保留的資料集上對模型進行 fine-tuning。重複循環。
 
@@ -71,7 +71,7 @@ reflection-loop
 
 `code/main.py` 在一個玩具算術任務上執行模擬的 STaR 迴圈。你可以觀察到：
 
-- 準確率如何隨著拔靴引導輪次逐步攀升。
+- 準確率如何隨著bootstrap輪次逐步攀升。
 - 捷徑如何悄悄潛入：模擬器中包含了一個「偷懶（lazy）」推理類別，它有 40% 的機率碰巧得出正確答案，但泛化能力極差。觀察 STaR 是否會保留它們。
 - 驗證器（V-STaR 風格）如何在推論階段發揮作用，但卻無法完全剔除訓練期間所引入的捷徑。
 

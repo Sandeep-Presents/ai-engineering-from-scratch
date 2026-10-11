@@ -17,7 +17,7 @@ v3.0 與 v2.0 之間的差異對比（diff）極具學習價值。新版新增�
 
 ### 雙層緩解措施清單（Two-Tier Mitigation Schedule）
 
-- **Anthropic 單方面行動（Unilateral actions）**：無論其他同業實驗室採取何種行動，Anthropic 承諾自己皆會強制執行的底線。包含在跨越特定門檻時暫停特定訓練、部署特定的資安硬性防線，以及設置嚴格的發布閘門。
+- **Anthropic 單方面行動（Unilateral actions）**：無論其他同業實驗室採取何種行動，Anthropic 承諾自己皆會強制執行的底線。包含在跨越特定門檻時暫停特定訓練、部署特定的資安硬性防線，以及設定嚴格的發布閘門。
 - **全產業倡議性建議（Industry-wide recommendations）**：Anthropic 認為整個 AI 產業應當共同恪守的理想準則。例如 RAND SL-4 資安防禦標準。這並非 Anthropic 對自身的承諾，而是屬於公共政策倡議範疇。
 
 這種雙層結構在 v2 版中並不存在。這意味著讀者在研讀時，必須極其清醒地辨析各項條款究竟落在欄位的哪一側。一項出現在「全產業倡議」欄位中的高等級資安措施，並不是 Anthropic 做出的莊嚴承諾，而僅僅是 Anthropic 的美好期許。

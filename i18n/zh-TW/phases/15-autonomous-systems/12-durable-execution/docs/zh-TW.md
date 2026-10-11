@@ -90,7 +90,7 @@ memory-consolidation
 
 3. 從玩具引擎中挑選一項活動。在工作流程決策中引入一個非確定性因素（例如讀取系統的即時時間戳記）。展示這會在重播時引發何種狀態分歧。說明真實的工業級引擎是如何防禦此問題的（透過註冊外部副作用、提供 `Workflow.now()` API 等）。
 
-4. 閱讀 LangChain 發布的《Runtime Behind Production Deep Agents》技術專案。列出該執行時期所持久化的每一項狀態，並具體指出各項狀態分別涵蓋了哪一類失效模式。
+4. 閱讀 LangChain 發布的《Runtime Behind Production Deep Agents》技術專案。列出該執行環境所持久化的每一項狀態，並具體指出各項狀態分別涵蓋了哪一類失效模式。
 
 5. 為一個長達 6 小時的自主程式碼編寫任務設計檢查點策略。你會在何處建立檢查點？崩潰後的喚醒復原流程長什麼樣？哪些關鍵步驟必須強制重新取得人類確認？
 
@@ -111,6 +111,6 @@ memory-consolidation
 
 - [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop) — 預算控制、對話輪次與喚醒語意。
 - [Microsoft — Agent Framework: human-in-the-loop and checkpointing](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — RequestInfoEvent 狀態結構設計。
-- [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — 正式環境執行時期的具體需求清單。
+- [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — 正式環境執行環境的具體需求清單。
 - [OpenAI Agents SDK + Temporal integration (Trigger.dev announcement)](https://trigger.dev) — 將 LLM 呼叫視為標準活動的工程典範。
 - [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 針對 35 分鐘效能衰退規律的權威分析。

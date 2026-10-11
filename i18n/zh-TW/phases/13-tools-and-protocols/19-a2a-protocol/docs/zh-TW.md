@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 嚴格區分「Agent 到工具」（MCP）與「Agent 到 Agent」（A2A）的適用場景。
-- 於 `/.well-known/agent-card.json` 發布包含 skills 與 `supportedInterfaces` 後設資料的 Agent Card。
+- 於 `/.well-known/agent-card.json` 發布包含 skills 與 `supportedInterfaces` 中繼資料的 Agent Card。
 - 完整走過 Task 生命週期：`TASK_STATE_SUBMITTED`、`TASK_STATE_WORKING`、`TASK_STATE_INPUT_REQUIRED`，以及終態 `TASK_STATE_COMPLETED`、`TASK_STATE_FAILED`、`TASK_STATE_CANCELED`、`TASK_STATE_REJECTED`。
 - 掌握 Part 分別封裝 `text`、`raw`、`url` 或 `data` 之一的 Messages 訊息結構，並以 Artifacts 作為最終輸出產物。
 
@@ -19,7 +19,7 @@
 假設有一個客服 agent 需要將撰寫報告的工作委派給專門的寫作 agent。在 A2A 出現之前的既有選項：
 
 - 自訂 REST API：雖然可行，但每對 agent 之間的整合都是一次性的特化工作。
-- 共享程式碼庫：強制兩個 agent 必須運行於完全相同的底層框架之上。
+- 共享程式碼庫：強制兩個 agent 必須執行於完全相同的底層框架之上。
 - MCP：定位不符：MCP 是為呼叫外部工具而設計，並非讓兩個各自保留不透明內部推論過程的 agent 進行對等協作。
 
 A2A 填補了這項架構鴻溝。它將互動抽象為：一個 agent 向另一個 agent 發送帶有生命週期、訊息串與產物的 Task（任務）。被呼叫的 agent 內部狀態始終保持不透明——呼叫端只能觀察到任務狀態的轉移與最終產出的產物。
@@ -169,12 +169,12 @@ A2A-Version: 1.0
 |------|-----|-----|
 | 適用場景 | Agent 到工具（Agent-to-tool） | Agent 到 Agent（Agent-to-agent） |
 | 透明度 | 工具呼叫完全透明 | 內部推論過程完全不透明 |
-| 典型呼叫端 | Agent 執行時期環境 | 另一個獨立的 Agent |
+| 典型呼叫端 | Agent 執行環境 | 另一個獨立的 Agent |
 | 狀態抽象 | 工具呼叫執行結果 | 具備完整生命週期的 Task |
 | 身分授權 | OAuth 2.1（Phase 13 · 16） | Agent Card 的 `securitySchemes` 與 `securityRequirements` |
 | 傳輸層 | Stdio / Streamable HTTP | JSON-RPC / gRPC / HTTP+JSON |
 
-當你需要呼叫某個具體工具時，使用 MCP。當你需要將一整項完整任務委派給另一個 agent 時，使用 A2A。在許多現代生產系統中，兩者常並行共存：agent 於底層使用 MCP 調用專屬工具，於上層使用 A2A 與其他外部 agent 進行跨組織協同。
+當你需要呼叫某個具體工具時，使用 MCP。當你需要將一整項完整任務委派給另一個 agent 時，使用 A2A。在許多現代生產系統中，兩者常並行共存：agent 於底層使用 MCP 呼叫專屬工具，於上層使用 A2A 與其他外部 agent 進行跨組織協同。
 
 ```figure
 a2a-task-lifecycle
@@ -182,7 +182,7 @@ a2a-task-lifecycle
 
 ## Use It｜實際應用
 
-`code/main.py` 以純 Python 標準函式庫實作了一個最小可行的 A2A 測試控端：寫作 agent 發布自身名片，研究 agent 向其發送包含 PDF 附件與文字指示的 `SendMessage` 請求，隨後任務依序推進 `TASK_STATE_WORKING` → `TASK_STATE_INPUT_REQUIRED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED`，最後回傳文字產物。全流程無外部相依性；透過記憶體內部傳輸層聚焦於訊息格式的精確封裝。
+`code/main.py` 以純 Python 標準函式庫實作了一個最小可行的 A2A 測試 harness：寫作 agent 發布自身名片，研究 agent 向其發送包含 PDF 附件與文字指示的 `SendMessage` 請求，隨後任務依序推進 `TASK_STATE_WORKING` → `TASK_STATE_INPUT_REQUIRED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED`，最後回傳文字產物。全流程無外部相依性；透過記憶體內部傳輸層聚焦於訊息格式的精確封裝。
 
 核心觀察重點：
 
@@ -198,7 +198,7 @@ a2a-task-lifecycle
 
 ## Exercises｜練習
 
-1. 運行 `code/main.py`。端到端追蹤完整的 Task 生命週期，特別觀察被呼叫 agent 遇到疑問要求進一步釐清時所觸發的 `TASK_STATE_INPUT_REQUIRED` 中斷暫停。
+1. 執行 `code/main.py`。端到端追蹤完整的 Task 生命週期，特別觀察被呼叫 agent 遇到疑問要求進一步釐清時所觸發的 `TASK_STATE_INPUT_REQUIRED` 中斷暫停。
 
 2. 為 Agent Card 實作數位簽名。在 `signatures` 清單中新增一個 `alg` 為 `HS256` 的 JWS 項目，對排除 `signatures` 欄位後的標準規範化名片 JSON 進行簽名。編寫校驗常式，驗證其在名片內容遭篡改時能精準攔截。
 
@@ -213,7 +213,7 @@ a2a-task-lifecycle
 | 術語 | 常見俗稱 | 實際工程意義 |
 |------|---------|-------------|
 | A2A | 「Agent 到 Agent 協定」 | 讓不透明 agent 實現跨框架協同作業的開放通訊協定 |
-| Agent Card | 「`/.well-known/agent-card.json`」 | 對外公開發布的後設資料名片，詳述 agent 的 skills 與 `supportedInterfaces` |
+| Agent Card | 「`/.well-known/agent-card.json`」 | 對外公開發布的中繼資料名片，詳述 agent 的 skills 與 `supportedInterfaces` |
 | Skill | 「可呼叫單元」 | agent 支援的具名作業能力（對標於 MCP 中的 tool） |
 | Task | 「委派任務單元」 | 具備完整生命週期與最終產出產物的工作項目 |
 | Message | 「任務輸入訊息」 | 負責承載具體 Parts 的通訊結構（包含 `text`、`raw`、`url`、`data`） |

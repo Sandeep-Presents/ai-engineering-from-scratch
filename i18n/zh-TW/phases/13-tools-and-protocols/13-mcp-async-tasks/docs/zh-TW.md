@@ -1,6 +1,6 @@
 # MCP Tasks 擴充功能：無狀態核心上的持久化非同步任務（MCP Tasks Extension: Durable Work on a Stateless Core）
 
-> 無狀態的 MCP 絕不意味著每一項操作都必須在單一請求中草草結束。官方的 Tasks 擴充功能為耗時長程的非同步工作，賦予了顯式且持久化的唯一識別碼（Handle）。伺服器能在 `tools/call` 中直接回傳該識別碼，叢集中的任何實例皆能獨立回應 `tasks/get`，而用戶端補充的輸入資料則透過 `tasks/update` 傳遞，全程無需復活任何協定層級的連線階段。
+> 無狀態的 MCP 絕不意味著每一項操作都必須在單一請求中草草結束。官方的 Tasks 擴充功能為耗時長程的非同步工作，賦予了顯式且持久化的唯一識別碼（Handle）。伺服器能在 `tools/call` 中直接回傳該識別碼，叢集中的任何實例皆能獨立回應 `tasks/get`，而用戶端補充的輸入資料則透過 `tasks/update` 傳遞，全程無需復活任何協定層級的工作階段。
 
 **Type:** Build
 **Languages:** Python
@@ -35,23 +35,23 @@ Tasks 最早以實驗性核心特性的姿態出現在 2025-11-25 規範中。20
 
 ## Stateless Core, Stateful Application｜無狀態協定核心 vs 有狀態業務應用
 
-MCP 2026-07-28 規範徹底移除了 `initialize`、`notifications/initialized`、協定連線階段以及 `Mcp-Session-Id`。這完全不限制應用程式自身維護有狀態的業務實體。
+MCP 2026-07-28 規範徹底移除了 `initialize`、`notifications/initialized`、協定工作階段以及 `Mcp-Session-Id`。這完全不限制應用程式自身維護有狀態的業務實體。
 
 一個任務 ID（taskId）是純粹顯式的業務層狀態：
 
 - 伺服器在向外派發該 ID 之前，已將其持久化寫入底層儲存；
 - 用戶端能在本機保存該 ID，並在用戶端重啟後重新發起輪詢；
 - 該 ID 能夠被負載平衡器任意分發至任何掛載同一共享儲存的健康伺服器複本；
-- 每一次調用任務方法時，皆會重新實施嚴格的主體權限校驗；
+- 每一次呼叫任務方法時，皆會重新實施嚴格的主體權限校驗；
 - 任務的過期銷毀與保留期限由業務欄位決定，而非由實體網路連線的壽命決定。
 
-這與暗中綁定在某一條 TCP 連線上的黑箱連線階段狀態，在架構維運上有著本質的雲泥之別。
+這與暗中綁定在某一條 TCP 連線上的黑箱工作階段狀態，在架構維運上有著本質的雲泥之別。
 
 請嚴格劃分四種不同的生命週期：
 
 | 狀態層級 | 生命週期範疇 | 物理歸屬位置 |
 |---|---|---|
-| 協定後設資料 | 單一獨立請求 | 封裝於 `params._meta` 中，每次呼叫皆重新獨立校驗 |
+| 協定中繼資料 | 單一獨立請求 | 封裝於 `params._meta` 中，每次呼叫皆重新獨立校驗 |
 | 傳輸層任務 | 單一 stdio 請求或 HTTP 回應 | 具備硬性逾時邊界的記憶體並發協調器 |
 | MRTR 延續狀態 | 單一多輪重試序列 | 具備防篡改簽名的 `requestState`，必要時掛載防重放儲存 |
 | 持久化任務實體 | 跨請求、跨節點複本、跨行程重啟與斷線重連 | 由具備鑑權校驗的 `taskId` 定址的後端共享資料庫 |
@@ -79,9 +79,9 @@ MCP 2026-07-28 規範徹底移除了 `initialize`、`notifications/initialized`�
 }
 ```
 
-伺服器在 `server/discover` 回傳成果中宣告精確的 `supportedVersions`、能力聲明、`ttlMs` 與 `cacheScope`，並在 capabilities.extensions 下聲明對應的 Tasks 擴充支援。由於宣告了工具支援，伺服器亦必須實作必備的 `tools/list`。其回傳的 `generate_report` 描述資訊中，必須包含合法的物件型別 `inputSchema`、`resultType: "complete"`、伺服器識別資訊後設資料，以及公開的快取建議。
+伺服器在 `server/discover` 回傳成果中宣告精確的 `supportedVersions`、能力聲明、`ttlMs` 與 `cacheScope`，並在 capabilities.extensions 下聲明對應的 Tasks 擴充支援。由於宣告了工具支援，伺服器亦必須實作必備的 `tools/list`。其回傳的 `generate_report` 描述資訊中，必須包含合法的物件型別 `inputSchema`、`resultType: "complete"`、伺服器識別資訊中繼資料，以及公開的快取建議。
 
-若未宣告擴充支援的用戶端調用了任務方法，伺服器必須拋出 `-32021`（缺少必備用戶端能力），並將 `data.requiredCapabilities` 明確設定為 `{"extensions":{"io.modelcontextprotocol/tasks":{}}}`。協定版本不支援回傳 `-32022` 搭配精準的 `supported` 與 `requested` 資料；版本缺漏回傳 `-32602`。
+若未宣告擴充支援的用戶端呼叫了任務方法，伺服器必須拋出 `-32021`（缺少必備用戶端能力），並將 `data.requiredCapabilities` 明確設定為 `{"extensions":{"io.modelcontextprotocol/tasks":{}}}`。協定版本不支援回傳 `-32022` 搭配精準的 `supported` 與 `requested` 資料；版本缺漏回傳 `-32602`。
 
 不帶 JSON-RPC `id` 的信封代表單向通知。接收端可以處理它，但絕不回傳任何回應。在 Streamable HTTP 傳輸層上，接收合法的單向通知時回傳空內文的 `202 Accepted`。
 
@@ -150,7 +150,7 @@ MCP 2026-07-28 規範徹底移除了 `initialize`、`notifications/initialized`�
 特定狀態下的專屬欄位：
 
 - `input_required` 狀態下必須附帶 `inputRequests` 待辦輸入請求；
-- `completed` 狀態下必須內聯原始調用的終態 `result` 物件；
+- `completed` 狀態下必須內聯原始呼叫的終態 `result` 物件；
 - `failed` 狀態下必須內聯標準的 JSON-RPC `error` 錯誤物件。
 
 用戶端應當自覺恪守 `pollIntervalMs` 建議頻率。伺服器有權對過於激進的高頻輪詢實施限流，並可在任務推進過程中動態調整該建議間隔。
@@ -186,7 +186,7 @@ Mcp-Name: tsk_786512e29e0d
 }
 ```
 
-由於 `tasks/get` 本身這次 RPC 調用已經圓滿執行結束，因此其最外層的回應始終標註 `resultType: "complete"`！而內部巢狀包裹的任務實體，其自身的狀態則依然可以是 `status: "working"` 或 `status: "input_required"`。
+由於 `tasks/get` 本身這次 RPC 呼叫已經圓滿執行結束，因此其最外層的回應始終標註 `resultType: "complete"`！而內部巢狀包裹的任務實體，其自身的狀態則依然可以是 `status: "working"` 或 `status: "input_required"`。
 
 明確區分這兩個層級，能有效杜絕常見的解析器邏輯錯誤：
 
@@ -195,7 +195,7 @@ result.resultType = complete    means the tasks/get RPC finished
 result.status = working        means the represented job is still running
 ```
 
-協定中**完全不存在** `tasks/result` 介面。當任務最終順利完成時，下一次 `tasks/get` 回應會直接在內部的 `result` 欄位中，內聯納入原始工具調用的完整 `CallToolResult` 成果：
+協定中**完全不存在** `tasks/result` 介面。當任務最終順利完成時，下一次 `tasks/get` 回應會直接在內部的 `result` 欄位中，內聯納入原始工具呼叫的完整 `CallToolResult` 成果：
 
 ```json
 {
@@ -238,11 +238,11 @@ result.status = working        means the represented job is still running
 
 ### 任務建立前所需的輸入
 
-在最初的 `tools/call` 中直接回傳核心協定的 `resultType: "input_required"`。用戶端在本機滿足該輸入後，重新調用該原始呼叫。只有在這些同步的前置 MRTR 互動全數完成後，伺服器才正式為其派發長程非同步任務。
+在最初的 `tools/call` 中直接回傳核心協定的 `resultType: "input_required"`。用戶端在本機滿足該輸入後，重新呼叫該原始呼叫。只有在這些同步的前置 MRTR 互動全數完成後，伺服器才正式為其派發長程非同步任務。
 
 ### 任務建立後所需的輸入
 
-將任務狀態變更為 `input_required`。用戶端在 `tasks/get` 輪詢中捕獲尚未處理的 `inputRequests`，隨後透過專屬的 `tasks/update` 介面送出解答。用戶端**絕不要**重複調用最初的 `tools/call`。
+將任務狀態變更為 `input_required`。用戶端在 `tasks/get` 輪詢中捕獲尚未處理的 `inputRequests`，隨後透過專屬的 `tasks/update` 介面送出解答。用戶端**絕不要**重複呼叫最初的 `tools/call`。
 
 狀態快照：
 
@@ -343,17 +343,17 @@ Mcp-Name: tsk_786512e29e0d
 
 請特別注意：針對上述所有三個任務方法，HTTP 標頭 `Mcp-Name` 皆必須精確同步對映 `params.taskId` 的數值，而非重複填寫方法名稱！教學程式碼 `code/main.py` 在 `make_http_request` 函式中嚴格落實了該標準規則。
 
-在教學實作中，模擬背景工作行程會即時響應取消，使反覆調用具備冪等性。但在真實生產用戶端中，絕不能僅憑取消確認訊息就武斷推斷任務已經終態取消，必須始終以協同式的心態等待後續狀態確認。
+在教學實作中，模擬背景工作行程會即時響應取消，使反覆呼叫具備冪等性。但在真實生產用戶端中，絕不能僅憑取消確認訊息就武斷推斷任務已經終態取消，必須始終以協同式的心態等待後續狀態確認。
 
 **嚴禁**使用 `notifications/cancelled` 來取消持久化長任務！該通知屬於請求範疇的傳輸中斷，而非針對持久化 Tasks 的協定操作。
 
-兩者的差異在網路邊界層至關重要：請求取消針對的是一次正在傳輸中的非同步 JSON-RPC 操作或 HTTP 回應；若 `tools/call` 已經向外派發了 `resultType: "task"`，該次請求便已徹底宣告終結，此時關閉 TCP 傳輸層既無法定址亦無法終止背景運行的持久化任務。而 `tasks/cancel` 是一次全新的獨立授權 RPC 請求——它攜帶 `params.taskId`、在 `Mcp-Name` 標頭中對映該 ID、精準路由至任務所屬的後端工作節點、登記協同取消意圖，並回傳確認。
+兩者的差異在網路邊界層至關重要：請求取消針對的是一次正在傳輸中的非同步 JSON-RPC 操作或 HTTP 回應；若 `tools/call` 已經向外派發了 `resultType: "task"`，該次請求便已徹底宣告終結，此時關閉 TCP 傳輸層既無法定址亦無法終止背景執行的持久化任務。而 `tasks/cancel` 是一次全新的獨立授權 RPC 請求——它攜帶 `params.taskId`、在 `Mcp-Name` 標頭中對映該 ID、精準路由至任務所屬的後端工作節點、登記協同取消意圖，並回傳確認。
 
 因此，API 閘道器必須在底層為「短暫請求協調」與「長程任務路由」分別維護兩張完全隔離的狀態表。請求表在回應傳輸結束後便可銷毀；而任務路由表則必須持久保存至任務達到終態並過期清理為止。[第 29 課：MCP 可靠性、取消與流量控制](../../29-mcp-reliability-cancellation-and-flow-control/docs/en.md) 將專題建置包含競爭條件、逾時、冪等防護、背壓控制與重試防護的完整可靠性體系。
 
 ## Optional Notifications｜選用的即時事件推播通知
 
-輪詢是無狀態架構的基本盤。若用戶端渴望獲得即時推播，可向伺服器發送攜帶目標任務 ID 的 `subscriptions/listen` 請求。在 Streamable HTTP 規範下，這是一次 POST 請求，其回應轉化為請求範疇的 SSE 串流。此處完全沒有獨立的 GET 事件端點，亦沒有黑箱的協定連線階段需要維護。
+輪詢是無狀態架構的基本盤。若用戶端渴望獲得即時推播，可向伺服器發送攜帶目標任務 ID 的 `subscriptions/listen` 請求。在 Streamable HTTP 規範下，這是一次 POST 請求，其回應轉化為請求範疇的 SSE 串流。此處完全沒有獨立的 GET 事件端點，亦沒有黑箱的協定工作階段需要維護。
 
 伺服器先以 `notifications/subscriptions/acknowledged` 確認接受該訂閱，隨後即可透過 `notifications/tasks` 事件即時推送完整的任務狀態快照。該確認訊息以及後續的每一條任務通知，其 `_meta` 中皆必須原樣攜帶相同的 `io.modelcontextprotocol/subscriptionId`（數值等於 `subscriptions/listen` 的請求 ID）。除封裝外，每條任務通知的內聯資料與在該時刻呼叫 `tasks/get` 回傳的結構完全同構。
 
@@ -365,7 +365,7 @@ Mcp-Name: tsk_786512e29e0d
 
 ### 協定層級錯誤（Protocol error）
 
-方法引數格式畸形、或查詢了不存在的未知任務 ID，回傳標準 JSON-RPC 錯誤，通常為 `-32602`。若用戶端未宣告擴充能力支援便發起調用，回傳 `-32021` 搭配必備能力宣告說明。
+方法引數格式畸形、或查詢了不存在的未知任務 ID，回傳標準 JSON-RPC 錯誤，通常為 `-32602`。若用戶端未宣告擴充能力支援便發起呼叫，回傳 `-32021` 搭配必備能力宣告說明。
 
 ### 任務執行層級結果（Task execution outcome）
 
@@ -400,7 +400,7 @@ tp-task-lifecycle
 - `tasks/update` 接收表單確認回應，並回傳空內容的 complete 確認訊息。
 - 工作行程封裝帶有自身 `resultType` 與伺服器識別資訊的內聯 `CallToolResult`，並推進至 `completed` 終態。
 - `tasks/cancel` 在本實作中具備完全的冪等性。
-- HTTP 構造器在調用 `tasks/get`、`tasks/update` 與 `tasks/cancel` 時，自動將 `Mcp-Name` 標頭精確設置為 `params.taskId`。
+- HTTP 構造器在呼叫 `tasks/get`、`tasks/update` 與 `tasks/cancel` 時，自動將 `Mcp-Name` 標頭精確設定為 `params.taskId`。
 - 通知模組使用 `notifications/subscriptions/acknowledged` 與 `notifications/tasks`，兩者皆打上相應的監聽請求 ID 標記。
 - 不帶 ID 的單向通知絕不回傳任何 JSON-RPC 回應。
 
@@ -438,7 +438,7 @@ id=5 resultType=complete status=completed
 1. 在任務中新增第二個未決的輸入金鑰。發送僅填寫單一金鑰的局部 `tasks/update`，證明在兩個金鑰全數被滿足前，任務狀態會穩健維持在 `input_required`。
 2. 為儲存層引入嚴格的租戶歸屬鑑權，證明當合法的任務 ID 由錯誤的認證主體發起查詢時，會被果斷攔截拒絕。
 3. 為工作行程引入帶有過期時間的分散式租約（Worker Lease），在測試中證明兩個並發服務實例絕無可能同時完成同一個任務。
-4. 為 `subscriptions/listen` 實作基於長回應 POST 的 SSE 轉接層。嚴禁引入獨立 GET 端點、`Last-Event-ID` 或任何協定連線階段標頭。
+4. 為 `subscriptions/listen` 實作基於長回應 POST 的 SSE 轉接層。嚴禁引入獨立 GET 端點、`Last-Event-ID` 或任何協定工作階段標頭。
 5. 新增過期自動清理機制。證明系統在處理過期任務時，能夠將「任務自然過期」與「傳入畸形無效 ID」進行清晰區分，且絕不向跨租戶攻擊者洩漏任務是否曾經存在的資訊。
 
 ## Key Terms｜關鍵術語

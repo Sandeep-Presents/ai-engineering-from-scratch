@@ -130,11 +130,11 @@ t3-span-waterfall
 
 ## Exercises｜練習
 
-1. 運行 `code/main.py`。計算產生的總 span 數量，並逐一分辨哪些屬於 CLIENT、哪些屬於 INTERNAL。
+1. 執行 `code/main.py`。計算產生的總 span 數量，並逐一分辨哪些屬於 CLIENT、哪些屬於 INTERNAL。
 
 2. 透過設定環境變數開啟內容擷取功能，確認 `gen_ai.content.prompt` 與 `gen_ai.content.completion` 事件是否順利出現。深入思考這對個人隱私資料（PII）防護帶來的潛在衝擊。
 
-3. 新增工具執行指標 `gen_ai.tool.execution.duration`，並在每次工具調用時將其實作為直方圖取樣樣本對外發送。
+3. 新增工具執行指標 `gen_ai.tool.execution.duration`，並在每次工具呼叫時將其實作為直方圖取樣樣本對外發送。
 
 4. 將父層 agent span 的 traceparent 注入 MCP 請求的 `_meta.traceparent` 欄位中。驗證 MCP 伺服器端能否讀取並輸出完全一致的 trace ID。
 

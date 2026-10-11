@@ -1,6 +1,6 @@
 # 正式環境規模化擴展——佇列、檢查點與持久化（Production Scaling — Queues, Checkpoints, Durability）
 
-> 將多 Agent 系統水平擴展至數千個並行執行次，必須依賴**持久化執行（Durable execution）**——結合工作佇列與檢查點機制，只要具備健全的租約管理、冪等性外部副作用與確定性重播，任何工作節點皆能在系統遭遇任何當機崩潰後隨時接手恢復任何執行緒。LangGraph 的執行時期是該模式的經典代表：它在每一個超級步驟（super-step）之後，以 `thread_id` 為鍵落盤儲存檢查點（預設使用 PostgreSQL）；一旦 worker 崩潰，其租約自動釋放，另一個 worker 立即接棒復原。Agent 能在等待人類輸入時進入無限期休眠而毫無資源浪費。**MegaAgent**（arXiv:2408.09955）為每位 Agent 配置了獨立的生產者-消費者佇列，包含三大狀態（閒置 Idle／處理中 Processing／回應 Response），並實施雙層協同架構（組內討論 + 組間管理協調）。**纖程／非同步（Async/Fiber）** 在處理 LLM 串流時全面碾壓傳統的「每個任務一執行緒」模式：執行緒有 99% 的時間都在無所事事地乾等下一個 Token 到達，而纖程能在 I/O 等待時協同式主動讓出 CPU。務實的反思視角：Ashpreet Bedi 在《Scaling Agentic Software》中強力呼籲**堅持「FastAPI + Postgres + 不增加任何額外複雜性」**，除非實測負載明確證明它已無法承載——極簡架構往往能走得比預期遠得多。本課將親手建構持久化檢查點日誌、單一 Agent 工作佇列狀態機、非同步 vs 多執行緒效能展示，並確立質樸實用的「從極簡起步」架構鐵律。
+> 將多 Agent 系統水平擴展至數千個並行執行次，必須依賴**持久化執行（Durable execution）**——結合工作佇列與檢查點機制，只要具備健全的租約管理、冪等性外部副作用與確定性重播，任何工作節點皆能在系統遭遇任何當機崩潰後隨時接手恢復任何執行緒。LangGraph 的執行環境是該模式的經典代表：它在每一個超級步驟（super-step）之後，以 `thread_id` 為鍵落盤儲存檢查點（預設使用 PostgreSQL）；一旦 worker 崩潰，其租約自動釋放，另一個 worker 立即接棒復原。Agent 能在等待人類輸入時進入無限期休眠而毫無資源浪費。**MegaAgent**（arXiv:2408.09955）為每位 Agent 配置了獨立的生產者-消費者佇列，包含三大狀態（閒置 Idle／處理中 Processing／回應 Response），並實施雙層協同架構（組內討論 + 組間管理協調）。**纖程／非同步（Async/Fiber）** 在處理 LLM 串流時全面碾壓傳統的「每個任務一執行緒」模式：執行緒有 99% 的時間都在無所事事地乾等下一個 Token 到達，而纖程能在 I/O 等待時協同式主動讓出 CPU。務實的反思視角：Ashpreet Bedi 在《Scaling Agentic Software》中強力呼籲**堅持「FastAPI + Postgres + 不增加任何額外複雜性」**，除非實測負載明確證明它已無法承載——極簡架構往往能走得比預期遠得多。本課將親手建構持久化檢查點日誌、單一 Agent 工作佇列狀態機、非同步 vs 多執行緒效能展示，並確立質樸實用的「從極簡起步」架構鐵律。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `asyncio`, `sqlite3`)
@@ -18,7 +18,7 @@
 
 單純的記憶體事件迴圈面對上述任何一項挑戰皆徹底無能為力。你必須在底層鋪設一層堅不可摧的持久化執行層。2026 年的工業級主流選項包括：
 
-1. 配備檢查點的工作流程編排引擎（Temporal、LangGraph 執行時期）。
+1. 配備檢查點的工作流程編排引擎（Temporal、LangGraph 執行環境）。
 2. 配備持久化狀態儲存的訊息佇列（Postgres + SQS/RabbitMQ）。
 3. 基於 Actor 模型的框架（MegaAgent 的單一 Agent 專屬生產者-消費者佇列）。
 4. 純手刻的 FastAPI + Postgres（Bedi 主張的極簡主義）。
@@ -47,9 +47,9 @@ worker crashes mid-step
 
 LangGraph 在每個超級步驟之後寫入檢查點；Temporal 在每個 Activity 之後寫入；Restate 則採用事件溯源日誌。這三者在底層本質上實現了完全相同的架構模式。
 
-### 逐步驟檢查點執行時期（Checkpoint-Per-Step Runtime）
+### 逐步驟檢查點執行環境（Checkpoint-Per-Step Runtime）
 
-LangGraph 的執行時期是該模式教科書級的實戰範例：每位 Agent 綁定唯一的 `thread_id`；系統狀態是一個具備強型別的字典；每個超級步驟完成時，會向檢查點資料庫自動插入一筆全新資料列。當系統需要喚醒復原時，執行時期會直接從最近的檢查點進行快速重播，而絕不需要從最開頭推倒重來。當 Agent 呼叫 `interrupt()` 等待人類確認時，執行時期會將狀態落盤並立即釋放該工作節點的運算資源。待人類確認到達時，叢集中的任何一個空閒節點皆能立即平滑喚醒並接棒執行。
+LangGraph 的執行環境是該模式教科書級的實戰範例：每位 Agent 綁定唯一的 `thread_id`；系統狀態是一個具備強型別的字典；每個超級步驟完成時，會向檢查點資料庫自動插入一筆全新資料列。當系統需要喚醒復原時，執行環境會直接從最近的檢查點進行快速重播，而絕不需要從最開頭推倒重來。當 Agent 呼叫 `interrupt()` 等待人類確認時，執行環境會將狀態落盤並立即釋放該工作節點的運算資源。待人類確認到達時，叢集中的任何一個空閒節點皆能立即平滑喚醒並接棒執行。
 
 這正是 2026 年 4 月工業級正式環境部署的黃金參考標準。
 
@@ -103,7 +103,7 @@ Ashpreet Bedi 在其 2026 年的知名專論《Scaling Agentic Software》中提
 
 ### 彩虹部署架構（Rainbow Deployment）
 
-Anthropic 的多 Agent 科研系統在正式環境中採用了「彩虹部署」：允許多個不同版本的 Agent 執行時期在叢集中並行運作，從而確保長達數小時的在途長任務絕不會因為例行的軟體版本發布而被暴力中斷。將新流量依比例灰度導入全新版本；待舊版本上的所有在途 Agent 自然完工排空後，再優雅除役舊版容器。
+Anthropic 的多 Agent 科研系統在正式環境中採用了「彩虹部署」：允許多個不同版本的 Agent 執行環境在叢集中並行運作，從而確保長達數小時的在途長任務絕不會因為例行的軟體版本發布而被暴力中斷。將新流量依比例灰階導入全新版本；待舊版本上的所有在途 Agent 自然完工排空後，再優雅除役舊版容器。
 
 這對於長時程有狀態系統而言是業界標準規範；2026 年的全新適配在於 Agent 的生命週期往往長達數小時，因此軟體交付的部署週期必須對此給予充分相容。
 
@@ -139,7 +139,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-`outputs/skill-scaling-advisor.md` 是一項專業的架構決策 skill，能為具體的多 Agent 業務精準裁決最適的持久化擴展方案：是在「FastAPI + Postgres」、「LangGraph 執行時期」、「Temporal」還是「自研佇列」之間進行抉擇。依據真實負載、狀態保留週期與軟體部署頻率進行量化校準。
+`outputs/skill-scaling-advisor.md` 是一項專業的架構決策 skill，能為具體的多 Agent 業務精準裁決最適的持久化擴展方案：是在「FastAPI + Postgres」、「LangGraph 執行環境」、「Temporal」還是「自研佇列」之間進行抉擇。依據真實負載、狀態保留週期與軟體部署頻率進行量化校準。
 
 ## Ship It｜交付成果
 
@@ -156,8 +156,8 @@ python3 code/main.py
 
 1. 執行 `code/main.py`。驗證檢查點在崩潰後是否成功實現復原；精確記錄非同步與多執行緒並行在耗時與資源消耗上的巨大差距。
 2. 實現一個**發件箱（Outbox）資料表**：所有工具呼叫必須先寫入發件箱，隨後由獨立的非同步排程器取出執行。透過連續執行兩次相同的工具呼叫，驗證其底層冪等性。
-3. 模擬一次**彩虹滾動部署**：同時運作兩個不同版本的執行時期；將一半的新 thread_id 導流至新版；確認在舊版上運作中的在途執行緒完全未遭受任何中斷。
-4. 閱讀 LangGraph 執行時期官方技術文件（文末附連結）。指出該執行時期所提供的各項特性中，哪一項是在手刻的「FastAPI + Postgres」架構中最難以自行復現的？這項難度是否構成你當前立即導入該框架的充分理由？
+3. 模擬一次**彩虹滾動部署**：同時運作兩個不同版本的執行環境；將一半的新 thread_id 導流至新版；確認在舊版上運作中的在途執行緒完全未遭受任何中斷。
+4. 閱讀 LangGraph 執行環境官方技術文件（文末附連結）。指出該執行環境所提供的各項特性中，哪一項是在手刻的「FastAPI + Postgres」架構中最難以自行復現的？這項難度是否構成你當前立即導入該框架的充分理由？
 5. 閱讀 MegaAgent 論文（arXiv:2408.09955）第 3 節。其雙層協同架構（組內討論 + 組間管理協調）極具代表性。嘗試繪製一份架構圖，說明你該如何將其優雅映射至具備兩大主題家族的實體訊息佇列中。
 
 ## Key Terms｜關鍵術語
@@ -176,7 +176,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — LangGraph 執行時期的深度架構設計解析。
+- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — LangGraph 執行環境的深度架構設計解析。
 - [MegaAgent](https://arxiv.org/abs/2408.09955) — 單一 Agent 專屬生產者-消費者佇列；在數千個並行 Agent 規模下的雙層協同架構。
 - [Matrix](https://arxiv.org/abs/2511.21686) — 將訊息佇列作為底層協同基石的去中心化框架。
 - [Temporal docs](https://docs.temporal.io/) — 分散式持久化執行工作流引擎的業界黃金參考標準。

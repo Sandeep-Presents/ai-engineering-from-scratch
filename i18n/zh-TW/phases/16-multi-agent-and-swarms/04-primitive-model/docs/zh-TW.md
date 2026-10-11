@@ -119,7 +119,7 @@ a5-primitive-radar
 
 `code/main.py` 透過約 150 行 Python 標準函式庫實現了這四大核心原語。完全不依賴真實的外部 LLM——每個 agent 皆採用固定的腳本化原則（scripted policy），以確保我們的注意力能完全聚焦於協調協同架構本身。
 
-該實作導出了以下核心抽象：
+該實作匯出了以下核心抽象：
 
 - `Agent`——封裝了名稱、系統 prompt、工具清單與原則函式的 dataclass。
 - `Handoff`——能夠回傳全新目標 agent 的轉移函式。

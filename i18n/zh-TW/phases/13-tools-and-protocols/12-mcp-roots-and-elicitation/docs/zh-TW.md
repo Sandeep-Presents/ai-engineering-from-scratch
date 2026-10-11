@@ -40,7 +40,7 @@ MCP 2026-07-28 規範針對新系統正式廢棄了 `roots/list` 與 `notificati
 
 若現有系統在過渡期內依然依賴 `roots/list`，伺服器必須將其封裝進 MRTR 的 `inputRequests` 中，絕不可直接發起即時的逆向請求。這純屬向下相容過渡橋樑；全新實作應全面轉向顯式宣告。
 
-顯式的資源或工作區識別碼，模型能夠清晰看見、記憶並在後續呼叫中精確重現；而隱藏於傳輸層連線階段中的黑箱範圍，則極難被人類審計、除錯重播、安全審查以及進行負載路由。
+顯式的資源或工作區識別碼，模型能夠清晰看見、記憶並在後續呼叫中精確重現；而隱藏於傳輸層工作階段中的黑箱範圍，則極難被人類審計、除錯重播、安全審查以及進行負載路由。
 
 ### 三層防禦原則（The Three-Layer Rule）
 
@@ -129,7 +129,7 @@ Elicitation 是當前規範中，在執行 `tools/call`、`prompts/get` 或 `res
 }
 ```
 
-這兩次呼叫之間不存在任何協定層級的連線工作階段記憶。伺服器校驗傳回的狀態簽名、校驗回應內容是否符合預期 Schema、確認被選取的筆記 ID 嚴格包含在最初簽名授權的候選名單內、重新校驗工作區授權、重新覆核路徑邊界，最後才正式通電執行實體刪除。
+這兩次呼叫之間不存在任何協定層級的連線工作階段記憶。伺服器校驗傳回的狀態簽名、校驗回應內容是否符合預期 Schema、確認被選取的筆記 ID 嚴格包含在最初簽名授權的候選名單內、重新校驗工作區授權、重新覆核路徑邊界，最後才正式執行實體刪除。
 
 ## Capability Negotiation Is Per Request｜能力協商嚴格綁定於單次請求
 
@@ -151,7 +151,7 @@ Elicitation 是當前規範中，在執行 `tools/call`、`prompts/get` 或 `res
 
 `clientInfo` 僅供前端診斷之用，純屬用戶端自我宣告，絕不可作為授權主體的判斷依據。
 
-伺服器強制實作 `server/discover` 並回傳 `supportedVersions`、能力宣告、`ttlMs` 與 `cacheScope`，最外層標註 `resultType: "complete"`。在該現代架構中，服務發現絕不會宣告已廢棄的 Roots 能力。由於宣告了工具支援，伺服器亦必須實作必備的 `tools/list`，回傳確定性排序的 `notes_delete` 描述符、合法的物件型別 `inputSchema`、伺服器識別後設資料與公開快取提示。
+伺服器強制實作 `server/discover` 並回傳 `supportedVersions`、能力宣告、`ttlMs` 與 `cacheScope`，最外層標註 `resultType: "complete"`。在該現代架構中，服務發現絕不會宣告已廢棄的 Roots 能力。由於宣告了工具支援，伺服器亦必須實作必備的 `tools/list`，回傳確定性排序的 `notes_delete` 描述符、合法的物件型別 `inputSchema`、伺服器識別中繼資料與公開快取提示。
 
 ## Form Mode｜表單模式（Form Mode）
 
@@ -208,7 +208,7 @@ URL 引導機制絕不能替代 MCP 用戶端與伺服器之間的實體連線�
 教學程式碼對狀態酬載實施了嚴密的 HMAC 數位簽名，包含：
 
 - 通過身分認證的真實主體名稱；
-- 最初發起調用的方法名稱；
+- 最初發起呼叫的方法名稱；
 - `workspaceUri` 與 `title` 原始引數的特徵摘要；
 - 呈現在表單上的合法筆記 ID 授權候選集合；
 - 當前所處的具體操作階段；
@@ -293,7 +293,7 @@ python3 -m unittest discover tests -v
 
 ## Legacy Compatibility｜傳統歷史相容性
 
-面對鎖定於 2025-11-25 舊版本的傳統端點，`roots/list`、`notifications/roots/list_changed` 以及傳統伺服器主動發起的 `elicitation/create` 依然可能存在。請將該轉接邏輯嚴格標註為舊版相容層。絕不允許舊版 Root 清單繞過伺服器端的實體授權檢查，亦絕不可將連線階段式的架構假設引入現代處理常式中。
+面對鎖定於 2025-11-25 舊版本的傳統端點，`roots/list`、`notifications/roots/list_changed` 以及傳統伺服器主動發起的 `elicitation/create` 依然可能存在。請將該轉接邏輯嚴格標註為舊版相容層。絕不允許舊版 Root 清單繞過伺服器端的實體授權檢查，亦絕不可將工作階段式的架構假設引入現代處理常式中。
 
 ## Further Reading｜延伸閱讀
 

@@ -9,12 +9,12 @@
 
 ## Learning Objectives｜學習目標
 
-- 透過受保護資源後設資料（Protected-Resource Metadata），標準探測並發現授權伺服器。
-- 優先選用用戶端 ID 後設資料文件（CIMD），取代已被正式宣告廢棄的動態用戶端註冊（DCR）。
+- 透過受保護資源中繼資料（Protected-Resource Metadata），標準探測並發現授權伺服器。
+- 優先選用用戶端 ID 中繼資料文件（CIMD），取代已被正式宣告廢棄的動態用戶端註冊（DCR）。
 - 當不得不採用 DCR 向下相容過渡路徑時，精確宣告正確的 `application_type` 應用程式型別。
 - 嚴格校驗授權回應中的 `iss` 欄位，並依簽發者實施嚴密的憑證實體隔離。
 - 完整落地 PKCE、資源指示器（Resource Indicators）、受眾（Audience）校驗以及漸進式權限範圍擴充。
-- 在不依賴任何協定連線階段的前提下，發送通過授權驗證的 MCP 2026-07-28 請求。
+- 在不依賴任何協定工作階段的前提下，發送通過授權驗證的 MCP 2026-07-28 請求。
 
 ## The Problem｜問題
 
@@ -26,7 +26,7 @@
 - 使用者最初審核並同意了哪些具體的操作權限範圍（Scope）？
 - 當前發起的這一次獨立請求，是否依然嚴格吻合當初的授權範圍？
 
-2026-07-28 授權規範對用戶端註冊登錄與簽發者處理實施了全方位加固：優先選用用戶端 ID 後設資料文件（CIMD）、廢除傳統 DCR、在 DCR 相容路徑中強制要求 `application_type`、依據 RFC 9207 嚴格校驗回應中的簽發者 `iss`，並嚴格禁止跨簽發者非法復用憑證。
+2026-07-28 授權規範對用戶端註冊登錄與簽發者處理實施了全方位加固：優先選用用戶端 ID 中繼資料文件（CIMD）、廢除傳統 DCR、在 DCR 相容路徑中強制要求 `application_type`、依據 RFC 9207 嚴格校驗回應中的簽發者 `iss`，並嚴格禁止跨簽發者非法復用憑證。
 
 這些安全規則與無狀態核心完美互補，絕不意味著需要恢復過時的交握或 `Mcp-Session-Id`。
 
@@ -42,13 +42,13 @@
 
 ### 授權規範僅適用於 HTTP 傳輸層
 
-MCP 授權規範專門為基於 HTTP 的傳輸協定而設計。本地運行的 stdio 伺服器直接受限於本機作業系統與行程層級的信任邊界。絕不要單純為了表面上的架構對稱，而強行在 stdio 通訊上嫁接一套虛假的瀏覽器 OAuth 流程。
+MCP 授權規範專門為基於 HTTP 的傳輸協定而設計。本地執行的 stdio 伺服器直接受限於本機作業系統與行程層級的信任邊界。絕不要單純為了表面上的架構對稱，而強行在 stdio 通訊上嫁接一套虛假的瀏覽器 OAuth 流程。
 
 針對遠端的 Streamable HTTP 服務，在每一次發起請求時，皆必須在 HTTP `Authorization` 標頭中攜帶 Bearer Token，嚴禁將其置於 URL 查詢參數中。
 
-### 從受保護資源後設資料出發
+### 從受保護資源中繼資料出發
 
-資源伺服器主動發布符合 RFC 9728 規範的後設資料文件：
+資源伺服器主動發布符合 RFC 9728 規範的中繼資料文件：
 
 ```json
 {
@@ -58,15 +58,15 @@ MCP 授權規範專門為基於 HTTP 的傳輸協定而設計。本地運行的 
 }
 ```
 
-用戶端從目標 MCP 資源網址出發，首先拉取該文件，選定其中宣告的授權伺服器，隨後拉取該授權伺服器的 OAuth 2.0 或 OpenID Connect 後設資料。
+用戶端從目標 MCP 資源網址出發，首先拉取該文件，選定其中宣告的授權伺服器，隨後拉取該授權伺服器的 OAuth 2.0 或 OpenID Connect 中繼資料。
 
-在建構 RFC 9728 的 .well-known 探索路徑時，必須完整保留資源的相對路徑。針對資源 `https://notes.example.com/mcp`，教學程式碼嚴格調用 `https://notes.example.com/.well-known/oauth-protected-resource/mcp`。若盲目丟棄 `/mcp` 後綴，可能會在同一網域主機上誤讀取到其他非相關資源的後設資料。
+在建構 RFC 9728 的 .well-known 探索路徑時，必須完整保留資源的相對路徑。針對資源 `https://notes.example.com/mcp`，教學程式碼嚴格呼叫 `https://notes.example.com/.well-known/oauth-protected-resource/mcp`。若盲目丟棄 `/mcp` 後綴，可能會在同一網域主機上誤讀取到其他非相關資源的中繼資料。
 
 絕不可單憑主機名稱盲猜授權伺服器位址，亦絕不可輕信未經校驗的錯誤訊息內文所指向的簽發者。用戶端必須在本地維護明確信任的簽發者白名單政策。
 
-### 校驗授權伺服器後設資料
+### 校驗授權伺服器中繼資料
 
-授權伺服器的後設資料應當完整宣告其公開端點與支援的密碼學控制能力：
+授權伺服器的中繼資料應當完整宣告其公開端點與支援的密碼學控制能力：
 
 ```json
 {
@@ -83,11 +83,11 @@ MCP 授權規範專門為基於 HTTP 的傳輸協定而設計。本地運行的 
 
 ### 遵循註冊優先級順序
 
-當用戶端與該簽發者已具備預先約定的正式信任關係時，優先使用預註冊（Pre-registered）資訊；否則，只要授權伺服器宣告支援，一律優先選用用戶端 ID 後設資料文件（CIMD）；僅在授權伺服器過於老舊時，方可降級啟用已被廢棄的 DCR 向下相容路徑；若上述自動化註冊皆不可用，方可向使用者提示手動輸入用戶端資訊。
+當用戶端與該簽發者已具備預先約定的正式信任關係時，優先使用預註冊（Pre-registered）資訊；否則，只要授權伺服器宣告支援，一律優先選用用戶端 ID 中繼資料文件（CIMD）；僅在授權伺服器過於老舊時，方可降級啟用已被廢棄的 DCR 向下相容路徑；若上述自動化註冊皆不可用，方可向使用者提示手動輸入用戶端資訊。
 
-### 優先選用用戶端 ID 後設資料文件（CIMD）
+### 優先選用用戶端 ID 中繼資料文件（CIMD）
 
-CIMD（Client ID Metadata Document）賦予了用戶端一個 HTTPS 網址，該網址本身既是用戶端的唯一全域身分標識，同時也是其公開後設資料文件的託管位址：
+CIMD（Client ID Metadata Document）賦予了用戶端一個 HTTPS 網址，該網址本身既是用戶端的唯一全域身分標識，同時也是其公開中繼資料文件的託管位址：
 
 ```json
 {
@@ -110,7 +110,7 @@ CIMD 徹底消除了每次初次通訊皆需動態向授權伺服器申請派發
 
 動態用戶端註冊（Dynamic Client Registration）雖為相容歷史老舊授權伺服器而暫時保留，但針對所有全新 MCP 實作皆已被正式標記為廢棄。
 
-在調用 DCR 時，必須強制顯式宣告 `application_type`：
+在呼叫 DCR 時，必須強制顯式宣告 `application_type`：
 
 ```json
 {
@@ -150,7 +150,7 @@ CIMD 用戶端標識則截然不同，因為它是一個自託管的公開 HTTPS
 2. 計算其 SHA-256 摘要並生成 S256 `code_challenge`；
 3. 發起授權請求，完整攜帶 `client_id`、`redirect_uri`、`scope`、`code_challenge` 以及 `resource` 參數；
 4. 接收授權伺服器回傳的授權碼 `code`，以及回傳的 `iss` 標識；
-5. 在調用任何其他欄位之前，先嚴格校驗 `iss` 是否與當初紀錄的簽發者完全一致；
+5. 在呼叫任何其他欄位之前，先嚴格校驗 `iss` 是否與當初紀錄的簽發者完全一致；
 6. 透過 Token 端點交換金鑰，出示 `code_verifier`、相同的重導向 URI 以及相同的 `resource`；
 7. 將取得的 Access Token 嚴密儲存於 `(issuer, resource)` 複合索引鍵值下。
 
@@ -162,7 +162,7 @@ RFC 9207 規範能有效防止授權回應被混淆冒充（Mix-Up Attacks）—
 
 當授權回應中包含 `iss` 欄位時，必須與預先記錄的授權伺服器簽發者實施嚴格字元串比對：嚴禁執行大小寫摺疊（Case folding）、嚴禁剔除末尾斜線、嚴禁移除預設連接埠號，亦嚴禁實施 URL 百分比解碼標準化。一旦出現任何細微不一致，必須立刻中止流程，且絕不可在 UI 上呈現該回應中夾帶的任何可疑錯誤訊息。
 
-已完整支援該規範的授權伺服器會在後設資料中宣告 `authorization_response_iss_parameter_supported: true`；但現代用戶端在收到 `iss` 時，無論該宣告是否存在，皆必須一律強制執行上述嚴格校驗。
+已完整支援該規範的授權伺服器會在中繼資料中宣告 `authorization_response_iss_parameter_supported: true`；但現代用戶端在收到 `iss` 時，無論該宣告是否存在，皆必須一律強制執行上述嚴格校驗。
 
 ### 在 MCP 伺服器端驗證受眾（Audience）
 
@@ -177,7 +177,7 @@ token.audience == canonical_mcp_resource
 
 ### 僅請求當前所需的最小權限範圍
 
-始終貫徹最小權限原則：僅申請當前操作所絕對必需的 Scope。若後續調用的工具需要更高權限，伺服器會主動回傳 HTTP 403 搭配明確的動態權限挑戰標頭（Scope Challenge）：
+始終貫徹最小權限原則：僅申請當前操作所絕對必需的 Scope。若後續呼叫的工具需要更高權限，伺服器會主動回傳 HTTP 403 搭配明確的動態權限挑戰標頭（Scope Challenge）：
 
 ```text
 WWW-Authenticate: Bearer error="insufficient_scope",
@@ -221,9 +221,9 @@ Mcp-Name: notes.delete
 }
 ```
 
-Bearer Token 負責鑑權存取主體的身分與權限；請求內部的後設資料負責協商協定層面的具體行為。兩者各司其職，絕不可相互混淆或替代。
+Bearer Token 負責鑑權存取主體的身分與權限；請求內部的中繼資料負責協商協定層面的具體行為。兩者各司其職，絕不可相互混淆或替代。
 
-傳輸層校驗依然遵循鋼鐵順序：校驗 JSON-RPC 與後設資料型別 → 比對標頭數值與 Body 內容 → 判定協定版本是否受支援。標頭衝突回傳 HTTP 400 搭配 `-32020`；標頭與內文一致同意了不支援的版本，回傳 HTTP 400 搭配 `-32022` 以及 `data` 嚴格為 `{"supported":["2026-07-28"],"requested":"<actual>"}` 的錯誤物件；未知方法回傳 HTTP 404 搭配 `-32601`。
+傳輸層校驗依然遵循鋼鐵順序：校驗 JSON-RPC 與中繼資料型別 → 比對標頭數值與 Body 內容 → 判定協定版本是否受支援。標頭衝突回傳 HTTP 400 搭配 `-32020`；標頭與內文一致同意了不支援的版本，回傳 HTTP 400 搭配 `-32022` 以及 `data` 嚴格為 `{"supported":["2026-07-28"],"requested":"<actual>"}` 的錯誤物件；未知方法回傳 HTTP 404 搭配 `-32601`。
 
 所有請求層級的錯誤（包含 401 權杖無效與 403 權限不足），皆必須包裝於帶有原始請求 `id` 的標準 JSON-RPC 錯誤信封中回傳。結構化的恢復資料放置於選填的 `data` 欄位中；而 `WWW-Authenticate` 則維持為標準的 HTTP 標頭輸出。單向通知不帶 `id`，絕不可為其產生 JSON-RPC 錯誤信封。接收合法的 HTTP 單向通知時回傳空內文的 202。
 
@@ -231,7 +231,7 @@ Bearer Token 負責鑑權存取主體的身分與權限；請求內部的後設�
 
 ### 嚴禁 Token 透傳轉發
 
-MCP 伺服器**絕不允許**直接將用戶端出示的 MCP Access Token，擅自轉發給下游的其他微服務或第三方 API！若需調用下游服務，必須向授權伺服器單獨申請具備正確下游受眾（Audience）的專屬權杖，或透過標準的 Token 交換（Token Exchange）架構完成。受眾校驗機制唯有在所有服務皆堅決拒絕「為其他人簽發的權杖」時，方能築起堅固的安全屏障。
+MCP 伺服器**絕不允許**直接將用戶端出示的 MCP Access Token，擅自轉發給下游的其他微服務或第三方 API！若需呼叫下游服務，必須向授權伺服器單獨申請具備正確下游受眾（Audience）的專屬權杖，或透過標準的 Token 交換（Token Exchange）架構完成。受眾校驗機制唯有在所有服務皆堅決拒絕「為其他人簽發的權杖」時，方能築起堅固的安全屏障。
 
 ### 重新整理權杖（Refresh Tokens）
 
@@ -243,7 +243,7 @@ t3-scope-stepup
 
 ## Build It｜動手實作
 
-`code/main.py` 在行程內部實作了一套完整的協定與授權模擬器。它涵蓋了受保護資源服務發現、授權伺服器後設資料解析、CIMD 動態註冊、帶有版本防護的 DCR 降級相容、應用程式型別校驗、PKCE 密碼學挑戰、簽發者嚴格對齊、綁定資源指示器的 Token 簽發、權限範圍動態挑戰提升、`server/discover`、`tools/list` 以及標準的無狀態工具調用流程。
+`code/main.py` 在行程內部實作了一套完整的協定與授權模擬器。它涵蓋了受保護資源服務發現、授權伺服器中繼資料解析、CIMD 動態註冊、帶有版本防護的 DCR 降級相容、應用程式型別校驗、PKCE 密碼學挑戰、簽發者嚴格對齊、綁定資源指示器的 Token 簽發、權限範圍動態挑戰提升、`server/discover`、`tools/list` 以及標準的無狀態工具呼叫流程。
 
 該模型運作於已完成 Body 與標頭解析的環境下。它不負責底層 `Content-Type` 與 `Accept` 的字串解析。若需完整的傳輸層轉接器，請介接第 09 課中嚴格要求 `Content-Type: application/json` 以及包含 `application/json` 與 `text/event-stream` 之 `Accept` 標頭的標準 Streamable HTTP 轉接層。
 
@@ -276,7 +276,7 @@ python3 -m unittest discover code/tests -v
 1. 為系統引入 Refresh Token 自動輪替更新（Rotation）機制，並編寫測試證明系統能果斷拒絕已被作廢的舊 Refresh Token 的二次重放。
 2. 建立簽發者白名單制度。當受保護資源變更了授權伺服器時，證明系統僅會復用可攜帶的 CIMD 網址，而堅決作廢並拒絕發送所有源自前一簽發者的註冊憑證與 Access Token。
 3. 為授權碼（Authorization Code）配置短暫的有效期限。證明過期抵達的換約請求會被授權伺服器堅定拒絕。
-4. 建構一個配置有遠端 HTTPS 重導向端點的 Web 用戶端變體，將其在 DCR 中宣告的後設資料，與本機 Native 用戶端進行深度量化對比。
+4. 建構一個配置有遠端 HTTPS 重導向端點的 Web 用戶端變體，將其在 DCR 中宣告的中繼資料，與本機 Native 用戶端進行深度量化對比。
 5. 在同一個授權伺服器名下宣告第二個獨立的受保護資源。編寫測試確鑿證明：為第二個資源簽發的 Access Token，絕無法在第一個資源伺服器上通過受眾（Audience）校驗。
 
 ## Key Terms｜關鍵術語
@@ -284,7 +284,7 @@ python3 -m unittest discover code/tests -v
 | 術語 | 實際意義 |
 |------|---------|
 | Protected-resource metadata | RFC 9728 標準文件；宣告目標資源本身及其對應認可的授權伺服器清單 |
-| CIMD | 用戶端 ID 後設資料文件；以 HTTPS URL 作為 OAuth 用戶端識別碼的全新標準 |
+| CIMD | 用戶端 ID 中繼資料文件；以 HTTPS URL 作為 OAuth 用戶端識別碼的全新標準 |
 | DCR | 動態用戶端註冊；已廢棄的動態登錄流程，僅純粹作為向下相容老舊服務保留 |
 | `application_type` | 宣告為 `native` 或 `web`，用於授權伺服器嚴格校驗重導向 URI 的合法規則 |
 | PKCE | 包含隨機校驗碼與 S256 挑戰摘要的防禦機制，保護傳輸中的授權碼免遭攔截截胡 |
@@ -297,7 +297,7 @@ python3 -m unittest discover code/tests -v
 ## Further Reading｜延伸閱讀
 
 - [MCP 2026-07-28 authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization) ——MCP 授權認證官方最新規範
-- [RFC 9728: OAuth 2.0 Protected Resource Metadata](https://www.rfc-editor.org/rfc/rfc9728) ——受保護資源後設資料標準
+- [RFC 9728: OAuth 2.0 Protected Resource Metadata](https://www.rfc-editor.org/rfc/rfc9728) ——受保護資源中繼資料標準
 - [RFC 8707: Resource Indicators for OAuth 2.0](https://www.rfc-editor.org/rfc/rfc8707) ——資源指示器官方規格書
 - [RFC 9207: OAuth 2.0 Authorization Server Issuer Identification](https://www.rfc-editor.org/rfc/rfc9207) ——簽發者身分識別防混淆標準
 - [OAuth Client ID Metadata Document draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/) ——CIMD 官方架構草案

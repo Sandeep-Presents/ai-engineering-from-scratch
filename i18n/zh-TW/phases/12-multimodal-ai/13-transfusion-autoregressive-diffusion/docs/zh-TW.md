@@ -9,14 +9,14 @@
 
 ## Learning Objectives｜學習目標
 
-- 建構一個在單一骨幹網路上同時計算雙重損失（文字 token 算 NTP、影像 patch 算擴散 MSE）的統一 Transformer。
+- 建構一個在單一骨幹上同時計算雙重損失（文字 token 算 NTP、影像 patch 算擴散 MSE）的統一 Transformer。
 - 深入解釋為何「影像 patch 內部雙向注意力」加上「文字 token 因果自注意力」是唯一的最佳遮罩設計。
 - 在運算複雜度、成圖保真度與程式碼工程難度三大維度上，深入對比 Transfusion 體系（連續影像 + 擴散損失）與 Chameleon 體系（離散影像 + NTP）。
 - 掌握 MMDiT 的核心創新貢獻：各區塊內部的專屬模態權重，以及在殘差串流上的全域聯合注意力。
 
 ## The Problem｜問題
 
-「離散 token vs 連續向量」的長年大爭論，歷史遠比現代大語言模型悠久。連續表徵（原始像素、VAE 連續潛在空間）能完好保留豐富的微觀紋理細節；而離散 token（VQ 碼本索引）雖然能天然融入 Transformer 的原生詞彙表中，卻在向量量化（Quantization）階段不可逆地損失了大量高頻訊號。
+「離散 token vs 連續向量」的長年大爭論，歷史遠比現代大型語言模型悠久。連續表徵（原始像素、VAE 連續潛在空間）能完好保留豐富的微觀紋理細節；而離散 token（VQ 碼本索引）雖然能天然融入 Transformer 的原生詞彙表中，卻在向量量化（Quantization）階段不可逆地損失了大量高頻訊號。
 
 Chameleon 與 Emu3 堅定走向離散路線：單一損失、單一架構，但影像生成的天花板受制於離散 Tokenizer 的重建極限。
 
@@ -85,7 +85,7 @@ MMDiT 的關鍵差異在於：
 
 ### 為何此方案能超越 Chameleon 體系
 
-連續擴散與離散 NTP 在成圖保真度上的質量差距，在客觀指標上顯而易見。Transfusion 論文實測顯示：
+連續擴散與離散 NTP 在成圖保真度上的品質差距，在客觀指標上顯而易見。Transfusion 論文實測顯示：
 
 - 在同為 7B 參數規模下，Transfusion 在成圖 FID 指標上以 3 到 5 個點的巨大差距超越了 Chameleon 體系。
 - 無需預先耗時訓練離散 Tokenizer——其影像前端極度簡潔（僅需純線性層將像素投影至隱藏維度，與 ViT 輸入層無異）。

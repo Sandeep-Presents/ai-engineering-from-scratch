@@ -416,7 +416,7 @@ graph TB
 ```
 #### DID 文件（真實結構）
 
-ANP 採用名為 `did:wba`（Web-Based Agent）的自定義 DID 方法。DID 字串 `did:wba:example.com:user:alice` 會自動解析至 `https://example.com/user/alice/did.json`：
+ANP 採用名為 `did:wba`（Web-Based Agent）的自訂 DID 方法。DID 字串 `did:wba:example.com:user:alice` 會自動解析至 `https://example.com/user/alice/did.json`：
 ```json
 {
   "@context": [
@@ -1454,7 +1454,7 @@ graph TD
 
 3. **DID 金鑰輪轉（DID rotation）。** 為 `IdentityRegistry` 增加金鑰輪轉機制。agent 應當能夠在發布包含新金鑰的新版 DID 文件的同時，保留 `previousDid` 歷史參照。驗證器在寬限期內應同時承認當前金鑰與前一版本金鑰的數位簽章。
 
-4. **動態協定協商（Protocol negotiation）。** 實現 ANP 的元協定理念。讓兩個 agent 透過交換 `protocolNegotiation` 訊息提議各自支援的格式（例如「我能講 JSON-RPC」對決「我偏好 REST」）。在最多 3 輪交涉內，雙方達成格式共識或宣告逾時。達成共識的格式將直接決定後續調用哪一個 `TaskManager` 或 `AuditableRunner`。
+4. **動態協定協商（Protocol negotiation）。** 實現 ANP 的元協定理念。讓兩個 agent 透過交換 `protocolNegotiation` 訊息提議各自支援的格式（例如「我能講 JSON-RPC」對決「我偏好 REST」）。在最多 3 輪交涉內，雙方達成格式共識或宣告逾時。達成共識的格式將直接決定後續呼叫哪一個 `TaskManager` 或 `AuditableRunner`。
 
 5. **受限速的服務發現（Rate-limited discovery）。** 建構一個 `RateLimitedRegistry` 包裝層，以具備 TTL 的方式快取 Agent Card 查詢結果，並嚴格限制每個 agent 每秒能發起的發現請求上限。模擬 100 個 agent 在啟動時同時互相探索的驚群效應，並量化測量快取與限速所帶來的顯著改善成效。
 

@@ -30,7 +30,7 @@ MCP 核心協定在 2026-07-28 規範中發生了重大變革。絕不要將現�
 - 每個成功的回應皆標註有 `resultType` 鑑別欄位；
 - Streamable HTTP 規範下每個請求皆是一次獨立的 POST；傳統的 GET 與 DELETE 入口端點皆堅決回傳 405。
 
-Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它純屬 iframe 與宿主外框之間的 postMessage 本機方言，絕非在協定層面重建了 MCP 核心連線階段。
+Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它純屬 iframe 與宿主外框之間的 postMessage 本機方言，絕非在協定層面重建了 MCP 核心工作階段。
 
 ## The Concept｜核心概念
 
@@ -94,7 +94,7 @@ Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它�
 }
 ```
 
-伺服器必須強制支援服務發現。但用戶端並非必須在每次操作前強行調用服務發現，因為每個實體動作本身就已攜帶了完整的自包含能力宣告。
+伺服器必須強制支援服務發現。但用戶端並非必須在每次操作前強行呼叫服務發現，因為每個實體動作本身就已攜帶了完整的自包含能力宣告。
 
 ### 在工具宣告中綁定 UI 資源
 
@@ -116,7 +116,7 @@ Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它�
 }
 ```
 
-這是刻意設計的「呼叫前（Pre-call）」後設資料。宿主環境因此能夠在工具成果真正要求顯示之前，預先下載、快取並對該 HTML 範本進行安全程式碼審計。舊版的扁平後設資料鍵值雖為相容性而可被寬容接受，但全新伺服器應當一律輸出規範的巢狀 `_meta.ui.resourceUri` 格式。
+這是刻意設計的「呼叫前（Pre-call）」中繼資料。宿主環境因此能夠在工具成果真正要求顯示之前，預先下載、快取並對該 HTML 範本進行安全程式碼審計。舊版的扁平中繼資料鍵值雖為相容性而可被寬容接受，但全新伺服器應當一律輸出規範的巢狀 `_meta.ui.resourceUri` 格式。
 
 `tools/list` 在現代核心規範中屬於可快取操作。必須包含確定性排序、`ttlMs` 與 `cacheScope`。若可見工具清單隨使用者或 Token 而變動，請標註為 `private`。
 
@@ -143,7 +143,7 @@ Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它�
 
 ### 將應用程式作為資源對外提供
 
-伺服器在服務發現中宣告了 `resources` 能力，因此它亦必須實作必備的 `resources/list` 操作。其確定性清單項目包含標準 URI、穩定名稱、描述說明以及 MIME 型別。清單回傳結果包含 `resultType`、伺服器識別後設資料、`ttlMs` 與 `cacheScope`。
+伺服器在服務發現中宣告了 `resources` 能力，因此它亦必須實作必備的 `resources/list` 操作。其確定性清單項目包含標準 URI、穩定名稱、描述說明以及 MIME 型別。清單回傳結果包含 `resultType`、伺服器識別中繼資料、`ttlMs` 與 `cacheScope`。
 
 宿主發送 `resources/read` 請求。在 Streamable HTTP 規範下，該請求結構如下：
 
@@ -186,19 +186,19 @@ HTTP 標頭數值必須與 JSON-RPC Request Body 內容完全相符。任何衝�
 
 ### 將 UI 資源作為可執行內容進行快取
 
-App 資源絕不能與一般的靜態文字混為一談。其快取條目能夠在前端執行橋接程式碼、彩現工具資料，並請求宿主代理執行高特權操作。因此，其快取鍵值必須完整包含：規範的 `ui://` URI、經准入核准的伺服器識別資訊與版本、資源內文特徵雜湊（Digest），以及當 `cacheScope` 為 private 時的具體授權安全上下文。絕不能跨不同的使用者主體共享私有的 App 資源，因為即便 URI 完全相同，其內部的 HTML 程式碼或安全策略後設資料亦可能存在顯著差異。
+App 資源絕不能與一般的靜態文字混為一談。其快取條目能夠在前端執行橋接程式碼、彩現工具資料，並請求宿主代理執行高特權操作。因此，其快取鍵值必須完整包含：規範的 `ui://` URI、經准入核准的伺服器識別資訊與版本、資源內文特徵雜湊（Digest），以及當 `cacheScope` 為 private 時的具體授權安全上下文。絕不能跨不同的使用者主體共享私有的 App 資源，因為即便 URI 完全相同，其內部的 HTML 程式碼或安全策略中繼資料亦可能存在顯著差異。
 
 當發生以下情況時，必須立刻使快取條目失效：`ttlMs` 存活期滿、工具的 `_meta.ui.resourceUri` 綁定關係變更、伺服器版本或描述符鎖定變動，或是收到標明該 URI 的資源變更訂閱通知。在重新掛載視圖前，必須重新拉取並重新實施嚴格的 CSP 與權限審查。過期的 iframe 絕不能僅因為新版資源尚未載入完成，就繼續保留原先寬鬆的高特權。
 
 ### 在執行功能策略前先排除傳輸歧義
 
-校驗邏輯有著嚴密的先後順序：首先校驗 JSON-RPC 封裝結構，要求字串型別的協定後設資料與物件型別的能力宣告對映；隨後比對 HTTP 路由標頭與 Request Body 內文是否完全吻合；只有在此之後，才正式判定該協定版本是否被本伺服器支援。該順序能防止代理閘道器與後端服務對同一個請求產生歧義解讀。
+校驗邏輯有著嚴密的先後順序：首先校驗 JSON-RPC 封裝結構，要求字串型別的協定中繼資料與物件型別的能力宣告對映；隨後比對 HTTP 路由標頭與 Request Body 內文是否完全吻合；只有在此之後，才正式判定該協定版本是否被本伺服器支援。該順序能防止代理閘道器與後端服務對同一個請求產生歧義解讀。
 
 | 觸發條件 | HTTP 狀態碼 | JSON-RPC 錯誤碼 |
 |---|---|---|
 | 標頭與 Body 中的版本、方法或名稱出現衝突 | 400 | `-32020` |
 | 標頭與 Body 一致同意了一個不受支援的協定版本 | 400 | `-32022`，`data` 嚴格為 `{"supported":["2026-07-28"],"requested":"<actual>"}` |
-| 調用 `resources/read` 但缺少 Apps 擴充能力宣告 | 400 | `-32021`，附帶 `data.requiredCapabilities.extensions.io.modelcontextprotocol/ui` |
+| 呼叫 `resources/read` 但缺少 Apps 擴充能力宣告 | 400 | `-32021`，附帶 `data.requiredCapabilities.extensions.io.modelcontextprotocol/ui` |
 | 請求的方法不存在 | 404 | `-32601` |
 
 JSON-RPC 單向通知不帶 `id`，伺服器絕不可為其回傳 JSON-RPC 回應。接收合法的 HTTP 單向通知時回傳空內文的 202。業務錯誤可以改變 HTTP 狀態碼，但依然絕不能憑空為通知構造 JSON-RPC 錯誤內文。
@@ -209,7 +209,7 @@ JSON-RPC 單向通知不帶 `id`，伺服器絕不可為其回傳 JSON-RPC 回�
 
 請恪守以下安全預設：
 
-- 將所有 CSP 網域白名單預設置空，僅在 App 明確需要時按需加入特定來源。使用 `connectDomains` 控管 Fetch、XHR 與 WebSocket；使用 `resourceDomains` 控管外部 Scripts、Styles、圖片與字型。
+- 將所有 CSP 網域白名單預設定空，僅在 App 明確需要時按需加入特定來源。使用 `connectDomains` 控管 Fetch、XHR 與 WebSocket；使用 `resourceDomains` 控管外部 Scripts、Styles、圖片與字型。
 - 在條件允許時，盡可能將程式碼與資源打包為單一自包含檔案。
 - 除非有明確可見的功能需求，否則絕不索求攝影機、麥克風或地理位置權限。
 - 將 `postMessage` 嚴密鎖定於精確的通訊對等來源，堅決拒絕來自任何其他 Origin 的事件。
@@ -226,7 +226,7 @@ Apps 橋接層本質上是運作於 `postMessage` 之上的 JSON-RPC 方言。�
 
 視圖（View）發送攜帶 `appInfo` 與 `appCapabilities` 物件的 `ui/initialize`。宿主回傳自身的能力宣告與上下文環境。唯有在收到該回應後，視圖方可發送 `ui/notifications/initialized`。宿主必須在收到該 Apps 通知後，才被允許向視圖發送後續業務訊息。
 
-這次本機交握純粹是單一 iframe 與宿主外框之間的局部連線建立。它絕不協商 MCP 核心協定版本、不建立伺服器全域狀態，亦不簽發任何傳輸層連線階段。請特別注意命名空間前綴：核心協定中的 `notifications/initialized` 已被徹底廢除，而專屬於 Apps 的 `ui/notifications/initialized` 則合法保留。由橋接工具呼叫所產生的任何核心請求，皆是一次全新的獨立請求，帶有全新的 JSON-RPC ID 與完整的自包含後設資料。
+這次本機交握純粹是單一 iframe 與宿主外框之間的局部連線建立。它絕不協商 MCP 核心協定版本、不建立伺服器全域狀態，亦不簽發任何傳輸層工作階段。請特別注意命名空間前綴：核心協定中的 `notifications/initialized` 已被徹底廢除，而專屬於 Apps 的 `ui/notifications/initialized` 則合法保留。由橋接工具呼叫所產生的任何核心請求，皆是一次全新的獨立請求，帶有全新的 JSON-RPC ID 與完整的自包含中繼資料。
 
 ### 宿主上下文、動作執行與權限撤銷
 
@@ -270,15 +270,15 @@ python3 -m unittest discover code/tests -v
 
 在輸出日誌中重點檢驗五大不變量：
 
-1. 每一次方法調用皆完全自包含且互相獨立。
+1. 每一次方法呼叫皆完全自包含且互相獨立。
 2. 每個請求皆在 `_meta` 中完整攜帶能力宣告。
 3. 在讀取任何實體資源前，`resources/list` 能回傳穩定的描述符。
-4. 每個成功回應皆標明 `resultType` 並附帶伺服器識別後設資料。
-5. 全流程完全不存在任何核心協定連線階段識別碼。
+4. 每個成功回應皆標明 `resultType` 並附帶伺服器識別中繼資料。
+5. 全流程完全不存在任何核心協定工作階段識別碼。
 
 ## Use It｜實際應用
 
-首先調用 `server/discover`。確認 `io.modelcontextprotocol/ui` 順利出現在伺服器的擴充能力映射表中。隨後調用兩次 `tools/list`：一次攜帶 Apps 能力宣告，另一次則不宣告。第一次回應應當成功宣告綁定的資源；第二次回應則維持為完全可用的純文字工具。
+首先呼叫 `server/discover`。確認 `io.modelcontextprotocol/ui` 順利出現在伺服器的擴充能力映射表中。隨後呼叫兩次 `tools/list`：一次攜帶 Apps 能力宣告，另一次則不宣告。第一次回應應當成功宣告綁定的資源；第二次回應則維持為完全可用的純文字工具。
 
 發起讀取 `ui://notes/timeline.html`。在回傳的 HTML 程式碼中檢索 `hostOrigin` 以及 `event.origin` 安全防護守衛。這兩行程式碼是證明橋接層絕未使用萬用字元（Wildcard）目標的最小可見安全證據。
 
@@ -288,7 +288,7 @@ python3 -m unittest discover code/tests -v
 
 ## Exercises｜練習
 
-1. 將用戶端能力修改為空的擴充字典。確認 `tools/list` 依然保留該工具，但主動剝離了 UI 資源綁定後設資料。
+1. 將用戶端能力修改為空的擴充字典。確認 `tools/list` 依然保留該工具，但主動剝離了 UI 資源綁定中繼資料。
 2. 發送帶有 `Mcp-Name: ui://notes/other.html` 的 POST 請求，但 Body 內文請求讀取 timeline。確認伺服器精準回傳 `-32020` 標頭不符錯誤。
 3. 將該資源的快取宣告修改為 `cacheScope: private`。詳細闡述足以支撐此項決策的使用者特定私有業務情境。
 4. 將 HTML 內部的腳本移出至外部靜態服務 `https://static.example.com/app.js`。將該來源加入 `resourceDomains` 白名單，並深度分析此舉引入的全新軟體供應鏈安全風險。

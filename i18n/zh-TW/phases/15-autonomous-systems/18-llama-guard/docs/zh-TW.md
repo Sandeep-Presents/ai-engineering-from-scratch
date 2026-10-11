@@ -42,7 +42,7 @@ S14 類別對於本學習階段尤為關鍵。自主程式碼編寫 agent（第 
 - 輸入護欄（Input rails）：在使用者對話輪次即時分類並執行攔截
 - 輸出護欄（Output rails）：在模型生成輪次即時分類並阻擋違規內容
 - 對話護欄（Dialog rails）：透過 Colang 定義全域對話流約束（例如「若使用者詢問 X，強制回覆 Y」）
-- 原生整合 Llama Guard、Prompt Guard 以及客製化自定義分類器
+- 原生整合 Llama Guard、Prompt Guard 以及客製化自訂分類器
 
 對話護欄層是其最大的差異化亮點。輸入與輸出護欄僅在單一輪次中孤立運作；而對話護欄則能跨輪次強制執行深層策略，例如「即便使用者變換三種不同方式持續探詢，客服機器人也絕對嚴禁涉入任何醫療診斷話題」。
 
@@ -74,11 +74,11 @@ S14 類別對於本學習階段尤為關鍵。自主程式碼編寫 agent（第 
 
 ### 深度防禦的立體架構
 
-分類器防線坐落於憲法防護層（第 17 課）之下、執行時期控制層（第 10、13、14 課）之上。整體立體協同體系如下：
+分類器防線坐落於憲法防護層（第 17 課）之下、執行環境控制層（第 10、13、14 課）之上。整體立體協同體系如下：
 
 - **模型權重層**：透過憲法 AI 深度訓練的基底模型。預設在深層推理層面拒絕明目張膽的惡意意圖。
 - **分類器層**：Llama Guard / NeMo Guardrails。負責以極低成本快速拒絕典型違規，並執行類別分流。
-- **執行時期層**：權限模式、預算上限、斷路開關、金絲雀誘餌。
+- **執行環境層**：權限模式、預算上限、斷路開關、金絲雀誘餌。
 - **人工審查層**：針對具備實質後果的動作，強制執行先提議後確認寫入（HITL）。
 
 世界上沒有任何單一防線足以獨撐大局。唯有不同層級相互掩護，才能全面覆蓋不同形態的威脅面。
@@ -126,4 +126,4 @@ a5-guard-sieve
 - [Meta — Llama Guard 4 model card](https://www.llama.com/docs/model-cards-and-prompt-formats/llama-guard-4/) — 多模態特性與 S1–S14 危害分類全貌。
 - [NVIDIA NeMo Guardrails (GitHub)](https://github.com/NVIDIA-NeMo/Guardrails) — v0.20.0（2026 年 1 月發布）。
 - [Huang et al. — Bypassing Prompt Injection and Jailbreak Detection in LLM Guardrails](https://arxiv.org/abs/2504.11168) — 各大防護系統 ASR 實測數字。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 分類器結合執行時期防護的立體架構。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 分類器結合執行環境防護的立體架構。

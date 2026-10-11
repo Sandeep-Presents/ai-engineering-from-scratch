@@ -112,7 +112,7 @@ a5-og-narrator
 
 - `ContractNetManager`、`ContractNetTask`、`Bid`——實現管理者與投標者之間的廣播 cfp、收集投標與授予任務閉環。
 - `og_narrator_bargain(state, rng)`——實現 OG-Narrator 買方：採用確定性的蔡騰風格（Zeuthen-style）逐步向中間點發起微幅讓步。
-- `seller_response(state, rng)`——確定性賣方反報價原則（為兩種風格提供完全一致的客觀受測基準線）。
+- `seller_response(state, rng)`——確定性賣方反報價原則（為兩種風格提供完全一致的真實標籤）。
 - `naive_llm_bargain(state, rng)`——模擬純 LLM 談判者：產出變異數極大的隨機報價，頻繁跌出協議區間 ZOPA 之外。
 - 實戰評測套件：在 1,000 次獨立對局中（每輪對局皆重新隨機抽樣保留價格底線），量化統計兩種風格的最終成交率。
 

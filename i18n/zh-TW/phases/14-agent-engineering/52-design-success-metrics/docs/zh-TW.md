@@ -1,6 +1,6 @@
 # 在看到結果前預先設計成功指標
 
-> 量測是為了回答具體的工程決策，而非裝飾儀表板。始於清晰的目標，推導出關鍵問題，隨後挑選能精準回答這些問題的最小指標集合。
+> 量測是為了回答具體的工程決策，而非裝飾儀表板。始於清晰的目標，推匯出關鍵問題，隨後挑選能精準回答這些問題的最小指標集合。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 自業務成效目標出發，科學推導出關鍵問題與對應量測指標。
+- 自業務成效目標出發，科學推匯出關鍵問題與對應量測指標。
 - 在實地觀察到任何結果之前，預先定義門檻、時間視窗、資料來源與目標方向。
 - 將成效指標與安全護欄指標及對衡指標（Counter-metrics）成對搭配。
 - 確保評測證據能精準匹配本次建置所必須支撐的核心決策。
@@ -92,7 +92,7 @@ python3 -m unittest discover code/tests -v
 
 ## Exercises｜練習
 
-1. 自單一業務成效目標出發，科學推導出三個關鍵檢核問題。
+1. 自單一業務成效目標出發，科學推匯出三個關鍵檢核問題。
 2. 新增一項對衡指標，專門用於捕捉被轉嫁至其他角色的隱性成本。
 3. 為每項指標完整定義其資料來源、目標受試群體與觀測時間視窗。
 4. 在產生實測數值前，預先寫下明確的通過、失敗與模糊處置規則。
@@ -101,7 +101,7 @@ python3 -m unittest discover code/tests -v
 ## Further Reading｜延伸閱讀
 
 - [Basili, Software Modeling and Measurement: The Goal/Question/Metric Paradigm](https://drum.lib.umd.edu/items/8119803a-362b-42ec-b6ce-2311713e7236) ——自顯式目標科學推導操作度量指標的 GQM 範式奠基論文
-- [Basili, Caldiera, and Rombach, The Goal Question Metric Approach](https://www.cs.toronto.edu/~sme/CSC444F/handouts/GQM-paper.pdf) ——將 GQM 作為反饋與持續改進系統的實戰指引
+- [Basili, Caldiera, and Rombach, The Goal Question Metric Approach](https://www.cs.toronto.edu/~sme/CSC444F/handouts/GQM-paper.pdf) ——將 GQM 作為回饋與持續改進系統的實戰指引
 
 ## 留存產物（What You Keep）
 

@@ -9,7 +9,7 @@
 
 ## Problem｜問題
 
-你的 Agent 需要呼叫運作在另一套系統上的另一個外部 Agent。該如何實現？你可以手動暴露一個標準 HTTP 端點，私自定義一套專屬的 JSON Schema，並暗自祈禱對端能夠正確理解它。然而如此一來，任何兩兩 Agent 之間的對接都會淪為極度痛苦的自定義點對點整合。
+你的 Agent 需要呼叫運作在另一套系統上的另一個外部 Agent。該如何實現？你可以手動暴露一個標準 HTTP 端點，私自訂一套專屬的 JSON Schema，並暗自祈禱對端能夠正確理解它。然而如此一來，任何兩兩 Agent 之間的對接都會淪為極度痛苦的自訂點對點整合。
 
 A2A 正是為消弭此痛點而生的通用線路通訊協定。它提供了標準化的服務發現機制、標準化的任務狀態模型、標準化的傳輸通道以及標準化的工件規格。其地位正如 HTTP+REST 之於現代網際網路，只不過它是專為將 Agent 視為一等公民而量身打造的。
 
@@ -89,7 +89,7 @@ sequenceDiagram
     S-->>C: TASK_STATE_COMPLETED, artifacts
 ```
 
-上述展示了標準的 HTTP+JSON 綁定路徑，且每一個請求標頭皆強制攜帶 `A2A-Version: 1.0`。在預設情況下，`SendMessage` 會持續阻塞直到任務達成終端狀態或被中斷，因此採用輪詢的用戶端會主動設置 `configuration.returnImmediately` 以便在第一時間立即取得建立的任務物件。
+上述展示了標準的 HTTP+JSON 綁定路徑，且每一個請求標頭皆強制攜帶 `A2A-Version: 1.0`。在預設情況下，`SendMessage` 會持續阻塞直到任務達成終端狀態或被中斷，因此採用輪詢的用戶端會主動設定 `configuration.returnImmediately` 以便在第一時間立即取得建立的任務物件。
 
 若採用串流機制：向 `POST /message:stream` 發起請求即可建立 Server-Sent Events（SSE）串流（首先推送 `task` 本體，隨後持續推播 `statusUpdate` 與 `artifactUpdate` 事件），並支援透過 `/tasks/{id}:subscribe` 重新掛載至正在運作中的長任務。一旦任務抵達終端狀態，串流便會自然關閉；協定本身並不存在額外的 `final` 標記。
 
@@ -97,7 +97,7 @@ sequenceDiagram
 
 A2A 原生支援三種業界標準安全模式：
 
-- **Bearer Token**：基於 OAuth2 或自定義的不透明權杖（`httpAuthSecurityScheme` 或 `oauth2SecurityScheme`）。
+- **Bearer Token**：基於 OAuth2 或自訂的不透明權杖（`httpAuthSecurityScheme` 或 `oauth2SecurityScheme`）。
 - **雙向 mTLS**：雙向 TLS 握手；企業組織之間藉此向彼此提供不可偽造的身分證明（`mtlsSecurityScheme`）。
 - **API Key**：保存在請求標頭、查詢參數或 Cookie 中的金鑰（`apiKeySecurityScheme`）。
 
@@ -110,7 +110,7 @@ A2A 原生支援三種業界標準安全模式：
 ### A2A 的致勝優勢場景
 
 - **跨組織企業互聯。** 公司 A 的 Agent 呼叫公司 B 的 Agent。若缺乏 A2A，任何兩家企業之間的對接皆必須從零編寫專屬介面契約。
-- **異質多框架混編。** LangGraph 驅動的 Agent 呼叫 CrewAI 打造的 Agent，後者再進一步調用純 Python 編寫的自研 Agent。A2A 抹平了底層所有的技術堆疊差異。
+- **異質多框架混編。** LangGraph 驅動的 Agent 呼叫 CrewAI 打造的 Agent，後者再進一步呼叫純 Python 編寫的自研 Agent。A2A 抹平了底層所有的技術堆疊差異。
 - **天然支援富多模態工件。** 影片分析成果、結構化 JSON、高傳真音訊——全部皆為原生一等公民。
 - **跨越數小時的長時程任務。** 黑箱生命週期搭配可靠的輪詢與事件機制，讓長達數小時的跨系統非同步工作流變得極度穩健。
 
@@ -170,7 +170,7 @@ python3 code/main.py
 - **保證任務建立的嚴格冪等性。** 網路重試引發的重複送出必須精準收斂為同一個實體任務。依據用戶端傳入的 `messageId` 進行全域去重。
 - **嚴格驗證工件 Schema。** 明確宣告 Agent 回傳的工件形狀；消費方必須對接收到的資料結構進行嚴密驗證。
 - **配備速率限制與身分認證。** A2A 本質上面向公開網路；必須嚴格套用現代 Web 級別的資安防禦。
-- **為失敗任務建立死信隊列（Dead-letter）。** 長期監控並分析失敗任務的錯誤模式，以便精準捕捉底層循環出現的架構瑕疵。
+- **為失敗任務建立死信佇列（Dead-letter）。** 長期監控並分析失敗任務的錯誤模式，以便精準捕捉底層循環出現的架構瑕疵。
 
 ## Exercises｜練習
 

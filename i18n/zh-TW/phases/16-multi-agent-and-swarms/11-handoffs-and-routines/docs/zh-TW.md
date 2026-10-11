@@ -1,6 +1,6 @@
-# 交接與例行程序——無狀態編排架構（Handoffs and Routines — Stateless Orchestration）
+# 交接與例行程式——無狀態編排架構（Handoffs and Routines — Stateless Orchestration）
 
-> OpenAI 於 2024 年 10 月發布的 Swarm 將多 Agent 編排體系高度提煉為兩大核心原語：**例行程序（Routines）**（以系統 prompt 封裝的指令集與可用工具）以及**交接（Handoffs）**（一個回傳另一個 Agent 物件的專屬工具）。沒有複雜的狀態機，沒有繁瑣的條件判定 DSL——底層 LLM 僅僅透過呼叫正確的交接工具來自行完成路由跳轉。OpenAI Agents SDK（2025 年 3 月發布）是其工業級正式環境繼承者。然而 Swarm 本身依然是業界最為乾淨純粹的概念參照——其全部核心原始碼僅有寥寥數百行。這套模式之所以能迅速風靡全網，在於其 API 介面極度精煉：「Agent = Prompt + 工具；交接 = 回傳 Agent 的函式」。客觀局限性：本質上完全無狀態，因此記憶體的跨輪次維護完全成為外層呼叫者的責任。
+> OpenAI 於 2024 年 10 月發布的 Swarm 將多 Agent 編排體系高度提煉為兩大核心原語：**例行程式（Routines）**（以系統 prompt 封裝的指令集與可用工具）以及**交接（Handoffs）**（一個回傳另一個 Agent 物件的專屬工具）。沒有複雜的狀態機，沒有繁瑣的條件判定 DSL——底層 LLM 僅僅透過呼叫正確的交接工具來自行完成路由跳轉。OpenAI Agents SDK（2025 年 3 月發布）是其工業級正式環境繼承者。然而 Swarm 本身依然是業界最為乾淨純粹的概念參照——其全部核心原始碼僅有寥寥數百行。這套模式之所以能迅速風靡全網，在於其 API 介面極度精煉：「Agent = Prompt + 工具；交接 = 回傳 Agent 的函式」。客觀局限性：本質上完全無狀態，因此記憶體的跨輪次維護完全成為外層呼叫者的責任。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -11,15 +11,15 @@
 
 市場上的每一個多 Agent 框架都在強迫你學習其專屬的領域特定語言（DSL）：LangGraph 的節點（Node）與圖邊（Edge）、CrewAI 的專案團隊（Crew）與任務（Task）、AutoGen 的群組對話（GroupChat）與管理者（Manager）。這些 DSL 固然是嚴肅的抽象層，但它們往往讓原本直觀的問題變得比想像中龐雜厚重。
 
-Swarm 則採取了截然相反的極簡路線：直接複用大語言模型原生早已具備的工具呼叫能力。任務交接直接表現為一次標準的工具呼叫。而全系統的編排器，純粹就是當前正持有對話話語權的那個 Agent。原本複雜的狀態機，直接隱式蘊含在各 Agent 的系統 prompt 之中。
+Swarm 則採取了截然相反的極簡路線：直接複用大型語言模型原生早已具備的工具呼叫能力。任務交接直接表現為一次標準的工具呼叫。而全系統的編排器，純粹就是當前正持有對話話語權的那個 Agent。原本複雜的狀態機，直接隱式蘊含在各 Agent 的系統 prompt 之中。
 
 ## Concept｜核心概念
 
 ### 兩大核心原語
 
-**例行程序（Routine）。** 一段精準界定 Agent 角色邊界與可用工具的系統 prompt。可以將其視為一組受限的專屬指令集：「你是一名分流總機 Agent；若使用者詢問退款事宜，請將對話交接給退款專門 Agent。」
+**例行程式（Routine）。** 一段精準界定 Agent 角色邊界與可用工具的系統 prompt。可以將其視為一組受限的專屬指令集：「你是一名分流總機 Agent；若使用者詢問退款事宜，請將對話交接給退款專門 Agent。」
 
-**交接（Handoff）。** 一個由 Agent 自主呼叫、且執行後會直接回傳一個全新 Agent 物件的專屬工具。Swarm 執行時期一旦偵測到函式回傳了 Agent 物件，便會在下一輪對話中自動將當前活躍的 Agent 切換為該新物件。
+**交接（Handoff）。** 一個由 Agent 自主呼叫、且執行後會直接回傳一個全新 Agent 物件的專屬工具。Swarm 執行環境一旦偵測到函式回傳了 Agent 物件，便會在下一輪對話中自動將當前活躍的 Agent 切換為該新物件。
 
 這就是整套抽象架構的全部精髓。
 
@@ -75,7 +75,7 @@ Swarm 在單次對話執行之間被刻意設計為完全無狀態的。雖然�
 
 兩者皆採用由 LLM 驅動的動態路由，但核心分歧在於**究竟是由誰來挑選下一棒**：
 
-- GroupChat：由外部的選取器（決策函式或獨立 LLM）俯瞰全局並挑選下一位發言者。
+- GroupChat：由外部的選取器（決策函式或獨立 LLM）俯瞰全域並挑選下一位發言者。
 - Swarm：由當前正處於活躍狀態的 Agent 透過直接呼叫交接工具，親自指定自己的繼承者。
 
 Swarm 是「當前 Agent 自主決定下一步」；GroupChat 則是「會議主持人統一決定下一步」。Swarm 的決策權深植於活躍 Agent 的工具呼叫中；而 GroupChat 的決策權則完全收攏於 `GroupChatManager` 手中。
@@ -133,7 +133,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI cookbook — Orchestrating Agents: Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 對例行程序與交接原語最為透徹權威的奠基論述。
+- [OpenAI cookbook — Orchestrating Agents: Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 對例行程式與交接原語最為透徹權威的奠基論述。
 - [OpenAI Swarm repo](https://github.com/openai/swarm) — 原始開源專案，作為業界最極簡的概念參照基準。
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/) — 配備會話管理與鏈路追蹤的工業級正式環境繼承者。
 - [Anthropic handoff-in-Claude notes](https://docs.anthropic.com/en/docs/claude-code) — 深入探討 Claude Code 的子 agent 如何透過 `Task` 實作類似交接的架構模式。

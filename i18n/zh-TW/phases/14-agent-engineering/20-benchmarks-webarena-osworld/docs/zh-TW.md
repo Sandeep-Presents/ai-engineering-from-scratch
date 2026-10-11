@@ -67,14 +67,14 @@ ae-agent-human-gap
 
 ## Build It｜動手實作
 
-`code/main.py` 以純 Python 標準函式庫實作了一套極簡的 Web Agent 測試控端：
+`code/main.py` 以純 Python 標準函式庫實作了一套極簡的 Web Agent 測試 harness：
 
 - 極簡「電商購物應用」狀態機：包含 list_items、add_to_cart、checkout 等狀態；
 - 3 個具體任務的黃金標準軌跡（Gold trajectories）；
 - 嘗試執行各項任務的腳本化 Agent；
 - 基於實體執行的驗收器（核驗最終狀態）與軌跡執行效率指標（實體步驟數 / 黃金步驟數）。
 
-運行實驗：
+執行實驗：
 
 ```
 python3 code/main.py
@@ -85,21 +85,21 @@ python3 code/main.py
 ## Use It｜實際應用
 
 - **WebArena Verified**：在企業內部私有叢集上本地部署，作為網頁 Agent 的持續整合（CI）回歸評測。
-- **OSWorld**：於專屬的虛擬機（VM）叢集中運行，專門評測桌面操作 Agent。
+- **OSWorld**：於專屬的虛擬機（VM）叢集中執行，專門評測桌面操作 Agent。
 - **Computer-Use 專用 Agent（第 21 課）**：Claude、OpenAI CUA、Gemini——全數在此類基準負載上完成調校。
 - **企業自有業務流評測**：為你自家產品最核心的 Top 20 業務流程錄製黃金標準軌跡，每週對內部 Agent 進行自動化迴歸驗收。
 
 ## Ship It｜交付成果
 
-`outputs/skill-web-desktop-harness.md` 能為任何 Web 或桌面 Agent 建立標準的測試控端，內建基於實體狀態的驗收卡點與軌跡執行效率量測指標。
+`outputs/skill-web-desktop-harness.md` 能為任何 Web 或桌面 Agent 建立標準的測試 harness，內建基於實體狀態的驗收卡點與軌跡執行效率量測指標。
 
 ## Exercises｜練習
 
-1. 為教學測試控端擴充第二個應用程式（技術論壇）。為其編寫 3 個新任務以及對應的黃金標準軌跡。
+1. 為教學測試 harness擴充第二個應用程式（技術論壇）。為其編寫 3 個新任務以及對應的黃金標準軌跡。
 2. 為每個任務新增軌跡執行效率報告。在你的教學模型中，Agent 的步數相比於黃金標準是 1 倍、2 倍還是 3 倍？
 3. 實作一個「干擾項（Distractor）」工具——黃金軌跡從未使用過的誘餌工具。觀察腳本化 Agent 是否會受到干擾？
 4. 研讀 OSWorld-G 論文。在你的自訂評測中，你會如何將「介面定位失敗」與「邏輯規劃失敗」清晰解耦分開統計？
-5. 研讀 WebArena 應用程式的 README 文檔。若擅自升級了其中一個鎖定的底層應用版本，會引發何種系統破壞？
+5. 研讀 WebArena 應用程式的 README 文件。若擅自升級了其中一個鎖定的底層應用版本，會引發何種系統破壞？
 
 ## Key Terms｜關鍵術語
 
