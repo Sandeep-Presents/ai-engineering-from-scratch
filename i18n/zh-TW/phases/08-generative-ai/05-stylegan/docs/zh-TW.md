@@ -43,7 +43,7 @@ AdaIN(x, y) = y_scale · (x - mean(x)) / std(x) + y_bias
 | StyleGAN2 | 2020 | 權重解調（weight demodulation）換掉 AdaIN，修好水滴狀瑕疵；跳躍／殘差架構；路徑長度正則（path-length regularization）。 |
 | StyleGAN3 | 2021 | 無混疊（alias-free）卷積加等變核（kernel）；紋理不再黏在像素格子上。 |
 | StyleGAN-XL | 2022 | 類別條件、1024²、ImageNet。 |
-| R3GAN | 2024 | 用更強的正則以更強的正則化重新設計；在 FFHQ-1024 上縮小和擴散的差距，參數（parameter）少到 20 分之一。 |
+| R3GAN | 2024 | 以更強的正則化重新包裝；在 FFHQ-1024 上縮小和擴散的差距，參數（parameter）少到 20 分之一。 |
 
 2026 年 StyleGAN3 仍是這些的預設：(a) 高畫面更新率（FPS）的窄領域照片級寫實，(b) 少樣本（few-shot）領域調適（domain adaptation），用 100 張影像訓練新的資料集（dataset），映射網路凍住，(c) 以反演為基礎的編輯，找出能重建一張真實照片的 `w`，再編那個 `w`。開放領域的文字生影像，不該用它——擴散才是。
 
