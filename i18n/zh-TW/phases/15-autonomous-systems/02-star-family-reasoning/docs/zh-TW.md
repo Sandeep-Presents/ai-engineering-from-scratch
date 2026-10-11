@@ -1,6 +1,6 @@
 # STaR、V-STaR、Quiet-STaR——自我教學推理（Self-Taught Reasoning）
 
-> 最小可行的自我改進迴圈就存在於推理過程（rationale）之中。模型生成一條思維鏈，保留那些推匯出正確答案的軌跡，並以這些資料做 fine-tuning。這就是 STaR。V-STaR 額外加入了驗證器（verifier），使推論時期的選取品質更佳。Quiet-STaR 則將推理過程下沉到每一個 token。這三種方法都確實有效。但它們絕非魔法——這個迴圈同時也會保留任何剛好碰巧得出正確答案的捷徑推理。
+> 最小可行的自我改進迴圈就存在於推理過程（rationale）之中。模型生成一條思維鏈（chain of thought），保留那些推導出正確答案的軌跡，並以這些資料做 fine-tuning。這就是 STaR。V-STaR 額外加入了驗證器（verifier），使推論時期的選取品質更佳。Quiet-STaR 則將推理過程下沉到每一個 token。這三種方法都確實有效。但它們絕非魔法——這個迴圈同時也會保留任何剛好碰巧得出正確答案的捷徑推理。
 
 **Type:** Learn
 **Languages:** Python (stdlib, bootstrap-loop simulator)

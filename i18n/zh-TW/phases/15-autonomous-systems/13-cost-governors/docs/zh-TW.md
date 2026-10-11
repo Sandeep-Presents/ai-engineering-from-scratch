@@ -54,7 +54,7 @@ Claude Code Agent SDK 在其公開文件中提供了以下控制參數：
 
 ### 歐盟 AI 法案與 OWASP Agentic Top 10
 
-微軟 Agent 治理工具包完全涵蓋了 OWASP Agentic Top 10 以及歐盟《人工智慧法案》第 14 條（人類監督）的合規要求。在歐盟的正式環境運作中，日誌完整留存與預算上限強制執行不再是可有可無的建議，而是具有法律效力的硬性規定。
+微軟 Agent 治理工具包完全涵蓋了 OWASP Agentic Top 10 以及歐盟《人工智慧法案》第 14 條（人類監督）的合規要求。在歐盟的正式環境運作中，日誌完整留存與預算上限強制執行都不可或缺。
 
 ### 真實案例剖析：從 1,200 美元到 4,800 美元的失控暴增
 
@@ -100,7 +100,7 @@ cost-governor-stack
 ## Further Reading｜延伸閱讀
 
 - [Anthropic Claude Code Agent SDK — agent loop and budgets](https://code.claude.com/docs/en/agent-sdk/agent-loop) — `max_turns`, `max_budget_usd`, tool allowlists.
-- [Microsoft Agent Framework — human-in-the-loop and governance](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
-- [Anthropic — Claude Managed Agents overview](https://platform.claude.com/docs/en/managed-agents/overview)
-- [Anthropic — Prompt caching (Claude API docs)](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Microsoft Agent Framework — human-in-the-loop and governance](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 人類參與迴圈與治理。
+- [Anthropic — Claude Managed Agents overview](https://platform.claude.com/docs/en/managed-agents/overview) — 服務供應商端的成本控制。
+- [Anthropic — Prompt caching (Claude API docs)](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) — 快取機制。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 長時程 agent 的成本概況。

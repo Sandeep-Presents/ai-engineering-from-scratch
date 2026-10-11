@@ -1,6 +1,6 @@
 # 憲法 AI 與規則覆寫邊界（Constitutional AI and Rule Overrides）
 
-> Anthropic 於 2026 年 1 月 22 日發布的 Claude 憲法（Claude Constitution）長達 79 頁並以 CC0 公共領域協議開源。它標誌著對齊技術從「基於刻板規則」正式邁向「基於深層推理」，並確立了嚴格的四層優先級階層：(1) 安全與支援人類監督、(2) 倫理、(3) Anthropic 業務準則、(4) 有用性。系統行為被明確拆分為維運者與使用者皆絕對無法覆寫的硬編碼禁令（hardcoded prohibitions；例如生物武器能力助益（uplift）、CSAM），以及維運者可在規定邊界內靈活調校的軟編碼預設值（soft-coded defaults）。2022 年的原始研究（Bai 等人）透過自我批判與對照憲法進行的 RLAIF 訓練出無害性。客觀存在的現實挑戰：基於推理的對齊極度依賴模型將抽象原則泛化至前所未見情境的能力。Anthropic 自身於 2023 年進行的公民參與實驗顯示，大眾提出的原則與企業訂定的原則約有 50% 不同；而 2026 年的版本並未納入大眾提出的原則。
+> Anthropic 於 2026 年 1 月 22 日發布的 Claude 憲法（Claude Constitution）長達 79 頁並採 CC0 公共領域貢獻宣告釋出。它標誌著對齊技術從「基於刻板規則」正式邁向「基於深層推理」，並確立了嚴格的四層優先級階層：(1) 安全與支援人類監督、(2) 倫理、(3) Anthropic 準則、(4) 有用性。系統行為被明確拆分為維運者與使用者皆絕對無法覆寫的硬編碼禁令（hardcoded prohibitions；例如生物武器能力助益（uplift）、CSAM），以及維運者可在規定邊界內靈活調校的軟編碼預設值（soft-coded defaults）。2022 年的原始研究（Bai 等人）透過自我批判與對照憲法進行的 RLAIF 訓練出無害性。客觀存在的現實挑戰：基於推理的對齊極度依賴模型將抽象原則泛化至前所未見情境的能力。Anthropic 自身於 2023 年進行的公民參與實驗顯示，大眾提出的原則與企業訂定的原則約有 50% 不同；而 2026 年的版本並未納入大眾提出的原則。
 
 **Type:** Learn
 **Languages:** Python (stdlib, four-tier priority resolver)
@@ -31,7 +31,7 @@
 **硬編碼（Hardcoded）：**
 - 生物武器及化學、生物、放射與核武（CBRN）相關能力助益
 - 兒童性剝削與虐待內容（CSAM）
-- 針對關鍵基礎設施發起網路攻擊
+- 針對關鍵基礎設施的攻擊
 - 當被使用者直接詢問時，故意隱瞞或欺騙自身身分
 
 維運人員絕對無法覆寫這些禁令。終端使用者也絕對無法覆寫這些禁令。這些邊界在可行情況下直接透過模型權重進行硬性固化（RLHF／憲法 AI 訓練），無法透過權重固化時則在推論執行層強制攔截。
@@ -118,8 +118,8 @@ mx-priority-tiers
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)
-- [Bai et al. — Constitutional AI: Harmlessness from AI Feedback](https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback)
-- [Anthropic — Collective Constitutional AI (2023)](https://www.anthropic.com/research/collective-constitutional-ai-aligning-a-language-model-with-public-input)
-- [Anthropic — Responsible Scaling Policy v3.0](https://anthropic.com/responsible-scaling-policy/rsp-v3-0)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution) — 79 頁的 CC0 文件。
+- [Bai et al. — Constitutional AI: Harmlessness from AI Feedback](https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback) — 2022 年原始研究。
+- [Anthropic — Collective Constitutional AI (2023)](https://www.anthropic.com/research/collective-constitutional-ai-aligning-a-language-model-with-public-input) — 參與式實驗。
+- [Anthropic — Responsible Scaling Policy v3.0](https://anthropic.com/responsible-scaling-policy/rsp-v3-0) — Claude 憲法在 RSP 堆疊中的定位。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — Claude 憲法在長時程部署中的角色。

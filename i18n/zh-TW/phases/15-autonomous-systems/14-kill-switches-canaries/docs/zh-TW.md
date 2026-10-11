@@ -73,7 +73,7 @@
 
 ### 透過 eBPF 資料路徑重定向實現隔離檢疫
 
-Cilium 基於 eBPF 的網路政策能夠在作業系統核心層級，將被隔離檢疫的 Pod 對外流量即時重寫至鑑識蜜罐中。Cilium 的公開基準測試指出，在 TCP_RR 測試下其 P99 資料路徑延遲低於 1 毫秒；在真實叢集中觸發檢疫隔離的實際耗時，主要取決於政策更新從控制平面傳播至各工作節點的傳播延遲（在預載入 Operator 的 Kubernetes 叢集中，通常在數百毫秒內完成；尾部延遲則取決於叢集規模與協調週期）。這能為防禦團隊帶來雙重戰略優勢：首先，agent 不會外洩任何真實資料；其次，agent 在蜜罐內部的一舉一動都能在受控環境下被完整觀測記錄。這與金絲雀 Token 處於不同技術層級，但遵循著完全相同的防禦哲學：在受限環境中，透過觀察對方的行為來迫使其暴露真實意圖。
+Cilium 基於 eBPF 的網路政策能夠在作業系統核心層級，將被隔離檢疫的 Pod 對外流量即時重寫至鑑識蜜罐中。Cilium 的公開基準測試指出，在 TCP_RR 測試下其 P99 資料路徑延遲低於 1 毫秒；在真實叢集中觸發檢疫隔離的實際耗時，主要取決於政策更新從控制平面傳播至各工作節點的傳播延遲（在預載入 Operator 的 Kubernetes 叢集中，數百毫秒是合理可達的時間；尾部延遲則取決於叢集規模與協調週期）。這能為防禦團隊帶來雙重戰略優勢：首先，agent 不會外洩任何真實資料；其次，agent 在蜜罐內部的一舉一動都能在受控環境下被完整觀測記錄。這與金絲雀 Token 處於不同技術層級，但遵循著完全相同的防禦哲學：在受限環境中，透過觀察對方的行為來迫使其暴露真實意圖。
 
 ### 任何偵測器都無法捕獲的極限盲點
 
@@ -119,8 +119,8 @@ circuit-breaker
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
-- [Microsoft Agent Framework — HITL and oversight](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
-- [OWASP LLM / Agentic Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
-- [Cilium — Network policy and eBPF](https://docs.cilium.io/en/stable/security/network/)
-- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 自主 agent 的 kill switch 與熔斷機制說明。
+- [Microsoft Agent Framework — HITL and oversight](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 正式環境的治理模式。
+- [OWASP LLM / Agentic Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) — 偵測與回應要求。
+- [Cilium — Network policy and eBPF](https://docs.cilium.io/en/stable/security/network/) — Pod 層級的對外流量重新導向與鑑識蜜罐模式。
+- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution) — 將硬編碼禁令視為「憲法限制」的說明。

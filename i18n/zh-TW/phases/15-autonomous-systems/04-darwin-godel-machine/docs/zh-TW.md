@@ -23,7 +23,7 @@ Darwin 哥德爾機（DGM，Zhang、Hu、Lu、Lange、Clune，arXiv:2505.22954�
 2. 在基準測試（SWE-bench 或 Polyglot）上為 `A_0` 評分。
 3. 將 `A_0` 加入存檔庫。
 4. 從存檔庫中取樣一個親代。
-5. 利用 LLM 對親代自身的 Python 原始碼提出修改建議——例如新增工具、調整 prompt、調校子 agent 協同邏輯。
+5. 利用 LLM 對親代自身的 Python 原始碼提出修改建議——例如新增工具、調整 prompt、修改子 agent。
 6. 在基準測試上執行修改後的 agent，並記錄評分。
 7. 以分數與多樣性描述符為索引鍵，將新變體插入存檔庫。
 8. 重複執行數百個世代。

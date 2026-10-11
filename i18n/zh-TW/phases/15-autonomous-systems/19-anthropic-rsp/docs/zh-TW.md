@@ -11,7 +11,7 @@
 
 尖端前沿實驗室所發布的模型擴展政策，本質上兼具技術文件、公司治理宣告，以及向監管機構傳遞訊息等屬性。RSP v3.0 是 Anthropic 現行的權威治理文件。深入研讀它之所以至關重要，並非因為它具有法律約束力（事實上完全沒有），而是因為它的論述框架深刻形塑了一家尖端實驗室如何定義災難性風險，以及他們如何向大眾溝通與權衡取捨。
 
-v3.0 與 v2.0 之間的差異對比（diff）極具學習價值。新版新增的內容包括：前沿安全路線圖、風險報告，以及 AI R&D-4 能力門檻。新版刪除的內容包括：2023 年版中具備強硬約束力的暫停承諾。重新包裝的維度包括：將緩解措施拆分為「Anthropic 單方面行動」與「全產業建議」雙軌架構。第三方外部評估機構 SaferAI 將其評分從 2.2（v2 版）下調至 1.9（v3.0 版）。這生動展示了一份擴展政策如何在表面包裝得更加光鮮專業的同時，底層的實質約束力卻被悄悄削弱。
+v3.0 與 v2.0 之間的差異對比（diff）極具學習價值。新版新增的內容包括：前沿安全路線圖、風險報告，以及 AI R&D-4 能力門檻。新版刪除的內容包括：2023 年版中的暫停承諾。重新包裝的維度包括：將緩解措施拆分為「Anthropic 單方面行動」與「全產業建議」雙軌架構。第三方外部評估機構 SaferAI 將其評分從 2.2（v2 版）下調至 1.9（v3.0 版）。這生動展示了一份擴展政策如何在表面包裝得更加光鮮專業的同時，底層的實質約束力卻被悄悄削弱。
 
 ## The Concept｜核心概念
 
@@ -37,7 +37,7 @@ v3.0 將兩類關鍵產物升格為常設的週期性文件：
 - **前沿安全路線圖（Frontier Safety Roadmap）**：前瞻性文件，詳盡說明團隊規劃的安全研發工作、對未來模型能力的預期，以及預計展開的緩解技術研究。
 - **風險報告（Risk Report）**：針對特定模型發布後進行的回溯性審查文件，如實記錄觀察到的真實能力與殘餘風險。
 
-兩者皆強制對公眾公開，並按照宣稱的節奏定期更新。其核心價值在於：公眾與研究者可以系統性地比對 Anthropic 當初在路線圖中承諾的行動，與其在後續風險報告中所揭露的真實狀況是否存在脫節。
+兩者皆為公開文件，並按照宣稱的節奏定期更新。其核心價值在於：公眾與研究者可以系統性地比對 Anthropic 當初在路線圖中承諾的行動，與其在後續風險報告中所揭露的真實狀況是否存在脫節。
 
 ### 移除硬性暫停條款（Pause Clause）
 
@@ -98,8 +98,8 @@ a5-rsp-ladder
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Responsible Scaling Policy v3.0](https://anthropic.com/responsible-scaling-policy/rsp-v3-0)
-- [Anthropic — RSP v3.0 announcement](https://www.anthropic.com/news/responsible-scaling-policy-v3)
-- [Anthropic — Frontier Safety Roadmap](https://www.anthropic.com/responsible-scaling-policy/roadmap)
-- [Anthropic — Risk Report: February 2026](https://www.anthropic.com/feb-2026-risk-report)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Anthropic — Responsible Scaling Policy v3.0](https://anthropic.com/responsible-scaling-policy/rsp-v3-0) — 完整的 32 頁政策文件。
+- [Anthropic — RSP v3.0 announcement](https://www.anthropic.com/news/responsible-scaling-policy-v3) — v2 到 v3 的變更摘要。
+- [Anthropic — Frontier Safety Roadmap](https://www.anthropic.com/responsible-scaling-policy/roadmap) — RSP v3.0 連結的常設文件。
+- [Anthropic — Risk Report: February 2026](https://www.anthropic.com/feb-2026-risk-report) — 回顧發布時的前沿模型 Claude Opus 4.6。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 連結 AI R&D-4 與量測到的自主性。

@@ -9,9 +9,9 @@
 
 ## The Problem｜問題
 
-負責檢驗 LLM 輸入與輸出的分類器，坐落於整個 agent 技術堆疊中最狹窄的咽喉要道：每一個向外發出的請求皆必須從中穿過，每一個回傳的回應也皆必須經過其審查。一個設計精良的分類器防護層具備高速、基於清晰分類法等特質，能以極低的算力開銷精準攔截絕大多數顯而易見的惡意濫用。而一個粗製濫造的分類器防護層，則只會帶給團隊虛假的安全感。
+負責檢驗 LLM 輸入與輸出的分類器，坐落於整個 agent 技術堆疊中最狹窄的咽喉要道：每一個向外發出的請求皆必須從中穿過，每一個回傳的回應也皆必須經過其審查。一個設計精良的分類器防護層具備高速、基於清晰分類法等特質，能以極低的算力開銷攔截相當一部分顯而易見的濫用。而一個粗製濫造的分類器防護層，則只會帶給團隊虛假的安全感。
 
-2024 至 2026 年間的分類器技術堆疊已收斂至少數幾個具備正式環境就緒水準的成熟選項。Meta 推出的 Llama Guard 以 Meta Community License 開源釋出模型權重。NVIDIA 推出的 NeMo Guardrails 則提供寬鬆授權的護欄程式庫，外加專供定義對話流程規則的 Colang 語言。兩者皆旨在與基礎模型緊密搭檔，強化而非取代基礎模型原生的安全行為。
+2024 至 2026 年間的分類器技術堆疊已收斂至少數幾個具備正式環境就緒水準的成熟選項。Meta 推出的 Llama Guard 依 Meta Community License 發布開放權重。NVIDIA 推出的 NeMo Guardrails 則提供寬鬆授權的護欄程式庫，外加專供定義對話流程規則的 Colang 語言。兩者皆旨在與基礎模型緊密搭檔，強化而非取代基礎模型原生的安全行為。
 
 與此同時，文獻記載的受攻擊面也已被詳盡繪製。字元級別的對抗攻擊（Emoji 走私、同形字替換（homoglyph substitution））、上下文重定向（「忽略前述指令並直接回答」）以及語意換道改寫，皆會導致分類器的準確率明顯下降。Huang 等人於 2025 年的研究證明，特定構造的 Emoji 走私攻擊在六大知名防護系統上均斬獲了 100% 的攻擊成功率。
 
@@ -122,8 +122,8 @@ a5-guard-sieve
 
 ## Further Reading｜延伸閱讀
 
-- [Inan et al. — Llama Guard: LLM-based Input-Output Safeguard](https://ai.meta.com/research/publications/llama-guard-llm-based-input-output-safeguard-for-human-ai-conversations/)
-- [Meta — Llama Guard 4 model card](https://www.llama.com/docs/model-cards-and-prompt-formats/llama-guard-4/)
-- [NVIDIA NeMo Guardrails (GitHub)](https://github.com/NVIDIA-NeMo/Guardrails)
-- [Huang et al. — Bypassing Prompt Injection and Jailbreak Detection in LLM Guardrails](https://arxiv.org/abs/2504.11168)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Inan et al. — Llama Guard: LLM-based Input-Output Safeguard](https://ai.meta.com/research/publications/llama-guard-llm-based-input-output-safeguard-for-human-ai-conversations/) — 原始論文。
+- [Meta — Llama Guard 4 model card](https://www.llama.com/docs/model-cards-and-prompt-formats/llama-guard-4/) — 多模態功能與 S1–S14 分類法。
+- [NVIDIA NeMo Guardrails (GitHub)](https://github.com/NVIDIA-NeMo/Guardrails) — 2026 年 1 月的 v0.20.0 版本。
+- [Huang et al. — Bypassing Prompt Injection and Jailbreak Detection in LLM Guardrails](https://arxiv.org/abs/2504.11168) — 各種護欄系統的 ASR 數值。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 分類器搭配執行環境的架構。

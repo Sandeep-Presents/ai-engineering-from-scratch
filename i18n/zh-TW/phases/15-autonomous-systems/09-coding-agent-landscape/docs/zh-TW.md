@@ -19,7 +19,7 @@
 
 ### 一個段落了解 SWE-bench
 
-SWE-bench（Jimenez 等人）收集真實的 GitHub issue 及其真實標籤（ground-truth）修補檔，並要求 agent 產出能讓既有測試套件全數通過的修補程式碼。SWE-bench Verified（OpenAI，2024 年）是一個經過人工篩選的 500 個任務子集，剔除了語意模糊與環境損壞的任務。SWE-bench Pro 則是難度更高的後繼者——專門聚焦於需要修改 10 行以上程式碼的任務，目前尖端 agent 的得分僅落在 23–59% 區間。
+SWE-bench（Jimenez 等人）收集真實的 GitHub issue 及其標準答案修補檔（ground-truth patch），並要求 agent 產出能讓既有測試套件全數通過的修補程式碼。SWE-bench Verified（OpenAI，2024 年）是一個經過人工篩選的 500 個任務子集，剔除了語意模糊與環境損壞的任務。SWE-bench Pro 則是難度更高的後繼者——專門聚焦於需要修改 10 行以上程式碼的任務，目前尖端 agent 的得分僅落在 23–59% 區間。
 
 ### 2022 至 2026 年能力曲線的真實樣貌
 
@@ -32,7 +32,7 @@ SWE-bench（Jimenez 等人）收集真實的 GitHub issue 及其真實標籤（g
 
 ### CodeAct 與 JSON 工具呼叫的架構抉擇
 
-OpenHands（All-Hands-AI，arXiv:2407.16741，前身為 OpenDevin）押注了一項獨特的架構方向：與其讓模型發出由主機解碼並執行的結構化 JSON 工具呼叫，不如讓模型直接輸出 Python 程式碼，並由類似 Jupyter 的核心在沙盒中執行。這讓 agent 能夠在單一動作中遍歷檔案、串接多項工具，並自行捕獲內部例外狀況。
+OpenHands（All-Hands-AI，arXiv:2407.16741，前身為 OpenDevin）押注了一項獨特的架構方向：與其讓模型發出由主機解碼並執行的結構化 JSON 工具呼叫，不如讓模型直接輸出 Python 程式碼，並由類似 Jupyter 的核心（kernel）在沙盒中執行。這讓 agent 能夠在單一動作中遍歷檔案、串接多項工具，並自行捕獲內部例外狀況。
 
 這兩者的權衡取捨如下：
 
@@ -99,7 +99,7 @@ a5-scaffold-delta
 
 | 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| SWE-bench | 「程式碼基準測試」 | 附有真實標籤修補檔與測試套件的真實 GitHub issue |
+| SWE-bench | 「程式碼基準測試」 | 附有標準答案修補檔與測試套件的真實 GitHub issue |
 | SWE-bench Verified | 「清理過的子集」 | 500 個經人工篩選的任務，仍保有較簡單的尾部 |
 | SWE-bench Pro | 「較難的子集」 | 需修改 10 行以上；尖端系統得分約 23–59% |
 | CodeAct | 「以程式碼作為動作」 | Agent 輸出 Python；類 Jupyter 的核心在沙盒中執行 |

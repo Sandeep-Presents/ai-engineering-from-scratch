@@ -47,7 +47,7 @@
 - 檔案寫入：重新讀取該檔案並計算校驗雜湊值。
 - 呼叫外部 API：對目標資源發起後續的 `GET` 請求核實狀態。
 
-一旦驗證步驟失敗，即意味著工作流程陷入了已知的異常損壞狀態。回滾機制必須立即介入接管。
+一旦驗證步驟失敗，即意味著工作流程處於已知的錯誤狀態。回滾機制必須立即介入接管。
 
 ### 完備的回滾方案設計（Rollback Plans）
 
@@ -121,8 +121,8 @@ checkpoint-replay
 
 ## Further Reading｜延伸閱讀
 
-- [Microsoft Agent Framework — Checkpointing and HITL](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
-- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/)
-- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
-- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+- [Microsoft Agent Framework — Checkpointing and HITL](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 檢查點原語與租約復原機制。
+- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — 將 Durable Objects 作為狀態基礎。
+- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/) — 法規基準。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 長時程工作流程的可靠性脈絡。
+- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop) — Claude Code Routines 的工作流程結構。

@@ -16,7 +16,7 @@
 
 這正是工作流程引擎（如 Temporal、Cadence、Uber Cherami）在過去十年間被廣泛驗證的成熟模式。當前的全新突破在於：LLM 呼叫本質上正是一種標準的活動——具備非確定性、耗費高昂成本且伴隨外部副作用——因而能與此架構模式自然契合。
 
-貫穿本課的核心主題：長時程的可靠度會隨時間嚴重衰減（METR 觀察到顯著的「35 分鐘效能衰退」現象——成功率會隨時程拉長呈近似二次方的速度急遽暴跌）。持久化執行讓系統具備了超越其原生可靠度極限的持續運作能力；這意味著如果架構設計得當，它能讓系統在安全邊界內優雅失效，但若設計失誤，則會引發更加嚴重的災難性後果。
+貫穿本課的核心主題：長時程的可靠度會隨時間嚴重衰減（METR 觀察到顯著的「35 分鐘效能衰退」現象——成功率大致隨時程呈二次方下降）。持久化執行讓系統具備了超越其原生可靠度極限的持續運作能力；這意味著如果架構設計得當，它能讓系統在安全邊界內優雅失效，但若設計失誤，則會引發更加嚴重的災難性後果。
 
 ## The Concept｜核心概念
 
@@ -25,7 +25,7 @@
 - **工作流程（Workflow）**：確定性的編排協同程式碼。負責定義各項活動的執行順序、條件分流路徑與等待事件。其邏輯必須具備嚴格的確定性，以便能精準依據事件日誌進行無歧義的狀態重播。
 - **活動（Activity）**：具備非確定性且隨時可能遭遇失敗的最小工作單元。例如 LLM 呼叫、工具呼叫、檔案寫入或發起 HTTP 請求。每個活動在啟動時會記錄其輸入參數，完成時則記錄其輸出結果。
 - **事件日誌（Event log）**：持久化的底層儲存庫。完整記錄每項活動的啟動、成功、失敗、重試，以及工作流程所做出的每一次決策轉折。
-- **重播機制（Replay）**：當系統從崩潰中復原時，工作流程程式碼會從最開頭重新執行；所有在歷史日誌中已標記完成的活動，會直接回傳記錄好的快取結果而無需重新執行。唯有尚未完成的活動才會真正被發送執行。
+- **重播機制（Replay）**：當系統從崩潰中復原時，工作流程程式碼會從最開頭重新執行；所有在歷史日誌中已標記完成的活動，會直接回傳日誌中記錄的結果而無需重新執行。唯有尚未完成的活動才會真正被發送執行。
 
 這與 React 依賴虛擬 DOM（Virtual DOM）進行高效重新渲染，或 Git 依據 commit 歷史還原工作目錄有著異曲同工之妙。正是協同編排器的確定性，讓高可靠的持久化變得極其廉價。
 
@@ -109,8 +109,8 @@ memory-consolidation
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop)
-- [Microsoft — Agent Framework: human-in-the-loop and checkpointing](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
-- [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents)
-- [OpenAI Agents SDK + Temporal integration (Trigger.dev announcement)](https://trigger.dev)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop) — 預算、輪次與恢復語意。
+- [Microsoft — Agent Framework: human-in-the-loop and checkpointing](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — RequestInfoEvent 的資料結構。
+- [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — 具體的執行環境需求。
+- [OpenAI Agents SDK + Temporal integration (Trigger.dev announcement)](https://trigger.dev) — LLM 呼叫的 activity 結構。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 35 分鐘效能衰退的參考資料。

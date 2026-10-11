@@ -25,7 +25,7 @@ Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是�
    - 觸及權限（permissions touched，涉及哪些權限範圍、檔案或端點）
    - 爆炸半徑（blast radius，評估最壞情況下的損害規模）
    - 回滾方案（rollback plan，若確認生效後，該如何乾淨還原）
-   - 冪等性金鑰（idempotency key，每個提議具備唯一雜湊值；重複送出將直接回傳相同記錄）
+   - 冪等性金鑰（idempotency key，每個提議都有唯一識別值；重複送出將直接回傳相同記錄）
 2. **呈現（Surface）。** 審查人員查閱包含完整中繼資料的提議內容。審查者必須是真實人類（絕非 agent 進行自我審查）。
 3. **確認寫入（Commit）。** 人員給予積極確認。動作正式發送執行。
 4. **驗證（Verify）。** 執行完畢後，系統會主動回讀外部副作用以確認其確實發生。若驗證步驟失敗，系統將進入已知異常狀態並立即發送警報。
@@ -107,6 +107,6 @@ mx-propose-then-commit
 
 - [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — `RequestInfoEvent`, durable approvals.
 - [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — `waitForApproval()` and Durable Objects.
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
-- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/)
-- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 將 HITL 視為長時程風險的緩解措施。
+- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/) — 高風險系統的法規基準。
+- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution) — 監督方面的憲法框架。

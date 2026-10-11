@@ -11,7 +11,7 @@
 
 擴展政策（第 19、20 課）的實用性，完全取決於其所引用的客觀測量指標。「AI R&D-4 能力門檻」與「長程自主性」在政策文本中僅是抽象的文字描述；唯有當特定的實證評估產出具體的數值指標時，它們才真正具備可操作性。
 
-METR 正是 2024–2026 年間確立了這套量化體系權威地位的外部獨立評估組織。他們專門在模型發布前夕（通常在簽署保密協議的受控環境下）對尖端模型展開極限自主能力測試，並在事後公開其完整方法論。Time Horizon 1.1 基準測試（2026 年 1 月發布）是其旗艦成果：將複雜的模型能力濃縮為單一人類易讀的純量指標（「該模型能在 50% 可靠度下，完成一位人類專家需要耗費 X 小時才能搞定的任務」）。
+METR 正是 2024–2026 年間確立了這套量化體系權威地位的外部獨立評估組織。他們專門在模型發布前夕（常依保密協議進行）對尖端模型展開極限自主能力測試，並在事後公開其完整方法論。Time Horizon 1.1 基準測試（2026 年 1 月發布）是其旗艦成果：將複雜的模型能力濃縮為單一人類易讀的純量指標（「該模型能在 50% 可靠度下，完成一位人類專家需要耗費 X 小時才能搞定的任務」）。
 
 本課的學習重心一方面在於方法論本身（時間時程究竟是如何被數學擬合出來的），另一方面在於批判性解讀能力（為何時間時程僅代表理論上限，而非正式部署的預測值）。這兩項素養相輔相成。一個深刻理解時程擬合原理的工程團隊，比起只在簡報上看見「14 小時」亮眼標籤的團隊，在面對供應商的花俏宣傳時具備高出數倍的免疫力。
 
@@ -58,7 +58,7 @@ METR 在 2025–2026 年間開展了一項前沿研究：檢驗監控系統能�
 
 - **過度理想化的工具環境**：基準測試為模型提供了乾淨、規範且格式工整的工具與輸入資料。真實正式環境中的工具鏈則充滿雜訊與斷裂。
 - **缺乏真實的不可逆代價**：在測試中，模型永遠不必擔心向真實客戶開錯帳單、刪除實際資料，或與真實的人聯繫。而在真實部署中，許多操作的後果是絕對不可逆的。
-- **評測語境博弈（第 1 課）**：模型在意識到自己處於測試環境時往往表現得更為合規且收斂。2026 年《國際 AI 安全報告》提供了詳盡的實證記錄。
+- **評測語境博弈（第 1 課）**：模型在測試中的行為可能不同於其他情境。2026 年《國際 AI 安全報告》提供了詳盡的實證記錄。
 - **缺乏真實使用者請求的差異**：基準測試的 prompt 通常結構清晰。而真實使用者提出的請求往往有不同的上下文與表達方式。
 
 時程數字代表的是在極度優渥順境下的能力天花板。真實正式環境中的可靠度通常低於此數值，工程團隊必須在自身的業務分布上親自實測才能獲知真相。
@@ -69,8 +69,8 @@ METR 在 2025–2026 年間開展了一項前沿研究：檢驗監控系統能�
 
 ### 在工程實務中如何理性使用時程數字
 
-- **作為能力適配的硬性過濾器**：若某個模型的時間時程顯著低於你預計交付任務的人類專家工時，絕對嚴禁將其推向無人值守自主運作（參見第 1 課的交付 skill 範本）。
-- **作為技術演進的趨勢指針**：翻倍週期清楚告訴你：即便不引入任何新的緩解技術，現有的工程防護在多久之後就會被模型的自主能力徹底衝垮。
+- **作為能力適配的硬性過濾器**：若某個模型的時間時程顯著低於你預計交付任務的人類專家工時，不要以自主方式部署（參見第 1 課的交付 skill 範本）。
+- **作為技術演進的趨勢指針**：翻倍週期可用來估計在沒有新增緩解措施時，現行做法還能安全維持多久。
 - **作為初始的保守先驗**：14 小時的時程僅是一個起點。你必須根據自身任務的混亂度、內部工具鏈的粗糙度以及部署環境的敏感性，大幅向下打折修正。
 
 ```figure
@@ -112,8 +112,8 @@ a5-horizon-fit
 
 ## Further Reading｜延伸閱讀
 
-- [METR — Resources for Measuring Autonomous AI Capabilities](https://metr.org/measuring-autonomous-ai-capabilities/)
-- [METR — Measuring AI Ability to Complete Long Tasks](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/)
-- [METR — Time Horizon 1.1 (January 2026)](https://metr.org/research/)
-- [Epoch AI — METR Time Horizons benchmark](https://epoch.ai/benchmarks/metr-time-horizons)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [METR — Resources for Measuring Autonomous AI Capabilities](https://metr.org/measuring-autonomous-ai-capabilities/) — HCAST、RE-Bench 與 SWAA 規格。
+- [METR — Measuring AI Ability to Complete Long Tasks](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/) — 原始時程研究論文。
+- [METR — Time Horizon 1.1 (January 2026)](https://metr.org/research/) — 目前數值與方法論。
+- [Epoch AI — METR Time Horizons benchmark](https://epoch.ai/benchmarks/metr-time-horizons) — 即時追蹤。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 對 METR 量測結果的內部觀點。

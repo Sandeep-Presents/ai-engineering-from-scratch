@@ -28,7 +28,7 @@
 
 CAIS 的架構將災難性 AI 風險高度提煉為四大一級類別：
 
-1. **惡意使用（Malicious use）**：惡意行為者蓄意利用 AI 造成大規模人為破壞（合成致命生化武器、散布大規模假訊息、發動毀滅性網路攻擊）。
+1. **惡意使用（Malicious use）**：惡意行為者使用 AI 造成傷害（合成生化武器、散布假訊息、發動網路攻擊）。
 2. **AI 競賽（AI races）**：實驗室、跨國企業或地緣政治大國之間的殘酷競爭壓力，迫使各方在安全防護尚未就緒前，便爭先恐後地將未經驗證的系統推向市場。
 3. **組織風險（Organizational risks）**：實驗室內部的系統性失靈（安全文化瓦解、稽核流於形式、資安防護投入不足）導致帶有嚴重缺陷的系統被意外釋放。
 4. **失控 AI（Rogue AIs）**：能力足夠強大的自主 AI 系統開始自主追求與人類總體福祉相悖的危險目標。
@@ -41,7 +41,7 @@ CAIS 的架構將災難性 AI 風險高度提煉為四大一級類別：
 
 具體的組織風險治理槓桿：
 
-- **安全文化**：團隊基層成員在發現潛在安全隱患時，是否能在無需擔憂職涯報復的前提下自由向上提報？CAIS 的廣泛調查顯示，安全文化是預測其他所有防禦槓桿能否落實的最強前兆指標。
+- **安全文化**：團隊基層成員在發現潛在安全隱患時，是否能在無需擔憂職涯報復的前提下自由向上提報？CAIS 的調查發現，安全文化是其他槓桿的一項強力預測指標。
 - **嚴格稽核**：必須兼顧外部獨立稽核與內部深度稽核。缺乏外部制衡的純內部稽核，最終必然產出報喜不報憂的樂觀報告。
 - **多層縱深防禦**：世界上沒有任何單一防線足以確保萬全（這正是貫穿 Phase 15 的永恆主題）。
 - **資訊安全（InfoSec）**：嚴防模型權重遭竊、評測基準集外洩、或繞過監控的駭客手法被公開散布。第 19 課引述的 RAND SL-4 資安防護標準正是一項具體的落腳點。
@@ -99,7 +99,7 @@ a5-four-risks
 
 4. 挑選一個你熟悉的正式環境 AI 部署專案（無論是你團隊的成果或業界公開案例）。對照組織風險的四大子維度（安全文化、稽核嚴謹度、多層縱深防禦、資訊安全）進行打分。哪一個維度最為薄弱？將其提升至合格水準需要付出何種代價？
 
-5. 嘗試為 2028 年勾勒一套全新升級版的四大風險分類框架，使其能夠充分反映未來兩年間模型能力的進一步暴增與更為豐富的正式部署經驗。你會追加哪些維度、剔除哪些過時概念，抑或進行何種重新分組？
+5. 嘗試為 2028 年勾勒一套全新升級版的四大風險分類框架，使其能夠反映額外一年的能力進展與額外一年的部署經驗。你會追加哪些維度、剔除哪些過時概念，抑或進行何種重新分組？
 
 ## Key Terms｜關鍵術語
 
@@ -116,8 +116,8 @@ a5-four-risks
 
 ## Further Reading｜延伸閱讀
 
-- [Center for AI Safety](https://safe.ai/)
-- [CAIS — AI Risks that Could Lead to Catastrophe](https://safe.ai/ai-risk)
-- [CAIS — May 2023 statement on extinction risk](https://safe.ai/statement-on-ai-risk)
-- [NIST CAISI](https://www.nist.gov/caisi)
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Center for AI Safety](https://safe.ai/) — 四大風險框架的機構首頁。
+- [CAIS — AI Risks that Could Lead to Catastrophe](https://safe.ai/ai-risk) — 四大風險論文。
+- [CAIS — May 2023 statement on extinction risk](https://safe.ai/statement-on-ai-risk) — 簡短的聯合聲明。
+- [NIST CAISI](https://www.nist.gov/caisi) — 面向政府的 AI 標準與創新中心。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 連結實驗室層級承諾與社會層級的脈絡。
