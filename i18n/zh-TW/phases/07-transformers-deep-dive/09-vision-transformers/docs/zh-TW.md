@@ -145,7 +145,7 @@ cls_emb = out[:, 0]                       # image representation
 | DINOv2 | 「自監督的 ViT」 | 不用標籤訓練，用影像增強加動量教師。2026 年最好的通用影像特徵。 |
 | SigLIP | 「CLIP 的後繼」 | ViT 加文字編碼器，用 sigmoid 對比損失訓練；在相同計算量下比 CLIP 好。 |
 | Swin | 「開了視窗的 ViT」 | 階層式 ViT，局部注意力加位移視窗；次二次方。 |
-| 暫存器 token | 「2023 年的手法」 | 幾個額外的可學習 token，把吸收多餘的注意力；改善 DINOv2 的特徵。 |
+| register token | 「2023 年的手法」 | 幾個額外的可學習 token，用來吸收注意力匯點（attention sinks）；改善 DINOv2 的特徵。 |
 
 ## Further Reading｜延伸閱讀
 
