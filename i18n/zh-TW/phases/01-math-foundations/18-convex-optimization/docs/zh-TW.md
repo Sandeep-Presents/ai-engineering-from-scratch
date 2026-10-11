@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-第 08 課教過你梯度下降法、動量（momentum）和 Adam。這些最佳化器會沿著任何曲面往下走，但它們不提供任何保證。在非凸地景（non-convex landscape）上使用梯度下降法，可能會掉進不好的局部最小值（local minimum）、卡在鞍點（saddle point），或永遠來回震盪。你還是照用，因為神經網路是非凸的，而且沒有其他選擇。
+第 08 課教過你梯度下降法、動量（momentum）和 Adam。這些最佳化器（optimizer）會沿著任何曲面往下走，但它們不提供任何保證。在非凸地景（non-convex landscape）上使用梯度下降法，可能會掉進不好的局部最小值（local minimum）、卡在鞍點（saddle point），或永遠來回震盪。你還是照用，因為神經網路是非凸的，而且沒有其他選擇。
 
 不過，機器學習中有許多問題是凸的：線性迴歸（linear regression）、邏輯斯迴歸（logistic regression）、支援向量機（support vector machine，SVM）、LASSO、嶺迴歸（ridge regression）。對這些問題，有更有力的方法：具備數學保證的最佳化。一個凸問題只有一個谷底。任何沿著下降方向前進的演算法都會到達全域最小值（global minimum）。不必多次重新啟動，不必安排學習率排程（learning rate schedule），也不用祈禱。
 
@@ -95,14 +95,14 @@ f(tx + (1-t)y) <= t*f(x) + (1-t)*f(y)
 
 ```mermaid
 graph LR
-    subgraph "Convex: ONE answer"
+    subgraph "凸：一個解"
         direction TB
-        C1["Loss surface has a single valley"] --> C2["Gradient descent ALWAYS finds the global minimum"]
+        C1["損失曲面只有一個谷底"] --> C2["梯度下降一定能找到全域最小值"]
     end
-    subgraph "Non-convex: MANY traps"
+    subgraph "非凸：許多陷阱"
         direction TB
-        N1["Loss surface has multiple valleys and peaks"] --> N2["Gradient descent may get stuck in a local minimum"]
-        N2 --> N3["Global minimum might be missed"]
+        N1["損失曲面有多個谷底與峰值"] --> N2["梯度下降可能卡在局部最小值"]
+        N2 --> N3["可能找不到全域最小值"]
     end
 ```
 
@@ -169,18 +169,18 @@ Compare to gradient descent:
 
 ```mermaid
 graph TD
-    subgraph "Gradient Descent"
-        GD1["Start"] --> GD2["Step 1"]
-        GD2 --> GD3["Step 2"]
+    subgraph "梯度下降"
+        GD1["起點"] --> GD2["步驟 1"]
+        GD2 --> GD3["步驟 2"]
         GD3 --> GD4["..."]
-        GD4 --> GD5["Step ~500: Converged"]
-        GD_note["Follows gradient blindly — many small steps"]
+        GD4 --> GD5["約第 500 步：收斂"]
+        GD_note["盲目沿梯度前進——需要許多小步"]
     end
-    subgraph "Newton's Method"
-        NM1["Start"] --> NM2["Step 1"]
+    subgraph "牛頓法"
+        NM1["起點"] --> NM2["步驟 1"]
         NM2 --> NM3["..."]
-        NM3 --> NM4["Step ~5: Converged"]
-        NM_note["Uses curvature for optimal steps"]
+        NM3 --> NM4["約第 5 步：收斂"]
+        NM_note["利用曲率選取最佳步長"]
     end
 ```
 
@@ -203,12 +203,12 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph "Unconstrained"
-        U1["Loss function"] --> U2["Free minimum: lowest point of the loss surface"]
+    subgraph "無限制"
+        U1["損失函數"] --> U2["自由最小值：損失曲面上的最低點"]
     end
-    subgraph "Constrained"
-        C1["Loss function"] --> C2["Constrained minimum: lowest point within the feasible region"]
-        C3["Constraint boundary limits the search space"]
+    subgraph "有限制"
+        C1["損失函數"] --> C2["受限最小值：可行區域內的最低點"]
+        C3["約束邊界限制搜尋空間"]
     end
 ```
 
@@ -235,9 +235,9 @@ dL/dlambda = g(x) = 0
 
 ```mermaid
 graph LR
-    A["Contours of f(x,y): concentric ellipses"] --- S["Solution point"]
-    B["Constraint curve g(x,y) = 0"] --- S
-    S --- C["At the solution, gradient of f is parallel to gradient of g"]
+    A["f(x,y) 的等高線：同心橢圓"] --- S["解答點"]
+    B["約束曲線 g(x,y) = 0"] --- S
+    S --- C["在解答點，f 的梯度平行於 g 的梯度"]
 ```
 
 範例：在 x + y = 1 的限制下，最小化 f(x,y) = x^2 + y^2。
