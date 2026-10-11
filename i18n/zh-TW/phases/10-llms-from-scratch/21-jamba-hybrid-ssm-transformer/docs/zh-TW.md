@@ -1,6 +1,6 @@
 # Jamba——混合 SSM-Transformer
 
-> 狀態空間模型（SSM）與 Transformer 各自追求不同的目標。Transformer 透過注意力機制換取高品質，但承受二次方運算代價；SSM 透過遞迴換取線性時間推論與常數記憶體佔用，但在品質上略遜一籌。AI21 的 Jamba（2024 年 3 月）與 Jamba 1.5（2024 年 8 月）將兩者融為一爐：每 7 個 Mamba 層搭配 1 個 Transformer 層，每隔一個區塊啟用 MoE，並在單張 80GB GPU 上實現了 256k 脈絡視窗。Mamba-3（ICLR 2026）則在純 SSM 端引入複數值狀態空間（complex-valued state spaces）與 MIMO（multi-input multi-output）投影。本課將深入剖析這兩種架構，解釋為何這套混合配方能歷經三年擴展仍持續發展，而純 SSM 與純 Transformer 的長脈絡嘗試則未能延續。
+> 狀態空間模型（state space model，SSM）與 Transformer 各自追求不同的目標。Transformer 透過注意力機制換取高品質，但承受二次方運算代價；SSM 透過遞迴換取線性時間推論與常數記憶體佔用，但在品質上略遜一籌。AI21 的 Jamba（2024 年 3 月）與 Jamba 1.5（2024 年 8 月）將兩者融為一爐：每 7 個 Mamba 層搭配 1 個 Transformer 層，每隔一個區塊啟用 MoE，並在單張 80GB GPU 上實現了 256k 脈絡視窗。Mamba-3（ICLR 2026）則在純 SSM 端引入複數值狀態空間（complex-valued state spaces）與 MIMO（multi-input multi-output）投影。本課將深入剖析這兩種架構，解釋為何這套混合配方能歷經三年擴展仍持續發展，而純 SSM 與純 Transformer 的長脈絡嘗試則未能延續。
 
 **Type:** Learn
 **Languages:** Python (stdlib, layer-mix calculator)
@@ -76,7 +76,7 @@ Mamba 層本身已具備位置感知能力（透過其遞迴機制）。在最�
 對於 Jamba-1 規格（32 層：28 個 Mamba + 4 個 Attention，隱藏維度 4096，32 個注意力頭）：
 
 - KV 快取（僅計算 Attention 層）：在 256k BF16 下為 `2 * 4 * 32 * 128 * 256k * 2 = 8.4 GB`。僅有 4 個注意力層會產生快取。
-- SSM 狀態：每前綴 token 為 `28 * hidden * state_size`，但這在每層中是固定大小，不隨序列長度膨脹。典型 Mamba 狀態每個特徵維度為 16，隱藏維度 4096：總計僅為 `28 * 4096 * 16 * 2 = 3.7 MB`。
+- SSM 狀態：每個序列前綴的 SSM 狀態大小為 `28 * hidden * state_size`；每層固定，不隨序列長度增加。典型 Mamba 狀態每個特徵維度為 16，隱藏維度 4096：總計僅為 `28 * 4096 * 16 * 2 = 3.7 MB`。
 
 對比具有 32 層、相同隱藏維度、採用 32 頭全 MHA 的純 Transformer：在 256k BF16 下高達 `2 * 32 * 32 * 128 * 256k * 2 = 128 GB`。KV 快取體積直接縮減 8 倍！即便對比多數 2024 年模型採用的 GQA(8) 基準線（`2 * 32 * 8 * 128 * 256k * 2 = 32 GB`），Jamba 1:7 混合架構仍小了整整 2 倍。
 
