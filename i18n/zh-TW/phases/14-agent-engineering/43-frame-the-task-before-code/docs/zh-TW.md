@@ -12,7 +12,7 @@
 - 在動手編輯檔案前，將模糊的使用者請求轉化為邊界清晰的任務框架（Task Frame）。
 - 嚴格區分儲存庫客觀事實、主觀未驗證假設與未決問題。
 - 明確界定獲准修改的路徑、絕對禁止碰觸的路徑，以及最終驗收憑證。
-- 準確裁決前期的實體偵察何時已具備充足依據以正式啟動工程作業。
+- 判斷何時已有足夠依據結束前期勘查並開始工作。
 
 ## 代價高昂的失敗（The Expensive Failure）
 
@@ -28,23 +28,23 @@
 
 | 欄位名稱 | 核心檢核問題 |
 |---|---|
-| Goal（目標） | 究竟何種可被客觀觀測的系統行為必須改變？ |
-| Repository facts（儲存庫事實） | 你在程式碼、測試、設定檔或歷史記錄中具體核實了什麼？ |
-| Allowed paths（允許路徑） | 變更獲准落在哪個路徑範圍內？ |
-| Forbidden paths（禁止路徑） | 哪些檔案或目錄絕對嚴禁被碰觸？ |
-| Acceptance evidence（驗收憑證） | 哪條指令或客觀觀測結果能確鑿證明目標已達成？ |
-| Unknowns（未知決策） | 哪些決策依然需要客觀證據或人類的主觀裁決？ |
+| 目標（Goal） | 哪種可觀察的行為必須改變？ |
+| 儲存庫事實（Repository facts） | 你在程式碼、測試、設定或歷史紀錄中驗證了什麼？ |
+| 允許路徑（Allowed paths） | 變更可以放在哪些路徑？ |
+| 禁止路徑（Forbidden paths） | 哪些路徑不得變更？ |
+| 驗收證據（Acceptance evidence） | 哪個指令或觀察結果能證明目標已達成？ |
+| 未知事項（Unknowns） | 哪些決策仍需要證據或人類判斷？ |
 
 事實必須出示憑證。「API 面對重複時使用 409 狀態碼」並非事實，直到你能在既有測試或處理常式中明確指出具體行號為止。檔案路徑與行號足矣；若涉及動態行為，指令執行結果更具說服力。
 
 ```mermaid
 flowchart LR
-  R[Request] --> I[Inspect repository]
-  I --> F[Facts with evidence]
-  F --> B[Bounded task frame]
-  B --> D{Unknown blocks design?}
-  D -->|Yes| Q[Ask or investigate]
-  D -->|No| P[Plan the change]
+  R[請求] --> I[檢查儲存庫]
+  I --> F[有證據支持的事實]
+  F --> B[有界限的任務框架]
+  B --> D{未知事項會阻礙設計嗎？}
+  D -->|Yes| Q[詢問或調查]
+  D -->|No| P[規劃變更]
 ```
 
 ## 前期勘查是探尋邊界約束（Reconnaissance Is a Search for Constraints）
@@ -58,7 +58,7 @@ flowchart LR
 5. 建置與驗收檢查指令；
 6. 過去完成的類似變更，從中借鏡本地編程範式。
 
-當所有預定的架構決策皆獲得實體證據支撐、已顯式授權委派，或已被列為未決問題時，應立即停止閱讀。超出該臨界點的無休止閱讀，往往只是推遲開工的拖延藉口。
+當所有預定的架構決策皆有證據支撐、已獲授權委派，或已被列為未決問題時，應立即停止閱讀。超出該臨界點的無休止閱讀，往往只是推遲開工的拖延藉口。
 
 ## 未知決策並非系統失敗（Unknowns Are Not Failures）
 
@@ -66,7 +66,7 @@ flowchart LR
 
 對每項未知決策進行清晰分類：
 
-- **可探測的（Discoverable）**：儲存庫程式碼或執行中的系統能給出客觀答案。
+- **可查明的（Discoverable）**：儲存庫或執行中的系統能回答。
 - **可決策的（Decidable）**：任務契約已顯式授權 Agent 自主做出技術裁決。
 - **需人工介入的（Human）**：該選擇會實質改變產品行為、成本、風險或對外相容性。
 - **延後的（Deferred）**：該選擇完全超出本次切片的範疇，應當歸入非目標清單。
@@ -79,7 +79,7 @@ Agent 獲准在可探測與已授權的未知決策中自主推進。而在涉�
 
 - 一條高精度的單元或整合測試指令；
 - 一次指定視窗寬度與預期狀態的瀏覽器端互動演練；
-- 一次實體網路請求與精確的比對回應契約；
+- 一次網路層請求與精確的回應契約；
 - 一項帶有硬性門檻的效能度量；
 - 一次證明無任何無關檔案被修改的範疇審計。
 
@@ -122,7 +122,7 @@ python3 -m unittest discover code/tests -v
 ## Further Reading｜延伸閱讀
 
 - [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——將實作緊密錨定於真實世界目標與動態約束的經典需求工程論文
-- [Yang et al., SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering](https://arxiv.org/abs/2405.15793) ——證明圍繞大模型的外圍互動介面能根本性左右其有效性的實證研究
+- [Yang et al., SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering](https://arxiv.org/abs/2405.15793) ——證明 coding agent 的互動介面會影響其效果的實證研究
 
 ## 留存產物（What You Keep）
 
