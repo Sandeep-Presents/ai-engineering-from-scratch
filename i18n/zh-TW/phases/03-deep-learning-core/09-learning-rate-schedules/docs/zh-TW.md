@@ -128,7 +128,7 @@ graph LR
 flowchart TD
     Start["選擇學習率排程"] --> Know{"知道總<br/>訓練步數？"}
 
-    Know -->|"Yes"| Budget{"Compute budget?"}
+    Know -->|"Yes"| Budget{"運算預算？"}
     Know -->|"No"| Constant["用常數學習率<br/>再手動衰減"]
 
     Budget -->|"Large (days/weeks)"| WarmCos["預熱 + 餘弦衰減<br/>（Llama/GPT 的預設）"]
