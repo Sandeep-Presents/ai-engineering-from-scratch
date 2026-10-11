@@ -37,11 +37,11 @@ The product is the Sony WH-1000XM5 headphones, which cost $348.00 and are curren
 
 ```mermaid
 graph LR
-    subgraph Spectrum["Structured Output Spectrum"]
+    subgraph Spectrum["結構化輸出範圍"]
         direction LR
-        A["Prompt-based\n'Return JSON'\n~90% valid"] --> B["JSON Mode\nGuaranteed valid JSON\nNo schema guarantee"]
-        B --> C["Schema Mode\nJSON + matches schema\nGuaranteed compliance"]
-        C --> D["Constrained Decoding\nToken-level enforcement\n100% compliance"]
+        A["以 prompt 為基礎\n'回傳 JSON'\n約 90% 有效"] --> B["JSON 模式\n保證 JSON 有效\n不保證符合 schema"]
+        B --> C["Schema 模式\nJSON + 符合 schema\n保證符合要求"]
+        C --> D["受限解碼\ntoken 層級強制限制\n100% 符合要求"]
     end
 
     style A fill:#1a1a2e,stroke:#ff6b6b,color:#fff
@@ -104,11 +104,11 @@ class Product(BaseModel):
 
 ```mermaid
 graph TD
-    subgraph ToolUse["Tool Use Flow"]
-        U["User: Extract product info\nfrom this review text"] --> M["Model processes input"]
-        M --> TC["Tool Call:\nextract_product(\n  product='Sony WH-1000XM5',\n  price=348.00,\n  in_stock=true\n)"]
-        TC --> V["Validate against\nfunction schema"]
-        V --> R["Structured Result:\n{product, price, in_stock}"]
+    subgraph ToolUse["工具使用流程"]
+        U["使用者：從這段評論文字\n擷取產品資訊"] --> M["模型處理輸入"]
+        M --> TC["工具呼叫：\nextract_product(\n  product='Sony WH-1000XM5',\n  price=348.00,\n  in_stock=true\n)"]
+        TC --> V["依函式 schema\n進行驗證"]
+        V --> R["結構化結果：\n{product, price, in_stock}"]
     end
 
     style U fill:#1a1a2e,stroke:#0f3460,color:#fff
@@ -480,7 +480,7 @@ OpenAI 的結構化輸出模式在內部採用了受限解碼。模型生成的�
 # )
 ```
 
-Anthropic 透過工具呼叫實現結構化輸出。模型發出一個工具呼叫，其結構化引數嚴格符合宣告的 input_schema。相同的成果，不同的 不同的 API 介面。
+Anthropic 透過工具呼叫實現結構化輸出。模型發出一個工具呼叫，其結構化引數嚴格符合宣告的 input_schema。相同的成果，不同的 API 介面。
 
 ### Instructor 函式庫
 
