@@ -68,7 +68,7 @@ AudioMarkBench 寫的：「音高偏移之下，所有浮水印的位元回復�
 
 ### C2PA／Content Authenticity Initiative
 
-這不是機器學習手法，是一份清單格式。音訊檔帶著密碼學簽過的中繼資料：建立工具、作者、日期。Audobox／Seamless 在用。對出處有用。惡意的人重新編碼、把中繼資料剝掉後，它便失去作用。
+這不是機器學習手法，是一種資訊清單（manifest）格式。音訊檔帶著密碼學簽過的中繼資料：建立工具、作者、日期。Audobox／Seamless 在用。對出處有用。惡意的人重新編碼、把中繼資料剝掉後，它便失去作用。
 
 ```figure
 v4-audio-watermark
@@ -144,7 +144,7 @@ def safe_tts(text, voice, clone_reference=None):
     return audio_with_wm, manifest
 ```
 
-每次生成都附帶：(1) 浮水印，(2) 簽過的清單，(3) 符合保留政策的稽核紀錄。
+每次生成都附帶：(1) 浮水印，(2) 簽署的資訊清單，(3) 符合保留政策的稽核紀錄。
 
 ## Use It｜實際應用
 
