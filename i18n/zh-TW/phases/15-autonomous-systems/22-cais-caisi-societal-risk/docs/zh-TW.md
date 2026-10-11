@@ -1,6 +1,6 @@
 # CAIS、CAISI 與社會級風險治理（CAIS, CAISI, and Societal-Scale Risk）
 
-> AI 安全中心（Center for AI Safety, CAIS，位於舊金山，由 Hendrycks 與 Zhang 於 2022 年創立）發布了著名的四大風險框架——惡意使用、AI 競賽、組織風險與失控 AI——以及於 2023 年 5 月由數百位頂尖學者與企業領袖共同簽署的生存風險聯合聲明。CAIS 於 2026 年發布的代表性產物包括：用於尖端模型評估的 AI 儀表板、遠距勞動力指數（與 Scale AI 聯合發布）、超級智慧戰略白皮書以及 AI Frontiers 通訊。另一個截然不同的法定實體是：美國國家標準與技術研究院（NIST）旗下的 AI 標準與創新中心（CAISI）——負責推動面向美國聯邦政府的自願性安全協議，並開展針對網路安全、生物危害與化學武器風險的非機密級能力評估。CAIS 特別將組織風險列為四大一級風險之一：安全文化、嚴格稽核、多層深度防禦以及資訊安全固然是基石，但在實務中卻經常在部署速度的競爭壓力下被妥協犧牲。加州 SB-53 法案若正式簽署，將成為美國首部州級災難性風險監管法規。
+> AI 安全中心（Center for AI Safety, CAIS，位於舊金山，由 Hendrycks 與 Zhang 於 2022 年創立）發布了著名的四大風險框架（four-risk framework）——惡意使用、AI 競賽、組織風險與失控 AI——以及於 2023 年 5 月由數百位頂尖學者與企業領袖共同簽署的生存風險聯合聲明。CAIS 於 2026 年發布的代表性產物包括：用於尖端模型評估的 AI 儀表板、遠距勞動力指數（與 Scale AI 聯合發布）、超級智慧戰略論文以及 AI Frontiers 通訊。另一個截然不同的機構是：美國國家標準與技術研究院（NIST）旗下的 AI 標準與創新中心（CAISI）——負責推動面向美國聯邦政府的自願性安全協議，並開展針對網路安全、生物危害與化學武器風險的非機密級能力評估。CAIS 特別將組織風險列為四大一級風險之一：安全文化、嚴格稽核、多層深度防禦以及資訊安全固然是基石，但在實務中卻經常在部署速度的競爭壓力下被妥協犧牲。加州 SB-53 法案若正式簽署，將成為美國首部州級災難性風險監管法規。
 
 **Type:** Learn
 **Languages:** Python (stdlib, four-risk inventory and mitigation matcher)
@@ -9,9 +9,9 @@
 
 ## The Problem｜問題
 
-第 19 課與第 20 課深入解析了尖端實驗室內部的模型擴展政策。第 21 課則探討了外部獨立的能力評估體系。本課將拼圖補齊，探討第三種視角：形塑公眾認知與監管法定基準的公民社會智庫與政府機構。
+第 19 課與第 20 課深入解析了尖端實驗室內部的模型擴展政策。第 21 課則探討了外部獨立的能力評估體系。本課將拼圖補齊，探討第三種視角：形塑公眾認知與監管基準的公民社會智庫與政府機構。
 
-在此必須清晰辨析兩個名稱極為相似但本質完全不同的重要實體。CAIS 是一家非營利研究機構，專注於建立 AI 風險的認知框架並協調發起公眾倡議。CAISI 則是設立於美國國家標準與技術研究院（NIST）內部的政府官方機構，負責執行與各大實驗室的自願性協定並主導非機密級的能力評測。兩者名稱發音相似，但法定職責絕無重疊。任何從業人員皆應對兩者有清晰的認識。
+在此必須清晰辨析兩個名稱極為相似但本質完全不同的重要實體。CAIS 是一家非營利研究機構，專注於建立 AI 風險的認知框架並協調發起公眾倡議。CAISI 則是設立於美國國家標準與技術研究院（NIST）內部的政府官方機構，負責執行與各大實驗室的自願性協定並主導非機密級的能力評測。兩者名稱發音相似，但職責並不重疊。任何從業人員皆應對兩者有清晰的認識。
 
 實踐層面的核心價值：CAIS 提出的四大風險框架，是當前學術界與政策界被引用最為廣泛的社會級風險分類法。安全文化與組織風險名列這四大類別之一，而這正是每一位第一線工程從業者最能直接掌控的實質槓桿。加州 SB-53 法案若順利通過簽署，將成為全美第一部州級災難性 AI 風險監管法；該法案的立法框架極為關鍵，因為在美國科技政策史上，州級立法往往成為日後聯邦法案的先驅風向球。
 
@@ -21,8 +21,8 @@
 
 - 創立時間：2022 年於舊金山，由 Dan Hendrycks 及其同事共同創立（早期文獻中的「Zhang」指早期合作學者，目前 CAIS 官網列有現任領導團隊名冊）。
 - 機構性質：501(c)(3) 非營利智庫。
-- 2023 年轟動全球的代表作：生存風險聯合聲明，由數百位圖靈獎得主、頂尖學者與科技巨頭 CEO 聯名簽署。聲明僅有一句話：「防範 AI 帶來的滅絕風險，應與大流行病及核戰爭等其他社會規模的重大風險一樣，成為全球優先事項。」
-- 2026 年最新成果：尖端模型評估 AI 儀表板、遠距勞動力指數（與 Scale AI 聯合發布）、超級智慧戰略白皮書，以及《AI Frontiers》前沿通訊。
+- 2023 年具代表性的成果：生存風險聯合聲明，由數百位研究者與企業 CEO 聯名簽署。聲明僅有一句話：「防範 AI 帶來的滅絕風險，應與大流行病及核戰爭等其他社會規模的重大風險一樣，成為全球優先事項。」
+- 2026 年最新成果：尖端模型評估 AI 儀表板、遠距勞動力指數（與 Scale AI 聯合發布）、超級智慧戰略論文，以及《AI Frontiers》前沿通訊。
 
 ### 四大風險分類框架（Four-Risk Framework）
 
@@ -53,15 +53,15 @@ CAIS 的架構將災難性 AI 風險高度提煉為四大一級類別：
 - 定期發布聚焦於網路安全、生物危害與化學武器威脅的非機密級能力評估報告。
 - 與非營利的 CAIS 截然不同；兩者縮寫極易混淆；閱讀報告時務必核對官方網址（nist.gov）以確認來源。
 
-CAISI 的角色，是相對於 METR 與實驗室閉門合作（第 21 課）的官方、面向聯邦政府的公開制衡力量。CAISI 的評測報告完全公開解密；而 METR 的報告在發布前夕往往受到嚴格保密協議保護。兩者兼讀能讓工程師掌握最完整的真實全貌。
+CAISI 的角色，是相對於 METR 與實驗室閉門合作（第 21 課）的官方、面向聯邦政府的公開制衡力量。CAISI 的評測報告以非機密形式公開；而 METR 的報告在發布前夕往往受到嚴格保密協議保護。兩者兼讀能讓工程師掌握最完整的真實全貌。
 
 ### 加州 SB-53 法案
 
 加州參議院法案（2025–2026 會期）直接針對尖端前沿模型可能引發的災難性風險進行法制化規範。其起草的核心條款包括：
 
-- 明確定義觸發州級法定監管義務的具體算力與能力門檻。
+- 明確定義觸發州級法定義務的能力門檻。
 - 為 AI 實驗室內部揭弊者（whistleblowers）提供強有力的法律保護。
-- 強制要求各大實驗室建立重大災難性安全事件的即時法交通報機制。
+- 強制要求各大實驗室建立災難性失效事件的通報要求。
 
 該法案若正式簽署，將成為全美第一部州級災難性 AI 風險監管法。無論最終是否順利簽署生效，該法案的立法邏輯都深刻影響著其他各州乃至聯邦立法的走向。身處加州的從業者應密切追蹤其立法動態；其他地區的工程師也應深入研讀，以提前洞悉美國科技監管法規的未來樣貌。
 
@@ -70,12 +70,12 @@ CAISI 的角色，是相對於 METR 與實驗室閉門合作（第 21 課）的�
 貫穿 Phase 15 的核心哲學——縱深防禦（defense in depth）——在社會治理巨觀維度上同樣不可動搖。世界上沒有任何單一機構、法規條文或技術框架能夠獨自終結災難性風險。整個安全生態唯有在以下各個環節緊密嵌合時才能正常運作：
 
 - 尖端實驗室發布嚴肅自律的模型擴展政策（第 19、20 課）。
-- 外部獨立評估機構產出客觀客製的實測數字（第 21 課）。
-- 公民社會智庫持續追蹤、吹哨並啟發大眾認知（CAIS）。
-- 政府監管單位推動自願協定與法定底線法規（CAISI、SB-53）。
+- 外部獨立評估機構產出客觀的實測數據（第 21 課）。
+- 公民社會智庫持續追蹤、公開資訊並提升大眾認知（CAIS）。
+- 政府監管單位推動自願協定與監管底線法規（CAISI、SB-53）。
 - 第一線工程從業者親手打造立體多層的安全控制系統（第 10–18 課）。
 
-這是整個 Phase 15 的最終總結昇華：先前所學的每一課，都是整座防禦大廈中不可或缺的一塊磚石，這套防護技術堆疊的完整性，遠比任何單一防線的強悍更為關鍵。
+這是整個 Phase 15 的總結：先前所學的每一課，都是整座防禦大廈中不可或缺的一塊磚石，這套防護技術堆疊的完整性，遠比任何單一防線的強悍更為關鍵。
 
 ```figure
 a5-four-risks
@@ -83,11 +83,11 @@ a5-four-risks
 
 ## Use It｜實際應用
 
-`code/main.py` 透過 Python 標準函式庫實現了一個微型風險盤點工具。給定一項擬議的模型部署方案，它會對照四大風險分類法進行特徵標註，並自動輸出相應的緩解措施清單。這是一份用於輔助理解該框架的實用研讀工具，絕非替代人類工程判斷的機械化教條。
+`code/main.py` 透過 Python 標準函式庫實現了一個微型風險盤點工具。給定一項擬議的模型部署方案，它會對照四大風險分類法進行特徵標註，並自動輸出相應的緩解措施清單。這是一份協助理解該框架的研讀工具，不能取代人類判斷。
 
 ## Ship It｜交付成果
 
-`outputs/skill-societal-risk-review.md` 能為具體的模型部署方案全面審查其社會級風險防禦態勢：梳理其觸及了四大風險中的哪些維度、各項維度的緩解手段是否到位，以及其在組織風險層面的實際暴露程度。
+`outputs/skill-societal-risk-review.md` 能為具體的模型部署方案審查其社會級風險防禦態勢：梳理其觸及了四大風險中的哪些維度、各項維度的緩解手段是否到位，以及其在組織風險層面的實際暴露程度。
 
 ## Exercises｜練習
 
@@ -103,21 +103,21 @@ a5-four-risks
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| CAIS | "Center for AI Safety" | Non-profit; four-risk framework; 2023 extinction statement |
-| CAISI | "US government AI safety" | NIST Center; voluntary agreements; unclassified evals |
-| Four-risk framework | "CAIS's taxonomy" | malicious use, AI races, organizational risks, rogue AIs |
-| Malicious use | "Bad actor uses AI" | Bioweapons, disinformation, cyberattacks |
-| AI races | "Competitive pressure" | Labs/companies/nations push deployment past safety |
-| Organizational risk | "Lab internal failure" | Safety culture, audit, defenses, infosec |
-| Rogue AI | "Misaligned agent" | Capable AI pursuing goals conflicting with human welfare |
-| California SB-53 | "State-level regulation" | 2025–2026 bill; first US state catastrophic-risk regulation if signed |
+| CAIS |「AI 安全中心」| 非營利機構；提出四大風險框架；2023 年發布滅絕風險聲明 |
+| CAISI |「美國政府的 AI 安全機構」| NIST 中心；推動自願協議；進行非機密評估 |
+| 四大風險框架 |「CAIS 的分類法」| 惡意使用、AI 競賽、組織風險、失控 AI |
+| 惡意使用 |「惡意行為者使用 AI」| 生物武器、假訊息、網路攻擊 |
+| AI 競賽 |「競爭壓力」| 實驗室、企業或國家不顧安全而加速部署 |
+| 組織風險 |「實驗室內部失靈」| 安全文化、稽核、防禦、資訊安全 |
+| 失控 AI |「未對齊的 agent」| 有能力的 AI 追求與人類福祉衝突的目標 |
+| California SB-53 |「州級監管」| 2025–2026 年法案；若簽署，將成為美國首部州級災難性風險法規 |
 
 ## Further Reading｜延伸閱讀
 
-- [Center for AI Safety](https://safe.ai/) — 四大風險框架的官方學術大本營。
-- [CAIS — AI Risks that Could Lead to Catastrophe](https://safe.ai/ai-risk) — 四大風險奠基論文全文。
-- [CAIS — May 2023 statement on extinction risk](https://safe.ai/statement-on-ai-risk) — 2023 年 5 月轟動全球的生存風險聯合聲明。
-- [NIST CAISI](https://www.nist.gov/caisi) — 美國聯邦政府 AI 標準與創新中心官方頁面。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 將實驗室層級的安全承諾與社會級巨觀框架深度連結的權威報告。
+- [Center for AI Safety](https://safe.ai/)
+- [CAIS — AI Risks that Could Lead to Catastrophe](https://safe.ai/ai-risk)
+- [CAIS — May 2023 statement on extinction risk](https://safe.ai/statement-on-ai-risk)
+- [NIST CAISI](https://www.nist.gov/caisi)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)

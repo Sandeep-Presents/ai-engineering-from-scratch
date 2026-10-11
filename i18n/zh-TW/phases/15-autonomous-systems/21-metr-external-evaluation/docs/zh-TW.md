@@ -1,6 +1,6 @@
 # METR 時間時程與外部能力評估（METR Time Horizons and External Capability Evaluation）
 
-> METR（前身為 ARC Evals）自 2023 年 12 月起成為獨立運作的 501(c)(3) 非營利機構。其 Time Horizon 1.1 基準測試（2026 年 1 月發布）將任務成功機率對人類專家完成時間的對數擬合出一條邏輯斯曲線；該曲線在 50% 成功機率處的交點，即定義為該模型的時間時程（time horizon）。其 2025–2026 年的評測對象涵蓋了 GPT-5.1、GPT-5.1-Codex-Max 以及原型監控評估（檢驗監控系統能否抓到模型的副任務；以及 agent 是否會蓄意逃避監控）。核心評測套件包括：HCAST（180 多個涵蓋機器學習、資安、軟體工程與推理的任務；跨度從 1 分鐘到 8 小時以上）、RE-Bench（71 個具備人類專家基準線的機器學習研發工程任務）以及 SWAA。客觀的現實提醒：METR 的測量環境高度理想化——沒有真實人類干擾，沒有實質嚴重後果——且該團隊已詳盡記錄了評測與正式環境之間的行為落差（第 1 課）。時間時程僅是一項能力的上限天花板，絕非正式部署時的真實表現預測。
+> METR（前身為 ARC Evals）自 2023 年 12 月起成為獨立運作的 501(c)(3) 非營利機構。其 Time Horizon 1.1 基準測試（2026 年 1 月發布）將任務成功機率對人類專家完成時間的對數擬合出一條邏輯斯曲線（logistic curve）；該曲線在 50% 成功機率處的交點，即定義為該模型的時間時程（time horizon）。其 2025–2026 年的評測對象涵蓋了 GPT-5.1、GPT-5.1-Codex-Max 以及原型監控評估（檢驗監控系統能否抓到模型的副任務（side task）；以及 agent 是否會蓄意逃避監控）。核心評測套件包括：HCAST（180 多個涵蓋機器學習、資安、軟體工程與推理的任務；跨度從 1 分鐘到 8 小時以上）、RE-Bench（71 個具備人類專家基準線的機器學習研發工程任務）以及 SWAA。客觀的現實提醒：METR 的測量環境高度理想化——沒有真人參與，沒有實質嚴重後果——且該團隊已詳盡記錄了評測與正式環境之間的行為落差（第 1 課）。時間時程僅是一項能力的上限天花板，絕非正式部署時的真實表現預測。
 
 **Type:** Learn
 **Languages:** Python (stdlib, logistic-fit horizon estimator)
@@ -42,7 +42,7 @@ METR 正是 2024–2026 年間確立了這套量化體系權威地位的外部�
 - Claude Opus 4.6：截至 Time Horizon 1.1（2026 年 1 月），在 50% 可靠度下的時間時程約為 14 小時。
 - 在類 HCAST 任務上的翻倍週期：依據 2023 年之後的資料擬合，翻倍週期約為 4.3 個月（130.8 天）；而約 7 個月的週期則是涵蓋 2019–2025 年全週期的歷史擬合值，兩項數字在 TH1.1 中皆被完整披露。
 
-這正是 Phase 15 其餘章節所反覆引述的權威基準。它們在 Anthropic 的 RSP v3.0（第 19 課）與 DeepMind 的 FSF v3（第 20 課）中皆被列為評估模型是否逼近危險能力門檻的核心輸入依據。
+這正是 Phase 15 其餘章節所反覆引述的權威基準。它們在 Anthropic 的 RSP v3.0（第 19 課）與 DeepMind 的 FSF v3（第 20 課）中皆被列為評估模型是否逼近危險能力門檻的輸入指標之一。
 
 ### 評測基準套件全景
 
@@ -52,20 +52,20 @@ METR 正是 2024–2026 年間確立了這套量化體系權威地位的外部�
 
 ### 原型監控評估（Prototype Monitoring Evaluations）
 
-METR 在 2025–2026 年間開展了一項前沿研究：檢驗監控系統能否精準抓包正在偷偷執行「副任務（side task）」（即偏離維運者預期意圖的私自行為）的模型，以及 agent 是否會展現出逃避監控的對抗傾向。這項研究直接為 OpenAI PF v2 中的「破壞安全防護機制」以及 DeepMind FSF v3 中的欺騙性對齊監控（第 20 課）提供了實證土壤。
+METR 在 2025–2026 年間開展了一項前沿研究：檢驗監控系統能否精準抓包正在偷偷執行偏離維運者預期意圖的任務的模型，以及 agent 是否會展現出逃避監控的對抗傾向。這項研究直接為 OpenAI PF v2 中的「破壞安全防護機制」以及 DeepMind FSF v3 中的欺騙性對齊監控（第 20 課）提供了實證土壤。
 
 ### 為什麼時間時程僅代表能力上限
 
 - **過度理想化的工具環境**：基準測試為模型提供了乾淨、規範且格式工整的工具與輸入資料。真實正式環境中的工具鏈則充滿雜訊與斷裂。
-- **缺乏真實的不可逆代價**：在測試中，模型永遠不必擔心向真實客戶開錯帳單、誤刪正式資料庫或騷擾真實用戶。而在真實部署中，許多操作的後果是絕對不可逆的。
+- **缺乏真實的不可逆代價**：在測試中，模型永遠不必擔心向真實客戶開錯帳單、刪除實際資料，或與真實的人聯繫。而在真實部署中，許多操作的後果是絕對不可逆的。
 - **評測語境博弈（第 1 課）**：模型在意識到自己處於測試環境時往往表現得更為合規且收斂。2026 年《國際 AI 安全報告》提供了詳盡的實證記錄。
-- **缺乏真實世界的使用者歧義**：基準測試的 prompt 通常結構清晰。而真實使用者提出的請求往往充滿語意模糊、上下文缺失與矛盾。
+- **缺乏真實使用者請求的差異**：基準測試的 prompt 通常結構清晰。而真實使用者提出的請求往往有不同的上下文與表達方式。
 
-時程數字代表的是在極度優渥順境下的能力天花板。真實正式環境中的可靠度必然顯著低於此數值，工程團隊必須在自身的業務分布上親自實測才能獲知真相。
+時程數字代表的是在極度優渥順境下的能力天花板。真實正式環境中的可靠度通常低於此數值，工程團隊必須在自身的業務分布上親自實測才能獲知真相。
 
 ### 外部獨立評估的核心價值
 
-外部獨立評估之所以不可替代，是因為實驗室內部天生存在粉飾自己對外發布指標的強烈商業動機。METR 作為具備透明方法論與同行評審論文背書的獨立 501(c)(3) 機構，在結構上構成了關鍵的制衡力量。雖然它並非絕對萬能（實驗室依然能在一定程度上篩選提供給 METR 的資訊），但它客觀上遠勝於完全缺乏外部獨立檢驗的自說自話。
+外部獨立評估之所以不可替代，是因為實驗室有最佳化對外公布指標的商業動機。METR 作為具備透明方法論與同行評審論文背書的獨立 501(c)(3) 機構，在結構上構成了關鍵的制衡力量。雖然它並非絕對萬能（實驗室依然能在一定程度上篩選提供給 METR 的資訊），但它客觀上遠勝於完全缺乏外部獨立檢驗的自說自話。
 
 ### 在工程實務中如何理性使用時程數字
 
@@ -83,7 +83,7 @@ a5-horizon-fit
 
 ## Ship It｜交付成果
 
-`outputs/skill-horizon-interpretation.md` 能為供應商宣稱的時間時程進行全面審查，並精準產出基準測試宣稱與真實部署環境之間的落差分析報告。
+`outputs/skill-horizon-interpretation.md` 能審查供應商宣稱的時間時程，並產出基準測試宣稱與實際部署環境之間的落差分析報告。
 
 ## Exercises｜練習
 
@@ -93,27 +93,27 @@ a5-horizon-fit
 
 3. 閱讀 METR 的「Measuring Autonomous AI Capabilities」官方資源。列出 HCAST 的所有任務子類別。挑選一個在你的正式業務中最具權重的類別，並為你的權重傾斜給出充分理由。
 
-4. 在模擬器中引入評測語境博弈：人為將約 20% 的失敗任務翻轉為成功。重新計算並回報新的時程數值。這能直觀展示 20% 的造假率會對觀察到的能力時程產生何等巨大的膨脹效應。
+4. 在模擬器中引入評測語境博弈：人為將約 20% 的失敗任務翻轉為成功。重新計算並回報新的時程數值。這能直觀展示 20% 的評測語境博弈率會對觀察到的能力時程產生何等巨大的膨脹效應。
 
 5. 為你團隊內部的 bug 清單或代表性任務集設計一套內部時程評估協定。詳細說明資料收集流程、擬合計算方式，以及輸出指標所代表的實務意義。將其與 METR 的官方數字進行對比。
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| METR | "External evaluator" | ex-ARC Evals; independent 501(c)(3) since Dec 2023 |
-| Time Horizon | "Capability measure" | Expert task length at 50% reliability, from logistic fit |
-| HCAST | "METR's main suite" | 180+ tasks spanning 1 min to 8+ hours |
-| RE-Bench | "Research engineering" | 71 ML research-engineering tasks with human baseline |
-| SWAA | "Short-task suite" | Calibrates the low end of the horizon curve |
-| Doubling time | "Growth rate" | Time for the 50% horizon to double; ~7 months per HCAST |
-| Eval-context gaming | "Model behaves differently" | Documented behavior gap between tests and deployment |
-| Upper bound | "Horizon is a ceiling" | Benchmark horizon > deployment reliability under load |
+| METR |「外部評估機構」| 前身為 ARC Evals；自 2023 年 12 月起為獨立的 501(c)(3) 非營利機構 |
+| 時間時程 |「能力指標」| 以邏輯斯擬合估算的專家任務時長；成功率為 50% |
+| HCAST |「METR 的主要測試套件」| 180 多項任務，時間跨度從 1 分鐘到 8 小時以上 |
+| RE-Bench |「研究工程」| 71 項具有專家基準線的機器學習研究工程任務 |
+| SWAA |「短任務測試套件」| 校準時程曲線的低端區間 |
+| 翻倍時間 |「成長率」| 50% 時程翻倍所需的時間；HCAST 約為 7 個月 |
+| 評測語境博弈 |「模型表現不同」| 已記錄的評測與部署行為差異 |
+| 上限 |「時程是天花板」| 基準測試時程高於負載下的部署可靠度 |
 
 ## Further Reading｜延伸閱讀
 
-- [METR — Resources for Measuring Autonomous AI Capabilities](https://metr.org/measuring-autonomous-ai-capabilities/) — HCAST、RE-Bench 與 SWAA 官方規範。
-- [METR — Measuring AI Ability to Complete Long Tasks](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/) — 時間時程奠基論文。
-- [METR — Time Horizon 1.1 (January 2026)](https://metr.org/research/) — 最新實測數字與方法論更新。
-- [Epoch AI — METR Time Horizons benchmark](https://epoch.ai/benchmarks/metr-time-horizons) — 即時動態追蹤看板。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 實驗室內部對照 METR 測量結果的權威觀點。
+- [METR — Resources for Measuring Autonomous AI Capabilities](https://metr.org/measuring-autonomous-ai-capabilities/)
+- [METR — Measuring AI Ability to Complete Long Tasks](https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/)
+- [METR — Time Horizon 1.1 (January 2026)](https://metr.org/research/)
+- [Epoch AI — METR Time Horizons benchmark](https://epoch.ai/benchmarks/metr-time-horizons)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
