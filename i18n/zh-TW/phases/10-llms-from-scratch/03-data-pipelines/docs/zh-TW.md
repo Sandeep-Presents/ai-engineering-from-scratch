@@ -62,12 +62,12 @@ Llama 3 公開了其資料配比：大約 50% 網路資料、25% 程式碼、13%
 
 ```mermaid
 graph TD
-    A[Raw Text] --> B[HTML Strip]
-    B --> C[Language Detection]
-    C --> D[Quality Filter]
-    D --> E[Deduplication]
-    E --> F[PII Removal]
-    F --> G[Clean Text]
+    A[原始文字] --> B[移除 HTML]
+    B --> C[語言偵測]
+    C --> D[品質篩選]
+    D --> E[去重複]
+    E --> F[移除個人識別資訊]
+    F --> G[清理後文字]
 
     style A fill:#1a1a2e,stroke:#e94560,color:#fff
     style B fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -98,12 +98,12 @@ MinHash 搭配局部敏感雜湊（Locality-Sensitive Hashing，LSH）能有效�
 
 ```mermaid
 graph LR
-    A[Document] --> B[Shingling]
-    B --> C[MinHash Signature]
-    C --> D[LSH Buckets]
-    D --> E[Candidate Pairs]
-    E --> F[Jaccard Similarity]
-    F --> G[Deduplicated Set]
+    A[文件] --> B[分片（shingling）]
+    B --> C[MinHash 簽章]
+    C --> D[LSH 分桶]
+    D --> E[候選配對]
+    E --> F[Jaccard 相似度]
+    F --> G[去重複後的集合]
 
     style A fill:#1a1a2e,stroke:#e94560,color:#fff
     style B fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -136,14 +136,14 @@ Llama 團隊回報透過去重複移除了約 38% 的網路資料。這不是一
 
 ```mermaid
 graph TD
-    subgraph Naive Packing
-        A1["Doc A (200 tokens)"] --> P1["[PAD] x 1848"]
-        A2["Doc B (500 tokens)"] --> P2["[PAD] x 1548"]
-        A3["Doc C (100 tokens)"] --> P3["[PAD] x 1948"]
+    subgraph 樸素封裝
+        A1["文件 A（200 個 token）"] --> P1["[PAD] x 1848"]
+        A2["文件 B（500 個 token）"] --> P2["[PAD] x 1548"]
+        A3["文件 C（100 個 token）"] --> P3["[PAD] x 1948"]
     end
 
-    subgraph Efficient Packing
-        B1["Doc A (200) | Doc B (500) | Doc C (100) | Doc D (400) | Doc E (848)"]
+    subgraph 高效率封裝
+        B1["文件 A（200）| 文件 B（500）| 文件 C（100）| 文件 D（400）| 文件 E（848）"]
     end
 
     style A1 fill:#1a1a2e,stroke:#e94560,color:#fff
