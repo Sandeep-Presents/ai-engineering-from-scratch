@@ -64,7 +64,7 @@ RMSNorm(x) = x / sqrt(mean(x^2) + eps) * gamma
 
 GPT-2 中的位置 embedding 是一個擁有 1024 個槽位的查表。當脈絡達到 1025 時，就會超出查表範圍。模型完全無法外推到超過訓練長度的文本。
 
-旋轉位置編碼（Rotary Position Embedding，RoPE，Su 等人，2021 年）在計算注意力內積之前，將每個 Q 與 K 向量成對進行旋轉。旋轉的角度是位置的確定性函數，因此沒有任何需要學習的參數，也永遠不會有用盡的一天。搭配縮放技巧（內插（interpolation）、YaRN），在 8k 脈絡下訓練的模型可以在推論時延伸至 128k，且精度損失微小。
+旋轉位置編碼（Rotary Position Embedding，RoPE，Su 等人，2021 年）在計算注意力內積之前，將每個 Q 與 K 向量成對進行旋轉。旋轉的角度是位置的確定性函數，因此沒有任何需要學習的參數，也永遠不會有用盡的一天。搭配縮放技巧（NTK 感知內插（NTK-aware interpolation）與 YaRN），在 8k 脈絡下訓練的模型可以在推論時延伸至 128k，且精度損失微小。
 
 ```
 q_rotated = rotate(q, angle(pos))
@@ -86,13 +86,13 @@ SwiGLU(x) = (xW1) * sigmoid(xW1) * xV
 
 ### 旋鈕 4：注意力頭共享模式
 
-GPT-2 採用**多頭注意力（MHA）**：每個頭都擁有自己專屬的 Q、K、V 投影。
+GPT-2 採用**多頭注意力（Multi-Head Attention，MHA）**：每個頭都擁有自己專屬的 Q、K、V 投影。
 
-**多查詢注意力（MQA，Shazeer，2019 年）** 跨所有頭共享同一組 K 與 V。這將 KV 快取縮減了 num_heads 倍（在典型模型中可縮減 12 到 32 倍），但在高難度基準測試上精準度略有下滑。
+**多查詢注意力（Multi-Query Attention，MQA，Shazeer，2019 年）** 跨所有頭共享同一組 K 與 V。這將 KV 快取縮減了 num_heads 倍（在典型模型中可縮減 12 到 32 倍），但在高難度基準測試上精準度略有下滑。
 
-**分組查詢注意力（GQA，Ainslie 等人，2023 年）** 找到了折衷的甜蜜點：由 G 個 Q 頭組成的群組共享同一組 K 與 V。Llama 3 8B 採用 GQA，具有 32 個 Q 頭與 8 個 KV 頭（G=8），因此 KV 快取相較於全 MHA 縮減了整整 4 倍。
+**分組查詢注意力（Grouped-Query Attention，GQA，Ainslie 等人，2023 年）** 找到了折衷的甜蜜點：由 G 個 Q 頭組成的群組共享同一組 K 與 V。Llama 3 8B 採用 GQA，具有 32 個 Q 頭與 8 個 KV 頭（G=8），因此 KV 快取相較於全 MHA 縮減了整整 4 倍。
 
-**多頭潛在注意力（MLA，DeepSeek，2024 年）** 將 K 與 V 壓縮至一個共享的低秩潛在表示中，並在每個頭上解壓縮。在保留每個頭表現力的同時，進一步大幅壓低了 KV 快取體積。DeepSeek-V2 與 V3 正是仰賴這項創新來達成卓越的長脈絡效能。
+**多頭潛在注意力（Multi-Head Latent Attention，MLA，DeepSeek，2024 年）** 將 K 與 V 壓縮至一個共享的低秩潛在表示中，並在每個頭上解壓縮。在保留每個頭表現力的同時，進一步大幅壓低了 KV 快取體積。DeepSeek-V2 與 V3 正是仰賴這項創新來達成卓越的長脈絡效能。
 
 | 架構模式 | KV 頭數量 | KV 快取體積 | 精準度表現 |
 |--------|----------|----------|----------|
@@ -117,14 +117,14 @@ output = sum_i weights[i] * expert[indices[i]](x)
 
 ```mermaid
 graph LR
-    I["Token hidden state"] --> R["Router\n(linear -> softmax)"]
-    R --> T["Top-k selection"]
-    T --> E1["Expert 1\n(MLP)"]
-    T --> E2["Expert 2\n(MLP)"]
-    T --> EN["Expert 64\n(MLP, unused)"]
-    E1 --> S["Weighted sum"]
+    I["Token 隱藏狀態"] --> R["路由器\n(linear -> softmax)"]
+    R --> T["Top-k 選取"]
+    T --> E1["專家 1\n（MLP）"]
+    T --> E2["專家 2\n（MLP）"]
+    T --> EN["專家 64\n（MLP，未使用）"]
+    E1 --> S["加權總和"]
     E2 --> S
-    S --> O["Output"]
+    S --> O["輸出"]
 
     style EN fill:#eeeeee,stroke:#999,color:#999
     style E1 fill:#1a1a2e,stroke:#51cf66,color:#fff
@@ -191,7 +191,7 @@ Llama 3 8B 設定檔：
 
 ### 活化值記憶體預算
 
-在數十億參數以上，活化值開始主導訓練記憶體。預訓練期間（啟用活化值檢查點時）的經驗法則：
+在數十億參數以上，活化值開始主導訓練記憶體。預訓練期間（啟用梯度檢查點（gradient checkpointing）時）的經驗法則：
 
 ```
 activation_mem ~ batch_size * seq_len * hidden_size * num_layers * bytes_per_element
