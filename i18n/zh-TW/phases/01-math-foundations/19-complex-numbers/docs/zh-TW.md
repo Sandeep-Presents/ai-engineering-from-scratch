@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 以直角座標形式（rectangular form）和極式（polar form）以直角座標形式和極式實作複數運算：加法、乘法、除法與求共軛（conjugate）
+- 以直角座標形式（rectangular form）和極式（polar form）實作複數運算（complex arithmetic）：加法、乘法、除法與求共軛（conjugate）
 - 運用歐拉公式（Euler's formula），在複指數函數（complex exponentials）和三角函數（trigonometric functions）之間轉換
 - 使用單位根（roots of unity）實作離散傅立葉轉換（Discrete Fourier Transform，DFT）
 - 說明複數旋轉如何構成 transformer 中的 RoPE（Rotary Position Embedding）和正弦位置編碼（sinusoidal positional encoding）
@@ -162,11 +162,11 @@ Rotation via matrix multiplication:
 
 ```mermaid
 graph TD
-    subgraph "Complex Multiplication = 2D Rotation"
-        A["z = x + yi<br/>Point (x, y)"] -->|"multiply by e^(i*theta)"| B["z' = z * e^(i*theta)<br/>Point rotated by theta"]
+    subgraph "複數乘法＝二維旋轉"
+        A["z = x + yi<br/>點 (x, y)"] -->|"multiply by e^(i*theta)"| B["z' = z * e^(i*theta)<br/>點旋轉 theta"]
     end
-    subgraph "Equivalent Matrix Form"
-        C["vector [x, y]"] -->|"multiply by rotation matrix"| D["[x cos theta - y sin theta,<br/> x sin theta + y cos theta]"]
+    subgraph "等價矩陣形式"
+        C["向量 [x, y]"] -->|"multiply by rotation matrix"| D["[x cos theta - y sin theta,<br/> x sin theta + y cos theta]"]
     end
     B -.->|"same result"| D
 ```
@@ -250,17 +250,17 @@ RoPE（Rotary Position Embedding）更進一步，直接讓 query 和 key 向量
 
 ```mermaid
 graph LR
-    subgraph "Unit Circle"
+    subgraph "單位圓"
         direction TB
         U1["e^(i*0) = 1"] -.-> U2["e^(i*pi/2) = i"]
         U2 -.-> U3["e^(i*pi) = -1"]
         U3 -.-> U4["e^(i*3pi/2) = -i"]
         U4 -.-> U1
     end
-    subgraph "Applications"
-        A1["Euler's formula:<br/>e^(i*theta) = cos + i*sin"]
-        A2["DFT uses roots of unity:<br/>e^(2*pi*i*k/N)"]
-        A3["RoPE uses rotation:<br/>q * e^(i*m*theta)"]
+    subgraph "應用"
+        A1["歐拉公式：<br/>e^(i*theta) = cos + i*sin"]
+        A2["DFT 使用單位根：<br/>e^(2*pi*i*k/N)"]
+        A3["RoPE 使用旋轉：<br/>q * e^(i*m*theta)"]
     end
     U1 --> A1
     U1 --> A2
