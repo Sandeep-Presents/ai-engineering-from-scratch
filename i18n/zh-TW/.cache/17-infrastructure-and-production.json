@@ -21,5 +21,6 @@
   "phases/17-infrastructure-and-production/20-shadow-canary-progressive/docs/en.md": "7f172d6f18a66561b84a773fe9ab9fc800c2cb30af597d8c740ceff0ede09dea",
   "phases/17-infrastructure-and-production/21-ab-testing-llm-features/docs/en.md": "cb52fba426116a636f2d13ad6accb8c7237a8e973b0dba6da39ab8124249b1c6",
   "phases/17-infrastructure-and-production/22-load-testing-llm-apis/docs/en.md": "c1e295fcaa091d1c729005d2964d52e29321902f2630e80a663ad7f5fa004802",
-  "phases/17-infrastructure-and-production/23-sre-for-ai/docs/en.md": "70af1683e56bf583059a01d153b808ad3ba0e76f89a811dc57d03cd6f108da01"
+  "phases/17-infrastructure-and-production/23-sre-for-ai/docs/en.md": "70af1683e56bf583059a01d153b808ad3ba0e76f89a811dc57d03cd6f108da01",
+  "phases/17-infrastructure-and-production/24-chaos-engineering-llm/docs/en.md": "cd452d8d62dd107244028e88aadbcffcc768cd58a78afe52f3d85a4906f4e79f"
 }
