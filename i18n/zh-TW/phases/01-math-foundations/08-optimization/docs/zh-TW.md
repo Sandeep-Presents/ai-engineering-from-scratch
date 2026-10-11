@@ -46,9 +46,9 @@ w = w - lr * gradient
 
 ```mermaid
 graph TD
-    A["* Starting point (high loss)"] --> B["Moving downhill along gradient"]
-    B --> C["Approaching minimum"]
-    C --> D["o Minimum (low loss)"]
+    A["* 起點（高損失）"] --> B["沿梯度向下移動"]
+    B --> C["接近最小值"]
+    C --> D["o 最小值（低損失）"]
 ```
 
 ### 學習率：最重要的超參數
@@ -57,18 +57,18 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph TooLarge["Too Large (lr = 1.0)"]
-        A1["Step 1"] -->|overshoot| A2["Step 2"]
-        A2 -->|overshoot| A3["Step 3"]
+    subgraph TooLarge["步長過大（lr = 1.0）"]
+        A1["步驟 1"] -->|overshoot| A2["步驟 2"]
+        A2 -->|overshoot| A3["步驟 3"]
         A3 -->|diverging| A4["..."]
     end
-    subgraph TooSmall["Too Small (lr = 0.0001)"]
-        B1["Step 1"] -->|tiny step| B2["Step 2"]
-        B2 -->|tiny step| B3["Step 3"]
-        B3 -->|10,000 steps later| B4["Minimum"]
+    subgraph TooSmall["步長過小（lr = 0.0001）"]
+        B1["步驟 1"] -->|tiny step| B2["步驟 2"]
+        B2 -->|tiny step| B3["步驟 3"]
+        B3 -->|10,000 steps later| B4["最小值"]
     end
-    subgraph JustRight["Just Right (lr = 0.01)"]
-        C1["Start"] --> C2["..."] --> C3["Converged in ~100 steps"]
+    subgraph JustRight["恰到好處（lr = 0.01）"]
+        C1["起點"] --> C2["..."] --> C3["約 100 步後收斂"]
     end
 ```
 
@@ -85,7 +85,7 @@ graph LR
 | 變體 | 批次大小 | 梯度品質 | 每步速度 | 雜訊 |
 |---------|-----------|-----------------|---------------|-------|
 | Batch GD | 整個資料集 | 精確 | 慢 | 無 |
-| SGD | 1 個樣本 | 非常雜訊較大 | 快 | 高 |
+| SGD | 1 個樣本 | 雜訊非常大 | 快 | 高 |
 | Mini-batch | 32-256 | 良好的估計 | 平衡 | 中等 |
 
 SGD 和小批次中的雜訊不是 bug——它有助於逃出淺的局部最小值和鞍點。
@@ -103,16 +103,16 @@ w = w - lr * v
 
 ```mermaid
 graph TD
-    subgraph Without["Without Momentum (zigzag, slow)"]
-        W1["Start"] -->|left| W2[" "]
+    subgraph Without["不使用動量（鋸齒狀、緩慢）"]
+        W1["起點"] -->|left| W2[" "]
         W2 -->|right| W3[" "]
         W3 -->|left| W4[" "]
         W4 -->|right| W5[" "]
         W5 -->|left| W6[" "]
-        W6 --> W7["Minimum"]
+        W6 --> W7["最小值"]
     end
-    subgraph With["With Momentum (smooth, fast)"]
-        M1["Start"] --> M2[" "] --> M3[" "] --> M4["Minimum"]
+    subgraph With["使用動量（平滑、快速）"]
+        M1["起點"] --> M2[" "] --> M3[" "] --> M4["最小值"]
     end
 ```
 
@@ -162,15 +162,15 @@ w = w - lr * m_hat / (sqrt(v_hat) + epsilon)
 
 ```mermaid
 graph LR
-    subgraph Convex["Convex: One valley, one answer"]
+    subgraph Convex["凸：一個谷底、一個答案"]
         direction TB
-        CV1["High loss"] --> CV2["Global minimum"]
+        CV1["高損失"] --> CV2["全域最小值"]
     end
-    subgraph NonConvex["Non-convex: Multiple valleys, saddle points"]
+    subgraph NonConvex["非凸：多個谷底、鞍點"]
         direction TB
-        NC1["Start"] --> NC2["Local minimum"]
-        NC1 --> NC3["Saddle point"]
-        NC1 --> NC4["Global minimum"]
+        NC1["起點"] --> NC2["局部最小值"]
+        NC1 --> NC3["鞍點"]
+        NC1 --> NC4["全域最小值"]
     end
 ```
 
@@ -182,10 +182,10 @@ graph LR
 
 ```mermaid
 graph TD
-    HL["High loss region"] --> SP["Saddle point"]
-    HL --> LM["Local minimum"]
+    HL["高損失區域"] --> SP["鞍點"]
+    HL --> LM["局部最小值"]
     SP --> LM
-    SP --> GM["Global minimum"]
+    SP --> GM["全域最小值"]
     LM -.->|"shallow barrier"| GM
     style HL fill:#ff6666,color:#000
     style SP fill:#ffcc66,color:#000
@@ -362,7 +362,7 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(adam, T_max=100)
 | 梯度下降法（gradient descent） | 「往山下走」 | 以梯度乘上學習率從權重中減去來更新權重。最基本的最佳化器。 |
 | 學習率（learning rate） | 「步長」 | 控制每次更新把權重移多遠的純量。太大會發散，太小浪費算力。 |
 | 動量（momentum） | 「繼續滾」 | 把過去的梯度累積成速度向量。阻尼震盪、在一致方向上加速。 |
-| SGD | 「隨機取樣」 | 隨機梯度下降法。用隨機子集而非整個資料集算梯度。實務上幾乎都指小批次 SGD。 |
+| SGD | 「隨機抽樣」 | 隨機梯度下降法。用隨機子集而非整個資料集算梯度。實務上幾乎都指小批次 SGD。 |
 | 小批次（mini-batch） | 「一塊資料」 | 用來估計梯度的一小批訓練資料（32-256 個樣本）。平衡速度與梯度準確度。 |
 | Adam | 「預設的最佳化器」 | Adaptive Moment Estimation。追蹤每個權重的梯度與梯度平方移動平均，給每個權重自己的學習率。 |
 | 偏差校正（bias correction） | 「修掉冷啟動」 | Adam 的一階與二階矩初始化為零。偏差校正除以 (1 - beta^t)，補償早期步驟。 |
