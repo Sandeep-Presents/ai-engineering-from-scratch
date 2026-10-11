@@ -76,7 +76,7 @@ def sample_data(rng):
 
 標準 DDPM。網路（network）對 5 維的帶噪輸入，輸出 5 維的雜訊預測。
 
-### 步驟 3：推論時，推論時執行帶遮罩的反向過程（reverse process）
+### 步驟 3：推論時執行帶遮罩的反向過程（reverse process）
 
 ```python
 def inpaint_step(x_t, mask, clean_image, alpha_bars, t, rng):
@@ -124,7 +124,7 @@ SAM（Meta 的 Segment Anything，2023）加擴散修補，是 2026 年的去背
 ## Exercises｜練習
 
 1. **簡單。** 在 `code/main.py` 裡，把被遮住的維度比例從 0.2 變到 0.8。比例到多少，修補品質（遮罩維度上的殘差）會和無條件生成一樣？
-2. **中等。** 實作 RePaint：每 10 個反向步驟，往回跳 5 步（加噪）再去噪。量它是否減少遮罩邊緣的遮罩邊界的殘差。
+2. **中等。** 實作 RePaint：每 10 個反向步驟，往回跳 5 步（加噪）再去噪。量它是否減少遮罩邊緣的殘差。
 3. **困難。** 用 Hugging Face diffusers 比較：SD 1.5 Inpaint 加 ControlNet-Openpose，對上 Flux.1-Fill，做 20 個臉部重新生成任務。姿勢貼合和身份保留分開打分。
 
 ## Key Terms｜關鍵術語
