@@ -53,7 +53,7 @@ ColPali（Faysse 等人，arXiv:2407.01449）極富創意地將 ColBERT 典範�
 - 相關性分數 = Σ_i max_j cos(q_i, p_j)，即在「查詢文字 token」與「文件頁面影像 patch」之間直接計算 MaxSim 矩陣！
 - 依據加總後的最終得分，高精確度召回 Top-k 個相關頁面。
 
-在文件知識庫入庫階段：以 PaliGemma 為每一頁 PDF 影像計算 embedding，並保存其所有 patch 向量集合。在線上檢索階段：為使用者查詢生成向量，並針對所有儲存的頁面向量矩陣計算 MaxSim，迅速篩選出最佳候選頁面。
+在文件知識庫入庫階段：以 PaliGemma 為每一頁 PDF 影像計算 embedding，並保存其所有 patch 向量集合。線上檢索階段：為使用者查詢生成向量，並針對所有儲存的頁面向量矩陣計算 MaxSim，迅速篩選出最佳候選頁面。
 
 核心優勢：在高度依賴視覺排版的文件集上，其端到端表現比傳統文字 RAG 暴增 20% 至 40%！每一個 patch 向量皆完整承載了當地的局部排版幾何、色彩與文字訊號。
 
@@ -87,7 +87,7 @@ ColPali 團隊專門伴隨發布的權威評測基準：ViDoRe（Visual Document
 
 1. 知識入庫：PDF 檔案 → 逐頁彩現為圖片 → PaliGemma 編碼 → 索引並持久化所有 patch embedding 向量。
 2. 線上檢索：使用者輸入文字發問 → 生成查詢 token embedding → 對全庫頁面計算 MaxSim 分數 → 精準召回 Top-k 張原頁點陣圖。
-3. 答案生成：將 Top-k 張高畫質頁面影像連同原始問題，直接餵入前沿多模態大模型（Qwen2.5-VL 或 Claude）→ 直接輸出最終解答。
+3. 答案生成：將 Top-k 張高畫質頁面影像連同原始問題，直接餵入前沿多模態 VLM（Qwen2.5-VL 或 Claude）→ 直接輸出最終解答。
 
 全生命週期完全無需前置 OCR 引擎介入。統計圖表、流程箭頭、特殊字型與版面幾何，毫無損耗地直接流淌至最終答案中。
 
@@ -98,12 +98,12 @@ ColPali 團隊專門伴隨發布的權威評測基準：ViDoRe（Visual Document
 - ColPali 視覺原生方案：50 頁 × 729 個 patch × 128 維 × 4 位元組 = 約 18 MB 未壓縮實數資料；套用 PQ 量化後可壓縮至約 4 MB。
 - 傳統純文字 RAG：50 個文字區塊 × 768 維 × 4 位元組 = 約 150 KB。
 
-ColPali 在單份文件的原始儲存開銷上約為傳統文字 RAG 的 30 倍。在海量規模下，藉由 OPQ / PQ 等向量量化壓縮演算法，可將儲存代價控制在 5 到 10 倍的可接受工業範圍內。
+ColPali 經 PQ 壓縮後，每份文件的儲存量約為傳統文字 RAG 的 30 倍（原始儲存量約為 120 倍）。在海量規模下，藉由 OPQ / PQ 等向量量化壓縮演算法，可將儲存代價控制在 5 到 10 倍的可接受工業範圍內。
 
 ### 傳統文字 RAG 依然佔優的邊界
 
 - 毫無視覺排版價值的純文字文件（如維基百科純文字詞條、程式碼日誌記錄、聊天對話紀錄）：文字 RAG 更加輕巧經濟。
-- 包含數億頁超大規模的極致海量歷史歸檔庫，此時儲存與記憶體成本是壓倒一切的決定因素。
+- 包含數百萬頁以上的超大規模歸檔庫，此時儲存與記憶體成本是壓倒一切的決定因素。
 - 法律強制要求在檢索結果中必須同步附帶高確定性可溯源 OCR 文字文本的受規管業務。
 
 除上述特定邊界之外，在 2026 年的絕大多數企業級真實文件場景中——財務報表、學術論文、商業合約、醫療檢驗單與 UI 設計手冊——視覺原生 RAG 皆展現出壓倒性的精準度優勢。
@@ -126,7 +126,7 @@ mm-maxsim
 
 ## Exercises｜練習
 
-1. 一份長達 200 頁的企業年度報告，在每頁 729 個 patch、128 維度 embedding、4 位元組單精度浮點數的設定下，精確計算其原始未壓縮的向量儲存大小，以及經過 8 倍 PQ 量化壓縮後的實體儲存空間。
+1. 一份長達 200 頁的企業年度報告，在每頁 729 個 patch、128 維度 embedding、4 位元組單精度浮點數的設定下，精確計算其原始未壓縮的向量儲存大小，以及經過 8 倍 PQ 量化壓縮後的實際儲存空間。
 
 2. MaxSim 的數學公式為 Σ_i max_j cos(q_i, p_j)。請深入解釋：相較於將所有向量簡單取平均再計算餘弦相似度，MaxSim 額外捕捉到了何種至關重要的微觀語意資訊？
 
@@ -150,8 +150,8 @@ mm-maxsim
 
 ## Further Reading｜延伸閱讀
 
-- [Faysse et al. — ColPali (arXiv:2407.01449)](https://arxiv.org/abs/2407.01449) ——視覺原生 RAG 開山之作
-- [Khattab & Zaharia — ColBERT (arXiv:2004.12832)](https://arxiv.org/abs/2004.12832) ——後期交互檢索機制奠基論文
-- [Yu et al. — VisRAG (arXiv:2410.10594)](https://arxiv.org/abs/2410.10594) ——單向量頁面級視覺 RAG
-- [Cho et al. — M3DocRAG (arXiv:2411.04952)](https://arxiv.org/abs/2411.04952) ——多頁跨文件多模態檢索架構
-- [illuin-tech/colpali GitHub](https://github.com/illuin-tech/colpali) ——官方開源實作倉庫
+- [Faysse et al. — ColPali (arXiv:2407.01449)](https://arxiv.org/abs/2407.01449)
+- [Khattab & Zaharia — ColBERT (arXiv:2004.12832)](https://arxiv.org/abs/2004.12832)
+- [Yu et al. — VisRAG (arXiv:2410.10594)](https://arxiv.org/abs/2410.10594)
+- [Cho et al. — M3DocRAG (arXiv:2411.04952)](https://arxiv.org/abs/2411.04952)
+- [illuin-tech/colpali GitHub](https://github.com/illuin-tech/colpali)

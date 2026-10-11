@@ -1,6 +1,6 @@
 # LLaVA-OneVision：單圖、多圖與影片統一於單一模型（LLaVA-OneVision: Single-Image, Multi-Image, Video in One Model）
 
-> 在 LLaVA-OneVision（Li 等人，2024 年 8 月）問世之前，開源多模態世界割裂為不同的專業陣營：專攻單圖的 LLaVA-1.5、專攻多圖的 Mantis 與 VILA、專攻影片的 Video-LLaVA 與 Video-LLaMA。每個專項模型各自在專屬基準上奪冠，卻在其他場景潰不成軍。LLaVA-OneVision 提出了一個革命性觀點：一套精心設計的訓練課綱（curriculum），便能訓練出通吃這三種場景的單一大一統模型；更重要的是，跨場景的湧現遷移效應（將單圖感知力遷移至影片、將多圖推理力遷移至單圖）大幅超越了多個專門模型的能力總和。其工程配方無比簡潔：跨場景維持恆定不變的視覺 token 總預算，外加「單圖 → OneVision 多圖融合 → 影片強化」的明確階段時程。本課深入拆解其預算分配演算法、訓練課綱以及驚豔學界的湧現行為。
+> 在 LLaVA-OneVision（Li 等人，2024 年 8 月）問世之前，開源多模態（multimodal）世界割裂為不同的專業陣營：專攻單圖的 LLaVA-1.5、專攻多圖的 Mantis 與 VILA、專攻影片的 Video-LLaVA 與 Video-LLaMA。每個專項模型各自在專屬基準上奪冠，卻在其他場景潰不成軍。LLaVA-OneVision 提出了一個革命性觀點：一套精心設計的訓練課綱（curriculum），便能訓練出通吃這三種場景的單一大一統模型；更重要的是，跨場景的湧現遷移效應（將單圖感知力遷移至影片、將多圖推理力遷移至單圖）大幅超越了多個專門模型的能力總和。其工程配方看似簡單，實則結合了兩項設計：跨場景維持恆定的視覺 token 預算，並採用「單圖 → OneVision 多圖融合 → 影片強化」的明確課綱。本課深入拆解其預算分配演算法、訓練課綱以及驚豔學界的湧現行為。
 
 **Type:** Build
 **Languages:** Python (stdlib, token budget solver + curriculum planner)
@@ -12,7 +12,7 @@
 - 設計一套在單圖、多圖與影片輸入場景下皆能維持總量恆定的視覺 token 預算配置方案。
 - 規劃精確的訓練課綱先後時程，使單圖習得的細微感知力能無損遷移至影片理解，避免災難性遺忘。
 - 深入解釋為何在適當課綱的引導下，參數量完全相同的單一通用模型能全面擊潰多個專門特化模型。
-- 剖析 LLaVA-OneVision 論文中所揭露的三大自發湧現能力：多視角鏡頭綜合推理、標籤標註提示（set-of-mark prompting）以及 iPhone 截圖代理操作。
+- 剖析 LLaVA-OneVision 論文中所揭露的三大自發湧現能力：多視角鏡頭綜合推理、標籤標註提示（set-of-mark prompting）以及 iPhone 螢幕截圖 agent。
 
 ## The Problem｜問題
 
@@ -46,9 +46,9 @@ LLaVA-OneVision 的訓練流程劃分為嚴謹的三大階段：
 
 1. 單圖指令調校（SI 階段，Single-Image SFT）：全數訓練資料皆為單圖搭配文字。在超高畫質 AnyRes 輸入下訓練。此階段的核心目標是建立紮實的底層微觀感知、精準 OCR 以及空間細節識別能力。資料來源包含 LLaVA-NeXT 語料庫與 OneVision 專屬的高畫質單圖資料。
 2. OneVision 混合融合階段（OV 階段，OneVision SFT）：等比例混合單圖、多圖以及視訊影格（均勻抽樣幀）。在此統一步調下依上述固定 token 預算進行聯合訓練。此階段教會模型靈活處理異質批次結構。權重不進行任何重設，直接自 SI 階段順暢延續。
-3. 任務遷移與落地調校（TT 階段，Task Transfer）：根據具體落地產品的業務偏向（例如側重多圖比對或長影片理解），在特定的目標任務分布上繼續調校。
+3. 任務遷移與落地調校（TT 階段，Task Transfer）：根據具體落地產品的業務偏向（例如側重多圖比對或長影片理解），在特定的目標任務分布上繼續調校；部署時也可選擇進行 fine-tuning。
 
-關鍵實證：課綱的順序至關重要！若倒過來「先訓影片再訓單圖」或「先訓多圖再訓單圖」，即使總資料量完全相同，模型在單圖上的感知精度也會遭遇嚴重崩潰。論文對此進行了嚴謹的消融驗證。
+關鍵實證：課綱的順序至關重要！若倒過來「先訓影片再訓單圖」或「先訓多圖再訓單圖」，即使總資料量完全相同，模型在單圖上的表現也會更差。論文對此進行了嚴謹的消融驗證。
 
 ### 為何訓練課綱能發揮威力
 
@@ -62,9 +62,9 @@ LLaVA-OneVision 的訓練流程劃分為嚴謹的三大階段：
 
 LLaVA-OneVision 論文報告了三項令人矚目的自發湧現能力：
 
-1. 多視角鏡頭綜合推理（Multi-camera reasoning）：模型在訓練時單獨看過多圖與影片，從未見過車載多視角相機的專門格式；但在推論時，它能自然且準確地整合前後左右四個鏡頭的畫面，進行深度的路況因果推理。
+1. 多視角鏡頭綜合推理（Multi-camera reasoning）：模型在訓練時單獨看過多圖與影片，從未見過車載多視角相機的專門格式；但在推論時，它能自然且準確地整合多台車載鏡頭的畫面，進行深度的路況因果推理。
 2. 標籤標註提示（Set-of-mark prompting）：使用者在影像中的不同物體上用數字方框進行視覺標註；模型能夠準確回答「標籤 3 與標籤 7 之間的相對位置與互動關係」。模型從未針對該標註符號進行專項訓練，此能力完全湧現自空間定位與多圖參照機制的有機結合。
-3. iPhone 截圖代理操作（iPhone-screenshot agent）：使用者傳入一張 iPhone 螢幕截圖並詢問下一步操作建議。模型在混合了 UI 截圖、使用者操作影片與多圖操作前後對比的課綱薰陶下，自然展現出強大的行動端代理規劃能力。
+3. iPhone 螢幕截圖 agent（iPhone-screenshot agent）：使用者傳入一張 iPhone 螢幕截圖並詢問下一步操作建議。模型在混合了 UI 截圖、使用者操作影片與多圖操作前後對比的課綱薰陶下，自然展現出強大的行動端 agent 規劃能力。
 
 這些能力絕非人為預先設計的特定任務，而是豐富課綱在跨模態整合下激發出的自然湧現成果。
 
@@ -127,8 +127,8 @@ l5-onevision-budget
 
 ## Further Reading｜延伸閱讀
 
-- [Li et al. — LLaVA-OneVision (arXiv:2408.03326)](https://arxiv.org/abs/2408.03326) ——原創奠基論文
-- [LLaVA-OneVision-1.5: Fully Open Framework (arXiv:2509.23661)](https://arxiv.org/abs/2509.23661) ——完全開源的全能模型
-- [Lin et al. — Video-LLaVA (arXiv:2311.10122)](https://arxiv.org/abs/2311.10122) ——早期視訊語言模型的探索先驅
-- [Lin et al. — VILA (arXiv:2312.07533)](https://arxiv.org/abs/2312.07533) ——視訊語言多模態架構
-- [Wang et al. — Qwen2-VL (arXiv:2409.12191)](https://arxiv.org/abs/2409.12191) ——動態 FPS 與 M-RoPE 的對照典範
+- [Li et al. — LLaVA-OneVision (arXiv:2408.03326)](https://arxiv.org/abs/2408.03326)
+- [LLaVA-OneVision-1.5: Fully Open Framework (arXiv:2509.23661)](https://arxiv.org/abs/2509.23661)
+- [Lin et al. — Video-LLaVA (arXiv:2311.10122)](https://arxiv.org/abs/2311.10122)
+- [Lin et al. — VILA (arXiv:2312.07533)](https://arxiv.org/abs/2312.07533)
+- [Wang et al. — Qwen2-VL (arXiv:2409.12191)](https://arxiv.org/abs/2409.12191)

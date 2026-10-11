@@ -24,7 +24,7 @@ Transformer 預期接收一維向量序列。一個批次通常是多個長度�
 
 1. 強制縮放為固定正方形（224×224 或 336×336）。非等比擠壓會使文字與人臉嚴重失真；降低解析度則直接破壞圖表標籤與細微 OCR 內容。這是 LLaVA-1.5 之前的標準做法。
 2. 裁切為固定長寬比。這會丟棄影像的大部分內容，且如何挑選裁切區域本身就是一個棘手的電腦視覺難題。
-3. 等比縮放並以長邊為準進行邊界填充（Pad）。雖然解決了幾何失真，卻使縱向影像高達 50% 以上的 token 被浪費在無意義的填充像素上，且所有這些空白 token 都會帶來二次方的自注意力運算開銷。
+3. 等比縮放並以長邊為準進行邊界填充（Pad）。雖然解決了幾何失真，卻使縱向影像高達 50% 以上的 token 被浪費在無意義的填充像素上，且所有這些空白 token 都會帶來二次方的自注意力（self-attention）運算開銷。
 
 2024 至 2025 年的劃時代解法：直接讓 Transformer 依照影像的原生真實解析度消化 patch，並設計精巧的封裝演算法，將長短不一的異質批次無縫打包為單一序列，徹底杜絕無謂的運算浪費。
 
@@ -50,7 +50,7 @@ LLaVA-NeXT 提出的 AnyRes 則是極具工程務實色彩的替代方案。給�
 
 1. 從預先定義的候選版面中挑選最契合原圖長寬比的網格佈局——例如 (1×1)、(1×2)、(2×1)、(1×3)、(3×1)、(2×2) 等。
 2. 將全圖裁切為該網格拼圖；每個拼圖切片皆為獨立的 336×336 區域。
-3. 額外產生一張縮圖（thumbnail）：將整張原圖等比縮放為 336×336，作為提供全域視野的背景 token。
+3. 額外產生一張縮圖（thumbnail）：將整張原圖縮放為 336×336，作為提供全域視野的背景 token。
 4. 將每一個切片與全景縮圖依序餵入凍結的 336 編碼器中，最後將所有切片 token 與縮圖 token 連續拼接。
 
 對於一張 672×672 的影像，若採用 2×2 網格加全景縮圖：總共產生 4 × 576 + 576 = 2880 個視覺 token。代價雖大但成效極佳——LLM 既能細看局部高畫質微觀細節，又能把握宏觀全景。
@@ -63,11 +63,11 @@ Qwen2-VL 引入了革命性的多模態旋轉位置編碼（Multimodal Rotary Po
 
 M-RoPE 在推論時原生支援任意動態解析度，完全無需為不同尺寸重訓模型。在推論階段傳入任意 H×W 影像，patch 編碼器直接輸出 H/14 × W/14 個 token，每個 token 依據座標取得其 (t=0, r=列, c=行) 的空間座標，RoPE 便能以正確的頻率旋轉注意力。Qwen2.5-VL 與 Qwen3-VL 延續了這項典範；InternVL3 的 V2PE 亦是同類的跨模態變異編碼。
 
-與 AnyRes 相比，M-RoPE 在原生解析度下產生的 token 數嚴格等於 O(H × W / P^2)，沒有切片拼圖帶來的重疊膨脹；但與 NaViT 相比，它在單次前向中依然偏向處理單圖，若想在分散式環境下混合跨解析度批次，外層仍需搭配 patch-n'-pack 進行序列打包。
+與 AnyRes 相比，M-RoPE 在原生解析度下產生的 token 數為 O(H × W / P^2)，沒有切片數量相乘造成的額外開銷；但與 NaViT 相比，它在單次前向中依然偏向處理單圖，若想在分散式環境下混合跨解析度批次，外層仍需搭配 patch-n'-pack 進行序列打包。
 
 ### NaFlex（SigLIP 2）
 
-NaFlex 是 SigLIP 2 檢查點內建的原生彈性模式。單一模型在推論時能無縫支援多種目標序列長度（如 256、729、1024 個 token）。其內部在訓練時採用 NaViT 風格的 patch-n'-pack 機制，並搭配絕對分數座標位置編碼。其最大賣點在於：單一權重檢查點，在推論時允許開發者依據具體任務自由挑選合適的 token 預算。
+NaFlex 是 SigLIP 2 model checkpoint 內建的原生彈性模式。單一模型在推論時能無縫支援多種目標序列長度（如 256、729、1024 個 token）。其內部在訓練時採用 NaViT 風格的 patch-n'-pack 機制，並搭配絕對分數座標位置編碼。其最大賣點在於：單一 model checkpoint，在推論時允許開發者依據具體任務自由挑選合適的 token 預算。
 
 對於單純語意任務（分類、跨模態檢索），配置 256 個 token；對於複雜 OCR 或密集圖表理解，則配置 1024 個 token。完全無需重新訓練模型。
 
@@ -112,11 +112,11 @@ mm-patch-n-pack
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-resolution-budget-planner.md`。給定混合長寬比的工作負載（包含 OCR、圖表、自然照片、視訊影格）以及全域 token 預算上限，它將精確評估並推薦最適策略（NaFlex、AnyRes、M-RoPE 或固定正方形），並為每個請求產生專屬的執行組態參數。在為真實線上產品選型 VLM 時隨時善用此技能——它能防止無謂的 token 數量膨脹破壞服務延遲預算。
+本課產出 `outputs/skill-resolution-budget-planner.md`。給定混合長寬比的工作負載（包含 OCR、圖表、自然照片、視訊影格）以及全域 token 預算上限，它將精確評估並推薦最適策略（NaFlex、AnyRes、M-RoPE 或固定正方形），並為每個請求產生專屬的執行組態參數。在為真實線上產品選型 VLM 時隨時善用此技能——它能防止 token 數量無聲暴增 10 倍破壞服務延遲預算。
 
 ## Exercises｜練習
 
-1. 一張長寬為 600×1500（約 1:2.5）的發票收據。在 patch 尺寸為 14 下，原生動態編碼會產生多少個 token？若強制等比縮放填充至 336×336 正方形，又會產生多少 token？在實務中哪一種方式會導致更嚴重的 OCR 辨識率下降？
+1. 一張長寬為 600×1500（約 1:2.5）的發票收據。在 patch 尺寸為 14 下，原生動態編碼會產生多少個 token？若強制縮放為 336×336 正方形，又會產生多少 token？在實務中哪一種方式會導致更嚴重的 OCR 辨識率下降？
 
 2. 為包含 4 張影像（長度分別為 256、576、729、1024）的批次建構區塊對角遮罩。驗證注意力矩陣的大小為 2585×2585，且非零項的數量嚴格等於 `256^2 + 576^2 + 729^2 + 1024^2`。
 
@@ -141,8 +141,8 @@ mm-patch-n-pack
 
 ## Further Reading｜延伸閱讀
 
-- [Dehghani et al. — Patch n' Pack: NaViT (arXiv:2307.06304)](https://arxiv.org/abs/2307.06304) ——NaViT 原創論文
-- [Wang et al. — Qwen2-VL (arXiv:2409.12191)](https://arxiv.org/abs/2409.12191) ——M-RoPE 動態解析度架構
-- [Laurençon et al. — What matters when building vision-language models? (Idefics2, arXiv:2405.02246)](https://arxiv.org/abs/2405.02246) ——多模態架構核心消融研究
-- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786) ——NaFlex 彈性解析度編碼器
-- [Qwen Team — Qwen2.5-VL Technical Report (arXiv:2502.13923)](https://arxiv.org/abs/2502.13923) ——前沿動態解析度架構報告
+- [Dehghani et al. — Patch n' Pack: NaViT (arXiv:2307.06304)](https://arxiv.org/abs/2307.06304)
+- [Wang et al. — Qwen2-VL (arXiv:2409.12191)](https://arxiv.org/abs/2409.12191)
+- [Laurençon et al. — What matters when building vision-language models? (Idefics2, arXiv:2405.02246)](https://arxiv.org/abs/2405.02246)
+- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786)
+- [Qwen Team — Qwen2.5-VL Technical Report (arXiv:2502.13923)](https://arxiv.org/abs/2502.13923)

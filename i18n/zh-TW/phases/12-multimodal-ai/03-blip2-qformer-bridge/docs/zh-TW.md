@@ -18,7 +18,7 @@
 
 假設你有一個凍結的 ViT，每張影像能產出 256 個維度為 1408 的 patch token。你同時有一個凍結的 7B LLM，預期接收維度為 4096 的 token embedding。最直覺的銜接橋樑——一個從 1408 映射至 4096 的線性層——確實能跑通，但將全部 256 個 patch token 硬塞入 LLM 的 context，意味著每張影像都要額外耗費 256 個 token 額度。若是一個批次處理 32 張影像，光是視覺模態就會直接吞噬 8,192 個 token。
 
-BLIP-2 提出的核心問題是：我們能否將這 256 個 token 的影像表徵大幅壓縮至極少數量（例如 32 個），同時保留足夠豐富的高階資訊，讓 LLM 依然能順暢生成圖文描述、回答問題並對影像展開深度推理？而且，能否在完全不改動任何凍結骨幹的前提下訓練這座橋樑，將訓練開銷死死限制在橋樑自身的微小參數量內？
+BLIP-2 提出的核心問題是：我們能否將這 256 個 token 的影像表徵大幅壓縮至極少數量（例如 32 個），同時保留足夠豐富的高階資訊，讓 LLM 依然能順暢生成圖文描述、回答問題並對影像展開深度推理？而且，能否在完全不改動任何凍結骨幹（backbone）的前提下訓練這座橋樑，將訓練開銷死死限制在橋樑自身的微小參數量內？
 
 答案正是：Q-Former。32 個可學習的「query」向量透過交叉注意力機制檢索 ViT 的 patch token，萃取出包含 32 個視覺 token 的精華摘要供 LLM 消化。整座橋樑總計僅 1.88 億參數。在接觸 LLM 之前，它先後透過對比式、配對式以及生成式多重目標進行了扎實預訓練。
 
@@ -70,7 +70,7 @@ MiniGPT-4 保留了原裝的 Q-Former，但在訓練時進一步凍結了 Q-Form
 
 ### 為何 LLaVA 選擇更簡潔的架構
 
-LLaVA（2023，第 12.05 課）大膽拋棄了 Q-Former，改採樸素的雙層 MLP 投影器，直接將 ViT 的每一個 patch token 映射至 LLM 空間——以 24×24 網格為例，每張影像產生 576 個 token，全數送入 LLM。壓縮率較差，卻讓 LLM 擁有了直接凝視原始 patch 的完整視野。這在當時備受爭議；然而到了 2023 年底，隨著高品質視覺指令資料（LLaVA-Instruct-150k）的成熟，證明了純 MLP 同樣能學會保留足夠豐富的表徵。其取捨在於：LLaVA 的 context 消耗極快，但能非常自然地直接擴展至多圖與影片任務。
+LLaVA（2023，第 12.05 課）大膽拋棄了 Q-Former，改採樸素的雙層 MLP 投影器，直接將 ViT 的每一個 patch token 映射至 LLM 空間——以 24×24 網格為例，每張影像產生 576 個 token，全數送入 LLM。壓縮率較差，卻讓 LLM 擁有了直接凝視原始 patch 的完整視野。這在當時備受爭議；然而到了 2023 年底，MLP 路線因視覺指令資料（LLaVA-Instruct-150k）證明純 MLP 能保留足夠訊號而成為主流。其取捨在於：LLaVA 的 context 消耗極快，但能非常自然地直接擴展至多圖與影片任務。
 
 到了 2026 年，技術路線形成了清晰分流：在 token 預算極其吃緊的領域（長影片、巨量圖庫檢索），Q-Former 依然屹立；而在追求單 token 極致表徵品質的通用問答場景中，MLP 投影器已成為主流。
 
@@ -136,9 +136,9 @@ modality-projection
 
 ## Further Reading｜延伸閱讀
 
-- [Li et al. — BLIP-2 (arXiv:2301.12597)](https://arxiv.org/abs/2301.12597) ——核心原創論文
-- [Li et al. — BLIP (arXiv:2201.12086)](https://arxiv.org/abs/2201.12086) ——奠定 ITC/ITM/ITG 三重損失的前身工作
-- [Li et al. — ALBEF (arXiv:2107.07651)](https://arxiv.org/abs/2107.07651) ——「先對齊再融合（align before fuse）」——第 1 階段訓練的思想發源
-- [Dai et al. — InstructBLIP (arXiv:2305.06500)](https://arxiv.org/abs/2305.06500) ——具備指令感知能力的 Q-Former
-- [Zhu et al. — MiniGPT-4 (arXiv:2304.10592)](https://arxiv.org/abs/2304.10592) ——純線性投影器取向的極速實作
-- [Jaegle et al. — Perceiver IO (arXiv:2107.14795)](https://arxiv.org/abs/2107.14795) ——可學習 query 交叉注意力的通用架構先驅
+- [Li et al. — BLIP-2 (arXiv:2301.12597)](https://arxiv.org/abs/2301.12597)
+- [Li et al. — BLIP (arXiv:2201.12086)](https://arxiv.org/abs/2201.12086)
+- [Li et al. — ALBEF (arXiv:2107.07651)](https://arxiv.org/abs/2107.07651)
+- [Dai et al. — InstructBLIP (arXiv:2305.06500)](https://arxiv.org/abs/2305.06500)
+- [Zhu et al. — MiniGPT-4 (arXiv:2304.10592)](https://arxiv.org/abs/2304.10592)
+- [Jaegle et al. — Perceiver IO (arXiv:2107.14795)](https://arxiv.org/abs/2107.14795)

@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 建構一個在單一骨幹上同時計算雙重損失（文字 token 算 NTP、影像 patch 算擴散 MSE）的統一 Transformer。
-- 深入解釋為何「影像 patch 內部雙向注意力」加上「文字 token 因果自注意力」是唯一的最佳遮罩設計。
+- 深入解釋為何「影像 patch 內部雙向注意力」加上「文字 token 因果自注意力（self-attention）」是正確的遮罩選擇。
 - 在運算複雜度、成圖保真度與程式碼工程難度三大維度上，深入對比 Transfusion 體系（連續影像 + 擴散損失）與 Chameleon 體系（離散影像 + NTP）。
 - 掌握 MMDiT 的核心創新貢獻：各區塊內部的專屬模態權重，以及在殘差串流上的全域聯合注意力。
 
@@ -97,7 +97,7 @@ MMDiT 的關鍵差異在於：
 
 Janus-Pro（第 12.15 課）進一步解耦了視覺編碼器——理解任務採用 SigLIP，生成任務採用 VQ，同時共用 Transformer 本體。Show-o（第 12.14 課）則嘗試將連續擴散替換為離散擴散（遮蓋式預測）。在大統一生態系中，技術體系在 Transfusion 之後迅速衍生出多元流派。
 
-在 2026 年能夠主動輸出影像的前沿多模態大模型中——包括 Gemini 3 Pro、GPT-5 以及 Claude Opus 4.7 的圖像生成路徑——其底層極可能皆運作著該家族的某種變體演進架構。
+在 2026 年能夠主動輸出影像的前沿 VLM 中——包括 Gemini 3 Pro、GPT-5 以及 Claude Opus 4.7 的圖像生成路徑——其底層極可能皆運作著該家族的某種變體演進架構。細節屬專有資訊，未公開。
 
 ```figure
 cfg-guidance-scale
@@ -113,7 +113,7 @@ cfg-guidance-scale
 - 訓練迴圈交替計算雙重損失，並嚴格實作了顯式區塊三角注意力遮罩。
 - 推論常式在單次前向調度中，無縫生成圖文並茂的連貫回應。
 
-雖然模型維度極小，但其雙損失銜接機制、注意力遮罩建構邏輯與推論取樣迴圈，與正式生產系統百分之百同構。
+Transformer 本身只是玩具；雙損失流程、注意力遮罩建構與推論迴圈才是真正的實作產物。
 
 ## Ship It｜交付成果
 
@@ -144,8 +144,8 @@ cfg-guidance-scale
 
 ## Further Reading｜延伸閱讀
 
-- [Zhou et al. — Transfusion (arXiv:2408.11039)](https://arxiv.org/abs/2408.11039) ——Meta 原創核心論文
-- [Esser et al. — Stable Diffusion 3 / MMDiT (arXiv:2403.03206)](https://arxiv.org/abs/2403.03206) ——MMDiT 架構與整流流
-- [Peebles & Xie — DiT (arXiv:2212.09748)](https://arxiv.org/abs/2212.09748) ——擴散 Transformer 先驅
-- [Zhao et al. — MonoFormer (arXiv:2409.16280)](https://arxiv.org/abs/2409.16280) ——單一 Transformer 多模態探索
-- [Xie et al. — Show-o (arXiv:2408.12528)](https://arxiv.org/abs/2408.12528) ——離散擴散大一統模型
+- [Zhou et al. — Transfusion (arXiv:2408.11039)](https://arxiv.org/abs/2408.11039)
+- [Esser et al. — Stable Diffusion 3 / MMDiT (arXiv:2403.03206)](https://arxiv.org/abs/2403.03206)
+- [Peebles & Xie — DiT (arXiv:2212.09748)](https://arxiv.org/abs/2212.09748)
+- [Zhao et al. — MonoFormer (arXiv:2409.16280)](https://arxiv.org/abs/2409.16280)
+- [Xie et al. — Show-o (arXiv:2408.12528)](https://arxiv.org/abs/2408.12528)

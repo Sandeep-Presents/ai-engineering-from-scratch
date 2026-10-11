@@ -32,7 +32,7 @@ Qwen-VL 的每一次跨代升級，都在這三大軸向上大幅推進。
 
 初代 Qwen-VL：以 OpenCLIP ViT-bigG/14 作為視覺編碼器（高達 25 億參數）、相容於 LLaMA 的單步 Q-Former（包含 256 個 query 向量）、Qwen-7B 作為底座語言模型。其核心貢獻為：
 
-- 448×448 輸入解析度（創下當時開源多模態模型的最高紀錄）。
+- 448×448 輸入解析度（創下當時開源多模態（multimodal）模型的最高紀錄）。
 - 視覺定位（Grounding）：在圖文對上展開專項訓練，賦予模型輸出顯式邊界框座標的能力。例如：「The cat is at <box>(112, 204), (280, 344)</box>」。
 - 從第 1 天起便深度融合中英雙語聯合訓練。
 
@@ -125,7 +125,7 @@ mm-mrope-axes
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-qwen-vl-pipeline-designer.md`。給定具體的視訊任務（如監控安防、GUI 操作代理、動作行為識別、無障礙輔助），它能自動產生完整的 Qwen2.5-VL 配置參數（影格預算、FPS 取樣策略、視窗注意力開關、Agent 輸出格式），並估算伺服器推論延遲。當需要將 Qwen-VL 家族模型推向線上視訊產品時，此工具是絕佳的架構設計藍圖。
+本課產出 `outputs/skill-qwen-vl-pipeline-designer.md`。給定具體的視訊任務（如監控安防、GUI 操作 agent、動作行為識別、無障礙輔助），它能自動產生完整的 Qwen2.5-VL 配置參數（影格預算、FPS 取樣策略、視窗注意力開關、Agent 輸出格式），並估算伺服器推論延遲。當需要將 Qwen-VL 家族模型推向線上視訊產品時，此工具是絕佳的架構設計藍圖。
 
 ## Exercises｜練習
 
@@ -153,8 +153,8 @@ mm-mrope-axes
 
 ## Further Reading｜延伸閱讀
 
-- [Bai et al. — Qwen-VL (arXiv:2308.12966)](https://arxiv.org/abs/2308.12966) ——初代 Qwen-VL 論文
-- [Wang et al. — Qwen2-VL (arXiv:2409.12191)](https://arxiv.org/abs/2409.12191) ——M-RoPE 與原生動態解析度
-- [Qwen Team — Qwen2.5-VL Technical Report (arXiv:2502.13923)](https://arxiv.org/abs/2502.13923) ——動態 FPS 與絕對時間對齊
-- [Qwen Team — Qwen3-VL (arXiv:2511.21631)](https://arxiv.org/abs/2511.21631) ——前沿大一統思考模型報告
-- [Zhu et al. — InternVL3 (arXiv:2504.10479)](https://arxiv.org/abs/2504.10479) ——可變編碼架構的對照研究
+- [Bai et al. — Qwen-VL (arXiv:2308.12966)](https://arxiv.org/abs/2308.12966)
+- [Wang et al. — Qwen2-VL (arXiv:2409.12191)](https://arxiv.org/abs/2409.12191)
+- [Qwen Team — Qwen2.5-VL Technical Report (arXiv:2502.13923)](https://arxiv.org/abs/2502.13923)
+- [Qwen Team — Qwen3-VL (arXiv:2511.21631)](https://arxiv.org/abs/2511.21631)
+- [Zhu et al. — InternVL3 (arXiv:2504.10479)](https://arxiv.org/abs/2504.10479)

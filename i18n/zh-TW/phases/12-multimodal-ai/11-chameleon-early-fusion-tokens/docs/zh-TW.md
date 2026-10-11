@@ -1,6 +1,6 @@
 # Chameleon 與早期融合純 Token 多模態模型（Chameleon and Early-Fusion Token-Only Multimodal Models）
 
-> 截至目前為止我們見過的所有 VLM，皆將影像與文字視為壁壘分明的不同實體。視覺 token 產自視覺編碼器，流經投影器，最後才在 LLM 內部與文字相遇。視覺與文字的詞彙表（vocabulary）從未真正重疊。Chameleon（Meta，2024 年 5 月）大膽提出質疑：如果將兩者徹底統一呢？訓練一個 VQ-VAE 將影像直接轉化為來自共用詞彙表的離散 token 序列。從此，每篇多模態文件皆成為一條純粹的序列——文字 token 與影像 token 自由交錯，共享單一自回歸損失函式。這帶來了一項震撼的副產物：模型能夠在單次推論呼叫中，自主交錯生成圖文混排的混合模態輸出。本課深入探討早期融合（Early-Fusion）的宏大命題，並從零實作其極簡原型系統。
+> 截至目前為止我們見過的所有 VLM，皆將影像與文字視為壁壘分明的不同事物。視覺 token 產自視覺編碼器，流經投影器，最後才在 LLM 內部與文字相遇。視覺與文字的詞彙表（vocabulary）從未真正重疊。Chameleon（Meta，2024 年 5 月）大膽提出質疑：如果將兩者徹底統一呢？訓練一個 VQ-VAE 將影像直接轉化為來自共用詞彙表的離散 token 序列。從此，每篇多模態（multimodal）文件皆成為一條純粹的序列——文字 token 與影像 token 自由交錯，共享單一自回歸損失函式。這帶來了一項震撼的副產物：模型能夠在單次推論呼叫中，自主交錯生成圖文混排的混合模態輸出。本課深入探討早期融合（Early-Fusion）的宏大命題，並從零實作其極簡原型系統。
 
 **Type:** Build
 **Languages:** Python (stdlib, VQ-VAE tokenizer + interleaved decoder)
@@ -45,7 +45,7 @@ Chameleon 徹底推翻了這套假設：影像本質上不過是來自共用詞�
 
 Chameleon 的共用詞彙表將文字 token、影像離散 token 以及模態分隔標記統整於單一 ID 空間中。每個 token 都有唯一的整數編號。底層的輸入 embedding 層將每個 ID 映射至 D 維隱藏空間；頂層的線性輸出投影層則將隱藏狀態直接投射回 40,192 維的 logit 機率分布。Softmax 自主挑選下一個最合理的 token，無論其屬於文字還是視覺。
 
-分隔符號至關重要：`<image>` 與 `</image>` 標籤用於精確界定影像 token 序列的起訖邊界。在推論生成期間，一旦模型輸出 `<image>`，外圍的調度系統便能精準預期接下來的 1024 個 token 是專屬於 VQ 碼本的索引，會直接將其匯入 VQ-VAE 解碼器以彩現輸出實體像素。
+分隔符號至關重要：`<image>` 與 `</image>` 標籤用於精確界定影像 token 序列的起訖邊界。在推論生成期間，一旦模型輸出 `<image>`，外圍的調度系統便能精準預期接下來的 1024 個 token 是專屬於 VQ 碼本的索引，會直接將其匯入 VQ-VAE 解碼器以彩現輸出實際像素。
 
 ### 混合模態自主生成
 
@@ -64,7 +64,7 @@ The cat is orange, sitting on a windowsill...
 
 早期融合（Early-Fusion）架構在大規模訓練時極度容易發生數值崩潰。Chameleon 論文詳盡記錄了三項力挽狂瀾的工程關鍵：
 
-- QK-Norm：在注意力運算的點積計算之前，對 Query 與 Key 投影向量先行套用 LayerNorm。此舉能有效防止隨著模型層數加深而發生的 logit 數值爆炸。該技術已被 2024 年後的多數前沿大模型廣泛採納。
+- QK-Norm：在注意力運算的點積計算之前，對 Query 與 Key 投影向量先行套用 LayerNorm。此舉能有效防止隨著模型層數加深而發生的 logit 數值爆炸。該技術已被 2024 年後的多數前沿大型模型廣泛採納。
 - Dropout 的插入位置：將 Dropout 精確置於每一次殘差相加（residual-add）之後，而非僅僅放在注意力與 MLP 內部。當來自大量影像 token 的梯度開始在網路中佔據主導時，需要更強大的正則化來約束震盪。
 - LayerNorm 的排布順序：在殘差路徑上採用標準 Pre-LN，並在最後一個區塊的跨接連接處額外加裝一道額外的 LayerNorm。這大幅穩定了最終輸出層的梯度流。
 
@@ -143,8 +143,8 @@ vq-codebook
 
 ## Further Reading｜延伸閱讀
 
-- [Chameleon Team — Chameleon: Mixed-Modal Early-Fusion Foundation Models (arXiv:2405.09818)](https://arxiv.org/abs/2405.09818) ——Meta 原創奠基論文
-- [Aghajanyan et al. — CM3 (arXiv:2201.07520)](https://arxiv.org/abs/2201.07520) ——因果遮罩多模態模型的前導探索
-- [Yu et al. — CM3Leon (arXiv:2309.02591)](https://arxiv.org/abs/2309.02591) ——自回歸圖文生成里程碑工作
-- [Zhan et al. — AnyGPT (arXiv:2402.12226)](https://arxiv.org/abs/2402.12226) ——全模態任意對任意自回歸模型
-- [Adept — Fuyu-8B blog (adept.ai)](https://www.adept.ai/blog/fuyu-8b) ——極簡純 Patch 直入大模型嘗試
+- [Chameleon Team — Chameleon: Mixed-Modal Early-Fusion Foundation Models (arXiv:2405.09818)](https://arxiv.org/abs/2405.09818)
+- [Aghajanyan et al. — CM3 (arXiv:2201.07520)](https://arxiv.org/abs/2201.07520)
+- [Yu et al. — CM3Leon (arXiv:2309.02591)](https://arxiv.org/abs/2309.02591)
+- [Zhan et al. — AnyGPT (arXiv:2402.12226)](https://arxiv.org/abs/2402.12226)
+- [Adept — Fuyu-8B blog (adept.ai)](https://www.adept.ai/blog/fuyu-8b)

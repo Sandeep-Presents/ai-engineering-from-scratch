@@ -9,8 +9,8 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入說明文件 AI 的三大演進時代：傳統 OCR 管線、免 OCR 端到端架構以及原生大模型 VLM。
-- 剖析 LayoutLMv3 的三大輸入串流：文字文字、版面空間座標（bbox）與影像 patch，以及跨模態的統一遮蓋預訓練機制。
+- 深入說明文件 AI 的三大演進時代：傳統 OCR 管線、免 OCR 端到端架構以及原生 VLM。
+- 剖析 LayoutLMv3 的三大輸入串流：文字、版面空間座標（bbox）與影像 patch，以及跨模態的統一遮蓋預訓練機制。
 - 深入對比 Donut（免 OCR、影像直接轉結構化 JSON）、Nougat（專攻學術論文轉 LaTeX）、DocLLM（具備版面感知的生成模型）以及 PaliGemma 2（原生 VLM）。
 - 針對全新業務情境（商業發票核對、arXiv 論文解析、手寫病歷表單、中文收據發票）進行精準技術選型。
 
@@ -76,7 +76,7 @@ LayoutLMv3 是基於 OCR 的文件理解技術的巔峰之作。在標準表單�
 
 DocLLM（Wang 等人，arXiv:2401.00908）是 LayoutLM 的生成式孿生版本。它在版面空間 token 的條件引導下自回歸生成文字解答，大幅提升了針對複雜文件自由問答的能力；但依然受限於前置 OCR 輸入。
 
-### 第三世代——原生 VLM 大模型（2024 年至今）
+### 第三世代——原生 VLM（2024 年至今）
 
 2024 年之後，通用多模態 VLM 的能力水準已足以徹底終結傳統的多階段管線。直接將整頁高解析度影像餵入前沿 VLM，提出問題，即刻取得精準結構化解答。
 
@@ -100,13 +100,13 @@ DocLLM（Wang 等人，arXiv:2401.00908）是 LayoutLM 的生成式孿生版本�
 
 ### Claude 4.7 與 GPT-5 的前沿效能標竿
 
-在 2576 像素原生解析度輸入下，頂級閉源 VLM 的文件理解精度已達到甚至超越了人類專家水準。2026 年初的權威評測成績如下：
+在 2576 像素原生解析度輸入下，前沿 VLM 的文件理解精度已接近人類水準。2026 年初的權威評測成績如下：
 
 - DocVQA：Claude 4.7 達到約 95.1、PaliGemma 2 達到約 88.4、Nougat 約 77.3，傳統 LayoutLMv3 管線約 83。
 - ChartQA：Claude 4.7 達到約 92.2，GPT-4V 約 78。
 - VisualMRC：Claude 4.7 達到約 94。
 
-專有大模型的領先優勢，主要來自於超大解析度支援與底座強悍的純語言邏輯大腦。7B 開源模型雖稍落後數分，但正在以驚人的速度逼近。
+閉源模型的領先差距，主要來自解析度支援與底座 LLM 的規模。7B 開源模型雖稍落後數分，但正在以驚人的速度逼近。
 
 ### 數學公式與 LaTeX 結構化輸出
 
@@ -159,17 +159,17 @@ mm-doc-layout
 
 | 術語 | 常見俗稱 | 實際意義 |
 |------|-----------------|------------------------|
-| OCR pipeline | 「傳統 OCR 串聯堆疊」 | 由「文字偵測 → 文字識別 → 版面分析 → 規則抽取」構成的多階段流水線 |
+| OCR pipeline | 「傳統 OCR 串聯堆疊」 | 由「文字偵測 → 文字識別 → 版面分析 → 規則抽取」構成的多階段管線；確定性高但脆弱 |
 | OCR-free | 「免 OCR 端到端模型」 | 直接以端到端神經網路將像素映射為結構化標記輸出的模型體系（如 Donut、Nougat） |
 | Layout-aware | 「空間版面感知模型」 | 在輸入序列中顯式引入逐詞二維空間邊界框座標的模型（如 LayoutLM 家族） |
-| VLM-native | 「原生多模態大模型」 | 直接將整頁高畫質文件影像餵入 Claude 或 Qwen 等大模型，完全跳過中間流水線 |
+| VLM-native | 「原生多模態 VLM」 | 直接將整頁高解析度文件影像餵入 Claude 或 Qwen 等 VLM，完全跳過中間流水線 |
 | DocVQA | 「文件視覺問答權威基準」 | 文件 AI 領域最具代表性、引用率最高的文件圖表問答標準評測集 |
 | Markup output | 「結構化標記輸出」 | 模型直接輸出 LaTeX、Markdown 或 JSON 等標準結構化語法，便於下游自動化解析 |
 
 ## Further Reading｜延伸閱讀
 
-- [Li et al. — TrOCR (arXiv:2109.10282)](https://arxiv.org/abs/2109.10282) ——基於 Transformer 的端到端 OCR
-- [Blecher et al. — Nougat (arXiv:2308.13418)](https://arxiv.org/abs/2308.13418) ——學術論文轉 LaTeX 經典模型
-- [Huang et al. — LayoutLMv3 (arXiv:2204.08387)](https://arxiv.org/abs/2204.08387) ——多模態文件版面理解巔峰
-- [Kim et al. — Donut (arXiv:2111.15664)](https://arxiv.org/abs/2111.15664) ——首款免 OCR 端到端文件理解模型
-- [Wang et al. — DocLLM (arXiv:2401.00908)](https://arxiv.org/abs/2401.00908) ——具備空間幾何感知的生成式文件大模型
+- [Li et al. — TrOCR (arXiv:2109.10282)](https://arxiv.org/abs/2109.10282)
+- [Blecher et al. — Nougat (arXiv:2308.13418)](https://arxiv.org/abs/2308.13418)
+- [Huang et al. — LayoutLMv3 (arXiv:2204.08387)](https://arxiv.org/abs/2204.08387)
+- [Kim et al. — Donut (arXiv:2111.15664)](https://arxiv.org/abs/2111.15664)
+- [Wang et al. — DocLLM (arXiv:2401.00908)](https://arxiv.org/abs/2401.00908)

@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-當今存在數百個開源 VLM。然而「尚可」與「頂尖（SOTA）」之間的巨大鴻溝，往往根本不在於模型架構本身，而在於訓練資料品質、解析度排程規劃以及視覺編碼器的選型。當模型表現不如預期時，若能清楚知道該優先調整哪一個旋鈕，便能為團隊省下動輒數百萬 GPU 小時的昂貴試錯代價。
+當今存在數百個開源 VLM。然而「尚可」與「頂尖（SOTA）」之間的巨大鴻溝，往往根本不在於模型架構本身，而在於訓練資料品質、解析度排程規劃以及視覺編碼器的選型。當模型表現不如預期時，若能清楚知道該優先調整哪一個旋鈕，便能為團隊避免一次耗費五百萬 GPU 小時的錯誤。
 
 2023 年的第一波浪潮（LLaVA-1.5、InstructBLIP、MiniGPT-4）大多採用簡單的圖文對預訓練加上 LLaVA-Instruct-150k。這是不錯的起步基準線，但其 MMMU 評測分數普遍在 35% 左右遭遇天花板。
 
@@ -29,7 +29,7 @@
 Idefics2（Laurençon 等人，2024）精闢地定義了這五大維度：
 
 1. 影像編碼器（Image encoder）：CLIP ViT-L/14、SigLIP SO400m/14、DINOv2 ViT-g/14、InternViT-6B 等。各編碼器在 patch 尺寸、解析度與預訓練目標上各有千秋。
-2. 連接器（Connector）：雙層或四層 MLP、Q-Former（32 個 query 加交叉注意力）、Perceiver 重取樣器（64 個 query）、C-Abstractor（卷積加雙線性池化）。
+2. 連接器（Connector）：二至四層 MLP、Q-Former（32 個 query 加交叉注意力）、Perceiver 重取樣器（64 個 query）、C-Abstractor（卷積加雙線性池化）。
 3. 語言模型底座（Language model）：Llama-3 8B / 70B、Mistral 7B、Phi-3、Gemma-2、Qwen2.5 等。LLM 的參數量主導了全系統最核心的運算與記憶體開銷。
 4. 訓練資料（Training data）：圖文配對（CC3M、LAION）、交錯圖文網頁（OBELICS、MMC4）、指令對話（LLaVA-Instruct、ShareGPT4V、PixMo、Cauldron）。
 5. 解析度時程（Resolution schedule）：固定 224/336/448、AnyRes 動態切片、原生動態解析度；在訓練過程中循序提升（ramped）或全程恆定。
@@ -54,13 +54,13 @@ MM1、Idefics2、Prismatic 以及 MM-Interleaved 等論文殊途同歸地達成�
 
 ### 維度三：LLM 規模決定整體效能天花板
 
-將底座 LLM 從 7B 擴展至 13B，在所有 VLM 論文中皆能穩定為 MMMU 帶來 2 到 4 個百分點的提升。當擴展至 70B 時，幾乎能大幅突破多數基準。多模態模型推理能力的根本上限，直接取決於底座 LLM 本體的文字推理天花板——視覺編碼器僅負責為其餵入訊號，無法憑空代替它進行深層因果思考。
+將底座 LLM 從 7B 擴展至 13B，在所有 VLM 論文中皆能穩定為 MMMU 帶來 2 到 4 個百分點的提升。當擴展至 70B 時，幾乎能大幅突破多數基準。多模態（multimodal）模型推理能力的根本上限，直接取決於底座 LLM 本體的文字推理天花板——視覺編碼器僅負責為其餵入訊號，無法憑空代替它進行深層因果思考。
 
 這正是 Qwen2.5-VL-72B 與 Claude Opus 4.7 能夠在 MMMU-Pro 與 ScreenSpot-Pro 上橫掃千軍的核心原因：其背後的語言大腦無比強悍。再精巧的連接器設計，也絕不可能讓一個 7B 的 VLM 越級取代 70B 模型的推理水準。
 
 ### 維度四：資料——精細人工說明擊潰合成蒸餾
 
-Molmo 與 PixMo（Deitke 等人，2024）是 2024 年最震撼學界的重大成果。艾倫人工智慧研究所（Allen AI）邀請真人標註員針對每張影像進行長達 1 到 3 分鐘的高密度語音轉文字即時描述，耗時打造出包含 71.2 萬張高畫質長篇說明的影像資料集。其訓練資料中完全沒有使用任何來自 GPT-4V 的合成蒸餾內容。
+Molmo 與 PixMo（Deitke 等人，2024）是 2024 年最震撼學界的重大成果。艾倫人工智慧研究所（Allen AI）邀請真人標註員針對每張影像進行長達 1 到 3 分鐘的高密度語音轉文字即時描述，耗時打造出包含 71.2 萬張附有密集說明的影像資料集。其訓練資料中完全沒有使用任何來自 GPT-4V 的合成蒸餾內容。
 
 結果令人震撼：Molmo-72B 在全數 11 項關鍵基準測試上，全面擊潰了擁有 900 億參數的 Llama-3.2-90B-Vision。這一巨大勝差絕非源自模型架構——而是完全由圖片說明品質所決定。詳盡的人工說明每張影像所包含的有效資訊量，是粗淺網路 alt-text 的 5 到 10 倍以上；更重要的是，它具備極其扎實的事實基礎，徹底杜絕了 GPT-4V 蒸餾資料中普遍存在的「二手幻覺」。
 
@@ -83,7 +83,7 @@ Prismatic VLMs（Karamcheti 等人，2024）是業內首次在完全嚴格受控
 - 連接器架構的設計：僅佔約 5% 的微小變異。
 - 其餘所有細節（資料配比、學習率調度器等）：分攤剩下的約 15%。
 
-這份量化歸因給出了文獻中最清晰透徹的工程指引——當你打算最佳化模型時，究竟該優先將時間精力投入何處。
+這只是粗略的拆解，但它是文獻中回答「我應先消融什麼？」最清楚的依據。
 
 ### 2026 年正式環境選型指南
 
@@ -107,8 +107,8 @@ l5-vlm-recipe-knobs
 `code/main.py` 是一個消融實驗結果解析器與配方選型推薦工具。它精煉內建了 MM1 與 Idefics2 的核心消融實驗成果，支援以下查詢：
 
 - 「在算力預算 X 與任務目標 Y 下，最佳勝出配方為何？」
-- 「若在 7B Llama 上將 CLIP 換成 SigLIP，預期能帶來多少 MMMU 分數增益？」
-- 「若想以 80% 的置信度拉升效能，我應該優先針對哪一個維度展開消融測試？」
+- 「若在 7B Llama 上將 SigLIP 換成 CLIP，預期 MMMU 分數會有何變化？」
+- 「若要有 80% 把握給出答案，應先消融哪個維度？」
 
 程式碼將輸出排序後的推薦架構清單、預期基準增益預估，以及清晰的「首選消融維度」工程建議。
 
@@ -122,11 +122,11 @@ l5-vlm-recipe-knobs
 
 2. Cambrian-1 發現：拼接 DINOv2 與 SigLIP 的特徵在純視覺評測上顯著擊敗單一編碼器，但在綜合性 MMMU 上卻未見明顯增益。請預測哪些特定任務子集會受益，哪些指標會持平。
 
-3. 你的專案目標是在 2B LLM 上打造專屬的手機 UI 智慧代理。請為其規劃視覺編碼器、連接器、解析度與資料配比。並以具體的論文消融實驗結果為你的每一項選型進行技術論證。
+3. 你的專案目標是在 2B LLM 上打造專屬的手機 UI agent。請為其規劃視覺編碼器、連接器、解析度與資料配比。並以具體的論文消融實驗結果為你的每一項選型進行技術論證。
 
 4. Molmo 推出了 4B 與 72B 兩款模型。其中 4B 即可與主流閉源 7B VLM 匹敵；而 72B 則在 11 項基準測試中全面擊潰 Llama-3.2-90B-Vision。這對「LLM 規模瓶頸假說」提供了何種深刻啟示？
 
-5. 請為一個 7B VLM 設計一份嚴謹的消融實驗計畫表，用以徹底隔離「資料混合品質」與「編碼器素質」的獨立貢獻。最少需要規劃幾組訓練執行？請列出該實驗在四個關鍵維度上的具體設定。
+5. 請為一個 7B VLM 設計一份嚴謹的消融實驗計畫表，用以徹底隔離「資料混合品質」與「編碼器素質」的獨立貢獻。最少需要規劃幾組訓練作業？請列出該實驗在四個關鍵維度上的具體設定。
 
 ## Key Terms｜關鍵術語
 
@@ -143,8 +143,8 @@ l5-vlm-recipe-knobs
 
 ## Further Reading｜延伸閱讀
 
-- [McKinzie et al. — MM1 (arXiv:2403.09611)](https://arxiv.org/abs/2403.09611) ——蘋果多模態基礎消融研究
-- [Laurençon et al. — What matters when building vision-language models? (Idefics2, arXiv:2405.02246)](https://arxiv.org/abs/2405.02246) ——五維設計空間消融
-- [Deitke et al. — Molmo and PixMo (arXiv:2409.17146)](https://arxiv.org/abs/2409.17146) ——高品質人工密集說明超越合成蒸餾
-- [Tong et al. — Cambrian-1 (arXiv:2406.16860)](https://arxiv.org/abs/2406.16860) ——以視覺為中心的編碼器大規模對決
-- [Karamcheti et al. — Prismatic VLMs (arXiv:2402.07865)](https://arxiv.org/abs/2402.07865) ——嚴格控制變因的多模態設計空間研究
+- [McKinzie et al. — MM1 (arXiv:2403.09611)](https://arxiv.org/abs/2403.09611)
+- [Laurençon et al. — What matters when building vision-language models? (Idefics2, arXiv:2405.02246)](https://arxiv.org/abs/2405.02246)
+- [Deitke et al. — Molmo and PixMo (arXiv:2409.17146)](https://arxiv.org/abs/2409.17146)
+- [Tong et al. — Cambrian-1 (arXiv:2406.16860)](https://arxiv.org/abs/2406.16860)
+- [Karamcheti et al. — Prismatic VLMs (arXiv:2402.07865)](https://arxiv.org/abs/2402.07865)

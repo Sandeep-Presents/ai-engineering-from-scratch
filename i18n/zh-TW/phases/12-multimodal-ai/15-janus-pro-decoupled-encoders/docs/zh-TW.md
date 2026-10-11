@@ -19,7 +19,7 @@
 大一統多模態模型的核心理念，是讓單一 Transformer 本體跨界兼顧感知理解與主動生成。先前的代表性嘗試（Chameleon、Show-o、Transfusion）皆試圖為這兩個方向共用同一個視覺 Tokenizer。然而這款 Tokenizer 不可避免地成為妥協的產物：
 
 - 若以像素「精準重建（生成）」為最佳化目標：VQ-VAE 雖然捕捉了細緻微觀的局部紋理，產出的離散 token 卻缺乏宏觀的語意凝聚力。
-- 若以宏觀「語意對齊（理解）」為最佳化目標：SigLIP 的 embedding 空間雖然能將「貓」的影像精準分群在文字「貓」附近，卻完全喪失了解碼還原為高畫質像素的能力。
+- 若以宏觀「語意對齊（理解）」為最佳化目標：SigLIP 的 embedding 空間雖然能將「貓」的影像精準分群在文字「貓」附近，但無法良好地還原影像。
 
 Show-o 與 Transfusion 皆為這種單一編碼器的內在衝突付出了肉眼可見的品質代價。Janus-Pro 直球發問：既然理解與生成本質需求迥異，為何非得強逼它們共用同一個視覺編碼器？
 
@@ -31,7 +31,7 @@ Janus-Pro 的核心設計徹底拆分了兩大編碼路徑：
 
 - 理解路徑（Understanding path）：輸入影像 → SigLIP-SO400m 視覺塔 → 雙層 MLP 投影器 → 餵入共用的 Transformer 本體。
 - 生成路徑（Generation path）：輸入影像（若作為條件引導圖）→ 專屬 VQ Tokenizer → 離散 token ID → 餵入共用的 Transformer 本體。
-- 輸出生成端：Transformer 預測出的影像離散 token → 專屬 VQ 解碼器 → 彩現還原為實體像素。
+- 輸出生成端：Transformer 預測出的影像離散 token → 專屬 VQ 解碼器 → 彩現還原為像素。
 
 Transformer 骨幹大腦完全共享。骨幹本體上游與下游的所有模態編碼與解碼元件，皆依任務性質嚴格特化隔離。
 
@@ -39,9 +39,9 @@ Transformer 骨幹大腦完全共享。骨幹本體上游與下游的所有模�
 
 ### 為何此設計能破局生效
 
-多模態理解損失直接享受到 SigLIP 產出的優質語意特徵，這些特徵早已在海量對比學習中對齊了文字世界的高階語意。因此模型在感知評測上的表現，顯著超越了被 VQ 碼本限制語意的 Show-o 或 Transfusion。
+多模態理解損失直接享受到 SigLIP 產出的優質語意特徵，這些特徵早已在海量對比學習中對齊了文字世界的高階語意。因此，模型在感知基準上的表現優於 Show-o 和 Transfusion，因為輸入特徵更適合這項任務。
 
-而影像生成損失則直接作用於專為像素重建打磨的 VQ 離散 token。因為 VQ 碼本索引能精準無損地還原銳利線條與飽和色彩，其成圖品質直接超越了 Show-o。
+而影像生成損失則直接作用於專為像素重建打磨的 VQ 離散 token。因為 VQ 碼本索引能乾淨地還原為像素，其成圖品質直接超越了 Show-o。
 
 底層共用的 Transformer 本體同時接收這兩種不同統計特性的輸入分布（SigLIP 連續特徵與 VQ 離散索引），並在海量資料淬鍊下學會了自如駕馭兩端。其核心實證假設為：只要模型參數量夠大、訓練資料夠充沛，單一 Transformer 骨幹完全有能力吸收這種雙分布切換。
 
@@ -54,7 +54,7 @@ Transformer 骨幹大腦完全共享。骨幹本體上游與下游的所有模�
 - 第 2 階段（大一統預訓練）資料從 2,600 萬激增至 7,200 萬。
 - 第 3 階段額外注入了 20 萬條高畫質文生圖指令資料。
 
-成果驚艷：7B 規模的 Janus-Pro 在 MMMU 感知基準上打平了專門的多模態大模型 LLaVA（60.3 vs ~58），並在 GenEval 文生圖綜合評測中以 0.80 的高分超越了專有的 DALL-E 3（0.67）。一個開源模型，在理解與生成兩大極端同時展現出前沿競爭力。
+成果驚艷：7B 規模的 Janus-Pro 在 MMMU 感知基準上打平了多模態模型 LLaVA（60.3 vs ~58），並在 GenEval 文生圖綜合評測中以 0.80 的高分超越了專有的 DALL-E 3（0.67）。一個開源模型，在理解與生成兩方面都展現出前沿競爭力。
 
 ### JanusFlow——整流流連續生成變體
 
@@ -73,7 +73,7 @@ Transformer 本體內部沒有任何模態特化的層級權重。它就是你�
 
 ### 與 InternVL-U 的架構對比
 
-InternVL-U（第 12.10 課）是 2026 年的後續集大成者。它深度融合了：
+InternVL-U（Phase 12 · 10）是 2026 年的後續集大成者。它深度融合了：
 
 - 原生多模態預訓練（承襲 InternVL3 骨幹）。
 - 解耦編碼器分流路由（輸入端採 SigLIP，輸出端兼具 VQ 與擴散生成頭）。
@@ -83,11 +83,11 @@ InternVL-U 將 Janus-Pro 的解耦編碼思維納入更宏大的原生體系。�
 
 ### 架構侷限與選型邊界
 
-解耦編碼器必然會引入額外的架構複雜度：需要同時維護兩套獨立的 Tokenizer、兩條平行的前向資料流，以及應對兩種不同的邊界失效模式。若產品僅需純視覺問答，Janus-Pro 顯然過度工程化——選用 LLaVA 家族純理解模型更輕量穩定。
+解耦編碼器必然會引入額外的架構複雜度：需要訓練兩套獨立的 tokenizer、維護兩條輸入路徑，並處理兩種不同的失效模式。若產品僅需純視覺問答，Janus-Pro 顯然過度工程化——選用 LLaVA 家族純理解模型更輕量穩定。
 
-若業務僅需單純的文生圖，Janus-Pro 亦顯繁瑣——直接選用專門的 Stable Diffusion 3 或 Flux 更為專精。
+若業務僅需單純的文生圖，Janus-Pro 的能力已超出所需——直接選用專門的 Stable Diffusion 3 或 Flux 更為專精。
 
-但若你的業務必須在單一開源端點上，同時提供高水準的視覺對話、圖表推理與高畫質圖片自主生成，Janus-Pro 堪稱目前開源領域首屈一指的參考架構。
+若產品同時需要理解與生成，Janus-Pro 目前是開源參考架構。
 
 ```figure
 l5-janus-decouple
@@ -116,7 +116,7 @@ l5-janus-decouple
 
 3. JanusFlow 將原先的 VQ 生成路徑更換為整流流（Rectified Flow）。此時 Transformer 骨幹本體的輸出目標轉變為何？損失函式發生了何種相應變化？
 
-4. 試著為 Janus-Pro 架構提議第四種潛在的專屬解耦編碼器。例如引入 DINO 進行密集語意分割，或引入 MiDaS 進行精準幾何深度估計。
+4. 試著提議一項 Janus-Pro 架構再加一個解耦編碼器即可處理的第四種任務。例如引入 DINO 進行密集語意分割，或引入 MiDaS 進行精準幾何深度估計。
 
 5. 閱讀 Janus-Pro 論文第 4.2 節關於資料規模擴展的消融實驗結果。哪一個訓練階段的資料擴充對文生圖品質帶來的增益幅度最為顯著？
 
@@ -127,14 +127,14 @@ l5-janus-decouple
 | Decoupled encoding | 「視覺雙編碼器」 | 依任務方向拆分獨立編碼器：理解端採高階語意特徵，生成端採易於重構的離散標記 |
 | Shared body | 「共享單一大腦」 | 單一 Transformer 本體同時處理兩套編碼器送入的特徵；無模態特化層級權重 |
 | SigLIP for understanding | 「語意特徵塔」 | CLIP 家族的高階視覺塔，提供極致豐富的抽象概念特徵，但不擅長像素還原 |
-| VQ for generation | 「像素重構碼」 | 透過向量量化產生的高保真離散 token，能精確且乾淨地解碼還原回實體像素 |
+| VQ for generation | 「像素重構碼」 | 透過向量量化產生的高保真離散 token，能精確且乾淨地解碼還原回像素 |
 | JanusFlow | 「整流流連續變體」 | 以連續空間的流匹配生成頭取代 VQ 離散碼本的升級版 Janus-Pro 架構 |
 | Routing tag | 「任務分流標籤」 | Prompt 中的控制標籤（如 `<understand>` 或 `<generate>`），用以驅動正確的編碼器分流 |
 
 ## Further Reading｜延伸閱讀
 
-- [Wu et al. — Janus (arXiv:2410.13848)](https://arxiv.org/abs/2410.13848) ——雙編碼器原創奠基論文
-- [Chen et al. — Janus-Pro (arXiv:2501.17811)](https://arxiv.org/abs/2501.17811) ——大規模擴展突破性成果
-- [Ma et al. — JanusFlow (arXiv:2411.07975)](https://arxiv.org/abs/2411.07975) ——整流流連續生成變體
-- [InternVL-U (arXiv:2603.09877)](https://arxiv.org/abs/2603.09877) ——大一統多模態進階版圖
-- [Dong et al. — DreamLLM (arXiv:2309.11499)](https://arxiv.org/abs/2309.11499) ——早期自回歸雙向生成探索
+- [Wu et al. — Janus (arXiv:2410.13848)](https://arxiv.org/abs/2410.13848)
+- [Chen et al. — Janus-Pro (arXiv:2501.17811)](https://arxiv.org/abs/2501.17811)
+- [Ma et al. — JanusFlow (arXiv:2411.07975)](https://arxiv.org/abs/2411.07975)
+- [InternVL-U (arXiv:2603.09877)](https://arxiv.org/abs/2603.09877)
+- [Dong et al. — DreamLLM (arXiv:2309.11499)](https://arxiv.org/abs/2309.11499)

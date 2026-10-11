@@ -1,6 +1,6 @@
 # LLaVA 與視覺指令調校（LLaVA and Visual Instruction Tuning）
 
-> LLaVA（2023 年 4 月）堪稱當今地表被借鑑複製最多次的多模態架構。它以極簡的雙層 MLP 取代了 BLIP-2 複雜的 Q-Former，以純粹的 token 拼接（concatenation）取代了 Flamingo 的門控交叉注意力，並完全在由 GPT-4 根據純文字描述生成的 15.8 萬組視覺指令對話上完成訓練。在 2023 至 2026 年間，任何親手打造過 VLM 的工程師，幾乎都曾實作過某種 LLaVA 變體。LLaVA-1.5 引入了 AnyRes；LLaVA-NeXT 大幅推升了影像解析度；LLaVA-OneVision 則將單圖、多圖與影片統一於同一套訓練配方中。本課帶你完整走通這套工程配方、親手實作投影器，並深度剖析「何以極簡終獲全勝」。
+> LLaVA（2023 年 4 月）堪稱當今地表被借鑑複製最多次的多模態（multimodal）架構。它以極簡的雙層 MLP 取代了 BLIP-2 複雜的 Q-Former，以純粹的 token 拼接（concatenation）取代了 Flamingo 的門控交叉注意力，並完全在由 GPT-4 根據純文字描述生成的 15.8 萬組視覺指令對話上完成訓練。在 2023 至 2026 年間，任何親手打造過 VLM 的工程師，幾乎都曾實作過某種 LLaVA 變體。LLaVA-1.5 引入了 AnyRes；LLaVA-NeXT 大幅推升了影像解析度；LLaVA-OneVision 則將單圖、多圖與影片統一於同一套訓練配方中。本課帶你完整走通這套工程配方、親手實作投影器，並深度剖析「何以極簡終獲全勝」。
 
 **Type:** Build
 **Languages:** Python (stdlib, projector + instruction-template builder)
@@ -65,15 +65,15 @@ decode response
 2. 提取其既有的文字描述（包含 5 條人類撰寫的 caption 與物件邊界框清單）。
 3. 傳送至純文字版 GPT-4，搭配三種 prompt 模板：
    - 自由對話（Conversation）：「模擬使用者與助理圍繞這張影像展開來回多輪對話。」
-   - 詳細描述（Detailed description）：「給出一段豐富且具備空間細節的影像描述。」
-   - 複雜推理（Complex reasoning）：「提出一個需要對影像進行深度因果或空間推理的問題，並給出詳細解答。」
+   - 詳細描述（Detailed description）：「給出一段豐富且詳細的影像描述。」
+   - 複雜推理（Complex reasoning）：「提出一個需要對影像進行推理的問題，然後作答。」
 4. 將 GPT-4 的生成文字解析為標準的（指令, 回應）對話格式。
 
-整個資料生成過程完全無需 GPT-4 直接「看」到影像，純粹依賴豐富的文字描寫。GPT-4 藉由文字補全幻化出極具真實感的視覺場景細節。儘管帶有些許雜訊，但實驗證明：僅僅 15.8 萬輪高品質對話，便足以徹底解鎖開源大模型的多模態對話與推理能力。
+整個資料生成過程完全無需 GPT-4 直接「看」到影像，純粹依賴豐富的文字描寫。GPT-4 會產生幻覺（hallucinate），編出看似合理的影像內容。儘管帶有些許雜訊，但實驗證明：僅僅 15.8 萬輪高品質對話，便足以徹底解鎖開源大模型的多模態對話與推理能力。
 
 ### 為何開源社群集體擁抱此架構
 
-- 無需調校任何複雜的第 1 階段對比損失，全生命週期貫穿純粹的語言模型損失（LM loss）。
+- 無需調校任何第 1 階段專用損失，全程都是語言模型損失（LM loss）。
 - 投影器訓練速度極快，僅需數小時而非數天。
 - 語言模型極易熱插拔替換（如 LLaVA-Llama2、LLaVA-Mistral、LLaVA-Llama3），更換底座後只需重新對齊投影器即可。
 - 視覺指令資料生成管線完全依賴現成的 GPT-4 API，針對任何垂直領域（如醫療、工業檢測）皆能極低成本快速重現。
@@ -106,7 +106,7 @@ LLaVA-NeXT（2024 年 1 月）進一步引入：
 | 視訊處理能力 | 跨幀協同較繁瑣 | 極其天然（逐幀投影後依序拼接） |
 | Token 預算負擔 | 極低 | 較重 |
 
-MLP 在系統簡潔度與 token 語意保真度上全面勝出；Q-Former 則僅在嚴苛的 token 數量預算上保有優勢。到了 2023 年底，隨著各大 LLM 的 context 視窗普遍擴充至 32k–128k 以上，token 數量不再是致命瓶頸，極簡的 MLP 路線因而奠定了絕對的統治地位。
+MLP 在系統簡潔度與 token 使用彈性上勝出；Q-Former 則僅在嚴苛的 token 數量預算上保有優勢。到了 2023 年底，隨著各大 LLM 的 context 視窗普遍擴充至 32k–128k 以上，token 數量不再是致命瓶頸，極簡的 MLP 路線因而奠定了絕對的統治地位。
 
 ### Prompt 格式規範
 
@@ -119,7 +119,7 @@ A chat between a curious human and an artificial intelligence assistant. The ass
 ### 參數經濟學
 
 LLaVA-1.5-7B 的參數組成剖析：
-- 視覺編碼器：CLIP ViT-L/14 @ 336 佔 3.03 億參數（第 1 階段凍結，第 2 階段常維持凍結或部分解凍）。
+- 視覺編碼器：CLIP ViT-L/14 @ 336 佔 3.03 億參數（第 1 階段凍結，第 2 階段常解凍）。
 - 雙層線性投影器：約 2200 萬可訓練參數。
 - 語言模型：Llama-7B 佔 70 億參數。
 - 全系統總計：約 73 億參數。在第 2 階段實際參與梯度更新的為 70 億 LLM 加上 2200 萬投影器。
@@ -140,7 +140,7 @@ mm-llava-projector
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-llava-vibes-eval.md`。給定任一 LLaVA 家族檢查點，它將自動執行包含 10 組精心設計 prompt 的啟發式質性評測套件（3 組圖文說明、3 組 VQA 問答、2 組空間複雜推理、2 組安全拒絕回答），並輸出清晰的人類可讀評分卡。這並非學術標準基準，而是一個極速驗證投影器與 LLM 是否成功接通且未發生特徵崩潰的冒煙測試（smoke test）。
+本課產出 `outputs/skill-llava-vibes-eval.md`。給定任一 LLaVA 家族 model checkpoint，它將自動執行包含 10 組精心設計 prompt 的啟發式質性評測套件（3 組圖文說明、3 組 VQA 問答、2 組空間複雜推理、2 組安全拒絕回答），並輸出清晰的人類可讀評分卡。這並非學術標準基準，而是一個極速驗證投影器與 LLM 是否成功接通且未發生特徵崩潰的冒煙測試（smoke test）。
 
 ## Exercises｜練習
 
@@ -164,15 +164,15 @@ mm-llava-projector
 | Stage 1 alignment | 「投影器預訓練對齊」 | 凍結 ViT 與 LLM，僅訓練投影器在圖文描述上最小化語言模型預測損失 |
 | AnyRes | 「多格切片動態解析度」 | 將高解析度影像依比例裁切為網格拼圖，並將各切片與縮圖的視覺 token 依序拼接 |
 | LLaVA-Instruct | 「GPT-4 擬真合成資料」 | 巧妙利用 COCO 人工文字描述引導 GPT-4 合成的 15.8 萬組多輪指令問答資料集 |
-| Vision encoder freeze | 「鎖死視覺骨幹」 | 在第 1 階段完全不更新 CLIP 權重，在第 2 階段亦經常維持凍結狀態 |
+| Vision encoder freeze | 「鎖死視覺骨幹」 | 在第 1 階段完全不更新 CLIP 權重，第 2 階段有時仍維持凍結 |
 | ShareGPT4V | 「高畫質精細圖片說明」 | 利用 GPT-4V 生成的 100 萬條高密度富語意圖片說明資料集，用於更高階的對齊訓練 |
 | VQA | 「視覺問答」 | 針對輸入影像進行自由形式文字提問與解答的經典核心多模態任務 |
 | Prismatic VLMs | 「多模態架構消融研究」 | Karamcheti 於 2024 年發表的里程碑論文，系統性實證測試了各種投影器與資料配比 |
 
 ## Further Reading｜延伸閱讀
 
-- [Liu et al. — Visual Instruction Tuning (arXiv:2304.08485)](https://arxiv.org/abs/2304.08485) ——LLaVA 原創奠基論文
-- [Liu et al. — Improved Baselines with Visual Instruction Tuning (arXiv:2310.03744)](https://arxiv.org/abs/2310.03744) ——LLaVA-1.5 架構升級
-- [Chen et al. — ShareGPT4V (arXiv:2311.12793)](https://arxiv.org/abs/2311.12793) ——高密度視覺圖片說明資料集
-- [Karamcheti et al. — Prismatic VLMs (arXiv:2402.07865)](https://arxiv.org/abs/2402.07865) ——視覺語言模型的設計空間消融研究
-- [Li et al. — LLaVA-OneVision (arXiv:2408.03326)](https://arxiv.org/abs/2408.03326) ——統一單圖、多圖與影片的大一統訓練範式
+- [Liu et al. — Visual Instruction Tuning (arXiv:2304.08485)](https://arxiv.org/abs/2304.08485)
+- [Liu et al. — Improved Baselines with Visual Instruction Tuning (arXiv:2310.03744)](https://arxiv.org/abs/2310.03744)
+- [Chen et al. — ShareGPT4V (arXiv:2311.12793)](https://arxiv.org/abs/2311.12793)
+- [Karamcheti et al. — Prismatic VLMs (arXiv:2402.07865)](https://arxiv.org/abs/2402.07865)
+- [Li et al. — LLaVA-OneVision (arXiv:2408.03326)](https://arxiv.org/abs/2408.03326)

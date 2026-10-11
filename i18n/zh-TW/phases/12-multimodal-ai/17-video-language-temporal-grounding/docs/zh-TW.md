@@ -1,6 +1,6 @@
 # 視訊語言模型：時間 Token 與時間軸定位（Video-Language Models: Temporal Tokens and Grounding）
 
-> 影片絕非一疊單純的靜態照片堆疊。一段 5 秒鐘的短片蘊含著嚴格的因果因果次序、動作動詞以及事件發生的精確時間點，這些是純靜態影像模型完全無力表達的。Video-LLaMA（Zhang 等人，2023 年 6 月）推出了首款具備視訊音訊時空定位的開源視訊 LLM；VideoChat 與 Video-LLaVA 則進一步將此模式規模化。到了 2025 年，Qwen2.5-VL 憑藉 TMRoPE 徹底縮小了開源模型與頂級閉源模型的差距。各家系統對時間 token 的解法大異其趣——以短片為單位的 Q-former、逐影格池化拼接，或是細粒度至逐 token 的 TMRoPE。本課帶你梳理各類流派，動手實作均勻與動態影格取樣器，並在時間軸定位任務上展開嚴謹評測。
+> 影片絕非一疊單純的靜態照片堆疊。一段 5 秒鐘的短片蘊含著嚴格的因果次序、動作動詞以及事件發生的精確時間點，這些是純靜態影像模型完全無力表達的。Video-LLaMA（Zhang 等人，2023 年 6 月）推出了首款具備視訊音訊時空定位的開源視訊 LLM；VideoChat 與 Video-LLaVA 則進一步將此模式規模化。到了 2025 年，Qwen2.5-VL 憑藉 TMRoPE 徹底縮小了開源模型與頂級閉源模型的差距。各家系統對時間 token 的解法大異其趣——以短片為單位的 Q-former、逐影格池化拼接，或是細粒度至逐 token 的 TMRoPE。本課帶你梳理各類流派，動手實作均勻與動態影格取樣器，並在時間軸定位任務上展開嚴謹評測。
 
 **Type:** Build
 **Languages:** Python (stdlib, frame sampler + temporal-grounding evaluator)
@@ -32,7 +32,7 @@
 
 ### Video-LLaMA：片段級 Q-Former 加音訊路徑
 
-Video-LLaMA（2023）是首款開源的視訊語言大模型。其典型架構為：
+Video-LLaMA（2023）是首款開源視訊大型語言模型。其典型架構為：
 
 - 接收以 2 FPS 取樣的 16 幀短片片段（總長度為 8 秒）。
 - 逐影格提取 ViT 特徵 → 送入視訊 Q-Former 對全體 16 幀進行交叉注意力檢索 → 壓縮為 32 個學習到的 query 向量 → 餵入 LLM。
@@ -48,12 +48,12 @@ VideoChat 延續了 Video-LLaMA 的思路，但移除了音訊模組以追求架
 
 ### Qwen2.5-VL 與 TMRoPE
 
-Qwen2.5-VL 引入了革命性的 TMRoPE（時空模態旋轉位置編碼）。每個 patch token 皆攜帶三維座標 (t, h, w)，其中 t 為精確的「實體絕對時間戳記」（而非相對影格序號）。
+Qwen2.5-VL 引入了革命性的 TMRoPE（時空模態旋轉位置編碼）。每個 patch token 皆攜帶三維座標 (t, h, w)，其中 t 為「實際時間戳記」（而非相對影格序號）。
 
 與傳統時間 embedding 表相比的核心質變：
 
 - 絕對時間而非相對索引：模型直接看見「在 4.2 秒時」，而非模糊的「在第 15 幀」。
-- 細化至逐 token 的獨立旋轉：每個視覺 token 依據自身的實體時間戳記各自進行高頻旋轉。
+- 細化至逐 token 的獨立旋轉：每個視覺 token 依據自身的時間戳記各自進行高頻旋轉。
 - 原生相容於非均勻的動態 FPS：無論此處抽樣 2 FPS、彼處抽樣 4 FPS，TMRoPE 皆能天然處理不均勻的時間間隔。
 
 TMRoPE 真正解鎖了「貓在第幾秒跳了起來？」這類極精確的時間軸定位查詢。模型能夠自信輸出「在 4.2 秒處」；而早期的 Video-LLaMA 最多只能含糊回答「在片段前段」。
@@ -64,7 +64,7 @@ TMRoPE 真正解鎖了「貓在第幾秒跳了起來？」這類極精確的時�
 
 動態 FPS 取樣（Dynamic FPS）：依據畫面動態劇烈程度自適應調整抽幀率。利用光流（Optical Flow）或相鄰影格差分演算法，自動在劇烈運動區間提高抽幀密度。Qwen2.5-VL 在此策略上進行了深度預訓練。
 
-事件驅動取樣（Event-driven）：前端先執行一個超輕量的動態偵測器，僅在真正發生實體動作的區間密集抽樣。常為 VideoAgent 所採用。
+事件驅動取樣（Event-driven）：前端先執行一個超輕量的動態偵測器，僅在發生動作的區間密集抽樣。常為 VideoAgent 所採用。
 
 關鍵影格加上下文（Keyframe + context）：在鏡頭轉換的剪輯邊界處強制抽樣，並搭配前後各數幀作為背景。極度適合電影長片與剪輯視訊。
 
@@ -74,7 +74,7 @@ TMRoPE 真正解鎖了「貓在第幾秒跳了起來？」這類極精確的時�
 
 套用 3×3 雙線性空間池化，能將每幀精簡為 64 個 token → 5 分鐘視訊總 token 量降至 19,200。這是當前絕大多數商業任務的最佳性價比平衡點。
 
-面對純文字操作的 Agent 工作流程（畫面空間細節要求較低），可施加更激進的 6×6 池化（每幀壓縮至僅 16 個 token）。
+面對空間細節要求較低的 agent 工作流程，可施加更激進的 6×6 池化（每幀壓縮至僅 16 個 token）。
 
 ### 四重視訊基準評測體系
 
@@ -83,14 +83,14 @@ TMRoPE 真正解鎖了「貓在第幾秒跳了起來？」這類極精確的時�
 - EgoSchema：專注於長達數分鐘的第一人稱視角長程行為理解。
 - Video-MMMU：橫跨多學科領域的高難度多模態視訊問答。
 
-完整的視訊大模型評測必須全量覆蓋這四大基準。它們各自檢驗不同的架構維度——TempCompass 考驗時序排列；EgoSchema 考驗 3 分鐘以上的超長程邏輯；VideoMME 則檢驗跨時長泛化。
+完整的視訊 VLM 評測必須全量覆蓋這四大基準。它們各自檢驗不同的架構維度——TempCompass 考驗時序排列；EgoSchema 考驗 3 分鐘以上的超長程邏輯；VideoMME 則檢驗跨時長泛化。
 
 ### 時間軸定位輸出格式
 
 時間軸定位的輸出協定演進：
 
-- 自由文字描述：「貓大約在 4 秒處跳了起來。」易於人類閱讀，但極難被下游軟體可靠解析。
-- 結構化 JSON：`{"event": "jump", "start": 4.1, "end": 4.3}`。Qwen2.5-VL 深度訓練此格式，保證機器百分之百可靠解析。
+- 自由文字描述：「貓大約在 4 秒處跳了起來。」易於解析，但不夠精確。
+- 結構化 JSON：`{"event": "jump", "start": 4.1, "end": 4.3}`。Qwen2.5-VL 訓練此格式。
 - 專屬 Token 形式：在文字回答中穿插特殊的 `<time>4.1</time>` 標籤。這是 Qwen2.5-VL 內部的原生表徵形式。
 
 專屬 Token 形式在下游推理中具備最高的準確度，而 Qwen2.5-VL 的 JSON 輸出格式則能直接被各類 Agent 系統直接消費。
@@ -102,7 +102,7 @@ TMRoPE 真正解鎖了「貓在第幾秒跳了起來？」這類極精確的時�
 - 視覺編碼器：具備 M-RoPE 或 TMRoPE 的 SigLIP 2（如 Qwen2.5-VL）。
 - 影格取樣：依運動劇烈度動態調度的動態 FPS（1 到 4 FPS），並設有每請求最大影格數上限。
 - 逐影格池化：採用 3×3 雙線性空間池化。
-- 輸出規範：帶有時間區間與事件實體的標準結構化 JSON。
+- 輸出規範：帶有時間區間與事件欄位的標準結構化 JSON。
 - 評測驗證：通用能力測 VideoMME + TempCompass；長時序規劃測 EgoSchema。
 
 ```figure
@@ -114,7 +114,7 @@ video-temporal-patches
 `code/main.py` 完整實作了：
 
 - 均勻取樣與動態 FPS 視訊影格取樣器。
-- 時間軸定位微型評測器：給定真實世界發生於時間 T 的事件標準答案，評估模型預測結果在容許誤差（tolerance）內的精確命中率。
+- 時間軸定位微型評測器：給定時間 T 的真實標籤事件，評估模型預測結果在容許誤差（tolerance）內的精確命中率。
 - 橫跨 Video-LLaMA（16 幀，Q-Former）、Video-LLaVA（8 幀，MLP 拼接）與 Qwen2.5-VL（動態 FPS + TMRoPE）的三代架構規格量化比對。
 
 ## Ship It｜交付成果
@@ -146,8 +146,8 @@ video-temporal-patches
 
 ## Further Reading｜延伸閱讀
 
-- [Zhang et al. — Video-LLaMA (arXiv:2306.02858)](https://arxiv.org/abs/2306.02858) ——首款開源視訊語言模型
-- [Li et al. — VideoChat (arXiv:2305.06355)](https://arxiv.org/abs/2305.06355) ——視訊對話架構
-- [Lin et al. — Video-LLaVA (arXiv:2311.10122)](https://arxiv.org/abs/2311.10122) ——圖文視訊聯合對齊架構
-- [Qwen Team — Qwen2.5-VL (arXiv:2502.13923)](https://arxiv.org/abs/2502.13923) ——TMRoPE 與動態 FPS 視訊新標竿
-- [Lin et al. — VILA-1.5 (arXiv:2312.07533)](https://arxiv.org/abs/2312.07533) ——視訊語言多模態擴展研究
+- [Zhang et al. — Video-LLaMA (arXiv:2306.02858)](https://arxiv.org/abs/2306.02858)
+- [Li et al. — VideoChat (arXiv:2305.06355)](https://arxiv.org/abs/2305.06355)
+- [Lin et al. — Video-LLaVA (arXiv:2311.10122)](https://arxiv.org/abs/2311.10122)
+- [Qwen Team — Qwen2.5-VL (arXiv:2502.13923)](https://arxiv.org/abs/2502.13923)
+- [Lin et al. — VILA-1.5 (arXiv:2312.07533)](https://arxiv.org/abs/2312.07533)

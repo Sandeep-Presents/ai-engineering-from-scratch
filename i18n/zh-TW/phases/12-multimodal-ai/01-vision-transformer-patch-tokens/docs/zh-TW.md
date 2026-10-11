@@ -1,6 +1,6 @@
 # 視覺 Transformer 與 Patch-Token 原語（Vision Transformers and the Patch-Token Primitive）
 
-> 在進行任何多模態處理之前，影像必須先轉化為 Transformer 能夠消化處理的 token 序列。2020 年的 ViT 論文以 16×16 像素 patch、線性投影以及 position embedding 解答了這個問題。五年過去，在 2026 年的每個尖端模型（例如具備 2576px 原生解析度的 Claude Opus 4.7、Gemini 3.1 Pro、Qwen3.5-Omni）依然以這種方式啟動——編碼器雖已從 ViT 演進至 DINOv2 再到 SigLIP 2，並引入了暫存器 token，位置編碼機制也進化為 2D-RoPE，但這個底層原語依然屹立不搖。本課帶你端到端剖析 patch-token 管線，並以純 Python 標準函式庫實作，為 Phase 12 後續課程建立堅實具體的「視覺 token」心智模型。
+> 在進行任何多模態（multimodal）處理之前，影像必須先轉化為 Transformer 能夠消化處理的 token 序列。2020 年的 ViT 論文以 16×16 像素 patch、線性投影以及 position embedding 解答了這個問題。五年過去，在 2026 年的每個尖端模型（例如具備 2576px 原生解析度的 Claude Opus 4.7、Gemini 3.1 Pro、Qwen3.5-Omni）依然以這種方式啟動——編碼器雖已從 ViT 演進至 DINOv2 再到 SigLIP 2，並引入了暫存器 token，位置編碼機制也進化為 2D-RoPE，但這個底層原語依然屹立不搖。本課帶你端到端剖析 patch-token 管線，並以純 Python 標準函式庫實作，為 Phase 12 後續課程建立堅實具體的「視覺 token」心智模型。
 
 **Type:** Learn
 **Languages:** Python (stdlib, patch tokenizer + geometry calculator)
@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-Transformer 運作於向量序列之上。文字本身就是天然的序列（位元組或 token）。然而影像是由具備三個色彩通道的像素所構成之二維網格——並非序列。若你將所有像素直接展平，一張 224×224 的 RGB 影像將產生 150,528 個 token，而在如此龐大的長度下進行自注意力運算完全不可行（運算複雜度隨序列長度呈二次方爆炸）。
+Transformer 運作於向量序列之上。文字本身就是天然的序列（位元組或 token）。然而影像是由具備三個色彩通道的像素所構成之二維網格——並非序列。若你將所有像素直接展平，一張 224×224 的 RGB 影像將產生 150,528 個 token，而在如此龐大的長度下進行自注意力（self-attention）運算完全不可行（運算複雜度隨序列長度呈二次方爆炸）。
 
 2020 年以前的常見做法是在前端串接一個 CNN 特徵擷取器：由 ResNet 產出 2048 維向量構成的 7×7 特徵圖，再將這 49 個 token 餵入 Transformer。這種做法雖能運作，卻繼承了 CNN 的歸納偏置（平移等變性、局部感受野），並失去了 Transformer 吞吐規模化資料的強大潛力。
 
@@ -87,7 +87,7 @@ final LN    = 1.5k
 total       ≈ 86M
 ```
 
-在載入任何權重檢查點之前，務必以此方式粗估模型規格。骨幹的大小決定了任何下游 VLM 的 VRAM 最低門檻。
+在載入任何 model checkpoint 之前，務必以此方式粗估模型規格。骨幹的大小決定了任何下游 VLM 的 VRAM 最低門檻。
 
 ### 2026 年正式環境配置
 
@@ -149,9 +149,9 @@ image-patch-tokens
 
 ## Further Reading｜延伸閱讀
 
-- [Dosovitskiy et al. — An Image is Worth 16x16 Words (arXiv:2010.11929)](https://arxiv.org/abs/2010.11929) ——原創 ViT 論文
-- [He et al. — Masked Autoencoders Are Scalable Vision Learners (arXiv:2111.06377)](https://arxiv.org/abs/2111.06377) ——MAE 自我監督預訓練
-- [Oquab et al. — DINOv2 (arXiv:2304.07193)](https://arxiv.org/abs/2304.07193) ——大規模自我蒸餾，無標籤監督
-- [Darcet et al. — Vision Transformers Need Registers (arXiv:2309.16588)](https://arxiv.org/abs/2309.16588) ——暫存器 token 與注意力假影剖析
-- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786) ——2026 年預設的主流視覺塔
-- [Zhai et al. — Scaling Vision Transformers (arXiv:2106.04560)](https://arxiv.org/abs/2106.04560) ——經驗縮放法則
+- [Dosovitskiy et al. — An Image is Worth 16x16 Words (arXiv:2010.11929)](https://arxiv.org/abs/2010.11929)
+- [He et al. — Masked Autoencoders Are Scalable Vision Learners (arXiv:2111.06377)](https://arxiv.org/abs/2111.06377)
+- [Oquab et al. — DINOv2 (arXiv:2304.07193)](https://arxiv.org/abs/2304.07193)
+- [Darcet et al. — Vision Transformers Need Registers (arXiv:2309.16588)](https://arxiv.org/abs/2309.16588)
+- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786)
+- [Zhai et al. — Scaling Vision Transformers (arXiv:2106.04560)](https://arxiv.org/abs/2106.04560)

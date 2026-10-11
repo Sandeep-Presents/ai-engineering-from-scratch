@@ -1,6 +1,6 @@
 # Flamingo 與少樣本 VLM 的門控交叉注意力（Flamingo and Gated Cross-Attention for Few-Shot VLMs）
 
-> DeepMind 的 Flamingo（2022）率先達成了兩項開創性壯舉：其一，證明了單一模型能夠處理影像、影片與文字任意交錯的超長序列；其二，展示了多模態模型（VLM）同樣具備強大的在線上下文學習（in-context learning）能力——只需在 prompt 中給出三組（影像, 圖片說明）範例，模型便能在完全不更新任何梯度的情況下，精確為全新的影像生成圖片說明。其關鍵機制為：在凍結 LLM 的既有層之間插入門控交叉注意力（gated cross-attention）層，並搭配一個初始值為零的可學習 tanh 門控，確保模型在初始化之初能完美保留原 LLM 的強大文字能力。本課將深入剖析 Flamingo 的 Perceiver 重取樣器與門控交叉注意力架構——這正是 Gemini 交錯輸入與 Idefics2 視覺 token 的技術先祖。
+> DeepMind 的 Flamingo（2022）率先達成了兩項開創性壯舉：其一，證明了單一模型能夠處理影像、影片與文字任意交錯的超長序列；其二，展示了多模態模型（VLM）同樣具備強大的上下文內學習（in-context learning）能力——只需在 prompt 中給出三組（影像, 圖片說明）範例，模型便能在完全不更新任何梯度的情況下，精確為全新的影像生成圖片說明。其關鍵機制為：在凍結 LLM 的既有層之間插入門控交叉注意力（gated cross-attention）層，並搭配一個初始值為零的可學習 tanh 門控，確保模型在初始化之初能完美保留原 LLM 的強大文字能力。本課將深入剖析 Flamingo 的 Perceiver 重取樣器與門控交叉注意力架構——這正是 Gemini 交錯輸入與 Idefics2 視覺 token 的技術先祖。
 
 **Type:** Learn
 **Languages:** Python (stdlib, gated cross-attention + Perceiver resampler demo)
@@ -11,7 +11,7 @@
 
 - 解釋門控交叉注意力如何透過設為零的 tanh(gate) = 0，在初始化階段完美保留凍結 LLM 原本的文字推理能力。
 - 深入剖析 Perceiver 重取樣器：如何將任意數量的 N 個影像 patch，透過交叉注意力壓縮為固定數量的 K 個「潛在（latent）」query 向量。
-- 說明 Flamingo 如何透過兼顧影像空間位置的因果遮罩，優雅處理影像與文字交錯出現的複雜序列。
+- 說明 Flamingo 如何透過兼顧影像在序列中位置的因果遮罩，優雅處理影像與文字交錯出現的複雜序列。
 - 實作少樣本多模態 prompt 結構（例如 3 組圖文範例後接續待測影像）。
 
 ## The Problem｜問題
@@ -69,7 +69,7 @@ x_before_next_block = gated
 <image1> A photo of a cat. <image2> A photo of a dog. <image3> A photo of a
 ```
 
-模型辨識出接續生成的模式，並精確輸出「bird」（或 image3 中實際對應的實體）。全程無須更新任何梯度。凍結 LLM 既有的在線上下文學習能力，直接藉由門控交叉注意力穿透傳遞至多模態領域——這正是該論文最震撼學界的亮點所在。
+模型辨識出接續生成的模式，並精確輸出「bird」（或 image3 中實際對應的實體）。全程無須更新任何梯度。凍結 LLM 既有的上下文內學習能力，直接藉由門控交叉注意力穿透傳遞至多模態領域——這正是該論文最震撼學界的亮點所在。
 
 ### 訓練資料
 
@@ -83,7 +83,7 @@ OBELICS（2023）是該交錯式網頁語料庫的開源重現版本，Idefics�
 
 ### OpenFlamingo 與 Otter
 
-OpenFlamingo（2023）是其開源重現專案。架構完全對齊（在凍結的 LLaMA 或 MPT 之上架構 Perceiver 重取樣器與門控交叉注意力）。發布了 3B、4B 與 9B 多種尺寸權重。由於底座 LLM 較小且資料規模較少，其表現稍落後於原創 Flamingo。
+OpenFlamingo（2023）是其開源重現專案。架構完全對齊（在凍結的 LLaMA 或 MPT 之上架構 Perceiver 重取樣器與門控交叉注意力）。推出 3B、4B 與 9B 規模的 model checkpoint。由於底座 LLM 較小且資料規模較少，其表現稍落後於原創 Flamingo。
 
 Otter（2023）在 OpenFlamingo 之上，進一步在多模態指令資料集 MIMIC-IT 上展開指令 fine-tuning，驗證了門控交叉注意力同樣能完美勝任多模態指令遵循任務。
 
@@ -100,7 +100,7 @@ Otter（2023）在 OpenFlamingo 之上，進一步在多模態指令資料集 MI
 | 視覺橋樑架構 | 僅在輸入端掛載一次 Q-Former | 在每隔 M 層 LLM 內部皆插入門控交叉注意力 |
 | 視覺 Token 數量 | 每張影像 32 個 | 每個交叉注意力層每張影像各 64 個 |
 | 凍結語言模型 | 是 | 是 |
-| 少樣本在線學習 | 較弱 | 極強——為該論文的核心基石 |
+| 少樣本上下文內學習 | 較弱 | 極強——為該論文的核心基石 |
 | 圖文交錯輸入 | 無原生支援 | 原生支援，以此為核心設計目標 |
 | 訓練資料規模 | 1.3 億圖文對 | 13 億圖文對 + 4,300 萬交錯網頁 |
 | 可訓練參數量 | 1.88 億參數 | 約 100 億參數（所有交叉注意力層總和） |
@@ -153,9 +153,9 @@ cross-attention-fusion
 
 ## Further Reading｜延伸閱讀
 
-- [Alayrac et al. — Flamingo (arXiv:2204.14198)](https://arxiv.org/abs/2204.14198) ——Flamingo 原創論文
-- [Awadalla et al. — OpenFlamingo (arXiv:2308.01390)](https://arxiv.org/abs/2308.01390) ——開源重現專案
-- [Laurençon et al. — OBELICS (arXiv:2306.16527)](https://arxiv.org/abs/2306.16527) ——大規模圖文交錯網頁資料集
-- [Jaegle et al. — Perceiver IO (arXiv:2107.14795)](https://arxiv.org/abs/2107.14795) ——通用 Perceiver 架構
-- [Li et al. — Otter (arXiv:2305.03726)](https://arxiv.org/abs/2305.03726) ——經指令 fine-tuning 的 Flamingo 衍生模型
-- [Laurençon et al. — Idefics2 (arXiv:2405.02246)](https://arxiv.org/abs/2405.02246) ——Flamingo 思路的現代精簡化演進
+- [Alayrac et al. — Flamingo (arXiv:2204.14198)](https://arxiv.org/abs/2204.14198)
+- [Awadalla et al. — OpenFlamingo (arXiv:2308.01390)](https://arxiv.org/abs/2308.01390)
+- [Laurençon et al. — OBELICS (arXiv:2306.16527)](https://arxiv.org/abs/2306.16527)
+- [Jaegle et al. — Perceiver IO (arXiv:2107.14795)](https://arxiv.org/abs/2107.14795)
+- [Li et al. — Otter (arXiv:2305.03726)](https://arxiv.org/abs/2305.03726)
+- [Laurençon et al. — Idefics2 (arXiv:2405.02246)](https://arxiv.org/abs/2405.02246)

@@ -1,6 +1,6 @@
 # Emu3：基於下一個 Token 預測的影像與視訊生成（Emu3: Next-Token Prediction for Image and Video Generation）
 
-> 北京智源人工智慧研究院（BAAI）的 Emu3（Wang 等人，2024 年 9 月）堪稱本該為「擴散 vs 自回歸」世紀大辯論劃下句點的震撼成果。一個純粹的 Llama 風格僅解碼器（Decoder-Only）Transformer，僅依賴「下一個 token 預測（Next-Token Prediction）」單一目標，在涵蓋文字、2D 影像 VQ token 與 3D 視訊 VQ token 的大一統詞彙表上進行訓練，在影像生成品質上擊敗了 SDXL，在多模態感知評測中超越了 LLaVA-1.6。零 CLIP 損失、零擴散加噪時程。推論時採用無分類器引導（Classifier-Free Guidance, CFG）提升成圖保真度，但訓練核心始終是最純粹的教師強制自回歸預測。該成果正式發表於《Nature》。本課深入拆解 Emu3 的核心論點——為何「一個更頂級的 Tokenizer 加上足夠的參數量擴展」便是你所需的全部——並與主流擴散模型展開全方位對比。
+> 北京智源人工智慧研究院（BAAI）的 Emu3（Wang 等人，2024 年 9 月）堪稱本該為「擴散 vs 自回歸」世紀大辯論劃下句點的震撼成果。一個純粹的 Llama 風格僅解碼器（Decoder-Only）Transformer，僅依賴「下一個 token 預測（Next-Token Prediction）」單一目標，在涵蓋文字、2D 影像 VQ token 與 3D 視訊 VQ token 的大一統詞彙表上進行訓練，在影像生成品質上擊敗了 SDXL，在多模態（multimodal）感知評測中超越了 LLaVA-1.6。零 CLIP 損失、零擴散加噪時程。推論時採用無分類器引導（Classifier-Free Guidance, CFG）提升成圖保真度，但訓練核心始終是最純粹的教師強制自回歸預測。該成果正式發表於《Nature》。本課深入拆解 Emu3 的核心論點——為何「一個更頂級的 Tokenizer 加上足夠的參數量擴展」便是你所需的全部——並與主流擴散模型展開全方位對比。
 
 **Type:** Learn
 **Languages:** Python (stdlib, 3D video tokenizer math + autoregressive sampler skeleton)
@@ -12,15 +12,15 @@
 - 解釋為何儘管長期以來業界普遍深信「高品質影像生成必備擴散模型」，Emu3 的單一「下一個 token 預測」目標依然能打破迷思。
 - 深入說明 3D 視訊 Tokenizer：時空 VQ 碼本的內部幾何構造，以及為何 patch 需要跨越時間維度。
 - 在訓練算力、推論開銷與品質天花板三大維度上，深入對比 Emu3 與 Stable Diffusion XL 的工程優劣。
-- 指出同一個 Emu3 檢查點所兼任的三大功能角色：Emu3-Gen（影像生成）、Emu3-Chat（多模態感知對話）與 Emu3-Stage2（視訊生成）。
+- 指出同一個 Emu3 model checkpoint 所兼任的三大功能角色：Emu3-Gen（影像生成）、Emu3-Chat（多模態感知對話）與 Emu3-Stage2（視訊生成）。
 
 ## The Problem｜問題
 
-直至 2024 年，產學界始終深植著一項定論：影像生成必須依賴擴散模型（Diffusion Models）。其論據看似無懈可擊：離散影像 token 在量化過程中遺失了太多高頻細節，難以完美還原像素；而自回歸取樣在跨越數千個 token 的長程生成中，會不可避免地累積誤差。Stable Diffusion、DALL-E 3、Imagen、Midjourney 全無例外皆建立在某種擴散形式之上。Chameleon（第 12.11 課）雖然在小規模上嘗試突圍，但在視覺生成品質上依然無法望 SDXL 之項背。
+直至 2024 年，產學界始終深植著一項定論：影像生成必須依賴擴散模型（Diffusion Models）。其論據看似無懈可擊：離散影像 token 在量化過程中遺失了太多高頻細節，難以完美還原像素；而自回歸取樣在跨越數千個 token 的長程生成中，會不可避免地累積誤差。Stable Diffusion、DALL-E 3、Imagen、Midjourney 全無例外皆建立在某種擴散形式之上。Chameleon（第 12.11 課）雖然在小規模上部分推翻了這項論點，但在視覺生成品質上依然無法望 SDXL 之項背。
 
 Emu3 正面挑戰了這項成見。其核心論點簡潔而霸氣：只要擁有更優異的視覺 Tokenizer + 足夠大的模型規模擴展 + 最純粹的下一個 token 預測損失，便能在同一個原生模型內部，同時實現超越擴散模型的影像生成品質與頂級的多模態感知理解能力。
 
-該成果在剛發表時引發了巨大爭議。然而兩年過去，以 Emu3、Show-o、Janus-Pro 與 Transfusion 為代表的「大一統生成（Unified Generation）」體系，已然成為前沿多模態研究的絕對顯學；而各大主流閉源實驗室的前沿模型，顯然亦在內部廣泛採用了某種相似變體。
+該成果在剛發表時引發了巨大爭議。然而兩年過去，以 Emu3、Show-o、Janus-Pro 與 Transfusion 為代表的「大一統生成（Unified Generation）」體系，已然成為前沿多模態研究的絕對顯學；而正式環境中的前沿模型看來也使用了某種變體。
 
 ## The Concept｜核心概念
 
@@ -55,9 +55,9 @@ Emu3 始終堅守單一目標：在跨越文字 token、2D 影像 token 與 3D �
 
 ### 單一模型的多元角色
 
-Emu3 以三種功能完全相異的 API 形式對外釋出，但底層完全共享同一套完全相同的模型權重檢查點：
+Emu3 以三種功能完全相異的 API 形式對外釋出，但底層共用同一個 model checkpoint：
 
-- Emu3-Gen：純影像生成。輸入文字 prompt，輸出連續影像 token。
+- Emu3-Gen：純影像生成。輸入文字 prompt，輸出離散影像 token。
 - Emu3-Chat：視覺問答（VQA）與圖文描述。輸入影像 token，輸出文字解答。
 - Emu3-Stage2：視訊生成與視訊問答。輸入文字或視訊影格，生成流暢影片或文字分析。
 
@@ -68,7 +68,7 @@ Emu3 以三種功能完全相異的 API 形式對外釋出，但底層完全共�
 摘自 Emu3 論文實測報告（2024 年 9 月）：
 
 - 影像生成能力：在 MJHQ-30K 評測集的 FID 分數上擊潰了 SDXL（5.4 vs 5.6，數值越低越佳）；在 GenEval 總分上取得統計平手（0.54 vs 0.55）；在 Deep-Eval 綜合評測中旗鼓相當。
-- 影像感知理解能力：在 VQAv2 上擊敗了專門的視覺大模型 LLaVA-1.6（75.1 vs 72.4），並在複雜多學科評測 MMMU 上平分秋色。
+- 影像感知理解能力：在 VQAv2 上擊敗了專用視覺模型 LLaVA-1.6（75.1 vs 72.4），並在複雜多學科評測 MMMU 上平分秋色。
 - 影片生成能力：產出 4 秒高畫質短片，在 FVD 視訊品質評測上比肩 Sora 時期發布的各主流基準模型。
 
 這些評測成績宣告了一項重要里程碑：雖然在極少數專門子項上與特化模型各有勝負，但「下一個 token 預測足以通吃全模態」的論點在實證上已然完全站得住腳。
@@ -83,7 +83,7 @@ Emu3 在 70 億（7B）參數量級下，於約 3,000 億多模態 token 上完�
 
 Emu3 最深遠的貢獻在於概念上的徹底釋放。如果單純的下一個 token 預測就能在圖像生成上比肩甚至擊敗擴散模型，那麼「單一因果損失、單一 Transformer 骨幹、橫跨任意模態」的大一統模型路線便完全具備了可行性。未來的世界不再需要為文字、影像與語音分別維護各自孤立的專屬編碼器、排程器與擴散模型。只需一個 Transformer 加上各模態專屬的高品質 Tokenizer，便能坐享規模擴展帶來的強大紅利。
 
-Show-o、Janus-Pro 與 InternVL-U 等後續架構，皆在此基礎上持續深耕；大一統多模態自回歸模型正在以驚人的速度重塑整個 AI 生態。
+Show-o、Janus-Pro 與 InternVL-U 等後續架構皆在此論點上延伸或提出挑戰；中國的 BAAI、DeepSeek 等實驗室截至 2025 年在此方向發表成果，比美國實驗室更積極。大一統多模態自回歸模型正在以驚人的速度重塑整個 AI 生態。
 
 ```figure
 l5-emu3-next-token
@@ -127,8 +127,8 @@ l5-emu3-next-token
 
 ## Further Reading｜延伸閱讀
 
-- [Wang et al. — Emu3: Next-Token Prediction is All You Need (arXiv:2409.18869)](https://arxiv.org/abs/2409.18869) ——Emu3 奠基論文
-- [Sun et al. — Emu: Generative Pretraining in Multimodality (arXiv:2307.05222)](https://arxiv.org/abs/2307.05222) ——前身工作
-- [Liu et al. — LWM (arXiv:2402.08268)](https://arxiv.org/abs/2402.08268) ——百萬長時序百萬 token 視訊模型
-- [Yu et al. — MAGVIT-v2 (arXiv:2310.05737)](https://arxiv.org/abs/2310.05737) ——頂級視訊量化 tokenizer
-- [Tian et al. — VAR (arXiv:2404.02905)](https://arxiv.org/abs/2404.02905) ——視覺自回歸建模新範式
+- [Wang et al. — Emu3: Next-Token Prediction is All You Need (arXiv:2409.18869)](https://arxiv.org/abs/2409.18869)
+- [Sun et al. — Emu: Generative Pretraining in Multimodality (arXiv:2307.05222)](https://arxiv.org/abs/2307.05222)
+- [Liu et al. — LWM (arXiv:2402.08268)](https://arxiv.org/abs/2402.08268)
+- [Yu et al. — MAGVIT-v2 (arXiv:2310.05737)](https://arxiv.org/abs/2310.05737)
+- [Tian et al. — VAR (arXiv:2404.02905)](https://arxiv.org/abs/2404.02905)

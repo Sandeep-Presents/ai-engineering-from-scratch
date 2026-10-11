@@ -22,7 +22,7 @@
 
 CLIP 給出的革命性解答是：將圖文配對視為一種檢索匹配任務。給定由 N 個影像與 N 個描述文字組成的批次，模型必須學會將每張影像精確匹配至其專屬的描述文字，並成功排除其餘 N-1 個干擾項。這種監督訊號本質上就是「這兩者屬於一對；其餘 N-1 個則不是」。無需人為預設類別標籤，無需耗時的人工精細標註，只需依賴對比損失函式。
 
-由此學習而成的 embedding 空間，展現出遠超原先訓練目標的泛化威力。ImageNet 的零樣本分類之所以能直接生效，是因為「a photo of a cat」的文字特徵，會自然落在從未被顯式標註為「貓」的真實貓咪照片 embedding 附近。這項豪賭徹底開啟了 2026 年多模態 VLM 的繁榮時代。
+由此學習而成的 embedding 空間，展現出遠超原先訓練目標的泛化威力。ImageNet 的零樣本分類之所以能直接生效，是因為「a photo of a cat」的文字特徵，會自然落在從未被顯式標註為「貓」的真實貓咪照片 embedding 附近。這項豪賭徹底開啟了 2026 年多模態（multimodal）VLM 的繁榮時代。
 
 ## The Concept｜核心概念
 
@@ -53,11 +53,11 @@ loss_t2i = CE(S^T, labels=identity)   # each caption's positive is its own image
 loss = (loss_i2t + loss_t2i) / 2
 ```
 
-這便是 InfoNCE。交叉熵中的 softmax 會迫使每張影像與其自身配對文字的相似度，必須顯著高於批次中其他所有文字。而「負樣本」即為批次中的其餘所有項目。批次越大，負樣本越多，對比監督訊號就越強烈。CLIP 採用高達 32,768 的超大批次進行訓練；在對比學習中，規模即是一切。
+這便是 InfoNCE。交叉熵中的 softmax 會迫使每張影像與其自身配對文字的相似度，必須顯著高於批次中其他所有文字。而「負樣本」即為批次中的其餘所有項目。批次越大，負樣本越多，對比監督訊號就越強烈。CLIP 採用高達 32,768 的超大批次進行訓練；在對比學習中，規模很重要。
 
 ### 溫度參數（Temperature）
 
-`tau` 負責控制 softmax 分布的陡峭程度。較低的 tau 會使機率分布變得極其尖銳，產生類似難負樣本挖掘（hard negative mining）的效果；較高的 tau 則使分布平緩，讓所有樣本皆能提供平滑的梯度貢獻。CLIP 學習 log(1/tau)，並施加數值截斷以避免訓練崩潰；而 SigLIP 2 則固定初始 tau，改以可學習的偏差偏置項（bias）進行調節。
+`tau` 負責控制 softmax 分布的陡峭程度。較低的 tau 會使機率分布變得極其尖銳，產生類似難負樣本挖掘（hard negative mining）的效果；較高的 tau 則使分布平緩，讓所有樣本皆能提供平滑的梯度貢獻。CLIP 學習 log(1/tau)，並施加數值截斷以避免訓練崩潰；而 SigLIP 2 則固定初始 tau，改以可學習的偏置項（bias）進行調節。
 
 ### 為何 Sigmoid 能實現更優異的規模擴展（SigLIP）
 
@@ -69,7 +69,7 @@ SigLIP 以逐元素的 sigmoid 取代了 softmax：針對每一組配對 `(i, j)
 L = -1/N sum over (i, j) [ y_ij log sigmoid(S[i,j]) + (1-y_ij) log sigmoid(-S[i,j]) ]
 ```
 
-當 `i == j` 時 `y_ij = 1`，其餘情況為 0。由於每個配對的損失各自獨立，完全無需跨節點進行 all-gather 通訊！每張 GPU 只需計算其局部的區塊矩陣並進行純純的純量加總。這使得 SigLIP 2 能以極其低廉的通訊成本輕鬆擴展至 32k 至 512k 的海量批次，而傳統 CLIP 在相同規模下則會被通訊頻寬徹底拖垮。
+當 `i == j` 時 `y_ij = 1`，其餘情況為 0。由於每個配對的損失各自獨立，完全無需跨節點進行 all-gather 通訊！每張 GPU 只需計算其局部的區塊矩陣並進行純純的純量加總。這使得 SigLIP 2 能以極其低廉的通訊成本輕鬆擴展至 32k 至 512k 的海量批次，而傳統 CLIP 在相同規模下則需按比例增加通訊量。
 
 ### 零樣本分類（Zero-Shot Classification）
 
@@ -81,7 +81,7 @@ L = -1/N sum over (i, j) [ y_ij log sigmoid(S[i,j]) + (1-y_ij) log sigmoid(-S[i,
 
 利用文字編碼器對每個模板文字產生 embedding。同時利用影像編碼器為待測影像產生 embedding。計算餘弦相似度後取 argmax，即為模型預測的類別。整個過程完全無需在目標類別上進行額外訓練。
 
-Prompt 模板的設計對精度有顯著影響。CLIP 原論文為每個類別設計了 80 種不同風格的模板（如清晰照片、藝術圖、油畫等）並將其 embedding 取平均，直接在 ImageNet 上帶來了 3 個百分點的準確率提升。現代實務中通常精選一至兩個代表性模板即可取得優異成效。
+Prompt 模板的設計對準確率有顯著影響。CLIP 原論文為每個類別設計了 80 種不同風格的模板（如清晰照片、藝術圖、油畫等）並將其 embedding 取平均，直接在 ImageNet 上帶來了 3 個百分點的準確率提升。現代實務中通常精選一至兩個代表性模板即可取得優異成效。
 
 ### 線性探針（Linear Probe）與 Fine-Tuning
 
@@ -91,7 +91,7 @@ Prompt 模板的設計對精度有顯著影響。CLIP 原論文為每個類別�
 
 SigLIP 2（2025）帶來了關鍵進展：
 - NaFlex：單一模型原生支援任意長寬比與彈性解析度輸入。
-- 專為下游語意分割與深度估計調校出更卓越的密集特徵，旨在作為 VLM 的凍結視覺骨幹。
+- 專為下游語意分割與深度估計調校出更卓越的密集特徵，旨在作為 VLM 的凍結視覺骨幹（backbone）。
 - 多語言支援：CLIP 僅限英文，而 SigLIP 2 在涵蓋 100 種以上語言的資料上進行訓練。
 - 參數量擴展至 10 億（1B），突破了 CLIP 原先 4 億（400M）的規模上限。
 
@@ -99,7 +99,7 @@ SigLIP 2（2025）帶來了關鍵進展：
 
 ### ALIGN、BASIC、OpenCLIP 與 EVA-CLIP
 
-ALIGN（Google，2021）：沿用與 CLIP 相同的思路，擴展至 18 億圖文配對規模，且容忍 90% 的雜訊，證明了雜訊資料的規模化潛力。OpenCLIP（LAION）：在 LAION-400M / 2B 上成功開源重現 CLIP，提供多種尺寸檢查點，是目前最受歡迎的開源社群權重。EVA-CLIP：以遮蓋影像建模（MIM）權重進行初始化，成為 VLM 的強悍骨幹。BASIC：Google 融合 CLIP 與 ALIGN 的超大規模混合架構。它們皆屬同一架構家族，核心差異在於資料規模與超參數調校。
+ALIGN（Google，2021）：沿用與 CLIP 相同的思路，擴展至 18 億圖文配對規模，且容忍 90% 的雜訊，證明了雜訊資料的規模化潛力。OpenCLIP（LAION）：在 LAION-400M / 2B 上成功開源重現 CLIP，提供多種尺寸的 model checkpoint，是目前最受歡迎的開源社群權重。EVA-CLIP：以遮蓋影像建模（MIM）權重進行初始化，成為 VLM 的強悍骨幹。BASIC：Google 融合 CLIP 與 ALIGN 的超大規模混合架構。它們皆屬同一架構家族，核心差異在於資料規模與超參數調校。
 
 ### 零樣本分類的效能天花板
 
@@ -128,7 +128,7 @@ multimodal-fusion
 
 1. 手算一個包含 4 組配對的小批次 InfoNCE 損失。親手建構 4×4 的相似度矩陣，逐列計算 softmax，取出對角線正樣本機率並計算交叉熵。將你的手算數值與 Python 實作程式碼的計算結果進行對照驗證。
 
-2. SigLIP 在溫度參數之外額外引入了偏差偏置參數 `b`：`S'[i,j] = S[i,j]/tau + b`。當批次中存在嚴重類別不平衡（矩陣每列的負樣本數量遠遠壓倒正樣本）時，`b` 發揮了什麼核心作用？閱讀 SigLIP 原論文第三節（arXiv:2303.15343）。
+2. SigLIP 在溫度參數之外額外引入了偏置參數 `b`：`S'[i,j] = S[i,j]/tau + b`。當批次中存在嚴重類別不平衡（矩陣每列的負樣本數量遠遠壓倒正樣本）時，`b` 發揮了什麼核心作用？閱讀 SigLIP 原論文第三節（arXiv:2303.15343）。
 
 3. 針對貓與狗分類任務建構零樣本分類器。嘗試對比兩種 prompt 模板：`a photo of a {class}` 與 `a picture of a {class}`。在 100 張測試影像上評估分類準確率。多模板整合（ensemble）是否優於單一模板？
 
@@ -153,8 +153,8 @@ multimodal-fusion
 
 ## Further Reading｜延伸閱讀
 
-- [Radford et al. — Learning Transferable Visual Models From Natural Language Supervision (arXiv:2103.00020)](https://arxiv.org/abs/2103.00020) ——經典 CLIP 原創論文
-- [Zhai et al. — Sigmoid Loss for Language Image Pre-Training (arXiv:2303.15343)](https://arxiv.org/abs/2303.15343) ——SigLIP 論文
-- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786) ——多語言支援與 NaFlex 原生解析度
-- [Jia et al. — ALIGN (arXiv:2102.05918)](https://arxiv.org/abs/2102.05918) ——利用海量網路雜訊資料進行規模擴展
-- [Cherti et al. — Reproducible scaling laws for contrastive language-image learning (arXiv:2212.07143)](https://arxiv.org/abs/2212.07143) ——OpenCLIP 經驗縮放法則
+- [Radford et al. — Learning Transferable Visual Models From Natural Language Supervision (arXiv:2103.00020)](https://arxiv.org/abs/2103.00020)
+- [Zhai et al. — Sigmoid Loss for Language Image Pre-Training (arXiv:2303.15343)](https://arxiv.org/abs/2303.15343)
+- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786)
+- [Jia et al. — ALIGN (arXiv:2102.05918)](https://arxiv.org/abs/2102.05918)
+- [Cherti et al. — Reproducible scaling laws for contrastive language-image learning (arXiv:2212.07143)](https://arxiv.org/abs/2212.07143)

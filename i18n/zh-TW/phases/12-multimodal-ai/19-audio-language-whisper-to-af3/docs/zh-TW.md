@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 從連續原始波形計算 Log-Mel 頻譜圖：視窗化加窗、傅立葉變換（FFT）、Mel 濾波器組與對數壓縮轉換。
+- 從連續原始波形計算 Log-Mel 頻譜圖：視窗化加窗、快速傅立葉轉換（FFT）、Mel 濾波器組與對數壓縮轉換。
 - 深入對比各音訊編碼器方案：Whisper 編碼器、BEATs 以及 AF-Whisper 混合架構，並掌握各自的最佳適用場景。
 - 建構專屬音訊 Q-Former：利用 N 個可學習 query 向量對頻譜圖特徵切片進行精準交叉注意力檢索。
 - 深入解釋「串接式管線（Whisper 先轉文字再交 LLM）」與「端到端音訊 LLM」在架構上的根本分野，並論證為何端到端架構在聽覺推理任務上展現出顯著的規模擴展優勢。
@@ -22,9 +22,9 @@
 
 1. 串接式管線（Cascade）：Whisper 負責語音轉錄，隨後由純文字 LLM 對逐字稿進行文字推理。在純說話錄音場景下表現極佳；但面對背景音樂、環境聲響、多方激烈插話爭論或微妙語氣情緒時則徹底抓瞎。
 
-2. 端到端音訊大模型（End-to-end audio-LLM）：音訊編碼器將聲音特徵直接映射為音訊 token 餵入 LLM，完全跳過中間的文字轉錄步驟。完好保留了原始聲學特徵（說話者特質、情緒共鳴、空間環境音）。但需要全新的大規模跨模態對齊與指令資料進行訓練。
+2. 端到端音訊大型語言模型（End-to-end audio-LLM）：音訊編碼器將聲音特徵直接映射為音訊 token 餵入 LLM，完全跳過中間的文字轉錄步驟。完好保留了原始聲學特徵（說話者特質、情緒共鳴、空間環境音）。但需要全新的大規模跨模態對齊與指令資料進行訓練。
 
-3. 混合架構（Hybrid）：音訊編碼器搭配雙向文字解碼器，既能精確轉錄文字，又能直接就聲音本體進行因果推理。Qwen-Audio 與 Audio Flamingo 皆堅定選擇了此項技術路線。
+3. 混合架構（Hybrid）：音訊編碼器搭配文字解碼器，既能精確轉錄文字，又能直接就聲音本體進行因果推理。Qwen-Audio 與 Audio Flamingo 皆堅定選擇了此項技術路線。
 
 ## The Concept｜核心概念
 
@@ -46,7 +46,7 @@ Whisper 的編碼器本質上是一個 12 層的 ViT 風格 Transformer，它將
 
 在標準自動語音辨識（ASR）任務中，Whisper 的解碼器是一個交叉注意力 Transformer，以編碼器輸出為條件自回歸生成文字 token。這是經典的編碼器—解碼器架構。
 
-而在音訊大模型（ALM）的架構中，我們將 Whisper 的編碼器特徵抽取出來，作為外部強大型語言模型（如 Llama 或 Qwen）的直接輸入。典型設計為：凍結 Whisper 編碼器、加裝可訓練的音訊 Q-Former，並搭配凍結或調校的底座 LLM。
+而在音訊語言模型（ALM）的架構中，我們將 Whisper 的編碼器特徵抽取出來，作為外部大型語言模型（如 Llama 或 Qwen）的直接輸入。典型設計為：凍結 Whisper 編碼器、加裝可訓練的音訊 Q-Former，並搭配凍結或調校的底座 LLM。
 
 ### BEATs 與專屬音訊特徵編碼器
 
@@ -58,17 +58,17 @@ AF-Whisper（Audio Flamingo 3 採用的混合編碼器）：在通道維度直�
 
 ### 音訊專屬 Q-Former
 
-其運作模式與視覺領域的 BLIP-2 Q-Former 完全同構。一組固定數量（通常設定為 32 或 64 個）的可學習 query 向量，對音訊編碼器輸出的長時序頻譜影格進行深入的交叉注意力檢索。這組 query 最終轉化為專屬於音訊的視覺化 token，直接餵入底座 LLM 進行思考。
+其運作模式與視覺領域的 BLIP-2 Q-Former 完全同構。一組固定數量（通常設定為 32 或 64 個）的可學習 query 向量，對音訊編碼器輸出的長時序頻譜影格進行深入的交叉注意力檢索。這組 query 最終轉化為音訊 token，直接餵入底座 LLM 進行思考。
 
-在特徵對齊階段：僅訓練 Q-Former 本體，在大規模音訊—文字配對語料（AudioCaps、Clotho）上計算對比損失與圖文說明生成損失。在後續指令調校階段：解凍底座 LLM 展開端到端全參訓練。
+在特徵對齊階段：僅訓練 Q-Former 本體，在大規模音訊—文字配對語料（AudioCaps、Clotho）上計算對比損失與音訊說明生成損失。在後續指令調校階段：解凍底座 LLM 展開端到端全參訓練。
 
 ### 演進浪潮——SALMONN、Qwen-Audio 與 AF3
 
-SALMONN（Tang 等人，2023）：「Whisper + BEATs + Q-Former + LLaMA」架構。首款展現出嚴謹跨模態聽覺推理能力的開源音訊大模型。在 MMAU 評測上取得約 0.55 的綜合基準分。
+SALMONN（Tang 等人，2023）：「Whisper + BEATs + Q-Former + LLaMA」架構。首款展現出嚴謹跨模態聽覺推理能力的開源音訊大型語言模型。在 MMAU 評測上取得約 0.55 的綜合基準分。
 
 Qwen-Audio（Chu 等人，2023）：沿用類似的雙塔 Q-Former 骨架，但在更海量、更多樣的音訊語料庫上展開預訓練，並針對多輪對話進行了深度調校。MMAU 基準分推升至約 0.60。
 
-LTU（Listen, Think, Understand，Gong 等人，2023）：專門建構了強調顯式邏輯因果推導的音訊資料集，重點探索聲音上的思維鏈（CoT）推理。
+LTU（Listen, Think, Understand，Gong 等人，2023）：專門建構了強調顯式邏輯因果推導的音訊資料集，重點探索聲音上的思維鏈（CoT）推理。規模較小，但更聚焦。
 
 Audio Flamingo 3（AF3，Goel 等人，2025 年 7 月）：當前開源體系的絕對頂級代表。採用 80 億參數的 Qwen2-7B 作為底座大腦、Whisper-large 拼接 BEATs 作為雙核編碼器、64 個 query 的進階音訊 Q-Former，並在超過 100 萬條高畫質音訊—文字指令對話上完成訓練。MMAU 綜合評測達到驚人的 0.72，在數項關鍵子評測上直接打平頂級閉源旗艦。
 
@@ -87,7 +87,7 @@ AF3 同時引入了「按需啟動的音訊思維鏈」機制：模型在給出�
 - 「爆炸聲究竟發生在第幾分第幾秒？」——逐字稿徹底抹殺了精確的物理時序時間戳記。
 - 「這段音訊是真實人聲還是 AI 偽造的 Deepfake？」——辨別偽造必須仰賴高頻微觀聲學殘差，純文字無法提供任何線索。
 
-端到端音訊大模型完好保留了物理聲學訊號。Qwen-Audio 與 AF3 能夠原生處理音樂結構、環境異音與細微人類情感。
+端到端音訊大型語言模型保留了聲學訊號。Qwen-Audio 與 AF3 能夠原生處理音樂結構、環境異音與細微人類情感。
 
 ### 2026 年正式環境選型指南
 
@@ -106,7 +106,7 @@ MMAU（Massive Multimodal Audio Understanding）是 2024 至 2025 年代最具�
 - 全量檢驗分類識別、時間軸定位、因果推導與開放式複雜問答。
 - 專門精準打擊傳統串接式管線體系性無法解答的盲區題目。
 
-當前開源最強模型（AF3）得分為 0.72；閉源頂級旗艦（Gemini 2.5 Pro、Claude Opus 4.7）約在 0.78 左右。開閉源之間的鴻溝明顯小於 VideoMME 等視訊領域，這標誌著開源音訊大模型正在以驚人的速度邁向高度成熟。
+當前開源最強模型（AF3）得分為 0.72；閉源頂級旗艦（Gemini 2.5 Pro、Claude Opus 4.7）約在 0.78 左右。開閉源之間的鴻溝明顯小於 VideoMME 等視訊領域，這標誌著開源音訊大型語言模型正在成熟。
 
 ```figure
 audio-text-ctc
@@ -118,11 +118,11 @@ audio-text-ctc
 
 - 以純 Python 標準函式庫實作 Log-Mel 頻譜圖計算核心：包含漢明窗（Hamming window）加窗、樸素離散傅立葉變換（DFT）與 Mel 三角濾波器組矩陣運算。
 - 音訊 Q-Former 骨架：給定編碼器輸出的長時序影格特徵，計算 Q、K、V 矩陣、交叉注意力權重，並輸出 N 個濃縮後的音訊 token。
-- 在微型玩具任務上展示串接式管線與端到端音訊大模型的本質行為差異。
+- 在微型玩具任務上展示串接式管線與端到端音訊大型語言模型的行為差異。
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-audio-llm-pipeline-picker.md`。給定具體的音訊業務需求（語音轉錄、音樂標籤打標、說話者情緒判斷、多發言人日誌標註、環境異音監控），它能在串接式架構、端到端 AF3 架構以及混合雙軌方案之間給出權威的工程裁決與延遲預算表。
+本課產出 `outputs/skill-audio-llm-pipeline-picker.md`。給定音訊任務（語音轉錄、音樂標註、情緒推論、多發言人分離（diarization）、環境分類），它會選擇串接式、端到端 AF3 或混合架構。
 
 ## Exercises｜練習
 
@@ -143,15 +143,15 @@ audio-text-ctc
 | Log-Mel spectrogram | 「Mel 聲學頻譜圖」 | 原始音訊經 STFT 變換並透過 Mel 濾波器組壓縮後形成的二維（時間, 頻率）特徵矩陣 |
 | Audio Q-former | 「音訊特徵濃縮器」 | 透過交叉注意力將長時序音訊頻譜特徵壓縮為固定數量 query 向量的資訊瓶頸模組 |
 | Cascaded | 「先轉文字再思考」 | 先由 ASR 轉錄為逐字稿、再交由 LLM 推理的串接管線；不可避免地徹底遺失原始聲學細節 |
-| End-to-end | 「端到端原生音訊大模型」 | 音訊特徵藉由專屬 Q-Former 直接注入 LLM 內部進行思考；完好保留情緒與聲學細節 |
-| BEATs | 「音訊界的純視覺骨幹」 | 在 AudioSet 巨量語料上進行自監督預訓練的專屬音訊 Transformer，音樂與環境音感知極強 |
+| End-to-end | 「端到端原生音訊大型語言模型」 | 音訊特徵藉由專屬 Q-Former 直接注入 LLM 內部進行思考；完好保留情緒與聲學細節 |
+| BEATs | 「音訊界的自監督聲學骨幹」 | 在 AudioSet 巨量語料上進行自監督預訓練的專屬音訊 Transformer，音樂與環境音感知極強 |
 | MMAU | 「權威音訊推理基準」 | 涵蓋語音、音樂與環境聲響共 10,000 道深度題目的權威評測集，為當前音訊推理黃金標準 |
 | On-demand thinking | 「音訊思維鏈推理」 | 模型在產出最終回答之前，允許自主輸出中間思考推導過程，能將複雜難題準確率拉升 3 到 5 分 |
 
 ## Further Reading｜延伸閱讀
 
-- [Radford et al. — Whisper (arXiv:2212.04356)](https://arxiv.org/abs/2212.04356) ——語音辨識劃時代奠基論文
-- [Chu et al. — Qwen-Audio (arXiv:2311.07919)](https://arxiv.org/abs/2311.07919) ——通用多模態音訊大模型
-- [Goel et al. — Audio Flamingo 3 (arXiv:2507.08128)](https://arxiv.org/abs/2507.08128) ——開源音訊理解巔峰之作
-- [Tang et al. — SALMONN (arXiv:2310.13289)](https://arxiv.org/abs/2310.13289) ——首款具備嚴謹聽覺推理能力的開源模型
-- [Gong et al. — LTU (arXiv:2305.10790)](https://arxiv.org/abs/2305.10790) ——「聆聽、思考、理解」音訊推理研究先驅
+- [Radford et al. — Whisper (arXiv:2212.04356)](https://arxiv.org/abs/2212.04356)
+- [Chu et al. — Qwen-Audio (arXiv:2311.07919)](https://arxiv.org/abs/2311.07919)
+- [Goel et al. — Audio Flamingo 3 (arXiv:2507.08128)](https://arxiv.org/abs/2507.08128)
+- [Tang et al. — SALMONN (arXiv:2310.13289)](https://arxiv.org/abs/2310.13289)
+- [Gong et al. — LTU (arXiv:2305.10790)](https://arxiv.org/abs/2305.10790)
