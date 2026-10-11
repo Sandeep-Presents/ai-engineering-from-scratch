@@ -40,7 +40,7 @@
 
 **位元深度（bit depth）。** 16 位元 PCM（有號 int16，範圍 ±32,767）是通用的交換格式。音樂用 24 位元，內部 DSP 用 32 位元浮點。`soundfile` 這類函式庫讀的是 int16，回傳的是 `[-1, 1]` 的 float32 陣列。
 
-**傅立葉轉換。** 任何有限訊號都是不同頻率正弦的和。離散傅立葉轉換（DFT）對 `N` 個樣本算出 `N` 個複係數，每個頻率槽（frequency bin）一個。`bin k` 對到頻率 `k · sr / N` Hz。模（magnitude）是那個頻率的振幅，角度是相位。
+**傅立葉轉換（Fourier transform）。** 任何有限訊號都是不同頻率正弦的和。離散傅立葉轉換（discrete Fourier transform，DFT）對 `N` 個樣本算出 `N` 個複係數，每個頻率槽（frequency bin）一個。`bin k` 對到頻率 `k · sr / N` Hz。模（magnitude）是那個頻率的振幅，角度是相位。
 
 **FFT。** 快速傅立葉轉換：當 `N` 是 2 的冪，DFT 的 `O(N log N)` 演算法（algorithm）。每個音訊函式庫底下都用 FFT。16 kHz 的 1024 點 FFT 給出 512 個可用頻率槽，涵蓋 0 到 8 kHz，解析度 15.6 Hz。
 
