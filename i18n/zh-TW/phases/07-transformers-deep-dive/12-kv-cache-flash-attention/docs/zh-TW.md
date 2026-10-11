@@ -116,7 +116,7 @@ Flash 4 發布時只有前向傳遞。訓練仍用 Flash 3。Flash 4 的 GQA 和
 
 ### PagedAttention——把 KV cache 當虛擬記憶體
 
-vLLM 的代表功能。KV cache 以 16 個 token 的區塊配置；頁表把邏輯位置對到實體區塊。讓你在平行樣本之間共用 KV（集束搜尋（beam search）、平行取樣），為 prompt 快取熱切換前綴，並重整記憶體碎片（fragmentation）。相對單純的連續配置，吞吐量多 4 倍。
+vLLM 的代表功能。KV cache 以 16 個 token 的區塊配置；頁表把邏輯位置對到實體區塊。讓你在平行樣本之間共用 KV（集束搜尋（beam search）、平行取樣），快速切換要快取的 prompt 前綴，並重整記憶體碎片（fragmentation）。相對單純的連續配置，吞吐量多 4 倍。
 
 ```figure
 flash-attention-memory
