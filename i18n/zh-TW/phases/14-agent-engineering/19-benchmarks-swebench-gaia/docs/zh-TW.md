@@ -43,7 +43,7 @@ OpenAI 於 2024 年 8 月推出。由人工專家精心審查篩選的 500 個�
 ### 資料污染（Contamination）
 
 - 超過 94% 的 SWE-bench Issues 其建立時間早於絕大多數現有大型語言模型（LLM）的知識截止日。
-- **SWE-bench+** 的研究深入指出：高達 32.67% 的成功修復補丁，其解決方案細節早已直接洩漏在 Issue 描述文字中（模型在提示中直接看見了標準答案）；而 31.08% 則因測試覆蓋度過於脆弱而存在偽陽性疑慮。
+- **SWE-bench+** 的研究指出：32.67% 的成功修復補丁，其解決方案細節早已直接洩漏在 Issue 描述文字中（模型在提示中直接看見了標準答案）；而 31.08% 則因測試覆蓋度過於脆弱而存在偽陽性疑慮。
 - Verified 子集雖然相對乾淨，但依然無法完全免於污染。
 
 實際工程啟示：一款在 SWE-bench 上宣稱達到 50% 的模型，在去除污染的 SWE-bench+ 上真實得分可能僅有 35%。對外宣稱 SWE-bench 表現時，務必同時回報兩組結果。
@@ -133,5 +133,5 @@ python3 code/main.py
 
 - [Jimenez et al., SWE-bench (arXiv:2310.06770)](https://arxiv.org/abs/2310.06770) ——SWE-bench 奠基論文
 - [OpenAI, SWE-bench Verified](https://openai.com/index/introducing-swe-bench-verified/) ——人工精選子集官方說明
-- [Mialon et al., GAIA (arXiv:2311.12983)](https://arxiv.org/abs/2311.12983) ——通用多模態多工具基準論文
+- [Mialon et al., GAIA (arXiv:2311.12983)](https://arxiv.org/abs/2311.12983) ——通用型基準
 - [Liu et al., AgentBench (arXiv:2308.03688)](https://arxiv.org/abs/2308.03688) ——多環境綜合評測體系論文
