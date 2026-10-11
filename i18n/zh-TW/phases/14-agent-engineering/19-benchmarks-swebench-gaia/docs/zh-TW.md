@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入解釋 SWE-bench 的測試 harness機制（FAIL_TO_PASS），並說明為何以單元測試作為嚴格卡點。
+- 深入解釋 SWE-bench 測試框架的機制（FAIL_TO_PASS），並說明為何以單元測試作為嚴格卡點。
 - 闡述為何 OpenAI 推出 SWE-bench Verified（500 個精選任務），以及它具體剔除了哪些雜訊。
 - 描述 GAIA 的設計哲學：對人類輕而易舉、對 AI 舉步維艱，以及其三級難度階梯。
 - 指出 AgentBench 的八大環境，以及開源模型追趕商業閉源模型時的核心瓶頸。
@@ -82,7 +82,7 @@ ae-swebench-gate
 
 ## Build It｜動手實作
 
-`code/main.py` 以純 Python 標準函式庫實作了一套極簡的 SWE-bench 形態測試 harness：
+`code/main.py` 以純 Python 標準函式庫實作了一套極簡的 SWE-bench 形態測試框架：
 
 - 合成的 Bug 修復任務（共 3 個）；
 - 腳本化的「Agent」模組，負責產出修復補丁；
@@ -106,11 +106,11 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-benchmark-harness.md` 能為任何「程式碼庫—任務」成對資料建立標準的 SWE-bench 風格測試 harness，內建 FAIL_TO_PASS 與 PASS_TO_PASS 的自動化驗收卡點。
+`outputs/skill-benchmark-harness.md` 能為任何「程式碼庫—任務」成對資料建立標準的 SWE-bench 風格測試框架，內建 FAIL_TO_PASS 與 PASS_TO_PASS 的自動化驗收卡點。
 
 ## Exercises｜練習
 
-1. 將教學測試 harness 移植至一個真實的程式碼庫上（可任選你自己的一個專案）。為已知的 Bug 撰寫 3 個 FAIL_TO_PASS 單元測試。
+1. 將教學測試框架移植至一個真實的程式碼庫上（可任選你自己的一個專案）。為已知的 Bug 撰寫 3 個 FAIL_TO_PASS 單元測試。
 2. 新增步驟計數指標。在你的 3 個任務中，成功修復一個 Issue 平均需要耗費多少個 Agent 步驟？
 3. 研讀 SWE-bench+ 論文。實作一個「答案洩漏偵測器」：透過特徵比對檢查 Issue 描述文字與最終 Diff 補丁之間是否存在重複字句。
 4. 下載一道 GAIA 公開切分集中的真實題目。手動推演 GPT-4 等級的 agent 會採取何種行動路徑？它需要呼叫哪些外部工具？

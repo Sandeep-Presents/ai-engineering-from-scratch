@@ -1,6 +1,6 @@
 # Show-o 與離散擴散大一統模型（Show-o and Discrete-Diffusion Unified Models）
 
-> Transfusion 選擇了揉合連續向量與離散 token 的複合路線。Show-o（Xie 等人，2024 年 8 月）則走向了另一端：文字 token 遵循因果下一個 token 預測，而影像 token 則採用承襲自 MaskGIT 的遮蓋式離散擴散（Masked Discrete Diffusion）。兩者統一於具備混合注意力遮罩的單一 Transformer 內部。最終成果在單一骨幹、每種模態配置單一 Tokenizer、單一損失形式（將下一個 token 預測泛化為遮蓋還原預測）之下，完美統一了視覺問答（VQA）、文字生成圖片（T2I）、局部重繪（Inpainting）以及混合模態生成。本課深度剖析 Show-o 的架構設計——為何遮蓋式離散擴散是一種高平行度、極少步長的高效影像生成機制——並與 Transfusion 及 Emu3 展開對比。
+> Transfusion 選擇了揉合連續向量與離散 token 的複合路線。Show-o（Xie 等人，2024 年 8 月）則走向了另一端：文字 token 遵循因果下一個 token 預測，而影像 token 則採用承襲自 MaskGIT 的遮蓋式離散擴散（Masked Discrete Diffusion）。兩者統一於具備混合注意力遮罩的單一 Transformer 內部。最終成果在單一骨幹、每種模態配置單一 Tokenizer、單一損失形式（將下一個 token 預測泛化為遮蓋還原預測）之下，統一了視覺問答（VQA）、文字生成圖片（T2I）、局部重繪（Inpainting）以及混合模態生成。本課深度剖析 Show-o 的架構設計——為何遮蓋式離散擴散是一種高平行度、極少步長的高效影像生成機制——並與 Transfusion 及 Emu3 展開對比。
 
 **Type:** Learn
 **Languages:** Python (stdlib, masked-discrete-diffusion sampler)
@@ -11,14 +11,14 @@
 
 - 解釋遮蓋式離散擴散的核心原理：均勻遮蓋 token 並引導 Transformer 逐步還原預測的排程機制。
 - 在推論速度與成圖品質兩大維度上，深入對比平行影像解碼（Show-o、MaskGIT）與逐 token 自回歸解碼（Chameleon、Emu3）。
-- 掌握單一 Show-o 模型檢查點所同時原生支援的三大核心任務：文字生成圖片（T2I）、視覺問答（VQA）以及影像局部重繪（Inpainting）。
+- 掌握單一 Show-o model checkpoint 所同時原生支援的三大核心任務：文字生成圖片（T2I）、視覺問答（VQA）以及影像局部重繪（Inpainting）。
 - 依據業務情境挑選合適的遮蓋排程曲線（餘弦、線性、截斷式），並論證其對取樣生成品質的深遠影響。
 
 ## The Problem｜問題
 
 Transfusion 的雙損失訓練雖然行得通，但在訓練動態上充滿挑戰——連續擴散損失與離散 NTP 交叉熵損失處於截然不同的數值量級，平衡兩者的權重係數本質上是一個昂貴的高維超參數搜尋過程。架構雖強大，但工程實作極其繁複。
 
-Show-o 給出的另闢蹊徑解答是：讓兩種模態皆維持純粹的離散狀態（類似 Chameleon），但在影像生成時改採遮蓋式離散擴散來實現「高度平行化生成」，徹底告別緩慢的逐 token 自回歸。如此一來，整體訓練目標便自然收斂為單一的「遮蓋 token 預測損失」，將「下一個 token 預測」無縫包含為其特殊特例。
+Show-o 給出的另闢蹊徑解答是：讓兩種模態皆維持純粹的離散狀態（類似 Chameleon），但在影像生成時改採遮蓋式離散擴散進行「高度平行化生成」，徹底告別緩慢的逐 token 自回歸。如此一來，整體訓練目標便自然收斂為單一的「遮蓋 token 預測損失」，將「下一個 token 預測」無縫包含為其特殊特例。
 
 ## The Concept｜核心概念
 
@@ -54,7 +54,7 @@ Show-o 僅需約 16 個步長即可生成一張完整影像，遠勝自回歸模
 
 在同等模型規模下，Show-o 的生成速度遠快於 Chameleon；而在步長數量上逼近 Transfusion 的同時，其每步計算開銷更為低廉（僅需在離散詞彙表上預測 logit，無需計算連續的 MSE 擴散去噪）。
 
-### 單一權重檢查點涵蓋的多元任務
+### 單一 model checkpoint 涵蓋的多元任務
 
 Show-o 在推論時支援四大核心任務，由輸入 prompt 格式決定觸發哪一項任務：
 
@@ -107,7 +107,7 @@ masked-diffusion-unmask
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-unified-gen-model-picker.md`。當產品同時需要視覺感知理解（VQA、圖片說明）與視覺生成（T2I、影像局部修復）且限定採用開源權重時，它能客觀對比 Show-o 體系、Transfusion/MMDiT 體系與 Emu3/Chameleon 體系，並給出具體的工程取捨分析與決策推薦。
+本課產出 `outputs/skill-unified-gen-model-picker.md`。當產品同時需要視覺感知理解（VQA、圖片說明）與視覺生成（T2I、影像局部修復）且限定採用開放權重時，它能客觀對比 Show-o 體系、Transfusion/MMDiT 體系與 Emu3/Chameleon 體系，並給出具體的工程取捨分析與決策推薦。
 
 ## Exercises｜練習
 
@@ -117,7 +117,7 @@ masked-diffusion-unmask
 
 3. 餘弦排程 vs 線性排程：在總步長 T=8 的設定下，追蹤每一步解除遮罩的 token 數量。哪一種曲線在資訊量增長上更為平滑均衡？
 
-4. 一張 512×512 的 Show-o 影像包含 1024 個 token。在碼本容量 K=16384 下，模型輸出的資訊量為 1024 * log2(16384) = 14,336 個位元（約 1.75 KiB）。而 Stable Diffusion 輸出的原始像素為 512*512*24 個位元 = 6,291,456 個位元（約 768 KiB）。其壓縮比為何？這筆巨大的壓縮率換來了何種生成代價？
+4. 一張 512×512 的 Show-o 影像包含 1024 個 token。在碼本容量 K=16384 下，模型輸出的資訊量為 1024 * log2(16384) = 14,336 個位元（約 1.75 KiB）。而 Stable Diffusion 輸出的原始像素為 512*512*24 個位元 = 6,291,456 個位元（約 768 KiB）。其壓縮比為何？這樣的壓縮比能換來何種成圖品質？
 
 5. 閱讀 LlamaGen 論文（arXiv:2406.06525）。深入分析 LlamaGen 的類別條件自回歸影像生成模型，與 Show-o 的遮蓋式離散擴散在解碼機理上有何本質差異？
 

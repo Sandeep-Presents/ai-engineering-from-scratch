@@ -1,6 +1,6 @@
 # 任意解析度視覺：Patch-n'-Pack 與 NaFlex（Any-Resolution Vision: Patch-n'-Pack and NaFlex）
 
-> 現實世界中的影像絕非工整的 224×224 正方形。收據長寬比為 9:16、統計圖表為 16:9、醫療掃描可能高達 4096×4096、手機螢幕截圖則是 9:19.5。2024 年以前 VLM 的粗暴解答——將一切強行縮放為固定正方形——徹底抹殺了讓 OCR、文件理解與高解析度場景解析得以成立的關鍵訊號。Google 的 NaViT（2023）證明了透過區塊對角遮罩（block-diagonal masking），能夠將可變解析度的 patch 打包進單一 Transformer 批次中。Qwen2-VL 的 M-RoPE（2024）則徹底摒棄了絕對位置表。LLaVA-NeXT 的 AnyRes 將高解析度影像切片為全景縮圖與子圖網格。而 SigLIP 2 的 NaFlex 變體（2025）如今已成為希望以單一模型檢查點通吃任意長寬比的開源 VLM 之預設編碼器。本課帶你端到端實作 patch-n'-pack 機制。
+> 現實世界中的影像絕非工整的 224×224 正方形。收據長寬比為 9:16、統計圖表為 16:9、醫療掃描可能高達 4096×4096、手機螢幕截圖則是 9:19.5。2024 年以前 VLM 的粗暴解答——將一切強行縮放為固定正方形——徹底抹殺了讓 OCR、文件理解與高解析度場景解析得以成立的關鍵訊號。Google 的 NaViT（2023）證明了透過區塊對角遮罩（block-diagonal masking），能夠將可變解析度的 patch 打包進單一 Transformer 批次中。Qwen2-VL 的 M-RoPE（2024）則徹底摒棄了絕對位置表。LLaVA-NeXT 的 AnyRes 將高解析度影像切片為全域縮圖與子圖網格。而 SigLIP 2 的 NaFlex 變體（2025）如今已成為希望以單一 model checkpoint 通吃任意長寬比的開源 VLM 之預設編碼器。本課帶你端到端實作 patch-n'-pack 機制。
 
 **Type:** Build
 **Languages:** Python (stdlib, patch packer + block-diagonal mask)
@@ -50,16 +50,16 @@ LLaVA-NeXT 提出的 AnyRes 則是極具工程務實色彩的替代方案。給�
 
 1. 從預先定義的候選版面中挑選最契合原圖長寬比的網格佈局——例如 (1×1)、(1×2)、(2×1)、(1×3)、(3×1)、(2×2) 等。
 2. 將全圖裁切為該網格拼圖；每個拼圖切片皆為獨立的 336×336 區域。
-3. 額外產生一張縮圖（thumbnail）：將整張原圖縮放為 336×336，作為提供全域視野的背景 token。
-4. 將每一個切片與全景縮圖依序餵入凍結的 336 編碼器中，最後將所有切片 token 與縮圖 token 連續拼接。
+3. 額外產生一張縮圖（thumbnail）：將整張原圖縮放為 336×336，作為全域脈絡 token。
+4. 將每一個切片與全域縮圖依序餵入凍結的 336 編碼器中，最後將所有切片 token 與縮圖 token 連續拼接。
 
-對於一張 672×672 的影像，若採用 2×2 網格加全景縮圖：總共產生 4 × 576 + 576 = 2880 個視覺 token。代價雖大但成效極佳——LLM 既能細看局部高畫質微觀細節，又能把握宏觀全景。
+對於一張 672×672 的影像，若採用 2×2 網格加全域縮圖：總共產生 4 × 576 + 576 = 2880 個視覺 token。代價雖大但成效極佳——LLM 既能細看局部高畫質微觀細節，又能把握宏觀全景。
 
 當你的視覺編碼器完全凍結且天生僅支援單一固定解析度時，AnyRes 是最理想的擴展手段。但面對超大影像時它會引發 token 數量劇烈膨脹（例如 1344×1344 影像在 4×4 網格下會產生 9216 + 576 ≈ 9800 個 token，幾乎能瞬間塞爆 8k 的 LLM context）。
 
 ### M-RoPE（Qwen2-VL）
 
-Qwen2-VL 引入了革命性的多模態旋轉位置編碼（Multimodal Rotary Position Embedding, M-RoPE）。它徹底拋棄了 NaViT 的分數位置表與 AnyRes 的切片拼圖概念，直接為每個 patch 賦予三維旋轉座標（時間、高度、寬度）。Query 與 Key 的高維旋轉自然相容於任意的 H、W 與時間序列長度。
+Qwen2-VL 引入了革命性的多模態旋轉位置編碼（Multimodal Rotary Position Embedding, M-RoPE）。它徹底拋棄了 NaViT 的分數位置與 AnyRes 的切片拼圖概念，直接為每個 patch 賦予三維旋轉座標（時間、高度、寬度）。Query 與 Key 的高維旋轉自然相容於任意的 H、W 與時間序列長度。
 
 M-RoPE 在推論時原生支援任意動態解析度，完全無需為不同尺寸重訓模型。在推論階段傳入任意 H×W 影像，patch 編碼器直接輸出 H/14 × W/14 個 token，每個 token 依據座標取得其 (t=0, r=列, c=欄) 的空間座標，RoPE 便能以正確的頻率旋轉注意力。Qwen2.5-VL 與 Qwen3-VL 延續了這項典範；InternVL3 的 V2PE 亦是同類的跨模態變異編碼。
 
@@ -86,10 +86,10 @@ M[i, j] = 1 iff there exists b where offsets[b] <= i < offsets[b+1] and offsets[
 
 依據不同業務任務精準規劃 token 策略：
 
-- OCR 與長文件理解：配置 1024 至 4096 個 token。選用 SigLIP 2 NaFlex @ 1024，或 AnyRes 3×3 切片加全景縮圖。
+- OCR 與長文件理解：配置 1024 至 4096 個 token。選用 SigLIP 2 NaFlex @ 1024，或 AnyRes 3×3 切片加全域縮圖。
 - 統計圖表與 UI 介面截圖：在 384 至 448 原生解析度下配置 729 至 1024 個 token。採用具備像素上限封頂的 Qwen2.5-VL 動態解析度。
 - 自然風景與日常生活照片：256 至 576 個 token 足矣。下游 LLM 已經能捕捉充沛語意。請將寶貴的 token 預算花在資訊密度極高的真實內容上。
-- 影片理解：空間池化後每幀僅需 64 至 128 個 token，幀率維持在 2 至 8 FPS。第 12.17 課將詳解此主題。
+- 影片理解：空間池化後每個影格僅需 64 至 128 個 token，影格率維持在 2 至 8 FPS。第 12.17 課將詳解此主題。
 
 2026 年正式環境的黃金法則：為不同任務設定每張圖的像素上限（max-pixels cap），在上限範圍內維持原生長寬比直接編碼，緊密打包至單一序列，徹底消滅填充浪費。Qwen2.5-VL 專門開放的 `min_pixels` 與 `max_pixels` 參數，正是為這項工程實踐而量身打造。
 
@@ -112,7 +112,7 @@ mm-patch-n-pack
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-resolution-budget-planner.md`。給定混合長寬比的工作負載（包含 OCR、圖表、自然照片、視訊影格）以及全域 token 預算上限，它將精確評估並推薦最適策略（NaFlex、AnyRes、M-RoPE 或固定正方形），並為每個請求產生專屬的執行組態參數。在為真實線上產品選型 VLM 時隨時善用此技能——它能防止 token 數量無聲暴增 10 倍破壞服務延遲預算。
+本課產出 `outputs/skill-resolution-budget-planner.md`。給定混合長寬比的工作負載（包含 OCR、圖表、自然照片、影片影格）以及全域 token 預算上限，它將精確評估並推薦最適策略（NaFlex、AnyRes、M-RoPE 或固定正方形），並為每個請求產生專屬的執行組態參數。在為真實線上產品選型 VLM 時隨時善用此技能——它能防止 token 數量無聲暴增 10 倍破壞服務延遲預算。
 
 ## Exercises｜練習
 
@@ -132,9 +132,9 @@ mm-patch-n-pack
 |------|-----------------|------------------------|
 | Patch-n'-pack | 「NaViT 風格打包」 | 將來自不同影像的可變長度 patch 序列連續串接至單一批次維度的封裝機制 |
 | Block-diagonal mask | 「打包注意力遮罩」 | 限制各影像的 patch 僅能在自身邊界內部進行注意力凝視的區塊對角遮罩矩陣 |
-| AnyRes | 「LLaVA-NeXT 網格切片」 | 將高解析度影像切片為固定大小的網格拼圖加全景縮圖，並以固定編碼器逐一切片編碼 |
-| NaFlex | 「SigLIP 2 原生彈性解析度」 | SigLIP 2 單一檢查點在推論時原生支援 256/729/1024 多種 token 預算的切換機制 |
-| M-RoPE | 「多模態旋轉位置編碼」 | 涵蓋時間、列、行三維度的旋轉位置編碼，無須位置表即可支援任意幾何形狀 |
+| AnyRes | 「LLaVA-NeXT 網格切片」 | 將高解析度影像切片為固定大小的網格拼圖加全域縮圖，並以固定編碼器逐一切片編碼 |
+| NaFlex | 「SigLIP 2 原生彈性解析度」 | SigLIP 2 單一 model checkpoint 在推論時原生支援 256/729/1024 多種 token 預算的切換機制 |
+| M-RoPE | 「多模態旋轉位置編碼」 | 涵蓋時間、列、欄三維度的旋轉位置編碼，無須位置表即可支援任意幾何形狀 |
 | cu_seqlens | 「FlashAttention 打包長度」 | FlashAttention 變長路徑使用的累積長度張量，能完全取代實體稠密區塊對角遮罩 |
 | min_pixels / max_pixels | 「解析度上下界門檻」 | Qwen2.5-VL 提供的每請求調控參數，用以約束超小或超大輸入時的 token 消耗極限 |
 | Visual token budget | 「每張影像的 Token 配額」 | 每張輸入影像最終轉化生成的 patch token 估計數量；決定了 LLM 的輸入開銷與延遲 |

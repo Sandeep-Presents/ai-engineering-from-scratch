@@ -1,6 +1,6 @@
 # 階層式架構與其特有失效模式（Hierarchical Architecture and Its Failure Mode）
 
-> 階層式架構本質上是巢狀嵌套的監督者模式：由經理 Agent（Manager agent）管轄多個副經理，再由副經理指揮底層的工作者。CrewAI 的 `Process.hierarchical` 是教科書級別的經典代表：由專門的 `manager_llm` 動態委派任務並逐層驗收輸出成果。在 LangGraph 中，等價的實作是巢狀呼叫 `create_supervisor(create_supervisor(...))`。當面對的業務本質上就是真實企業組織架構時，這是一套極其自然的對映模式。然而，它也是最容易陷入「管理死迴圈」的架構——經理 Agent 經常錯誤派發任務、扭曲解讀下屬的彙報，或在不同部門之間陷入無法達成共識的無休止內耗。在許多真實業務中，簡單純粹的循序管線往往能輕鬆擊敗它。
+> 階層式架構本質上是巢狀嵌套的監督者模式：由經理 Agent（Manager agent）管轄多個副經理，再由副經理指揮底層的工作者。CrewAI 的 `Process.hierarchical` 是教科書級別的經典代表：由專門的 `manager_llm` 動態委派任務並逐層驗收輸出成果。在 LangGraph 中，等價的實作是巢狀呼叫 `create_supervisor(create_supervisor(...))`。當面對的業務本質上就是真實企業組織架構時，這是一套極其自然的對映模式。然而，它也是最容易陷入「管理死迴圈」的架構——經理 Agent 經常錯誤派發任務、扭曲解讀下屬的彙報，或在不同部門之間陷入無法達成共識的無休止內耗。在許多真實業務中，簡單純粹的循序管線往往表現更好。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -125,6 +125,6 @@ python3 code/main.py
 ## Further Reading｜延伸閱讀
 
 - [CrewAI introduction — Process.hierarchical](https://docs.crewai.com/en/introduction) — 基於經理 LLM 統籌的教科書級階層式架構官方文件。
-- [LangGraph supervisor reference](https://reference.langchain.com/python/langgraph-supervisor) — 透過 `create_supervisor` 實現巢狀監督者架構的參考實作。
+- [LangGraph supervisor reference](https://reference.langchain.com/python/langgraph-supervisor) — 透過 `create_supervisor` 實作巢狀監督者架構的參考實作。
 - [Anthropic engineering — Research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 深刻揭示 Anthropic 在科研系統中為何刻意挑選扁平監督者而堅決放棄階層架構的深層工程原因。
 - [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 失效分類權威論文；其中協同失靈章節深入剖析了任務拆解漂移的本質。

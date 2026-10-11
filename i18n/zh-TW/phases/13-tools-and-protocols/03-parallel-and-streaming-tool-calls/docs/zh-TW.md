@@ -98,7 +98,7 @@ call_C: median API, returns third
  {role: "tool", tool_call_id: "call_C", content: ...}]
 ```
 
-在 OpenAI 與 Anthropic 協定中，回傳訊息陣列內部的物理排列順序完全不影響正確性。Gemini 亦然，只要各項目帶有的 ID 與原始呼叫精確吻合即可。
+在 OpenAI 與 Anthropic 協定中，回傳訊息陣列內部的排列順序完全不影響正確性。Gemini 亦然，只要各項目帶有的 ID 與原始呼叫精確吻合即可。
 
 ### 效能實測：串列 vs 並行
 
@@ -134,7 +134,7 @@ tp-parallel-fanout
 
 2. 擴充累加器以處理「串流中途遭遇取消」的異常情境：丟棄對應 ID 的緩衝區並拋出 `cancelled` 事件。深入比對 Anthropic 的 `content_block_stop` 語義與 OpenAI 遇到 `finish_reason: "length"` 時的具體邊界行為。哪一家服務供應商明確記載此情境？
 
-3. 將教學程式碼中的執行緒池改寫為基於 `asyncio.gather` 的非同步實作。對比兩者的性能差異，並解釋 async 為何能帶來小幅效能提升（因為上下文切換成本較低），但只有在執行器涉及真正的 I/O 時才如此。
+3. 將教學程式碼中的執行緒池改寫為基於 `asyncio.gather` 的非同步實作。對比兩者的效能差異，並解釋 async 為何能帶來小幅效能提升（因為上下文切換成本較低），但只有在執行器涉及真正的 I/O 時才如此。
 
 4. 挑選兩款絕不能並行發起的工具（例如先執行 `create_file` 再執行 `write_file`）。在工具註冊表中加入 `ordering_dependency` 相依性圖譜定義，並在並行扇出調度器中加入相依性防護閘門。這正是後續 Agent 工程學中依賴感知排程的最小核心原型。
 

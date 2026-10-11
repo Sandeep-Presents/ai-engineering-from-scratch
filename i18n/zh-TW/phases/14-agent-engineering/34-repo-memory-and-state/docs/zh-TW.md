@@ -1,6 +1,6 @@
 # 儲存庫記憶（repo memory）與持久化狀態
 
-> 聊天紀錄是暫態揮發的；而儲存庫才是持久長青的。工作台將 Agent 狀態儲存於納入版本控制的檔案中，使下一個工作階段、下一個 Agent 以及未來的審核者皆能讀取完全相同的權威事實來源。
+> 聊天紀錄是暫態揮發的；而儲存庫內容持久。工作台將 Agent 狀態儲存於納入版本控制的檔案中，使下一個工作階段、下一個 Agent 以及未來的審核者皆能讀取完全相同的權威事實來源。
 
 **Type:** Build
 **Languages:** Python (stdlib + `jsonschema` optional)
@@ -36,13 +36,13 @@ flowchart LR
 
 | 屬於儲存庫記憶 | 絕不屬於儲存庫記憶 |
 |---|---|
-| 活動中的任務 ID | 原始的長篇聊天對話日誌 |
+| 活動中的任務 ID | 原始的長篇聊天對話紀錄 |
 | 當前工作階段修改的檔案清單 | Token 層級的底層推理軌跡 |
 | Agent 當初確立的前提假設 | 「使用者看起來有些沮喪」等主觀情緒 |
 | 當前卡住的阻礙事項 | 模型抽樣產生的候選文字 |
 | 下一步的具體行動方針 | 廠商特定的模型 ID |
 
-檢驗的黃金標準在於**持久化實用性**：三個月後在 CI 重跑時，這段資訊是否依然具備實質價值？若是，歸入儲存庫記憶；若否，歸入遙測日誌。
+檢驗的黃金標準在於**持久化實用性**：三個月後在 CI 重跑時，這段資訊是否依然具備實質價值？若是，歸入儲存庫記憶；若否，歸入遙測紀錄。
 
 ### 以結構描述為先的狀態管理
 
@@ -91,11 +91,11 @@ python3 code/main.py
 
 **原子性暫存覆寫（Temp-and-rename）絕非可選項目**：2026 年 3 月 Hive 專案的一起嚴重 Bug 報告清晰暴露了該失效模式：`state.json` 採用 `write_text()` 直接寫入且例外被中途吞沒。不完整的局部寫入導致後續工作階段在損壞的狀態下靜默復原，引發了災難性後果。唯一的正確解法始終是：在目標檔案的同一目錄下透過 `tempfile.mkstemp` 建立暫存檔、寫入內容、執行 `fsync` 刷盤，隨後呼叫 `os.replace`（在 POSIX 與 Windows 上皆具備原子覆寫保證）。本課的 `atomic_write` 正是完全依此實作。
 
-**為所有非冪等工具呼叫配置冪等鍵**：若 Agent 在呼叫工具後、但尚未完成檢查點存檔前夕遭遇系統崩潰，重啟恢復會盲目重試該工具呼叫。對於讀取操作無害；但對於寄送郵件、資料庫寫入或檔案上傳則極其危險。標準模式：在執行工具前，先將工具呼叫 ID 記錄至 `pending_calls.jsonl` 中。在重試時檢查該 ID；若已存在，直接略過呼叫並使用快取的結果。Anthropic 與 LangChain 在 2026 年的指引中皆強調了此點；LangGraph 的檢查點亦基於完全相同的原因持久化保存待處理寫入。
+**為所有非冪等工具呼叫配置冪等鍵**：若 Agent 在呼叫工具後、但尚未完成檢查點存檔前夕遭遇系統崩潰，重啟後接續執行時會盲目重試該工具呼叫。對於讀取操作無害；但對於寄送郵件、資料庫寫入或檔案上傳則極其危險。標準模式：在執行工具前，先將工具呼叫 ID 記錄至 `pending_calls.jsonl` 中。在重試時檢查該 ID；若已存在，直接略過呼叫並使用快取的結果。Anthropic 與 LangChain 在 2026 年的指引中皆強調了此點；LangGraph 的檢查點亦基於完全相同的原因持久化保存待處理寫入。
 
 **將龐大產物從核心狀態中剝離**：切勿將 CSV 表格、長篇對話紀錄或生成的程式碼檔案塞入 `agent_state.json` 內部。應當將產物保存為獨立檔案（或上傳至物件儲存），而在狀態中僅保留其路徑字串。確保檢查點始終輕巧快速，而產物可獨立自然增長。
 
-**審計採用事件溯源（Event Sourcing），復原採用快照（Snapshots）**：在每次狀態變更時追加寫入事件日誌（`state.events.jsonl`）；定時將當前狀態快照存檔至 `state.json`。中斷復原時先讀取最新快照，隨後回放該快照時間戳記之後的所有事件。這會消耗稍微多一點的磁碟空間，但賦予了你逐字逐句重現 Agent 過往決策鏈的能力——在排查長路徑任務時不可或缺。這與 Postgres 底層 WAL 的運作原理完全一致。
+**審計採用事件溯源（Event Sourcing），復原採用快照（Snapshots）**：在每次狀態變更時追加寫入事件紀錄（`state.events.jsonl`）；定時將當前狀態快照存檔至 `state.json`。中斷復原時先讀取最新快照，隨後回放該快照時間戳記之後的所有事件。這會消耗稍微多一點的磁碟空間，但賦予了你逐字逐句重現 Agent 過往決策鏈的能力——在排查長路徑任務時不可或缺。這與 Postgres 底層 WAL 的運作原理完全一致。
 
 **嚴格落實結構描述遷移，否則拒絕載入**：整數型的 `schema_version` 是核心契約。當管理器遇到無法辨識的未知版本時，堅決拒絕讀取。在結構描述升級時同步提供遷移腳本；確保 `tools/migrate_state.py` 在每次啟動時皆能冪等執行。
 
@@ -104,7 +104,7 @@ python3 code/main.py
 在正式環境中：
 
 - **LangGraph 檢查點儲存器**：相同的理念，不同的儲存實作。檢查點將圖狀態持久化至 SQLite、Postgres 或自訂後端。當檢查點中斷且你需要手動查閱狀態時，本課的結構描述是唯一的標準依據。
-- **Letta 記憶體區塊**：具結構描述的持久化區塊（Phase 14 · 08）。完全相同的嚴格規範，專門服務於長時效人設。
+- **Letta 記憶區塊**：具結構描述的持久化區塊（Phase 14 · 08）。完全相同的嚴格規範，專門服務於長時效人設。
 - **OpenAI Agents SDK 工作階段儲存**：可插拔的後端架構，原生支援結構描述。本課的狀態檔案正是其本地檔案後端的標準形態。
 
 ## Ship It｜交付成果
@@ -140,6 +140,6 @@ python3 code/main.py
 - [eunomia, Checkpoint/Restore Systems in AI Agents](https://eunomia.dev/blog/2025/05/11/checkpointrestore-systems-evolution-techniques-and-applications-in-ai-agents/) ——借鏡作業系統檢查點復原機制的演進史
 - [Indium, 7 State Persistence Strategies for Long-Running AI Agents in 2026](https://www.indium.tech/blog/7-state-persistence-strategies-ai-agents-2026/) ——長任務狀態持久化七大策略
 - [Microsoft Agent Framework, Compaction](https://learn.microsoft.com/en-us/agent-framework/agents/conversations/compaction) ——微軟官方檢查點壓縮管理
-- Phase 14 · 08——記憶體區塊與睡眠期運算架構
+- Phase 14 · 08——記憶區塊與睡眠期運算架構
 - Phase 14 · 32——本課結構描述所依託的極簡三檔案工作台
 - Phase 14 · 40——直接依據該結構描述讀取的階段移交封包

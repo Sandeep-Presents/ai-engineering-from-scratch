@@ -48,7 +48,7 @@
 
 執行模式：
 
-- **平行模式（Parallel，預設）**：護欄模型與主 LLM 同步並發執行。降低尾端響應延遲；但若觸發護欄警報，主 LLM 已生成的運算將被直接捨棄（產生一定的 Token 浪費）。
+- **平行模式（Parallel，預設）**：護欄模型與主 LLM 同步平行執行。降低尾端響應延遲；但若觸發護欄警報，主 LLM 已生成的運算將被直接捨棄（產生一定的 Token 浪費）。
 - **阻塞模式（Blocking，`run_in_parallel=False`）**：護欄模型優先執行。若觸發警報，直接中斷流程，主 LLM 完全不發起呼叫，絕不浪費多餘 Token。
 
 護欄警報會拋出 `InputGuardrailTripwireTriggered` 或 `OutputGuardrailTripwireTriggered` 例外。
@@ -92,7 +92,7 @@ python3 code/main.py
 
 - **OpenAI Agents SDK**：以 OpenAI 模型為核心的產品首選。
 - **Claude Agent SDK**（第 17 課）：以 Claude 模型為核心的產品首選。
-- **LangGraph**（第 13 課）：需要顯式狀態機、持久化檢查點與斷點復原時使用。
+- **LangGraph**（第 13 課）：需要顯式狀態機與持久化續接時使用。
 - **自建架構**：需要精細控管（語音低延遲、跨多服務供應商混合、聯邦式部署）時使用。
 
 ## Ship It｜交付成果
@@ -104,7 +104,7 @@ python3 code/main.py
 1. 為委派移交新增跳數計數器：在超過 N 次移交後果斷拒絕。追蹤其具體行為。
 2. 實作 `nest_handoff_history` 選項：在將控制權移交給下一個 Agent 之前，將先前的所有歷史訊息自動提煉折疊為單一摘要。
 3. 撰寫一個阻塞式（Blocking）輸出護欄。對比在會觸發警報的 prompt 與正常通過的 prompt 上的端到端延遲差異。
-4. 透過 `add_trace_processor` 連接一個 JSON 格式日誌記錄器。觀察每個 Span 所輸出的具體欄位結構。
+4. 透過 `add_trace_processor` 連接一個 JSON 格式記錄器。觀察每個 Span 所輸出的具體欄位結構。
 5. 研讀 Agents SDK 官方文件。將此教學實作移植為使用真實的 `openai-agents-python` 函式庫。你的建模哪裡出錯了？
 
 ## Key Terms｜關鍵術語
@@ -118,7 +118,7 @@ python3 code/main.py
 | Session | 「對話記憶庫」 | 跨多次執行持久化維護對話歷史的儲存容器 |
 | Tracing | 「全鏈路追蹤」 | 覆蓋 LLM 生成、工具呼叫、委派移交與護欄的內建可觀測性（追蹤） |
 | Blocking guardrail | 「順序阻塞檢查」 | 護欄優先執行；觸發違規時不浪費主 LLM 的 Token |
-| Parallel guardrail | 「並發非同步檢查」 | 護欄與主模型並發執行；延遲更低，但在違規時會浪費已生成的 Token |
+| Parallel guardrail | 「平行檢查」 | 護欄與主模型平行執行；延遲更低，但在違規時會浪費已生成的 Token |
 
 ## Further Reading｜延伸閱讀
 

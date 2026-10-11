@@ -52,7 +52,7 @@ BLIP-2 採取兩階段預訓練策略：
 
 第 2 階段：生成式學習。掛載凍結的 LLM（例如 OPT-2.7B 或 Flan-T5-XL 等）。透過一個小型的線性投影層，將 32 個 query 的輸出維度映射至 LLM 的 embedding 維度。將它們作為前綴貼在文字 prompt 之前。僅針對該線性投影層與 Q-Former，在串接後的「prompt + 影像 + 描述」完整序列上計算語言模型損失。
 
-完成第 2 階段後，Q-Former 搭配線性投影層即構成一個完整的視覺介面包裝器（adapter）。在推論時：影像 → ViT → Q-Former → 線性投影 → 前綴於文字之前 → 由凍結的 LLM 生成最終回應。
+完成第 2 階段後，Q-Former 搭配線性投影層即構成一個完整的視覺 adapter。在推論時：影像 → ViT → Q-Former → 線性投影 → 前綴於文字之前 → 由凍結的 LLM 生成最終回應。
 
 ### 參數經濟學
 
@@ -80,7 +80,7 @@ LLaVA（2023，第 12.05 課）大膽拋棄了 Q-Former，改採樸素的雙層 
 
 ### 2026 年的後續演進體系
 
-- Q-Former 體系：BLIP-2、InstructBLIP、MiniGPT-4，以及多數出於 token 預算考量打造的視訊語言模型。
+- Q-Former 體系：BLIP-2、InstructBLIP、MiniGPT-4，以及多數出於 token 預算考量打造的影片語言模型。
 - Perceiver 重取樣器（Perceiver resampler）：Flamingo 採用的變體（第 12.04 課）；Idefics 家族、Eagle、OmniMAE。
 - MLP 投影器：LLaVA、LLaVA-NeXT、LLaVA-OneVision、Cambrian-1。
 - 注意力池化（Attention pool）：VILA、PaliGemma。
@@ -117,7 +117,7 @@ modality-projection
 
 4. 閱讀 BLIP-2 論文（arXiv:2301.12597）第 3.2 節關於 Q-Former 權重初始化的細節。解釋為何從 BERT-base 初始化（而非隨機初始化）能大幅加速收斂。
 
-5. 針對一段長度為 10 分鐘、以每秒 1 幀抽樣出 60 幀的影片，計算在（Q-Former → 每幀 32 token）與（MLP 投影器 → 每幀 576 token）之下的視覺 token 消耗量。何者能夠順暢塞入 128k token 的 LLM context 視窗中？
+5. 針對一段長度為 10 分鐘、以每秒 1 個影格抽樣出 60 個影格的影片，計算在（Q-Former → 每個影格 32 token）與（MLP 投影器 → 每個影格 576 token）之下的視覺 token 消耗量。何者能夠順暢塞入 128k token 的 LLM context 視窗中？
 
 ## Key Terms｜關鍵術語
 

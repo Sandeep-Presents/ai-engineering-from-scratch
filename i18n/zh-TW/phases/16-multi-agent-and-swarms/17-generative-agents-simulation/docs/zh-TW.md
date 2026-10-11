@@ -1,6 +1,6 @@
 # 生成式 Agent 與湧現式社會模擬（Generative Agents and Emergent Simulation）
 
-> Park 等人於 2023 年（UIST '23，arXiv:2304.03442）在名為 **Smallville** 的沙盒中部署了 25 個 Agent，採用三部分架構：**記憶流（Memory stream）**（自然語言事件日誌）、**反思（Reflection）**（Agent 針對自身記憶流生成的高階綜合認知）以及**規劃（Plan）**（先規劃一天，再細分為子計畫）。研究的里程碑成果是「情人節派對」的湧現：只對單一 Agent 植入「想舉辦情人節派對」的種子，沒有額外腳本，邀請便在群體中擴散、各 Agent 協調日期，最後派對舉行；其他 24 個 Agent 起初並不知道這場派對。消融實驗顯示三個元件對擬真度缺一不可。文獻記錄的失效主要是空間社會常規錯誤（闖入已關門的店、多人擠進單人廁所）。這套架構是 2026 年 Agent 模擬與多 Agent 社會行為評估的參考架構。
+> Park 等人於 2023 年（UIST '23，arXiv:2304.03442）在名為 **Smallville** 的沙盒中部署了 25 個 Agent，採用三部分架構：**記憶流（Memory stream）**（自然語言事件紀錄）、**反思（Reflection）**（Agent 針對自身記憶流生成的高階綜合認知）以及**規劃（Plan）**（先規劃一天，再細分為子計畫）。研究的里程碑成果是「情人節派對」的湧現：只對單一 Agent 植入「想舉辦情人節派對」的種子，沒有額外腳本，邀請便在群體中擴散、各 Agent 協調日期，最後派對舉行；其他 24 個 Agent 起初並不知道這場派對。消融實驗顯示三個元件對擬真度缺一不可。文獻記錄的失效主要是空間社會常規錯誤（闖入已關門的店、多人擠進單人廁所）。這套架構是 2026 年 Agent 模擬與多 Agent 社會行為評估的參考架構。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -17,7 +17,7 @@ Smallville 是這類系統的基準架構。在 Park 等人 2023 年的研究之
 
 ### 三個核心元件
 
-**記憶流（Memory stream）。** 僅能附加的日誌，記錄觀察、行動、反思與規劃。每筆條目包含時間戳記、類型、自然語言描述，以及衍生的中繼資料：**新鮮度（Recency）**、**重要性（Importance）**（由 Agent 在寫入時自評 1–10）與**相關性（Relevance）**（與當前查詢的餘弦相似度）。
+**記憶流（Memory stream）。** 僅能附加的紀錄，記錄觀察、行動、反思與規劃。每筆條目包含時間戳記、類型、自然語言描述，以及衍生的中繼資料：**新鮮度（Recency）**、**重要性（Importance）**（由 Agent 在寫入時自評 1–10）與**相關性（Relevance）**（與當前查詢的餘弦相似度）。
 
 ```
 [2026-02-14 09:12:03] observation: Isabella Rodriguez asked me if I like jazz
@@ -133,7 +133,7 @@ python3 code/main.py
 
 | 術語 | 常見說法 | 實際意義 |
 |------|----------|----------|
-| 記憶流 | Agent 的日記 | 僅能附加的日誌，記錄觀察、行動、反思與規劃。 |
+| 記憶流 | Agent 的日記 | 僅能附加的紀錄，記錄觀察、行動、反思與規劃。 |
 | 新鮮度 | 這段記憶有多新 | 依時間年齡計算的指數衰減分數。 |
 | 重要性 | Agent 有多在意 | 寫入時由 Agent 自評 1–10，並快取。 |
 | 相關性 | 與目前查詢有多相關 | 餘弦相似度（基於 embedding）。 |
@@ -147,4 +147,4 @@ python3 code/main.py
 - [Park et al. — Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442) — 參考架構
 - [UIST '23 paper page](https://dl.acm.org/doi/10.1145/3586183.3606763) — 發表刊物
 - [Smallville code release](https://github.com/joonspk-research/generative_agents) — Python 參考實作
-- [Hayes-Roth 1985 — A Blackboard Architecture for Control](https://www.sciencedirect.com/science/article/abs/pii/0004370285900639) — 結構化記憶體 agent 的先前研究
+- [Hayes-Roth 1985 — A Blackboard Architecture for Control](https://www.sciencedirect.com/science/article/abs/pii/0004370285900639) — 採用結構化記憶的 agent 相關先前研究

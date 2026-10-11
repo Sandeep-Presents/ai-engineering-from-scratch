@@ -10,13 +10,13 @@
 ## Learning Objectives｜學習目標
 
 - 解釋共用詞彙表搭配單一因果損失函式，如何從根本上顛覆並重塑模型的能力邊界。
-- 深入說明 VQ-VAE 如何將連續影像向量離散化為整數 token 序列，使其與 Transformer 的下一個 token 預測目標完美相容。
+- 深入說明 VQ-VAE 如何將連續影像向量離散化為整數 token 序列，使其與 Transformer 的 next-token prediction 目標完美相容。
 - 掌握維持 Chameleon 訓練穩定性的三大核心法寶：QK-Norm、Dropout 插入位置以及 LayerNorm 排列順序。
 - 對比 Chameleon 與 BLIP-2 的 Q-Former 途徑，並指出兩者在實際工程選型時的決策分界線。
 
 ## The Problem｜問題
 
-基於外加適配器（Adapter）的 VLM（LLaVA、BLIP-2、Qwen-VL）在架構上始終將文字與影像割裂對待。文字 token 通過 `embed(text_token)` 查表；而影像則流經 `visual_encoder(image) → projector → ... pseudo_tokens`。模型擁有兩條完全平行的輸入路徑，直至模型深處才勉強匯流。
+基於外加 adapter 的 VLM（LLaVA、BLIP-2、Qwen-VL）在架構上始終將文字與影像割裂對待。文字 token 通過 `embed(text_token)` 查表；而影像則流經 `visual_encoder(image) → projector → ... pseudo_tokens`。模型擁有兩條完全平行的輸入路徑，直至模型深處才勉強匯流。
 
 這種架構帶來了三重無法迴避的後天缺陷：
 
@@ -49,7 +49,7 @@ Chameleon 的共用詞彙表將文字 token、影像離散 token 以及模態分
 
 ### 混合模態自主生成
 
-推論過程完全遵循在共用詞彙表上的標準下一個 token 自回歸預測。例如給定 prompt：「Draw a cat and describe it.」，Chameleon 能夠一氣呵成輸出：
+推論過程完全遵循共用詞彙表上的 next-token prediction。例如給定 prompt：「Draw a cat and describe it.」，Chameleon 能夠一氣呵成輸出：
 
 ```
 <image> 4821 1029 2891 ... (1024 image tokens) </image>
@@ -90,7 +90,7 @@ BLIP-2 / LLaVA 體系（後期融合，雙塔架構）：
 - 在純理解任務上不受離散 tokenizer 的資訊瓶頸制約。
 - 推論輕快，單次前向即可完成。
 
-選型依據任務而定：若需要圖文雙向多模態生成能力，選 Chameleon 家族；若純粹專注於多模態理解與問答，外加適配器式的 VLM 架構更簡單，且能最大限度復用既有的預訓練語言算力。
+選型依據任務而定：若需要圖文雙向多模態生成能力，選 Chameleon 家族；若純粹專注於多模態理解與問答，外加 adapter 的 VLM 架構更簡單，且能最大限度復用既有的預訓練語言算力。
 
 ### Fuyu 與 AnyGPT
 
@@ -136,7 +136,7 @@ vq-codebook
 | Early fusion | 「早期融合純 Token 化」 | 影像在預訓練第 1 步起即被轉化為與文字共享詞彙表的離散 token 體系 |
 | VQ-VAE | 「影像離散 Tokenizer」 | 結合 CNN、ViT 與碼本字典的自編碼器，將影像量化為 Transformer 可預測的整數索引 |
 | Shared vocabulary | 「統一單一字典」 | 一個跨越文字、視覺離散索引以及模態控制分隔符號的全域 token ID 空間 |
-| QK-Norm | 「注意力穩定神油」 | 在 Query 與 Key 計算注意力點積之前先行施加 LayerNorm，有效抑制數值範數爆炸 |
+| QK-Norm | 「注意力穩定器」 | 在 Query 與 Key 計算注意力點積之前先行施加 LayerNorm，有效抑制數值範數爆炸 |
 | Mixed-modality generation | 「圖文交錯混排生成」 | 模型在單次推論過程中，能夠根據情境自發且交錯生成文字與影像 token |
 | Codebook size | 「K 個碼本向量」 | VQ-VAE 允許量化的離散代表向量總數；負責在壓縮率與視覺保真度之間進行權衡 |
 | Tokenizer ceiling | 「離散重建上限」 | 透過離散解碼所能達到的最高 PSNR 峰值；直接錨定了早期融合模型的視覺生成天花板 |

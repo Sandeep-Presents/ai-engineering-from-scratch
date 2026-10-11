@@ -11,7 +11,7 @@
 
 - 深入描述 Actor 模型：Agent 作為獨立 Actor、訊息作為唯一的行程間通訊（IPC）途徑、各 Actor 具備完全獨立的故障隔離邊界。
 - 指出 AutoGen v0.4 的三大 API 架構層——Core（核心層）、AgentChat（聊天層）、Extensions（擴充層）及其各自職責。
-- 闡明為何將「訊息投遞」與「訊息處理」解耦能帶來天然的高並發能力與卓越的系統容錯性。
+- 闡明為何將「訊息投遞」與「訊息處理」解耦能帶來天然的高並發能力與系統容錯性。
 - 以純 Python 標準函式庫實作極簡的 Actor 執行環境，並在其上執行一套雙 Agent 程式碼審查協同流程。
 
 ## The Problem｜問題
@@ -38,13 +38,13 @@ AutoGen v0.4 將介面清晰劃分為三層：
 
 1. **Core（核心層）**：底層 Actor 基礎設施。包含 `AgentRuntime`、`Agent`、`Message`、`Topic`。負責非同步訊息交換與事件驅動調度。
 2. **AgentChat（聊天層）**：任務驅動的高階 API（取代 v0.2 的 ConversableAgent）。包含 `AssistantAgent`、`UserProxyAgent`、`RoundRobinGroupChat`、`SelectorGroupChat`。
-3. **Extensions（擴充層）**：外部整合——OpenAI、Anthropic、Azure、工具集、記憶體系統。
+3. **Extensions（擴充層）**：外部整合——OpenAI、Anthropic、Azure、工具集、記憶系統。
 
 ### 為何解耦至關重要
 
 在 v0.2 的舊模型中，呼叫 `agent_a.chat(agent_b)` 會同步阻塞 agent_a，直到 agent_b 執行完畢回傳。而在 v0.4 中，`send(agent_b, msg)` 僅將訊息放入 agent_b 的收件匣並立刻返回，由執行環境在背景非同步分派處理。這帶來了三項結果：
 
-- **故障隔離（Fault isolation）**：Agent B 崩潰不會拖垮 Agent A——執行環境會捕獲 B 的例外錯誤，並自主決定是重試、記錄日誌還是轉入死信佇列（Dead-letter Queue）。
+- **故障隔離（Fault isolation）**：Agent B 崩潰不會拖垮 Agent A——執行環境會捕獲 B 的例外錯誤，並自主決定是重試、寫入記錄還是轉入死信佇列（Dead-letter Queue）。
 - **天然高並發（Natural concurrency）**：同時有多筆訊息在傳輸中；各 Actor 獨立並行消化自身的收件匣。
 - **天然的分散式擴展性（Distribution-ready）**：無論 Actor 是位於同一行程內，還是部署在跨網路的另一台伺服器上，收件匣 + 傳輸層的抽象完全保持一致。
 
@@ -81,13 +81,13 @@ actor-mailbox
 python3 code/main.py
 ```
 
-日誌會清晰展示：訊息投遞流程、其中一個 Actor 的模擬故障未影響另一個 Actor 運作，以及雙方最終順利收斂至一致裁決。
+執行軌跡會清晰展示：訊息投遞流程、其中一個 Actor 的模擬故障未影響另一個 Actor 運作，以及雙方最終順利收斂至一致裁決。
 
 ## Use It｜實際應用
 
 - **AutoGen v0.4 / v0.7（維護模式）**：適合學術研究、原型驗證與多 Agent 模式探索。
 - **Microsoft Agent Framework**：正式環境的生產級繼任者（2025 年 10 月預覽）；在全新 API 介面下貫徹相同的 Actor 模型思想。
-- **LangGraph Swarm 拓撲**（第 13 課）：透過共享工具控制權交接實現的類似對等架構。
+- **LangGraph Swarm 拓撲**（第 13 課）：透過共享工具控制權交接實作的類似對等架構。
 - **自建 Actor 執行環境**：適合需要對特定訊息中介層（如 NATS、RabbitMQ、gRPC）實施精確控制的團隊。
 
 ## Ship It｜交付成果
@@ -109,12 +109,12 @@ python3 code/main.py
 | Actor | 「智慧個體」 | 私有狀態 + 收件匣 + 處理常式；彼此完全不共享記憶體 |
 | Message | 「通訊事件」 | 強型別酬載；Actor 之間互動協同的唯一途徑 |
 | Inbox | 「郵箱佇列」 | 每個 Actor 專屬的待處理訊息佇列 |
-| Runtime | 「Agent 宿主」 | 負責路由轉發訊息並隔離各類異常的事件迴圈 |
+| Runtime | 「Agent 執行環境」 | 負責路由轉發訊息並隔離各類異常的事件迴圈 |
 | Topic | 「發布訂閱主題」 | Actor 之間具備名稱的發布—訂閱廣播路由通道 |
 | Fault isolation | 「任其崩潰」 | 單一 Actor 發生崩潰被限制在其內部，不影響其他 Actor |
 | RoundRobinGroupChat | 「固定循環輪替團隊」 | 多個 Agent 依嚴格固定順序輪流推進對話 |
 | SelectorGroupChat | 「動態決策團隊」 | 由專責選擇器 Agent 依據上下文即時挑選下一個發言者 |
-| Magentic-One | 「微軟基準多 Agent 隊伍」 | 官方整合網頁、程式碼與檔案操作的旗艦級多 Agent 參考架構 |
+| Magentic-One | 「多 Agent 參考團隊」 | 供網頁瀏覽、程式碼執行與檔案處理的多 Agent 參考團隊 |
 
 ## Further Reading｜延伸閱讀
 

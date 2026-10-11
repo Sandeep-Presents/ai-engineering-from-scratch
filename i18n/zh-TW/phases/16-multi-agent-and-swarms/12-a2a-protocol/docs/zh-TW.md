@@ -1,6 +1,6 @@
 # A2A——Agent 間互聯通訊協定（A2A — The Agent-to-Agent Protocol）
 
-> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得全球超過 150 家企業機構的全力背書。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分驗證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
+> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得 150 多個組織支持。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分驗證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `http.server`, `json`)
@@ -9,7 +9,7 @@
 
 ## Problem｜問題
 
-你的 Agent 需要呼叫運作在另一套系統上的另一個外部 Agent。該如何實現？你可以手動暴露一個標準 HTTP 端點，私自訂一套專屬的 JSON Schema，並暗自祈禱對端能夠正確理解它。然而如此一來，任何兩兩 Agent 之間的對接都會淪為極度痛苦的自訂點對點整合。
+你的 Agent 需要呼叫運作在另一套系統上的另一個外部 Agent。該如何實作？你可以手動暴露一個標準 HTTP 端點，私自訂一套專屬的 JSON Schema，並暗自祈禱對端能夠正確理解它。然而如此一來，任何兩兩 Agent 之間的對接都會淪為極度痛苦的自訂點對點整合。
 
 A2A 正是為消弭此痛點而生的通用線路通訊協定。它提供了標準化的服務發現機制、標準化的任務狀態模型、標準化的傳輸通道以及標準化的工件規格。其地位正如 HTTP+REST 之於現代網際網路，只不過它是專為將 Agent 視為一等公民而量身打造的。
 
@@ -60,9 +60,9 @@ Host: agent.example.com
 }
 ```
 
-**任務（Task）。** A2A 中的最小工作單元。一個非同步且具備狀態追蹤的物件，遵循嚴格的生命週期：`TASK_STATE_SUBMITTED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED` / `TASK_STATE_FAILED` / `TASK_STATE_CANCELED`。用戶端發起訊息，伺服器據此建立任務，隨後用戶端可透過主動輪詢或串流訂閱即時掌握進度更新。
+**任務（Task）。** A2A 中的最小工作單元。一個非同步且具狀態的物件，遵循嚴格的生命週期：`TASK_STATE_SUBMITTED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED` / `TASK_STATE_FAILED` / `TASK_STATE_CANCELED`。用戶端發起訊息，伺服器據此建立任務，隨後用戶端可透過主動輪詢或串流訂閱即時掌握進度更新。
 
-**工件（Artifact）。** 任務執行完畢後產出的實質結果。涵蓋純文字、結構化 JSON、圖片、影像與音訊。工件天然具備強型別特質：每個片段皆攜帶 `text`、`raw`、`url` 或 `data` 之一，並明確標註其 `mediaType`，讓各類多模態資料皆能享有真正的一等公民地位。
+**工件（Artifact）。** 任務執行完畢後產出的實質結果。涵蓋純文字、結構化 JSON、圖片、影片與音訊。工件天然具備強型別特質：每個片段皆攜帶 `text`、`raw`、`url` 或 `data` 之一，並明確標註其 `mediaType`，讓各類多模態資料皆能享有真正的一等公民地位。
 
 **不透明的黑箱生命週期（Opaque lifecycle）。** A2A 刻意不硬性規定遠端 Agent 內部究竟該*如何*具體攻克任務。用戶端僅能感知外部的狀態躍遷與交付的工件；伺服器端則享有絕對的自由，可任意選用任何底層框架或工具鏈。
 
@@ -103,7 +103,7 @@ A2A 原生支援三種業界標準安全模式：
 
 安全策略在 Agent Card 中顯式宣告：`securitySchemes` 具體定義各項方案，而 `securityRequirements` 則指明用戶端必須滿足的強制條款。用戶端能自發探索並遵循對應的安全規範。
 
-### 截至 2026 年 4 月已獲超過 150 家企業背書
+### 截至 2026 年 4 月，A2A 獲 150 多個組織支持
 
 企業級的規模化採用推動了 A2A 的高速普及。最核心的戰略意義：A2A 已實質成為跨越不同企業信任邊界開展 Agent 協同的通用業界標準。Google Cloud 正式釋出了 Vertex AI Agent Builder 對 A2A 的原生支援；微軟 Agent Framework 亦原生相容；絕大多數主流開源框架（LangGraph、CrewAI、AutoGen）皆已標配相應的 A2A 適配器。
 
@@ -136,7 +136,7 @@ sw-agent-card-discovery
 
 ## Build It｜動手實作
 
-`code/main.py` 透過 Python 標準函式庫的 `http.server` 與 JSON 模組，完整實現了一套最小可行的 A2A 伺服器與用戶端，嚴格遵循 1.0 HTTP+JSON 規格。伺服器端：
+`code/main.py` 透過 Python 標準函式庫的 `http.server` 與 JSON 模組，完整實作了一套最小可行的 A2A 伺服器與用戶端，嚴格遵循 1.0 HTTP+JSON 規格。伺服器端：
 
 - 暴露標準的 `/.well-known/agent-card.json` 服務發現端點，
 - 接收 `POST /message:send` 任務分發請求，
@@ -176,7 +176,7 @@ python3 code/main.py
 
 1. 執行 `code/main.py`。確認用戶端能否順利發現伺服器端點，並驗收正確交付的工件。
 2. 為伺服器追加第二項專長技能（例如「文本摘要 summarize」）。更新其 Agent Card。撰寫一個能依據任務類型自動挑選技能的用戶端。注意：1.0 請求中並無單獨的 skill 欄位，因此伺服器端必須依據訊息內容進行路由分發。
-3. 實現 `POST /message:stream` 串流端點：以 Server-Sent Events（先推送 `task` 結構，隨後持續推播 `statusUpdate` 事件）進行回應，並在任務抵達終端狀態時優雅關閉串流。思考用戶端在處理串流時需要做出哪些架構調整？
+3. 實作 `POST /message:stream` 串流端點：以 Server-Sent Events（先推送 `task` 結構，隨後持續推播 `statusUpdate` 事件）進行回應，並在任務抵達終端狀態時優雅關閉串流。思考用戶端在處理串流時需要做出哪些架構調整？
 4. 閱讀 A2A 官方完整規範 (https://a2a-protocol.org/latest/specification/)。指出三項官方規格強制要求、但本玩具展示程式刻意簡化省略的具體協定特性。
 5. 橫向對比 A2A（透過 Agent Card 進行服務發現）與 MCP（透過 `listTools` 進行伺服器端能力探測）。在架構設計上，「自描述型 Agent」與「主動探測型能力發現」各自伴隨著何種深刻的取捨平衡？
 

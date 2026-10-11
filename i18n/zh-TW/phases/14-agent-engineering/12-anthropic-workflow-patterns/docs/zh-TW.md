@@ -41,7 +41,7 @@
 
 4. **編排者—工作者（Orchestrator-workers）**：由編排者 LLM 動態決定啟動哪些專業工作者（Worker LLMs），並綜合彙整其輸出產物。雖然類似 Agent 迴圈，但協調者絕不進行無休止的漫無目的循環。
 
-5. **評估者—最佳化者（Evaluator-optimizer）**：一個 LLM 產出方案初稿，另一個 LLM 進行獨立評估。交替迴圈直到評估者批准通過。這正是 Self-Refine（第 5 課）的通用化實踐。
+5. **評估者—最佳化者（Evaluator-optimizer）**：一個 LLM 產出方案初稿，另一個 LLM 進行評估。交替迴圈直到評估者批准通過。這正是 Self-Refine（第 5 課）的通用化實踐。
 
 ### 工作流程優於 Agent 的場景
 
@@ -85,7 +85,7 @@ python3 code/main.py
 
 - 對於絕大多數日常工程任務，直接使用原生 API 呼叫。
 - 唯有在工作流程確實需要持久化狀態機（LangGraph）、Actor 模式並發通訊（AutoGen v0.4）或高度角色模板化（CrewAI）時，方可考慮引入上層框架。
-- 當你需要 Claude Code 那種標準工程 harness 架構而不想從零手寫時，可直接採用 Claude Agent SDK。
+- 當你需要 Claude Code 那種標準工程執行環境架構而不想從零手寫時，可直接採用 Claude Agent SDK。
 
 ## Ship It｜交付成果
 
@@ -109,7 +109,7 @@ python3 code/main.py
 | Prompt chaining | 「循序鏈結呼叫」 | 第 N 次呼叫的輸出直接作為第 N+1 次呼叫的輸入 |
 | Routing | 「分類器意圖分派」 | 依據輸入分類動態挑選最適當的下游鏈或模型處理 |
 | Parallelization | 「並發分流」 | 同時發起 N 次並行呼叫；透過分段（Sectioning）或投票（Voting）聚合 |
-| Orchestrator-workers | 「編排者—工作者」 | 編排者 LLM 動態指揮多個專業專家 LLM 協同工作 |
+| Orchestrator-workers | 「編排者—工作者」 | 編排者 LLM 動態挑選專業工作者並彙整其輸出 |
 | Evaluator-optimizer | 「提案者 + 審核者」 | 提案者與評估者交替循環直到評估通過；Self-Refine 的通用化模式 |
 
 ## Further Reading｜延伸閱讀

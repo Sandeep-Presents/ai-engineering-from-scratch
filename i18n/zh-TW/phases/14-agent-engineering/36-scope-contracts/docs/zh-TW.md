@@ -109,11 +109,11 @@ wb-scope-bounce
 python3 code/main.py
 ```
 
-輸出包含：契約定義、兩次執行的對照日誌、逐執行的裁決結果，以及儲存於同級目錄下的 `scope_report.json`。
+輸出包含：契約定義、兩次執行的對照紀錄、逐執行的裁決結果，以及儲存於同級目錄下的 `scope_report.json`。
 
 ## 真實世界中的生產級模式
 
-一線從業者在實踐「規格最大化（specsmaxxing，即在呼叫 Agent 前以 YAML 嚴格確立範疇契約）」時報告：在完全不更換底層模型的前提下，Agent 陷入思維死胡同的機率在三週內自 52% 斷崖式下跌至 21%。發揮作用的是契約，而非模型本身。三大實戰模式確保了該架構優勢持久穩固：
+一線從業者在實踐「規格最大化（specsmaxxing，即在呼叫 Agent 前以 YAML 嚴格確立範疇契約）」時報告：在完全不更換底層模型的前提下，Agent 陷入岔路的比例在三週內自 52% 斷崖式下跌至 21%。發揮作用的是契約，而非模型本身。三大實戰模式確保了該架構優勢持久穩固：
 
 **違規配額（Violation budgets），而非二元絕對中斷**：`agent-guardrails`（Claude Code、Cursor、Windsurf 使用，Codex 經 MCP 使用的開源合併閘門）為每項任務配置了 `violationBudget`：在配額內的輕微範疇偏離會作為警示（Warnings）呈現；唯有當超出配額上限時，合併卡點才會強制拒絕。搭配 `violationSeverity: "error" | "warning"`。該配額機制，正是能讓防禦卡點在真實團隊中平滑落地、而非因過於死板被開發團隊憤怒拔除的關鍵智慧。
 

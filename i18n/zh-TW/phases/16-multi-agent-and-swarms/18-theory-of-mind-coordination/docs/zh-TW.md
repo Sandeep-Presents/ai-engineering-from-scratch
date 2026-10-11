@@ -11,7 +11,7 @@
 
 多 Agent 系統的協同常常看起來很神奇：Agent 自發分工、預判彼此的動作、避免重複。但這種「湧現」通常只是 prompt 工程的結果——有人在 prompt 裡寫了「請協同合作」。拿掉這段 prompt，協同也就消失了。
 
-Riedl 在 2025 年得出了更嚴格的結論：在受控實驗中，只有當 Agent 被明確要求推理**其他 Agent 的心智狀態（ToM）**時，協同才會出現。若沒有 ToM prompt，即使是強模型展現的協同模式，在統計控制下也無法通過顯著性檢定。這對正式環境很重要：許多團隊宣傳的「多 Agent 自發協同」功能，本質上可能是脆弱、且高度依賴措辭的表面包裝。
+Riedl 在 2025 年得出了更嚴格的結論：在受控實驗中，只有當 Agent 被明確要求推理**其他 Agent 的心智狀態（ToM）**時，協同才會出現。若沒有 ToM prompt，即使是強模型展現的協同模式，在控制其他因素後也無法成立。這對正式環境很重要：許多團隊宣傳的「多 Agent 自發協同」功能，本質上可能是脆弱、且高度依賴措辭的表面包裝。
 
 本課把 ToM 視為一種具體能力（推理關於信念的信念），建立最小的 ToM 感知 Agent，並衡量真正的協同與 prompt 包裝的差別。
 
@@ -43,7 +43,7 @@ Riedl（arXiv:2510.05174）建立了群體規模的測試：N 個 Agent、一個
 2. **目標導向的互補（Goal-directed complementarity）。** Agent 的動作是否互補（處理不同子任務），而非重複？
 3. **高階綜效（Higher-order synergy）。** 一項統計量，用來判斷整體是否達到任何子集都無法達到的成果。
 
-結果：只有在 ToM prompt 條件下，三項指標才全部高於基準。若沒有 ToM prompt，中等能力模型的指標接近隨機。大型模型在沒有顯式 ToM prompt 時也會出現一些協同，但效果比有 prompt 時小。
+結果：只有在 ToM prompt 條件下，三項指標才全部高於基準值。若沒有 ToM prompt，中等能力模型的指標接近隨機。大型模型在沒有顯式 ToM prompt 時也會出現一些協同，但效果比有 prompt 時小。
 
 ### 協同假象（Coordination illusion）
 
@@ -101,7 +101,7 @@ Li 等人記錄：上下文限制會讓 Agent 忘記哪個信念屬於哪個同�
 2. **預判（Anticipation）。** Agent A 在 T+1 輪的動作，是否依賴對 B 在 T+2 輪動作的預測，而且預測正確？
 3. **修正（Correction）。** 若 A 在 T 輪誤判了 B 的信念，A 能否在 T+2 輪前修正？
 
-這些在有日誌的多 Agent 系統中都可以測量。它們是「協同」敘事的實質版本。
+這些在有紀錄的多 Agent 系統中都可以測量。它們是「協同」敘事的實質版本。
 
 ```figure
 sw-theory-of-mind
@@ -144,7 +144,7 @@ python3 code/main.py
 2. 實作二階 ToM（Agent A 建模 B 對 C 的看法）。它是否比一階更好？在哪些任務上有幫助？
 3. 在 ToM 狀態中注入**幻覺**：每輪隨機翻轉一條信念。這會讓一階 ToM 的表現下降多少？
 4. 閱讀 Li 等人的論文（arXiv:2310.10701）。重現「長時程退化」結果：輪數從 10 增加到 30，你的一階 ToM 表現如何變化？
-5. 閱讀 Riedl 2025（arXiv:2510.05174）。在你的模擬日誌上實作高階綜效統計量。若沒有 ToM prompt，效應還在嗎？
+5. 閱讀 Riedl 2025（arXiv:2510.05174）。在你的模擬紀錄上實作高階綜效統計量。若沒有 ToM prompt，效應還在嗎？
 
 ## Key Terms｜關鍵術語
 
@@ -163,5 +163,5 @@ python3 code/main.py
 
 - [Li et al. — Theory of Mind for Multi-Agent Collaboration via Large Language Models](https://arxiv.org/abs/2310.10701) — 合作遊戲中的湧現 ToM；長時程的失效模式
 - [Riedl — Emergent Coordination in Multi-Agent Language Models](https://arxiv.org/abs/2510.05174) — 群體規模的測量；ToM prompting 是關鍵條件
-- [Premack & Woodruff — Does the chimpanzee have a theory of mind?](https://doi.org/10.1017/S0140525X00076512) — ToM 概念的 1978 年起源
-- [Baron-Cohen, Leslie, Frith — Does the autistic child have a theory of mind?](https://doi.org/10.1016/0010-0277(85)90022-8)
+- [Premack & Woodruff — Does the chimpanzee have a theory of mind?](https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/does-the-chimpanzee-have-a-theory-of-mind/1E96B02CD9850E69AF20F81FA7EB3595) — ToM 概念的 1978 年起源
+- [Baron-Cohen, Leslie, Frith — Does the autistic child have a theory of mind?](https://doi.org/10.1016/0010-0277(85)90022-8) — Sally-Anne 論文（1985）

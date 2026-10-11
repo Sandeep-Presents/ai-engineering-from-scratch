@@ -167,7 +167,7 @@ MRTR 機制僅允許在 `tools/call`、`prompts/get` 與 `resources/read` 上運
 
 ## 模型偏好僅是提示
 
-`costPriority`（成本優先級）、`speedPriority`（速度優先級）以及 `intelligencePriority`（智力優先級）皆是互相獨立的建議提示。它們並非機率分布，數值總和完全不需要等於一。呼叫端完全可以忽略這些偏好，因為模型策略由用戶端宿主決定。
+`costPriority`（成本優先度）、`speedPriority`（速度優先度）以及 `intelligencePriority`（智力優先度）皆是互相獨立的建議提示。它們並非機率分布，數值總和完全不需要等於一。呼叫端完全可以忽略這些偏好，因為模型策略由用戶端宿主決定。
 
 若你維護既有的 Sampling 流程，請將 `includeContext` 始終保持在 `"none"`。其他全域上下文模式會顯著加劇資料外洩風險，且自身亦已被標記為廢棄。請始終在請求中以顯式方式傳遞最小必要的精確上下文。
 

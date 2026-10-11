@@ -75,7 +75,7 @@ swarm-roles
 
 ## Build It｜動手實作
 
-`code/main.py` 實現了一個由四大角色協同編寫 Python 函式的標準管線：
+`code/main.py` 實作了一個由四大角色協同編寫 Python 函式的標準管線：
 
 - **規劃者（Planner）** 輸出技術規格。
 - **執行者（Executor）** 生成程式碼字串。

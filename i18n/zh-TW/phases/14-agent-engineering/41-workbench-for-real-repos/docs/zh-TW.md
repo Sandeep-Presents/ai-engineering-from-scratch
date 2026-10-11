@@ -69,7 +69,7 @@ flowchart TD
 |---|---|
 | `tests_actually_run` | 絕大多數「測試全數通過」的口頭宣稱皆無法被客觀驗證 |
 | `acceptance_met` | 實際執行的測試必須正是那條能確鑿證明目標達成的核心測試 |
-| `files_outside_scope` | 範疇蔓延是長路徑任務中最常見、最致命的隱性失效 |
+| `files_outside_scope` | 範疇蔓延是主要的隱性失效 |
 | `handoff_quality` | 下一個工作階段究竟是能直接接手，還是被迫重新摸索一切 |
 | `reviewer_total` | 在確定性關卡之上，由獨立角色做出的質性工程裁決 |
 
@@ -93,11 +93,11 @@ python3 code/main.py
 
 懷疑論者最常提出的質疑是：「工作台到底能帶來多少實質提升？」2026 年來自一線工業界的量化數字，遠比任何抽象解釋更具說服力：
 
-**Terminal Bench 在完全相同的模型下從前 30 名開外躍升至全球第 5 名**：LangChain 發布的《Anatomy of an Agent Harness》（2026 年 4 月）實證指出：在完全不更換底層模型的前提下，僅僅調校外圍 harness（執行框架）架構，一款寫程式 Agent 在 Terminal Bench 2.0 上的排名直接飆升了 25 名。相同的模型，不同的工作台表面，帶來了完全不同量級的工程產出。
+**Terminal Bench 在完全相同的模型下從前 30 名開外躍升至全球第 5 名**：LangChain 發布的《Anatomy of an Agent Harness》（2026 年 4 月）實證指出：在完全不更換底層模型的前提下，僅僅調校外圍執行環境架構，一款寫程式 Agent 在 Terminal Bench 2.0 上的排名直接飆升了 25 名。相同的模型，不同的工作台表面，帶來了完全不同量級的工程產出。
 
 **Vercel 大膽刪除 80% 的工具，成功率自 80% 躍升至 100%**：Vercel 官方報告指出，將 Agent 的可用工具刪除 80%，任務成功率反而自 80% 飆升至 100%。更小的工具表面、更鋒利的範疇約束、更少的出錯途徑。留白與克制創造了奇蹟。
 
-**Harvey 單純依靠 harness 工程使法律 Agent 準確率翻倍**：在完全不調整模型權重的前提下，harness 架構最佳化直接讓法律 Agent 的準確率提升了一倍以上。
+**Harvey 單純依靠執行環境工程使法律 Agent 準確率翻倍**：在完全不更換模型的前提下，執行環境架構最佳化直接讓法律 Agent 的準確率提升了一倍以上。
 
 **88% 的企業級 AI Agent 專案無法成功邁向正式環境**：preprints.org 發布的《Harness Engineering for Language Agents》（2026 年 3 月）深入追溯了失敗根源，指出失敗多與執行環境架構有關，而非推理能力：陳舊的狀態、脆弱的重試、失控膨脹的上下文脈絡，以及面對中繼錯誤時糟糕的復原能力。
 
@@ -119,7 +119,7 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-workbench-benchmark.md` 是一套可移植的評測 harness 技能。它能在特定專案的真實範例應用上，對任何 Agent 產品同時執行這兩條管線，並自動量化產出五大核心指標報告。
+`outputs/skill-workbench-benchmark.md` 是一套可移植的評測工具。它能在特定專案的真實範例應用上，對任何 Agent 產品同時執行這兩條管線，並自動量化產出五大核心指標報告。
 
 ## Exercises｜練習
 
@@ -149,4 +149,4 @@ python3 code/main.py
 - [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents)
 - Phases 14 · 32 to 14 · 40——本課在此進行端到端全量檢驗的全部工作台表面
 - Phase 14 · 19——本課所互補的宏觀基準評測（SWE-bench、GAIA、AgentBench）
-- Phase 14 · 30——本測試 harness 可無縫接入的評測驅動開發（Eval-Driven Development）
+- Phase 14 · 30——本評測工具可無縫接入的評測驅動開發（Eval-Driven Development）

@@ -1,6 +1,6 @@
 # Transfusion：自回歸文字加擴散影像於單一 Transformer（Transfusion: Autoregressive Text + Diffusion Image in One Transformer）
 
-> Chameleon 與 Emu3 將一切全盤押注在離散 token 之上。這套做法雖然能行，但量化資訊瓶頸顯而易見——其影像生成品質始終被壓制在連續空間擴散模型的水準之下。Transfusion（Meta，Zhou 等人，2024 年 8 月）採取了截然相反的技術路徑：徹底拋棄 VQ-VAE，維持影像特徵的連續性，並在單一 Transformer 骨幹上同時施加雙重損失函式進行聯合訓練。文字 token 遵循「下一個 token 預測」；影像 patch 則計算流匹配（Flow Matching）與擴散損失。兩大目標在同一個權重空間中共同收斂。Stable Diffusion 3 底層的 MMDiT 架構正是其孿生兄弟。本課深入解構 Transfusion 的核心論證、手刻雙損失訓練器原型，並精確剖析讓單一 Transformer 同時兼顧雙重任務的關鍵注意力遮罩。
+> Chameleon 與 Emu3 將一切全盤押注在離散 token 之上。這套做法雖然能行，但量化資訊瓶頸顯而易見——其影像生成品質始終被壓制在連續空間擴散模型的水準之下。Transfusion（Meta，Zhou 等人，2024 年 8 月）採取了截然相反的技術路徑：徹底拋棄 VQ-VAE，維持影像特徵的連續性，並在單一 Transformer 骨幹上同時施加雙重損失函式進行聯合訓練。文字 token 遵循 next-token prediction；影像 patch 則計算流匹配（Flow Matching）與擴散損失。兩大目標在同一個權重空間中共同收斂。Stable Diffusion 3 底層的 MMDiT 架構正是其孿生兄弟。本課深入解構 Transfusion 的核心論證、手刻雙損失訓練器原型，並精確剖析讓單一 Transformer 同時兼顧雙重任務的關鍵注意力遮罩。
 
 **Type:** Build
 **Languages:** Python (stdlib, two-loss trainer on MNIST-scale toy)
@@ -117,7 +117,7 @@ Transformer 本身只是玩具；雙損失流程、注意力遮罩建構與推�
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-two-loss-trainer-designer.md`。給定全新的多模態聯合任務（文字 + 影像、文字 + 音訊、文字 + 視訊），它能為其量身規劃雙損失排程體系（損失平衡權重、遮罩幾何形狀、共用 vs 模態特化區塊設定），並深度預警潛在的梯度失衡風險。
+本課產出 `outputs/skill-two-loss-trainer-designer.md`。給定全新的多模態聯合任務（文字 + 影像、文字 + 音訊、文字 + 影片），它能為其量身規劃雙損失排程體系（損失平衡權重、遮罩幾何形狀、共用 vs 模態特化區塊設定），並深度預警潛在的梯度失衡風險。
 
 ## Exercises｜練習
 
@@ -140,7 +140,7 @@ Transformer 本身只是玩具；雙損失流程、注意力遮罩建構與推�
 | MMDiT | 「多模態擴散 Transformer」 | Stable Diffusion 3 採用的核心架構：全域聯合注意力搭配模態特化的專屬 MLP 與 Norm 層 |
 | Block-triangular mask | 「區塊三角遮罩」 | 對文字序列維持嚴格因果遮罩，但對影像內部區域開放全域雙向注意力的混合遮罩 |
 | Continuous image representation | 「純連續無量化」 | 直接將影像 patch 視為實數向量進行處理，徹底告別 VQ 離散碼本量化造成的細節丟失 |
-| Velocity prediction | 「v 參數化預測」 | 類神經網路直接預測噪聲與乾淨資料之間的瞬時速度向量場，而非直接預測噪聲本身 |
+| Velocity prediction | 「v 參數化預測」 | 網路輸出的是噪聲與乾淨資料之間的速度場，而非噪聲本身 |
 
 ## Further Reading｜延伸閱讀
 

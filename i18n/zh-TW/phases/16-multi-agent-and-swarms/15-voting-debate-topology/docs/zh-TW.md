@@ -14,13 +14,13 @@
 1. 誰與誰對話（拓撲結構）。
 2. 進行幾輪（Du 2023：輪次與 Agent 數量各自獨立有貢獻）。
 3. Agent 是否異質（不同的基底模型能打破單一文化的系統性偏見）。
-4. 是否存在對抗性的反方（鋼鐵人論證 vs 稻草人論證）。
+4. 是否存在對抗性的反方（盡可能有力地呈現對方論點 vs 稻草人論證）。
 
 許多團隊若直接加上「讓 5 個 Agent 跑一遍並投票」，結果往往比單一 Agent 還差。這些失敗並非隨機，而是與拓撲結構和異質性設計直接相關。本課就是這張拓撲地圖。
 
 ## Concept｜核心概念
 
-### 自我一致性：單一模型基準線
+### 自我一致性：單一模型比較基準
 
 Wang 等人於 2022 年發表《Self-Consistency Improves Chain of Thought Reasoning》：在 temperature > 0 的條件下對同一個模型取樣 N 次，並對所有推理路徑的最終答案做多數決投票。在 GSM8K 上，相較於單次貪婪解碼（greedy decode），N=40 的取樣帶來了可觀的提升。自我一致性是多 Agent 投票的單 Agent 前身。
 
@@ -105,7 +105,7 @@ sw-debate-topology
 
 `code/main.py` 實作了以下模組：
 
-- `run_star(agents, hub, question)`——中心 Hub 輪詢每位工作者並彙整結果。
+- `run_star(agents, hub, question)`——中心 Hub 逐一詢問每位工作者並彙整結果。
 - `run_chain(agents, question)`——線性循序漸進精煉。
 - `run_tree(root, children, question)`——具備深度 2 層聚合的階層式架構。
 - `run_graph(agents, question, rounds)`——全連通的對等網路辯論，支援輪次上限。
@@ -128,7 +128,7 @@ python3 code/main.py
 
 任何多 Agent 整合系統的建議：
 
-- 先用一個強的基底模型，以 **N=5 的自我一致性**作為起點。這是便宜的基準線。
+- 先用一個強的基底模型，以 **N=5 的自我一致性**作為起點。這是低成本的比較基準。
 - 若準確率很重要，**升級為 N=3 的異質模型投票**，並量測其增幅。
 - 只有在任務具有結構（研究、多步驟）且能限制輪次時，才升級為**辯論拓撲**。
 - **一律記錄少數派群集。** 若少數派持續正確，就代表有多樣性訊號。
@@ -137,7 +137,7 @@ python3 code/main.py
 ## Exercises｜練習
 
 1. 執行 `code/main.py`。針對圖狀拓撲繪製協同稅曲線：準確率對 N、token 對 N。曲線在哪個 N 出現轉折？
-2. 實作 A-HMAD：三個刻意帶有不同偏見的異質 Agent。在 Phase 16 · 14 的 monoculture 攻擊下，全同質基準線與 A-HMAD 相比如何？
+2. 實作 A-HMAD：三個刻意帶有不同偏見的異質 Agent。在 Phase 16 · 14 的 monoculture 攻擊下，全員偏差相同的基準組與 A-HMAD 相比如何？
 3. 在圖狀拓撲中加入一個「裁判（Judge）」角色：它不投票，只為最終共識打分。這會改變自發的從眾順從行為嗎？
 4. 閱讀 AgentVerse 論文（ICLR 2024）。判斷你的實作最明顯出現哪一種湧現行為？能否透過修改 prompt 引發相反的行為？
 5. 閱讀 MultiAgentBench（arXiv:2503.01935）第 4 節（拓撲實驗）。選一個論文中的任務，用本課的測量框架重現「圖狀拓撲在研究任務上最佳」的結果。
@@ -158,7 +158,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Wang et al. — Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171) — 單一模型基準
+- [Wang et al. — Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171) — 單一模型比較基準
 - [Du et al. — Improving Factuality and Reasoning via Multiagent Debate](https://arxiv.org/abs/2305.14325) — Agent 數量與回合數各自都有影響
 - [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935) — 拓撲基準測試，顯示 graph 最適合研究、chain 最適合管線
 - [Should we be going MAD?](https://arxiv.org/abs/2311.17371) — MAD 策略綜述；指出相同預算下 MAD 往往不如自我一致性

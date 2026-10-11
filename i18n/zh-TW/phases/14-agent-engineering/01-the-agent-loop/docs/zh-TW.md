@@ -18,7 +18,7 @@
 
 大型語言模型（LLM）本身僅是一套文字自動補全系統（Autocomplete）。你提出問題，它回傳一段字串。它無法自行讀取檔案、執行查詢、開啟瀏覽器或核實事實。若模型具備過時或錯誤的資訊，它會以極具自信的口氣說出錯誤答案並立刻停止。
 
-Agent 透過單一核心架構模式解決了此問題：設計一個動態迴圈，賦予模型主動決定暫停輸出、呼叫工具、讀取執行結果並接續思考的能力。這正是 agent 的全部本質。Phase 14 中的所有追加能力——記憶體、規劃、子 agent、辯論、評測——全數是圍繞此迴圈搭建的鷹架。
+Agent 透過單一核心架構模式解決了此問題：設計一個動態迴圈，賦予模型主動決定暫停輸出、呼叫工具、讀取執行結果並接續思考的能力。這正是 agent 的全部本質。Phase 14 中的所有追加能力——記憶、規劃、子 agent、辯論、評測——全數是圍繞此迴圈搭建的鷹架。
 
 ## The Concept｜核心概念
 
@@ -38,7 +38,7 @@ Action: finish("Paris")
 
 - ALFWorld：在僅提供 1–2 個上下文範例的前提下，絕對任務成功率大幅提升了 34 個百分點。
 - WebShop：相較於模仿學習與搜尋基準線，表現高出 10 分。
-- Hotpot QA：ReAct 透過將每一步錨定於檢索結果，從幻覺（hallucination）中恢復。
+- Hotpot QA：ReAct 透過將每一步錨定於檢索結果，避免幻覺（hallucination）。
 
 推論追蹤鏈（Reasoning Traces）達成了單純僅靠「行動提示（Action-only prompting）」所無法企及的三大能力：歸納產出規劃、跨多個步驟追蹤規劃進度，以及在某個行動回傳非預期觀察時優雅處理異常。
 
@@ -56,7 +56,7 @@ Action: finish("Paris")
 2. **工具註冊表（Tool registry）**：供模型按名稱呼叫——輸入結構描述（schema）、執行，並輸出字串結果。
 3. **終止條件（Stop condition）**：模型宣告 `finish`、Assistant 回合未發起任何工具呼叫、達到最大回合數、耗盡最大 Token 配額，或觸發了安全護欄。
 4. **回合預算（Turn budget）**：強制設定循環上限以防死迴圈。Anthropic 在發布 Computer Use 時明確指出，每項任務耗費數十至數百個步驟屬於常態；應依據具體任務類別設定合理上限，切勿一刀切。
-5. **觀察格式化工具（Observation formatter）**：將工具輸出轉換為模型易於理解的結構。系統中的每個 HTTP 400 錯誤皆應被格式化為清晰的觀察字串回傳，而非引發系統崩潰。
+5. **觀察格式化工具（Observation formatter）**：將工具輸出轉換為模型易於理解的結構。系統中的每個 400 錯誤皆應被格式化為清晰的觀察字串回傳，而非引發系統崩潰。
 
 ### 為何此迴圈無所不在
 
@@ -109,7 +109,7 @@ Phase 14 中的所有主流框架皆架設於此迴圈之上。一旦掌握了�
 
 1. 為迴圈新增單回合工具呼叫上限 `max_tool_calls_per_turn`。若模型單次回合發起三次呼叫而系統僅執行前兩次，會引發何種系統問題？
 2. 實作 `no_tool_calls → done` 的終止路徑。將其與將 `finish` 作為顯式工具呼叫的架構進行深入對比。面對過早意外終止的缺陷，哪種設計更加穩健？
-3. 擴充 `ToyLLM`，使其偶爾回傳帶有畸形參數字典的 `Action`。讓迴圈透過回饋錯誤觀察字串實現自我修正。這正是 2026 年 CRITIC 風格修正的基本形態（第 5 課）。
+3. 擴充 `ToyLLM`，使其偶爾回傳帶有畸形參數字典的 `Action`。讓迴圈依據錯誤觀察自我修正。這正是 2026 年 CRITIC 風格修正的基本形態（第 5 課）。
 4. 將 `ToyLLM` 替換為真實的 Responses API 網路呼叫。將思維追蹤從行內字串移至原生推論通道中。執行記錄產生了哪些質的變化？
 5. 仿照 Anthropic 的結構描述引入 `tool_use_id` 關聯識別碼，使並行工具呼叫能夠非同步無序回傳。深入思考為何 Anthropic、OpenAI 與 Bedrock 皆強制要求該欄位？
 
@@ -124,12 +124,12 @@ Phase 14 中的所有主流框架皆架設於此迴圈之上。一旦掌握了�
 | Reasoning channel | 「思維 Token」 | 位於獨立通道上發射、跨多個回合透明透傳的原生推論內容 |
 | Stop condition | 「退出條款」 | 顯式 `finish`、未發起工具呼叫、達到最大回合數、Token 配額耗盡或護欄觸發 |
 | Turn budget | 「最大步驟數」 | 迴圈迭代次數的強制硬上限——2026 年的 agent 每項任務通常執行 40–400 步 |
-| Trace | 「執行日誌」 | 單次完整執行中所產生的思考、行動與觀察三元組完整記錄 |
+| Trace | 「執行紀錄」 | 單次完整執行中所產生的思考、行動與觀察三元組完整記錄 |
 
 ## Further Reading｜延伸閱讀
 
 - [Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models (arXiv:2210.03629)](https://arxiv.org/abs/2210.03629) ——ReAct 權威經典奠基論文
 - [Anthropic, Building Effective Agents (Dec 2024)](https://www.anthropic.com/research/building-effective-agents) ——何時該採用 Agent 迴圈 vs 工作流程
 - [Letta, Rearchitecting the Agent Loop](https://www.letta.com/blog/letta-v1-agent) ——MemGPT 迴圈的原生推論改寫版
-- [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview) ——2026 年的 harness 架構樣貌
+- [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview) ——2026 年的執行環境架構樣貌
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/) ——Handoffs、Guardrails、Sessions 與 Tracing 官方文件

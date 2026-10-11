@@ -124,7 +124,7 @@ server_name.startswith("com.example")
 
 Registry API 會在每筆伺服器記錄旁附帶一個回應層級的 `_meta` 物件。由註冊表官方所管理的系統欄位存放於 `_meta["io.modelcontextprotocol.registry/official"]` 底下。將回應層級的 `_meta` 物件傳入准入控制器，並讀取 `_meta["io.modelcontextprotocol.registry/official"].status`。直屬的 `_meta.status` 數值並非官方標準線路格式。切勿將回應層級中繼資料與發布記錄本身的內部 `_meta` 互相混淆。其狀態包含：
 
-- `active`：預設對外暴露，合乎本機准入資格；
+- `active`：預設會回傳，且符合本機准入資格；
 - `deprecated`：依然可被發現但附帶警告，不再適合自動化呼叫；
 - `deleted`：自預設清單中隱藏，但歷史記錄依然能透過已刪除或增量檢視端點存取。
 

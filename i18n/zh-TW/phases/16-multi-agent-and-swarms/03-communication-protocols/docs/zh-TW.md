@@ -860,7 +860,7 @@ class TaskManager {
   }
 }
 ```
-這完整實現了真實的 A2A 任務生命週期：`TASK_STATE_SUBMITTED`、`TASK_STATE_WORKING`、`TASK_STATE_INPUT_REQUIRED`，隨後邁入終端終止狀態。處理常式採用非同步生成器（async generator），逐步產出 `statusUpdate` 與 `artifactUpdate` 事件，這正是 SSE 串流在底層所承載的相同事件封裝。
+這完整實作了真實的 A2A 任務生命週期：`TASK_STATE_SUBMITTED`、`TASK_STATE_WORKING`、`TASK_STATE_INPUT_REQUIRED`，隨後邁入終端終止狀態。處理常式採用非同步生成器（async generator），逐步產出 `statusUpdate` 與 `artifactUpdate` 事件，這正是 SSE 串流在底層所承載的相同事件封裝。
 
 ### 步驟四：ACP 風格的稽核軌跡
 
@@ -1450,11 +1450,11 @@ graph TD
 
 1. **多跳任務委派（Multi-hop task delegation）。** 擴充 `TaskManager`，使 agent 處理常式能夠將子任務進一步委派給其他 agent。研究員接收到任務後，將「搜尋」與「摘要」兩個子任務分別委派給兩個專家 agent，等待兩者皆順利完成後，再將雙方成果整合成自身的工件。
 
-2. **串流稽核軌跡（Streaming audit trail）。** 改造 `AuditableRunner` 使其支援串流模式。與其等待完整結果出爐，不如在軌跡條目逐一生成時即時產出 `AuditEntry` 更新。利用能夠產出稽核快照的非同步生成器加以實現。
+2. **串流稽核軌跡（Streaming audit trail）。** 改造 `AuditableRunner` 使其支援串流模式。與其等待完整結果出爐，不如在軌跡條目逐一生成時即時產出 `AuditEntry` 更新。利用能夠產出稽核快照的非同步生成器加以實作。
 
 3. **DID 金鑰輪轉（DID rotation）。** 為 `IdentityRegistry` 增加金鑰輪轉機制。agent 應當能夠在發布包含新金鑰的新版 DID 文件的同時，保留 `previousDid` 歷史參照。驗證器在寬限期內應同時承認當前金鑰與前一版本金鑰的數位簽章。
 
-4. **動態協定協商（Protocol negotiation）。** 實現 ANP 的元協定理念。讓兩個 agent 透過交換 `protocolNegotiation` 訊息提議各自支援的格式（例如「我能講 JSON-RPC」對決「我偏好 REST」）。在最多 3 輪交涉內，雙方達成格式共識或宣告逾時。達成共識的格式將直接決定後續呼叫哪一個 `TaskManager` 或 `AuditableRunner`。
+4. **動態協定協商（Protocol negotiation）。** 實作 ANP 的元協定理念。讓兩個 agent 透過交換 `protocolNegotiation` 訊息提議各自支援的格式（例如「我能講 JSON-RPC」對決「我偏好 REST」）。在最多 3 輪交涉內，雙方達成格式共識或宣告逾時。達成共識的格式將直接決定後續呼叫哪一個 `TaskManager` 或 `AuditableRunner`。
 
 5. **受限速的服務發現（Rate-limited discovery）。** 建構一個 `RateLimitedRegistry` 包裝層，以可配置的 TTL 快取 Agent Card 查詢結果，並嚴格限制每個 agent 每秒能發起的發現請求上限。模擬 100 個 agent 在啟動時同時互相探索的驚群效應，並量化測量快取與限速所帶來的顯著改善成效。
 
@@ -1479,5 +1479,5 @@ graph TD
 - [Agent Network Protocol](https://github.com/agent-network-protocol/AgentNetworkProtocol) -- 基於 DID 的去中心化身分、E2EE 與元協定動態協商
 - [Model Context Protocol docs](https://modelcontextprotocol.io/) -- Anthropic 的 MCP 規格（詳見 Phase 13）
 - [W3C Decentralized Identifiers](https://www.w3.org/TR/did-core/) -- 支撐 ANP 底層架構的身分驗證標準
-- [RFC 9180 (HPKE)](https://www.rfc-editor.org/rfc/rfc9180) -- ANP 用於實現端對端加密（E2EE）的核心加密演算法標準
+- [RFC 9180 (HPKE)](https://www.rfc-editor.org/rfc/rfc9180) -- ANP 用於實作端對端加密（E2EE）的核心加密演算法標準
 - [FIPA Agent Communication Language](http://www.fipa.org/specs/fipa00061/SC00061G.html) -- 當代 agent 通訊協定的經典學術前身

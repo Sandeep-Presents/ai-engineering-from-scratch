@@ -52,7 +52,7 @@
 - `gen_ai.input.messages`
 - `gen_ai.output.messages`
 
-正式環境推薦架構：將原始對話內容安全存放在外部儲存庫（如 S3 或內部日誌庫），而在 Spans 內部僅記錄指標參照（存取 ID，而非散文文字）。這正是將第 27 課所講述的內容投毒防禦整合進可觀測性體系的具體實踐。
+正式環境推薦架構：將原始對話內容安全存放在外部儲存庫（如 S3 或內部記錄儲存庫），而在 Spans 上僅記錄參照 ID，而非原文內容。這正是將第 27 課所講述的內容投毒防禦整合進可觀測性體系的具體實踐。
 
 ### 規範穩定性（Stability）
 
@@ -106,7 +106,7 @@ python3 code/main.py
 ## Exercises｜練習
 
 1. 為第 01 課的 ReAct 迴圈注入 `invoke_agent`（INTERNAL 類型）與逐工具 Spans，並將其發送至本地 Jaeger 實例。
-2. 實作「僅記錄指標參照」的內容擷取模式：將 Prompt 寫入 SQLite，而在 Span 屬性中僅保留該資料列的唯一 ID。
+2. 實作「僅保留參照 ID」的內容擷取模式：將 Prompt 寫入 SQLite，而在 Span 屬性中僅保留該資料列的唯一 ID。
 3. 研讀規範中關於 `gen_ai.data_source.id` 的定義，並將其接入第 09 課的 Mem0 混合檢索中。
 4. 設定 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental`，驗證你的屬性名稱在通過 Collector 時不會被意外重新命名。
 5. 打造一個監控看板：僅依 GenAI 屬性，分析「哪些工具呼叫錯誤與哪些模型相關」。

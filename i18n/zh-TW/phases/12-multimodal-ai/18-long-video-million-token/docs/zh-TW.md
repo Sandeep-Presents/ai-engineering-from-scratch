@@ -1,6 +1,6 @@
 # 百萬 Token Context 下的長視訊理解（Long-Video Understanding at Million-Token Context）
 
-> 一段長度為 1 小時、以每秒 24 幀錄製的 4K 影片，經過切片與向量化後，產生的 token 總量高達約 6,000 萬個。一段長達 2 小時的 Podcast 語音轉錄文字僅有 30,000 個 token。即便套用極致激進的空間池化，一部完整的藍光長片依然需要消化數十萬個視覺 token。Google 的 Gemini 1.5（2024 年 3 月）以千萬級（10M）token context 視窗揭開了這個時代的序幕，並在長達數小時的視訊中實現了近乎完美的「大海撈針（Needle-in-a-Haystack）」召回率。LWM（Liu 等人，2024 年 2 月）展示了環形注意力（Ring Attention）的水平擴展路徑；LongVILA 與 Video-XL 進一步推升了長視訊吞吐極限；而 VideoAgent 則開創性地將暴力長視窗替換為 Agent 式的檢索架構。每條技術路徑各自在算力消耗、召回準確度與系統工程難度之間做出了截然不同的抉擇。本課將這幾大流派並排對比、深度剖析。
+> 一段長度為 1 小時、以每秒 24 幀錄製的 4K 影片，經過切片與向量化後，產生的 token 總量高達約 6,000 萬個。一段長達 2 小時的 Podcast 語音轉錄文字僅有 30,000 個 token。即便套用極致激進的空間池化，一部完整的藍光長片依然需要消化數十萬個視覺 token。Google 的 Gemini 1.5（2024 年 3 月）以千萬級（10M）token context 視窗揭開了這個時代的序幕，並在長達數小時的視訊中達到近乎完美的「大海撈針（Needle-in-a-Haystack）」召回率。LWM（Liu 等人，2024 年 2 月）展示了環形注意力（Ring Attention）的水平擴展路徑；LongVILA 與 Video-XL 進一步推升了長視訊吞吐極限；而 VideoAgent 則開創性地將暴力長視窗替換為 Agent 式的檢索架構。每條技術路徑各自在算力消耗、召回準確度與系統工程難度之間做出了截然不同的抉擇。本課將這幾大流派並排對比、深度剖析。
 
 **Type:** Build
 **Languages:** Python (stdlib, needle-in-haystack simulator + agentic-retrieval router)
@@ -127,7 +127,7 @@ mm-video-token-budget
 | 術語 | 常見俗稱 | 實際意義 |
 |------|-----------------|------------------------|
 | Brute context | 「暴力硬塞超長視窗」 | 將模型 context 視窗擴展至數百萬甚至千萬級，在單次前向中暴力消化全量輸入 |
-| Ring attention | 「環形分散式注意力」 | 將超長序列切片分發至環狀排列的計算裝置，透過非同步特徵輪轉實現線性記憶體擴展 |
+| Ring attention | 「環形分散式注意力」 | 將超長序列切片分發至環狀排列的計算裝置，透過非同步特徵輪轉達成線性記憶體擴展 |
 | Token compression | 「視覺摘要壓縮 Token」 | 在影格送入 LLM 之前，利用可學習壓縮器將整個短片段濃縮為單一高階摘要 token |
 | Needle-in-haystack | 「大海撈針基準測試」 | 在超長輸入的隨機未知位置注入細微標記，檢驗模型是否具備精準定位回憶能力的測試 |
 | Agentic retrieval | 「視訊檢索 agent」 | 由主控 LLM 擔任規劃大腦，呼叫專用檢索工具按需定位關鍵片段再進行高畫質深度解析 |

@@ -1,6 +1,6 @@
 # 視覺 Transformer 與 Patch-Token 原語（Vision Transformers and the Patch-Token Primitive）
 
-> 在進行任何多模態（multimodal）處理之前，影像必須先轉化為 Transformer 能夠消化處理的 token 序列。2020 年的 ViT 論文以 16×16 像素 patch、線性投影以及 position embedding 解答了這個問題。五年過去，在 2026 年的每個尖端模型（例如具備 2576px 原生解析度的 Claude Opus 4.7、Gemini 3.1 Pro、Qwen3.5-Omni）依然以這種方式啟動——編碼器雖已從 ViT 演進至 DINOv2 再到 SigLIP 2，並引入了暫存器 token，位置編碼機制也進化為 2D-RoPE，但這個底層原語依然屹立不搖。本課帶你端到端剖析 patch-token 管線，並以純 Python 標準函式庫實作，為 Phase 12 後續課程建立堅實具體的「視覺 token」心智模型。
+> 在進行任何多模態（multimodal）處理之前，影像必須先轉化為 Transformer 能處理的 token 序列。2020 年的 ViT 論文以 16×16 像素 patch、線性投影以及 position embedding 解答了這個問題。五年過去，在 2026 年的每個尖端模型（例如具備 2576px 原生解析度的 Claude Opus 4.7、Gemini 3.1 Pro、Qwen3.5-Omni）依然以這種方式啟動——編碼器雖已從 ViT 演進至 DINOv2 再到 SigLIP 2，並引入了暫存器 token，位置編碼機制也進化為 2D-RoPE，但這個底層原語依然屹立不搖。本課帶你端到端剖析 patch-token 管線，並以純 Python 標準函式庫實作，為 Phase 12 後續課程建立堅實具體的「視覺 token」心智模型。
 
 **Type:** Learn
 **Languages:** Python (stdlib, patch tokenizer + geometry calculator)
@@ -124,7 +124,7 @@ image-patch-tokens
 
 1. 計算 Qwen2.5-VL 在原生 1280×720 解析度下搭配 patch 尺寸 14 的 patch-token 序列長度。這與僅使用 CLS 的表徵方式相比差異為何？
 
-2. 一個 1080p 畫面（1920×1080）在 patch 14 下會產生多少個 token？在每秒 30 幀的 5 分鐘影片中，總共會產生多少視覺 token？池化、畫面抽樣與 token 合併這三種手段中，哪一種能為你節省最多運算成本？
+2. 一個 1080p 畫面（1920×1080）在 patch 14 下會產生多少個 token？在每秒 30 個影格的 5 分鐘影片中，總共會產生多少視覺 token？池化、畫面抽樣與 token 合併這三種手段中，哪一種能為你節省最多運算成本？
 
 3. 以純 Python 實作針對 patch token 的平均池化。驗證在 DINOv2 輸出的 196 個 token 上進行平均池化的結果，與該模型在請求池化 embedding 時呼叫 `forward` 所回傳的數值完全一致。
 

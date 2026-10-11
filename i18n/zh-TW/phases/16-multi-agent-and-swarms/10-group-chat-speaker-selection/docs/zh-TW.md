@@ -1,6 +1,6 @@
-# 群組對話與發言人選取機制（Group Chat and Speaker Selection）
+# 群組對話與說話人選取機制（Group Chat and Speaker Selection）
 
-> 共享對話編排將 N 個 Agent 置於同一個對話空間中；由發言人選取函式（LLM、循環輪替（round-robin）或客製化規則）動態決定下一棒由誰發言。這正是湧現式多 Agent 對話的原型代表——各 Agent 在靜態圖中完全不知道自己的固定角色，它們只是單純對共享訊息池做出自發反應。AutoGen GroupChat 與 AG2 GroupChat 是此類架構的經典參考實作：AutoGen v0.2 的 GroupChat 語意在 AG2 fork 中被完整保留；而 AutoGen v0.4 則將其全面重寫為事件驅動的 Actor 模型。微軟隨後於 2026 年 2 月將 AutoGen 轉入維護模式，並將其與 Semantic Kernel 深度整併為微軟 Agent Framework（2026 年 2 月釋出 RC 版）。GroupChat 原語在 AG2 與微軟 Agent Framework 中皆完整延續——一次搞懂，處處通用。
+> 共享對話編排將 N 個 Agent 置於同一個對話空間中；由說話人選取函式（LLM、循環輪替（round-robin）或客製化規則）動態決定下一棒由誰發言。這正是湧現式多 Agent 對話的原型代表——各 Agent 在靜態圖中完全不知道自己的固定角色，它們只是單純對共享訊息池做出自發反應。AutoGen GroupChat 與 AG2 GroupChat 是此類架構的經典參考實作：AutoGen v0.2 的 GroupChat 語意在 AG2 fork 中被完整保留；而 AutoGen v0.4 則將其全面重寫為事件驅動的 Actor 模型。微軟隨後於 2026 年 2 月將 AutoGen 轉入維護模式，並將其與 Semantic Kernel 深度整併為微軟 Agent Framework（2026 年 2 月釋出 RC 版）。GroupChat 原語在 AG2 與微軟 Agent Framework 中皆完整延續——一次搞懂，處處通用。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -32,11 +32,11 @@
 
 每個 Agent 皆能看見訊息池中的每一則歷史發言。在每一輪對話中，系統會呼叫選取器函式（Selector），由其裁決下一棒發言權歸屬於誰。
 
-### 三大發言人選取器風格
+### 三大說話人選取器風格
 
 **循環輪替（round-robin）。** 固定的順序循環。具備完全的確定性。計算開銷隨 Agent 數量呈線性擴展，但完全無視當前的語意上下文——即便當前討論的主題是法務合規審查，循環輪替依然會刻板地將話語權交給工程師。
 
-**LLM 動態選取（LLM-selected）。** 發起一次專門的 LLM 呼叫，由其通讀最近的訊息池並智慧推選出最合適的下一位發言者。具備極佳的上下文感知能力，但延遲較高：每一輪實質發言皆必須額外疊加一次 LLM 決策開銷。此為 AutoGen 的預設模式。
+**LLM 動態選取（LLM-selected）。** 發起一次專門的 LLM 呼叫，由其通讀最近的訊息池並智慧推選出最合適的下一位說話人。具備極佳的上下文感知能力，但延遲較高：每一輪實質發言皆必須額外疊加一次 LLM 決策開銷。此為 AutoGen 的預設模式。
 
 **客製化混合規則（Custom）。** 封裝了任意自訂邏輯的 Python 函式。典型架構：以 LLM 動態選取為主，並輔以硬性兜底規則（例如「在工程師發言之後，下一棒強制必須交給驗證者」）。
 
@@ -96,7 +96,7 @@ swarm-speaker
 
 ## Build It｜動手實作
 
-`code/main.py` 透過 Python 標準函式庫從零實現了一個完整的 GroupChat 系統。內部協同三個 Agent（工程師、審查員、管理者），同時支援循環輪替與 LLM 模擬選取兩種風格，並配置了基於 `TERMINATE` 哨兵標記的優雅終止機制。
+`code/main.py` 透過 Python 標準函式庫從零實作了一個完整的 GroupChat 系統。內部協同三個 Agent（工程師、審查員、管理者），同時支援循環輪替與 LLM 模擬選取兩種風格，並配置了基於 `TERMINATE` 哨兵標記的優雅終止機制。
 
 展示程式會完整列印出兩種模式下的對話文字記錄，以及選取器在每一步的決策推理鏈條。
 
@@ -117,27 +117,27 @@ python3 code/main.py
 - **強制配置最大輪次上限。** 絕無例外。常規任務通常設定為 10-20 輪。
 - **監控發言平衡度指標。** 追蹤各 Agent 的發言輪次；一旦出現嚴重傾斜立即告警。
 - **明確的終止哨兵機制。** 支援 `TERMINATE` 標記或配備專屬的驗證者 Agent。
-- **引入投影視圖或受限記憶體。** 在對話超過約 10 則訊息後，強烈建議為各 Agent 僅提供剪裁後的局部視圖，防止上下文無界膨脹。
+- **引入投影視圖或受限記憶。** 在對話超過約 10 則訊息後，強烈建議為各 Agent 僅提供剪裁後的局部視圖，防止上下文無界膨脹。
 - **選取器全鏈路日誌記錄。** 針對 LLM 選取模式，必須完整記錄選取器的輸入 prompt 與其最終決策。否則事後排查除錯將徹底淪為不可能。
 
 ## Exercises｜練習
 
 1. 執行 `code/main.py`。對比循環輪替模式與 LLM 選取模式下的對話軌跡。在兩種模式下分別是哪位 Agent 佔據了主導發言地位？
 2. 在選取器中加入「單一 Agent 最大發言次數限制」規則。觀察這對最終的對話品質與流暢度產生了何種實質影響？
-3. 實現基於目標達成的終止條件：當審查員回傳「approved」字眼時自動結束對話。在多大比例的測試中，該機制能在觸及輪次上限前順利提前結束？
+3. 實作基於目標達成的終止條件：當審查員回傳「approved」字眼時自動結束對話。在多大比例的測試中，該機制能在觸及輪次上限前順利提前結束？
 4. 閱讀 AutoGen 官方 GroupChat 穩定版文件 (https://microsoft.github.io/autogen/stable/user-guide/core-user-guide/design-patterns/group-chat.html)。指出 `GroupChatManager` 預設採用的選取器類型。
-5. 閱讀 AG2 社群儲存庫 (https://github.com/ag2ai/ag2)，並將其 v0.2 GroupChat 架構與 v0.4 事件驅動版本進行深度對比。v0.4 究竟在哪些具體維度上（吞吐量、容錯性、可組合性）實現了實質架構躍升？
+5. 閱讀 AG2 社群儲存庫 (https://github.com/ag2ai/ag2)，並將其 v0.2 GroupChat 架構與 v0.4 事件驅動版本進行深度對比。v0.4 究竟新增了哪些架構能力（例如吞吐量、容錯性、可組合性）？
 
 ## Key Terms｜關鍵術語
 
 | 術語 | 常見說法 | 實際意義 |
 |------|----------|----------|
 | GroupChat | 「agent 都在同一個聊天室」 | 共享訊息池加上選取器函式，是 AutoGen／AG2 的基本元件。 |
-| 發言者選取（Speaker selection） | 「接下來誰發言」 | 決定下一個發言 agent 的函式，可採循環輪替、由 LLM 選取或自訂方式。 |
+| 說話人選取（Speaker selection） | 「接下來誰發言」 | 決定下一個發言 agent 的函式，可採循環輪替、由 LLM 選取或自訂方式。 |
 | GroupChatManager | 「會議主持人」 | AutoGen 元件，負責管理選取器並逐輪執行對話。 |
 | ConversableAgent | 「基礎 agent」 | AutoGen 基底類別，能傳送與接收訊息的 agent。 |
 | 終止 token（Termination token） | 「停止用語」 | 結束對話的哨兵字串（通常是 `TERMINATE`）。 |
-| 發言者壟斷（Hot speaker） | 「一個 agent 獨占發言」 | 選取器不斷挑選同一個 agent 的失效模式。 |
+| 說話人壟斷（Hot speaker） | 「一個 agent 獨占發言」 | 選取器不斷挑選同一個 agent 的失效模式。 |
 | 上下文膨脹（Context bloat） | 「訊息池不斷變大」 | 每個 agent 都讀取所有先前訊息，因此上下文隨輪次增加。 |
 | 投影視圖（Projection） | 「限縮範圍的視圖」 | 依角色提供的共享訊息池視圖，以避免上下文膨脹。 |
 

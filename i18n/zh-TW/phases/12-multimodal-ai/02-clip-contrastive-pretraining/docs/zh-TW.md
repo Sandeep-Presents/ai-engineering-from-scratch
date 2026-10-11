@@ -1,6 +1,6 @@
 # CLIP 與對比式視覺語言預訓練（CLIP and Contrastive Vision-Language Pretraining）
 
-> OpenAI 的 CLIP（2021）驗證了一個足以引領往後五年的宏大概念：僅利用網路上雜訊紛呈的圖文配對與對比損失函式，即可將影像編碼器與文字編碼器對齊於同一向量空間。零監督標籤、4 億組圖文配對。由此產生的 embedding 空間能執行零樣本分類（zero-shot classification）、圖文跨模態檢索，並作為視覺塔無縫接入 2026 年的各大 VLM。SigLIP 2（2025）進一步以 sigmoid 取代 softmax，以更低的運算成本超越了 CLIP 的擴展規模。本課將從 InfoNCE 梳理至 sigmoid 成對損失的完整數學推導，並以純 Python 標準函式庫實作核心訓練步驟。
+> OpenAI 的 CLIP（2021）驗證了一個足以引領往後五年的宏大概念：僅利用網路上雜訊紛呈的圖文配對與對比損失函式，即可將影像編碼器與文字編碼器對齊於同一向量空間。完全不使用監督式標籤，4 億組圖文配對。由此產生的 embedding 空間能執行零樣本分類（zero-shot classification）、圖文跨模態檢索，並作為視覺塔無縫接入 2026 年的各大 VLM。SigLIP 2（2025）進一步以 sigmoid 取代 softmax，以更低的運算成本超越了 CLIP 的擴展規模。本課將從 InfoNCE 梳理至 sigmoid 成對損失的完整數學推導，並以純 Python 標準函式庫實作核心訓練步驟。
 
 **Type:** Build
 **Languages:** Python (stdlib, InfoNCE + sigmoid loss implementations)
@@ -45,7 +45,7 @@ S[i, j] = cos(f(x_i), g(y_j)) / tau
 
 ### InfoNCE 損失函式
 
-CLIP 在相似度矩陣的列（row）與行（column）上套用對稱的交叉熵損失：
+CLIP 在相似度矩陣的列（row）與欄（column）上套用對稱的交叉熵損失：
 
 ```
 loss_i2t = CE(S, labels=identity)     # each image's positive is its own caption
@@ -99,7 +99,7 @@ SigLIP 2（2025）帶來了關鍵進展：
 
 ### ALIGN、BASIC、OpenCLIP 與 EVA-CLIP
 
-ALIGN（Google，2021）：沿用與 CLIP 相同的思路，擴展至 18 億圖文配對規模，且容忍 90% 的雜訊，證明了雜訊資料的規模化潛力。OpenCLIP（LAION）：在 LAION-400M / 2B 上成功開源重現 CLIP，提供多種尺寸的 model checkpoint，是目前最受歡迎的開源社群權重。EVA-CLIP：以遮蓋影像建模（MIM）權重進行初始化，成為 VLM 的強悍骨幹。BASIC：Google 融合 CLIP 與 ALIGN 的超大規模混合架構。它們皆屬同一架構家族，核心差異在於資料規模與超參數調校。
+ALIGN（Google，2021）：沿用與 CLIP 相同的思路，擴展至 18 億圖文配對規模，其中 90% 帶有雜訊，證明了雜訊資料的規模化潛力。OpenCLIP（LAION）：在 LAION-400M / 2B 上成功開源重現 CLIP，提供多種尺寸的 model checkpoint，是目前最受歡迎的開源社群權重。EVA-CLIP：以遮蓋影像建模（MIM）權重進行初始化，成為 VLM 的強悍骨幹。BASIC：Google 融合 CLIP 與 ALIGN 的超大規模混合架構。它們皆屬同一架構家族，核心差異在於資料規模與超參數調校。
 
 ### 零樣本分類的效能天花板
 
@@ -122,7 +122,7 @@ multimodal-fusion
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-clip-zero-shot.md`。給定一組影像檔案路徑與目標類別清單，它將依據 CLIP 模板自動建構文字 prompt，利用指定模型權重（例如 `openai/clip-vit-large-patch14`）抽取雙向 embedding，並輸出 Top-1 與 Top-5 預測類別及相似度分數。該技能會嚴謹回絕任何未列於候選清單中的無根據推測。
+本課產出 `outputs/skill-clip-zero-shot.md`。給定一組影像檔案路徑與目標類別清單，它將依據 CLIP 模板自動建構文字 prompt，利用指定模型權重（例如 `openai/clip-vit-large-patch14`）抽取雙向 embedding，並輸出 Top-1 與 Top-5 預測類別及相似度分數。該技能不會對 prompt 清單中未列出的類別作出主張。
 
 ## Exercises｜練習
 

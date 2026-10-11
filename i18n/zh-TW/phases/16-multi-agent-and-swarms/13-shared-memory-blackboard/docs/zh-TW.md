@@ -1,6 +1,6 @@
-# 共享記憶體與黑板架構模式（Shared Memory and Blackboard Patterns）
+# 共享記憶與黑板架構模式（Shared Memory and Blackboard Patterns）
 
-> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一具有狀態的部分——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。典型失效模式當屬**記憶體污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，使整個系統的準確率逐漸下降——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實現這兩種拓撲結構、人為注入記憶體污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
+> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一具有狀態的部分——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。典型失效模式當屬**記憶污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，使整個系統的準確率逐漸下降——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實作這兩種拓撲結構、人為注入記憶污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `threading`)
@@ -9,11 +9,11 @@
 
 ## Problem｜問題
 
-多 Agent 系統必須提供一處供各 agent 共享事實的空間。最直觀的粗暴解法是「在訊息中攜帶一切上下文」——但這只不過是用沉重的記憶體複製開銷重新發明了低劣的共享狀態。另一種做法是「為全員提供一份全域日誌」——然而全域日誌會無界膨脹，且極易引發全域記憶體污染。第三種做法則是「為每個 Agent 剪裁專屬的投影視圖」——具備極佳的水平擴展性，但需要前期嚴謹的結構描述設計。
+多 Agent 系統必須提供一處供各 agent 共享事實的空間。最直接的做法是「在訊息中攜帶一切上下文」——但這會因額外的上下文複製開銷而重新發明共享狀態。另一種做法是「為全員提供一份全域紀錄」——然而全域紀錄會無界膨脹，且極易引發全域記憶污染。第三種做法則是「為每個 Agent 剪裁專屬的投影視圖」——具備極佳的水平擴展性，但需要前期嚴謹的結構描述設計。
 
 當其中某個 Agent 產生了幻覺、並將該虛假陳述寫入共享狀態時，所有讀取該狀態的下游 Agent 都會自動將該幻覺奉為既定事實。當人類在最終報告中察覺不對勁時，推理鏈條早已深入展開了五個層級，而罪魁禍首往往是最初寫入的第三則微小訊息。在多 Agent 系統中，排查這種準確率的慢性衰退，遠比除錯一次直接當機崩潰要艱難得多。
 
-這正是所謂的記憶體污染。它是 MAST 失效分類體系（Cemri 等人，arXiv:2503.13657）中被文獻記錄最為詳盡的第二大故障家族，且具備嚴重的結構性特質：任何缺乏資料溯源（Provenance）中繼資料與唯讀客觀驗證者的共享記憶體設計，遲早都會不可避免地遭遇此類污染。
+這正是所謂的記憶污染。它是 MAST 失效分類體系（Cemri 等人，arXiv:2503.13657）中被文獻記錄最為詳盡的第二大故障家族，且具備嚴重的結構性特質：任何缺乏資料溯源（Provenance）中繼資料與唯讀客觀驗證者的共享記憶設計，遲早都會不可避免地遭遇此類污染。
 
 ## Concept｜核心概念
 
@@ -48,7 +48,7 @@ agent-C ──pub────▶ │                  │ ──▶ agent-F (sub
 
 在真實正式環境中，系統通常採用混合編制：頂層規劃層採用小型全域訊息池，而底層各工作者群體則全面接入黑板主題事件網格。
 
-### 記憶體污染（Memory Poisoning）的一幕真實縮影
+### 記憶污染（Memory Poisoning）的一幕真實縮影
 
 設想三位協同展開深度科研調研任務的 Agent：Agent A 是資料抓取員；Agent B 是摘要提煉員；Agent C 是戰略分析師。
 
@@ -107,9 +107,9 @@ swarm-blackboard
 
 ## Build It｜動手實作
 
-`code/main.py` 透過純 Python 標準函式庫完整實作了這兩種主流拓撲結構，並內建了一個玩具級的記憶體污染攻擊模擬與相應的三大防禦緩解體系：
+`code/main.py` 透過純 Python 標準函式庫完整實作了這兩種主流拓撲結構，並內建了一個玩具級的記憶污染攻擊模擬與相應的三大防禦緩解體系：
 
-- `MessagePool`——具備執行緒安全保證、僅限附加且支援全域讀取的高效日誌。
+- `MessagePool`——具備執行緒安全保證、僅限附加且支援全域讀取的高效紀錄。
 - `Blackboard`——基於主題索引、支援個別 Agent 獨立訂閱的發布／訂閱中樞。
 - `ProvenanceEntry`——每一次寫入皆強制記錄 (writer, timestamp, prompt_hash, source_uri) 等溯源中繼資料。
 - `PoisoningScenario`——模擬三位 Agent 展開深度科研，其中 Agent A 因幻覺遺漏小數點並輸出錯誤數字。
@@ -127,14 +127,14 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-`outputs/skill-memory-auditor.md` 是一項專業的架構審查 skill，能全面稽核任何多 Agent 系統的共享記憶體架構：評估其資料溯源完整性、版本控制嚴謹度，以及驗證者物理隔離強度。在將任何多 Agent 架構推向正式環境之前，務必使用該工具進行全面安全盤點。
+`outputs/skill-memory-auditor.md` 是一項專業的架構審查 skill，能全面稽核任何多 Agent 系統的共享記憶架構：評估其資料溯源完整性、版本控制嚴謹度，以及驗證者物理隔離強度。在將任何多 Agent 架構推向正式環境之前，務必使用該工具進行全面安全盤點。
 
 ## Ship It｜交付成果
 
-任何共享記憶體系統推向正式環境前的必備檢查清單：
+任何共享記憶系統推向正式環境前的必備檢查清單：
 
 - **每一次寫入皆強制綁定完整溯源中繼資料**：包含 `(writer, timestamp, prompt_hash, tool_calls_cited, source_uri)`。
-- **日誌強制維持「僅限附加」特性**。任何修訂皆必須表現為明確引用舊記錄的全新補充條目。
+- **紀錄必須維持「僅限附加」特性**。任何修訂皆必須表現為明確引用舊記錄的全新補充條目。
 - **至少部署一位具備獨立外部資料抓取權限的唯讀驗證者 Agent**。
 - **驗證者的警告輸出必須走獨立專屬通道**，堅決杜絕被重新灌回共享訊息池中。
 - **嚴密監控「修正覆蓋（supersessions）」佔總寫入的比例**——該比例的異常攀升，是底層系統浮現嚴重幻覺模式的早期前兆訊號。
@@ -143,7 +143,7 @@ python3 code/main.py
 
 1. 執行 `code/main.py`。確認情境一是否順利復現了幻覺的擴散傳播，以及情境二中的驗證者是否精準攔截了該錯誤。
 2. 在情境中注入第二處幻覺：讓 Agent B 憑空捏造一個資料集規模數字。驗證者是否能在無需任何人工專屬調優的前提下，同時揪出這兩處獨立的矛盾？
-3. 將全域訊息池切換為帶有特定主題分區（`prices`、`summaries`、`analyses`）的黑板架構。分析主題分區能夠讓哪一類記憶體污染變得更加難以得逞？又對哪一類污染完全無能為力？
+3. 將全域訊息池切換為帶有特定主題分區（`prices`、`summaries`、`analyses`）的黑板架構。分析主題分區能夠讓哪一類記憶污染變得更加難以得逞？又對哪一類污染完全無能為力？
 4. 閱讀 Hayes-Roth 1985 年的奠基論文《A Blackboard Architecture for Control》。挑選兩項該論文中提出、但本課未深入展開的經典控制模式，思考 2026 年的現代系統能從中汲取何種工程養分。
 5. 閱讀 CA-MCP 論文（arXiv:2601.11595）。將其提出的「共享上下文儲存庫（Shared Context Store）」映射至 `code/main.py` 中的 MessagePool 或 Blackboard 類別。CA-MCP 在此基礎上額外追加了哪些關鍵原語？
 
@@ -151,10 +151,10 @@ python3 code/main.py
 
 | 術語 | 常見說法 | 實際意義 |
 |------|----------|----------|
-| 訊息池（Message pool） | 「共享聊天記錄」 | 每個 agent 都會讀取的僅追加日誌；完全透明，但擴展性差。 |
+| 訊息池（Message pool） | 「共享聊天記錄」 | 每個 agent 都會讀取的僅追加紀錄；完全透明，但擴展性差。 |
 | 黑板（Blackboard） | 「共享工作區」 | 以主題為索引的發布／訂閱機制；agent 訂閱相關主題，擴展性較好。 |
 | 來源追溯（Provenance） | 「誰寫了什麼」 | 每次寫入的中繼資料：寫入者、時間戳記、prompt 與來源。 |
-| 記憶體污染（Memory poisoning） | 「幻覺四處傳播」 | 一個 agent 的錯誤進入共享狀態，下游 agent 接著把它當成事實。 |
+| 記憶污染（Memory poisoning） | 「幻覺四處傳播」 | 一個 agent 的錯誤進入共享狀態，下游 agent 接著把它當成事實。 |
 | 僅追加（Append-only） | 「不就地更新」 | 修正會以新項目取代舊項目，保留稽核軌跡。 |
 | 唯讀驗證者（Unwritable verifier） | 「獨立稽核者」 | 只讀取資料、重新抓取來源並標示不一致處的 agent。 |
 | 投影視圖（Projection） | 「限縮範圍的視圖」 | 依全域狀態計算出的個別 agent 視圖；LangGraph reducers 是典型案例。 |
@@ -162,7 +162,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 分類；記憶體污染是協調失敗的子類型。
+- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 分類；記憶污染是協調失敗的子類型。
 - [CA-MCP — Context-Aware Multi-Server MCP](https://arxiv.org/abs/2601.11595) — 為協同 MCP 伺服器而設的共享上下文儲存庫。
 - [Matrix — decentralized multi-agent framework](https://arxiv.org/abs/2511.21686) — 以訊息佇列為基礎、沒有中央編排者的黑板架構。
 - [LangGraph state and reducers](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 正式環境中的個別 agent 投影模式。

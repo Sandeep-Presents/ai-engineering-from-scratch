@@ -1,6 +1,6 @@
 # 自動化驗收關卡
 
-> Agent 絕對沒有自己給自己的工作成果打勾標記完工的特權。自動化驗收關卡（Verification Gate）嚴格讀取範疇契約、回饋日誌、規則報告與 Git Diff，並回答一個單一核心問題：該任務是否在客觀上真正完工？若驗收關卡判定未通過，無論聊天視窗中的模型語言多麼動聽自信，該任務皆被堅決判定為未完工。
+> Agent 絕對沒有自己給自己的工作成果打勾標記完工的特權。自動化驗收關卡（Verification Gate）嚴格讀取範疇契約、回饋紀錄、規則報告與 Git Diff，並回答一個單一核心問題：該任務是否在客觀上真正完工？若驗收關卡判定未通過，無論聊天視窗中的模型語言多麼動聽自信，該任務皆被堅決判定為未完工。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -47,14 +47,14 @@ flowchart TD
 | 範疇檢查未包含任何絕對禁止寫入 | `scope_report.json` | block |
 | 範疇檢查未包含任何越界額外寫入 | `scope_report.json` | block 或 warn |
 | 所有阻斷級別規則檢查全數通過 | `rule_report.json` | block |
-| 回饋日誌中絕不存在 `null` 結束狀態碼 | `feedback_record.jsonl` | block |
+| 回饋紀錄中絕不存在 `null` 結束狀態碼 | `feedback_record.jsonl` | block |
 | 實際修改檔案與 `scope.allowed_files` 吻合 | 雙方交叉比對 | warn（警示） |
 
 `warn` 警示會在最終裁決中標註瑕疵；而任何一筆 `block` 阻斷則會徹底禁止輸出 `passed: true`。
 
 ### 確定性驗收，而非機率性評分
 
-驗收關卡面對完全相同的產物集合時，必須在每一次執行中產出百分之百相同的裁決結果。絕不允許在此處呼叫LLM 裁判。LLM 裁判專屬於後續的審核者階段（第 39 課）——負責定性程式碼品質與架構風格，而非裁決客觀任務狀態。
+驗收關卡面對完全相同的產物集合時，必須在每一次執行中產出百分之百相同的裁決結果。絕不允許在此處呼叫 LLM 裁判。LLM 裁判專屬於後續的審核者階段（第 39 課）——負責定性程式碼品質與架構風格，而非裁決客觀任務狀態。
 
 ### 單一報告路徑，確立唯一事實來源
 
@@ -93,7 +93,7 @@ python3 code/main.py
 
 **確定性檢查負責客觀事實，LLM 裁判僅負責定性語感**：Anthropic 於 2026 年提出的混合規範（Hybrid Norm）組合拳：可驗證的客觀依據（單元測試、結構描述檢查、結束狀態碼）回答「程式碼是否真正解決了問題？」；而 LLM 評分規準則回答「程式碼是否可讀、安全且符合程式風格？」。驗收關卡專職負責前者；審核 Agent（第 39 課）專職負責後者。兩者混為一談只會導致信號失真崩塌。
 
-**簽名覆寫日誌，而非 Slack 聊天紀錄**：任何人工覆寫皆必須在 `outputs/verification/overrides.jsonl` 中寫入一筆具備時間戳記、缺陷代號、覆寫理由、簽名人員與當前 HEAD Commit 的結構化日誌。執行環境堅決拒絕任何缺少簽名的口頭覆寫；審計追蹤直接納入 Git 版本控制。這是真正的覆寫政策與流於形式的覆寫表演之別。
+**簽名覆寫紀錄，而非 Slack 聊天紀錄**：任何人工覆寫皆必須在 `outputs/verification/overrides.jsonl` 中寫入一筆具備時間戳記、缺陷代號、覆寫理由、簽名人員與當前 HEAD Commit 的結構化紀錄。執行環境堅決拒絕任何缺少簽名的口頭覆寫；審計追蹤直接納入 Git 版本控制。這是真正的覆寫政策與流於形式的覆寫表演之別。
 
 **測試覆蓋率底線作為一等公民檢核項**：以 `coverage_report.json` 輸入 `coverage_floor` 檢查（預設 80%）。若實測覆蓋率低於底線、或相較於前次合併基準下降超過 1 個百分點，關卡直接宣告失敗。若缺乏該項防禦，Agent 在遭遇測試報錯時往往會悄悄「直接刪除報錯的單元測試」，導致驗收報告表面全綠、實質程式碼裸奔。
 
@@ -111,7 +111,7 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-verification-gate.md` 能為特定專案量身打造驗收關卡：規範哪些驗收指令需接入、哪些規則屬於阻斷級別、哪些範疇越界允許容忍，以及手動覆寫審計日誌該如何持久化儲存。
+`outputs/skill-verification-gate.md` 能為特定專案量身打造驗收關卡：規範哪些驗收指令需接入、哪些規則屬於阻斷級別、哪些範疇越界允許容忍，以及手動覆寫稽核紀錄該如何持久化儲存。
 
 ## Exercises｜練習
 
@@ -127,7 +127,7 @@ python3 code/main.py
 |---|---|---|
 | Verification gate | 「阻斷卡點」 | 基於各項工作台產物、產出客觀通關／阻斷裁決的確定性純函式 |
 | Block severity | 「強制阻斷缺陷」 | 徹底阻止輸出 `passed: true`、強制要求人類簽名覆寫的致命違規 |
-| Override log | 「特批放行日誌」 | 包含覆寫理由與操作者 ID、經 Git 追蹤且可供審計的簽名放行日誌 |
+| Override log | 「特批放行紀錄」 | 包含覆寫理由與操作者 ID、經 Git 追蹤且可供稽核的簽名放行紀錄 |
 | Acceptance command | 「驗收測試指令」 | 結束狀態碼為 0 即代表 `done` 之最高客觀事實的 Shell 指令 |
 | One report path | 「單一權威報告路徑」 | `outputs/verification/<task_id>.json`，供 CI 與人類共同讀取的最高事實來源 |
 
@@ -142,5 +142,5 @@ python3 code/main.py
 - [Guardrails AI x MLflow](https://guardrailsai.com/blog/guardrails-mlflow) ——確定性校驗器在 CI 中的落地實踐
 - Phase 14 · 27——Prompt 注入防禦（驗收關卡的對抗性孿生防禦）
 - Phase 14 · 36——本關卡所負責強制捍衛的範疇契約
-- Phase 14 · 37——本關卡所負責評分驗收的回饋日誌
+- Phase 14 · 37——本關卡所負責評分驗收的回饋紀錄
 - Phase 14 · 39——本關卡正式放行後所移交的審核 Agent

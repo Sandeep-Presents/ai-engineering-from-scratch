@@ -1,6 +1,6 @@
 # 人在迴圈中：先提議後確認寫入（Human-in-the-Loop: Propose-Then-Commit）
 
-> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆實現了完全相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻記載的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
+> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆採用相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻記載的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
 
 **Type:** Learn
 **Languages:** Python (stdlib, propose-then-commit state machine with idempotency)
@@ -32,9 +32,9 @@ Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是�
 
 ### 冪等性金鑰（Idempotency Key）
 
-若缺乏冪等性金鑰，短暫的網路抖動就可能導致一項已核准的動作被重複執行兩次。具體慘痛範例：使用者核准了「從帳戶 A 轉帳 100 美元至帳戶 B」。網路突然發生瞬斷。工作流程啟動重試。此時使用者雖然只核准了一次，轉帳操作卻被重複執行了兩次。冪等性金鑰將審查核准與單一、唯一的外部副作用牢牢綁定；第二次重試執行將直接視為無操作（no-op）並回傳前次結果。
+若缺乏冪等性金鑰，短暫的網路抖動就可能導致一項已核准的動作被重複執行兩次。具體慘痛範例：使用者核准了「從帳戶 A 轉帳 100 美元至帳戶 B」。網路突然發生瞬斷。工作流程啟動重試。此時使用者雖然只核准了一次，轉帳操作卻被重複執行了兩次。冪等性金鑰將審查核准與單一、唯一的外部副作用牢牢綁定；第二次重試執行將直接視為無操作（no-op）。
 
-這正是 Stripe 與 AWS API 在過去十年間廣泛採用的經典冪等架構。微軟 Agent Framework 官方文件明確指出，應當將該成熟模式直接沿用於 agent 的人工審查體系。
+這正是 Stripe 與 AWS API 採用的冪等模式。微軟 Agent Framework 官方文件明確指出，應當將該成熟模式直接沿用於 agent 的人工審查體系。
 
 ### 持久化：為什麼審查狀態能超越行程生命週期
 
@@ -72,7 +72,7 @@ mx-propose-then-commit
 
 ## Use It｜實際應用
 
-`code/main.py` 透過 Python 標準函式庫實現了一個先提議後確認寫入的狀態機。持久化儲存庫採用 JSON 檔案。冪等性金鑰由 (thread_id, action_signature) 的雜湊值派生。驅動程式模擬了三種經典情境：一次乾淨順暢的核准流程；一次在短暫故障後發起重試但保證不重複執行的流程；以及橡皮圖章式預設介面與質詢應答核對清單介面的實戰對比。
+`code/main.py` 透過 Python 標準函式庫實作了一個先提議後確認寫入的狀態機。持久化儲存庫採用 JSON 檔案。冪等性金鑰由 (thread_id, action_signature) 的雜湊值派生。驅動程式模擬了三種經典情境：一次乾淨順暢的核准流程；一次在短暫故障後發起重試但保證不重複執行的流程；以及橡皮圖章式預設介面與質詢應答核對清單介面的實戰對比。
 
 ## Ship It｜交付成果
 

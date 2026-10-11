@@ -325,7 +325,7 @@ python3 -m unittest discover tests -v
 
 - **Resource（資源）**：由 MCP 伺服器對外公開、具備唯一 URI 定址能力的內容資料資產。
 - **Prompt（Prompt 範本）**：由 MCP 伺服器對外公開、由使用者顯式手動觸發的對話訊息範本。
-- **Deterministic list（確定性清單）**：在相同請求輸入下，保證回傳項目成員與物理排列順序絕對穩定的探測結果。
+- **Deterministic list（確定性清單）**：在相同請求輸入下，保證回傳項目成員與排列順序絕對穩定的探測結果。
 - **`ttlMs`**：快取新鮮度存活時間，以毫秒為計量單位。
 - **`cacheScope`**：快取成果的共享邊界約束。
 - **`subscriptions/listen`**：長期存活的長回應請求，其串流僅定向推送通過顯式白名單過濾的變更通知。

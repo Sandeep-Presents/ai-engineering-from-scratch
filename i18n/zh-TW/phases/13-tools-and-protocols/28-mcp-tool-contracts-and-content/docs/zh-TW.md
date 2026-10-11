@@ -68,7 +68,7 @@ mcp-contract-pipeline
 
 輸出結構描述為選填項。然而，一旦伺服器對外發布了輸出結構描述，便代表其承諾在每一次完成的工具結果中，皆必須回傳符合該結構描述的 `structuredContent`，包含 `isError: true` 的失敗結果亦不例外。錯誤旗標僅負責標註業務執行成敗，絕不賦予伺服器擅自違反已發布輸出契約的豁免權。用戶端必須對回傳結果實施嚴格校驗，而非盲目信任描述元。
 
-### 結構化內容可為任意合法的 JSON 數值
+### 結構化內容可為任意合法的 JSON 值
 
 切勿將 `structuredContent` 死板地硬編碼為 Python 字典。它可以是：
 
@@ -435,7 +435,7 @@ Phase 13 總結專題需要一套能安全整併來自多台伺服器之工具�
 |---|---|
 | `inputSchema` | 定義工具可接收之參數結構的 JSON Schema 物件 |
 | `outputSchema` | 定義工具 `structuredContent` 回傳規格的選用性 JSON Schema |
-| `structuredContent` | 工具執行完成後所產出的任意合法 JSON 數值 |
+| `structuredContent` | 工具執行完成後所產出的任意合法 JSON 值 |
 | 內容區塊（Content block） | 包含純文字、圖片、音訊、資源連結或內嵌資源的內容區塊 |
 | `x-mcp-header` | 將純量參數同步對映至 Streamable HTTP 傳輸標頭的結構描述標註 |
 | 不透明游標（Opaque cursor） | 伺服器簽發的分頁 Token，用戶端不應解讀其值 |

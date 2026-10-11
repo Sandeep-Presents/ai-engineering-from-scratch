@@ -93,7 +93,7 @@ OTel spans 可直接匯出至：
 
 當 MCP 用戶端呼叫伺服器時，必須將 W3C 的 traceparent 標頭注入請求中。Streamable HTTP 傳輸層原生支援標準 HTTP 標頭。而在 stdio 傳輸模式下，由於缺乏原生 HTTP 標頭支援，規範的 2026 發展藍圖提到會在 JSON-RPC 呼叫中新增 `_meta.traceparent` 欄位。
 
-在該規格正式定案前：最佳實務是在每個請求的 `_meta` 字典中手動注入 traceparent。伺服器隨後在本地日誌中印出該 trace ID 進行關聯。
+在該功能推出前：最佳實務是在每個請求的 `_meta` 字典中手動注入 traceparent。伺服器隨後在本地日誌中印出該 trace ID 進行關聯。
 
 ### 觀測指標（Metrics）
 

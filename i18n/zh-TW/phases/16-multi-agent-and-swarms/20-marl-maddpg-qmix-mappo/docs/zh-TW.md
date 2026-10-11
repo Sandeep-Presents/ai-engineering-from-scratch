@@ -54,15 +54,15 @@ Q_tot(tau, a) = f(Q_1(tau_1, a_1), ..., Q_n(tau_n, a_n)),   df/dQ_i >= 0
 
 失效模式：單調性限制較強；有些任務的獎勵結構無法單調分解（例如某個 Agent 為團隊犧牲）。QTRAN、QPLEX 等擴充放寬了這個限制。
 
-### MAPPO（2022）——被忽視的預設基準
+### MAPPO（2022）——被忽視的預設基準模型
 
 Multi-Agent PPO：PPO 加上集中式價值函數。每個 Agent 有自己的策略；所有 Agent 共享（或各自擁有）能看到完整狀態的價值函數。Yu 等人（2022）在五個基準上比較 MAPPO 與 MADDPG、QMIX 及其擴充，發現：
 
-- MAPPO 在粒子世界、SMAC、Google 足球、Hanabi 與 MPE 上，能與 off-policy MARL 方法打平或勝過。
+- MAPPO 在粒子世界、SMAC、Google Research Football、Hanabi 與 MPE 上，能與 off-policy MARL 方法打平或勝過。
 - 所需的超參數調整很少。
 - 訓練穩定，跨隨機種子可重現。
 
-在這篇論文之前，學界低估了 on-policy MARL。到了 2026 年，MAPPO 是合作型 MARL 的預設基準；任何新方法都必須勝過它。
+在這篇論文之前，學界低估了 on-policy MARL。到了 2026 年，MAPPO 是合作型 MARL 的預設基準模型；任何新方法都必須勝過它。
 
 ### 為什麼 LLM Agent 工程師應該關心 MARL
 
@@ -106,12 +106,12 @@ sw-ctde
 `code/main.py` 在一個 2-Agent 合作網格世界中展示三種模式：
 
 - 環境：4x4 網格上有 2 個 Agent 和一顆獎勵 pellet。任一 Agent 抵達 pellet 時獎勵為 1，任務結束。
-- `IndependentAgents`——每個 Agent 把其他 Agent 當成環境的一部分。作為基準。
+- `IndependentAgents`——每個 Agent 把其他 Agent 當成環境的一部分，作為基準模型。
 - `MADDPGStyle`——集中式 Critic 計算聯合價值；Actor 策略據此更新。腳本化的策略改進。
 - `QMIXStyle`——配備單調混合器的價值分解。
-- `MAPPOStyle`——集中式價值函數；各 Agent 的策略對照共享基準更新。
+- `MAPPOStyle`——集中式價值函數；各 Agent 的策略依據共享基準函數更新。
 
-四種版本都在相同的 episode 上執行，並回報平均抵達目標的步數。CTDE 變體收斂到的路徑比獨立基準短。
+四種版本都在相同的 episode 上執行，並回報平均抵達目標的步數。CTDE 變體收斂到的路徑比獨立基準模型短。
 
 執行指令：
 
@@ -129,7 +129,7 @@ python3 code/main.py
 
 MARL 在正式環境中並不常見。若要使用：
 
-- **從 MAPPO 開始。** 2022 年的論文確立了它作為基準；先重現它，可省下追逐花俏方法的時間。
+- **從 MAPPO 開始。** 2022 年的論文確立了它作為基準模型；先重現它，可省下追逐花俏方法的時間。
 - **記錄每個 Agent 的觀測與動作串流。** 沒有逐 Agent 的追蹤，MARL 幾乎無法除錯。
 - **訓練程式與執行程式分開。** CTDE 是一種紀律；確保執行路徑只能看到 `o_i`。
 - **獎勵塑形（reward shaping）警示。** MARL 對獎勵設計很敏感。獎勵塑形中只要有一個協調漏洞，Agent 就會學會利用它。請做對抗測試。
@@ -151,7 +151,7 @@ MARL 在正式環境中並不常見。若要使用：
 | CTDE | 集中訓練、分散執行 | 訓練時使用全域資訊；部署時使用本地策略。 |
 | MADDPG | 多 Agent DDPG | 採用 CTDE；每個 Agent 的 Critic 能看到所有觀測與動作。 |
 | QMIX | 價值分解 | 對各 Agent 的 Q 值做單調混合。適用於合作。 |
-| MAPPO | 多 Agent PPO | 具集中式價值函數的 PPO。2026 年的預設基準。 |
+| MAPPO | 多 Agent PPO | 具集中式價值函數的 PPO。2026 年的預設基準模型。 |
 | 價值分解 | 個別 Q 值的加總 | 聯合 Q 值表示為各 Agent Q 值的單調函數。 |
 | 非平穩性 | 移動的目標 | 每個 Agent 的環境會隨其他 Agent 學習而改變。是 MARL 的核心問題。 |
 | On-policy / off-policy | 從當前經驗學習／從回放學習 | PPO 是 on-policy（MAPPO）；DDPG 與 Q-learning 是 off-policy。 |

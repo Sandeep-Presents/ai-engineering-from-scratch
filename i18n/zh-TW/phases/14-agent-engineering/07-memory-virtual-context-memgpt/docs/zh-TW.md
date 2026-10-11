@@ -1,6 +1,6 @@
 # Agent 記憶——虛擬脈絡與記憶體分頁
 
-> 上下文視窗（Context Windows）是有容量上限的，而真實世界的對話、檔案與工具執行軌跡卻浩瀚無邊。解法正是作業系統虛擬記憶體技術的現代重現——主脈絡如同 RAM，外部持久化儲存如同硬碟，由 agent 自主在兩者之間進行分頁調度。MemGPT（Packer 等人，2023）確立了此經典範式；現代絕大多數生產級記憶系統皆在其基礎上建構。
+> 上下文視窗（Context Windows）是有容量上限的，而真實世界的對話、檔案與工具執行軌跡卻浩瀚無邊。解法正是作業系統虛擬記憶體技術的現代重現——主脈絡如同 RAM，外部持久化儲存如同硬碟，由 agent 自主在兩者之間進行分頁調度。MemGPT（Packer 等人，2023）確立了此經典範式；許多生產級記憶系統皆在其基礎上建構。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -28,13 +28,13 @@
 
 ### 作業系統技術類比
 
-MemGPT（Packer 等人，arXiv:2310.08560，v2 2024 年 2 月）將脈絡工程精準映射至作業系統的虛擬記憶體管理體系：
+MemGPT（Packer 等人，arXiv:2310.08560，v2 2024 年 2 月）將脈絡管理精準映射至作業系統的虛擬記憶體管理體系：
 
 | 作業系統概念 | MemGPT 概念 | 2026 年生產級對應 |
 |---|---|---|
 | RAM | 主脈絡（Main context，即 prompt） | Anthropic / OpenAI 的上下文視窗 |
 | 硬碟（磁碟儲存） | 外部脈絡（External context） | 向量資料庫、鍵值儲存、知識圖譜 |
-| 缺頁中斷（Page fault） | 記憶工具呼叫 | `memory.search`、`memory.read`、`memory.write` |
+| 缺頁錯誤（Page fault） | 記憶工具呼叫 | `memory.search`、`memory.read`、`memory.write` |
 | 作業系統核心 | Agent 主控制迴圈 | 具備記憶工具的 ReAct 迴圈 |
 
 Agent 執行標準的 ReAct 迴圈。唯一不同之處在於，它被額外賦予了一類專門的記憶工具，使其能自主將資料在庫內與當前主脈絡之間來回分頁調度。
@@ -82,7 +82,7 @@ context-budget
 
 `code/main.py` 以純 Python 標準函式庫實作了 MemGPT 的雙層記憶架構：
 
-- `MainContext`：固定大小的 prompt 緩衝區，內建 `core` 字典與 `messages` 串列；超額時自動淘汰最舊的歷史訊息。
+- `MainContext`：固定大小的 prompt 緩衝區，內建 `core` 字典與 `messages` 串列；超額時自動壓縮最舊的歷史訊息。
 - `ArchivalStore`：記憶體內 BM25 風格（基於 Token 重疊評分）的儲存庫，儲存 (id, text, tags, session, turn) 結構化記錄。
 - 對應 MemGPT 介面的五個記憶工具。
 - 一個腳本化 agent，演示先將事實存入外部儲存、隨後透過呼叫 `archival_memory_search` 回答問題的完整流程。
@@ -101,8 +101,8 @@ python3 code/main.py
 
 - **Letta**（第 8 課）：三層架構、原生推論通道、睡眠期非同步運算。
 - **Mem0**（第 9 課）：結合向量、鍵值與知識圖譜的三合一混合儲存與評分層。
-- **OpenAI Assistants / Responses**：透過 Threads 與 Files 實現的全代管記憶。
-- **Claude Agent SDK**：透過 Skills 與工作階段儲存庫實現的長期記憶管理。
+- **OpenAI Assistants / Responses**：透過 Threads 與 Files 提供的全代管記憶。
+- **Claude Agent SDK**：透過 Skills 與工作階段儲存庫提供長期記憶管理。
 
 依據維運架構形態做出技術選型（自建託管、雲端代管、深度整合於特定框架），而非糾結於核心架構模式——因為核心模式全數師承 MemGPT。
 

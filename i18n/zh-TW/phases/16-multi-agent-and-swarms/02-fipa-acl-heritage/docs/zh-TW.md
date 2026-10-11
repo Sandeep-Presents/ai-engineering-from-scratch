@@ -1,6 +1,6 @@
 # FIPA-ACL 與言語行為理論的歷史傳承（Heritage of FIPA-ACL and Speech Acts）
 
-> 在 MCP 誕生之前，在 A2A 出現之前，早已存在 FIPA-ACL。2000 年，IEEE 智慧型實體 agent 基金會（IEEE Foundation for Intelligent Physical Agents）批准了一套標準 agent 通訊語言，其中包含二十種施為詞（performatives）、兩種內容語言以及一整套互動協定——包含合約網（contract net）、訂閱／通知（subscribe/notify）以及條件請求（request-when）。由於本體論（ontology）的額外負擔對網際網路而言過於沉重，它在工業界逐漸沉寂；然而如今 LLM 引領的多 agent 系統復興，正悄悄在沒有形式語意學約束的情況下重新實現相同的思想：以 JSON 契約替代施為詞，以自然語言替代本體論。本課將嚴肅通讀 FIPA-ACL，以便你能看清 2026 年的各大協定決策中哪些是歷史重造輪子、哪些是真正的新穎突破，以及當前浪潮將在何處不可避免地重新踩中 2000 年代早已解決的歷史老坑。
+> 在 MCP 誕生之前，在 A2A 出現之前，早已存在 FIPA-ACL。2000 年，IEEE 智慧型實體 agent 基金會（IEEE Foundation for Intelligent Physical Agents）批准了一套標準 agent 通訊語言，其中包含二十種施為詞（performatives）、兩種內容語言以及一整套互動協定——包含合約網（contract net）、訂閱／通知（subscribe/notify）以及條件請求（request-when）。由於本體論（ontology）的額外負擔對網際網路而言過於沉重，它在工業界逐漸沉寂；然而如今 LLM 引領的多 agent 系統復興，正悄悄在沒有形式語意學約束的情況下重新實作相同的思想：以 JSON 契約替代施為詞，以自然語言替代本體論。本課將嚴肅通讀 FIPA-ACL，以便你能看清 2026 年的各大協定決策中哪些是歷史重造輪子、哪些是真正的新穎突破，以及當前浪潮將在何處不可避免地重新踩中 2000 年代早已解決的歷史老坑。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -72,7 +72,7 @@ Austin 敏銳地觀察到，人類的某些話語並非用來描述客觀世界�
 ### 為什麼 FIPA 最終式微
 
 - **本體論的沉重負擔。** FIPA 強制要求通訊雙方具備共享本體論才能精準解析 `content`。但在現實中，協商並確立統一本體論是一場耗時數年的漫長標準化泥潭。而 Web 技術直接採用了粗暴有效的 HTTP + JSON 組合拳。
-- **無人落地的形式語意學。** SL（語意語言，Semantic Language）提供了嚴謹的真值條件證明，然而多數工業界系統直接塞入非結構化的自由文本，架空了這套形式化體系。
+- **無人落地的形式語意學。** SL（語意語言，Semantic Language）提供了嚴謹的真值條件，然而多數工業界系統直接塞入非結構化的自由文本，架空了這套形式化體系。
 - **工具鏈生態綁定過深。** JADE 深度綁定 Java 生態；JACK 則是昂貴的商業閉源產品。現代多語言開發團隊自然選擇繞道而行。
 - **網際網路技術贏得了技術堆疊霸權。** 先是 REST，接著是 JSON-RPC，隨後是 gRPC，取代了 ACL 的專屬傳輸層。
 
@@ -139,7 +139,7 @@ FIPA 規範定義了大約 15 種經典互動協定。其中有三種模式極�
 | MCP `resources/read` | `query-ref` | 明確意圖、關聯識別碼 | 形式語意學 |
 | A2A 任務生命週期 | contract-net + request-when | 非同步生命週期、狀態轉換 | 形式完整性保證 |
 | A2A 串流事件 | subscribe/notify | 非同步推送 | 具型別述詞的訂閱 |
-| CA-MCP 共享上下文 | 黑板（Hayes-Roth，1985） | 多寫入者共享記憶體 | 邏輯一致性模型 |
+| CA-MCP 共享上下文 | 黑板（Hayes-Roth，1985） | 多寫入者共享記憶 | 邏輯一致性模型 |
 | NLIP | 自然語言內容 | 原生支援 LLM | 結構描述 |
 
 從上至下通讀此對比表格，其核心規律昭然若揭：保留結構骨架原語，揚棄繁複形式證明，將其餘的模糊語意交由 LLM 去自行弭平。
@@ -150,7 +150,7 @@ sw-contract-net
 
 ## Build It｜動手實作
 
-`code/main.py` 透過純標準函式庫實現了一個 FIPA-ACL 雙向轉譯器。它能精準編碼與解碼標準 ACL 訊息信封，並具體展示任何現代的 MCP 或 A2A 訊息結構本質上是如何無縫簡化為相同的七個核心欄位。該展示包含：
+`code/main.py` 透過純標準函式庫實作了一個 FIPA-ACL 雙向轉譯器。它能精準編碼與解碼標準 ACL 訊息信封，並具體展示任何現代的 MCP 或 A2A 訊息結構本質上是如何無縫簡化為相同的七個核心欄位。該展示包含：
 
 - 將五種 MCP 風格與 A2A 風格的現代訊息編碼為標準 FIPA-ACL 格式。
 - 將 FIPA-ACL 訊息無損解碼還原為現代 JSON 等價格式。

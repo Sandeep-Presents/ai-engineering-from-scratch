@@ -1,6 +1,6 @@
 # 語音 Agent：Pipecat 與 LiveKit
 
-> 語音 Agent 在 2026 年已成為頂級的一等生產級應用類別。Pipecat 提供了基於訊框（Frame）的 Python 管線架構（VAD → STT → LLM → TTS → Transport）；LiveKit Agents 則透過 WebRTC 搭建起 AI 模型與使用者之間的即時通訊橋樑。頂級高階技術堆疊的端到端延遲預算目標落在 450–600ms 之內。
+> 語音 Agent 在 2026 年已成為重要的正式生產應用類別。Pipecat 提供了基於訊框（Frame）的 Python 管線架構（VAD → STT → LLM → TTS → Transport）；LiveKit Agents 則透過 WebRTC 搭建起 AI 模型與使用者之間的即時通訊橋樑。頂級高階技術堆疊的端到端延遲預算目標落在 450–600ms 之內。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -53,7 +53,7 @@ Pipecat Flows 為對話注入結構化狀態機。Pipecat Cloud 則是官方雲�
 
 ### 商用平台方案
 
-Vapi（頂級最佳化堆疊下可達約 450–600ms 延遲）與 Retell（跨 180 次實測通話平均約 600ms 端到端延遲）皆建立於上述開源生態之上。若團隊缺乏專職的 WebRTC 網路維運工程師，採用現成平台較為合適。
+Vapi（頂級最佳化堆疊下可達約 450–600ms 延遲）與 Retell（跨 180 次實測通話約 600ms 端到端延遲）皆建立於上述開源生態之上。若團隊缺乏專職的 WebRTC 網路維運工程師，採用現成平台較為合適。
 
 ### 典型架構失效模式
 

@@ -67,7 +67,7 @@ ae-agent-human-gap
 
 ## Build It｜動手實作
 
-`code/main.py` 以純 Python 標準函式庫實作了一套極簡的 Web Agent 測試 harness：
+`code/main.py` 以純 Python 標準函式庫實作了一套極簡的 Web Agent 測試框架：
 
 - 極簡「電商購物應用」狀態機：包含 list_items、add_to_cart、checkout 等狀態；
 - 3 個具體任務的黃金標準軌跡（Gold trajectories）；
@@ -91,11 +91,11 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-web-desktop-harness.md` 能為任何 Web 或桌面 Agent 建立標準的測試 harness，內建基於執行結果的驗收卡點與軌跡執行效率量測指標。
+`outputs/skill-web-desktop-harness.md` 能為任何 Web 或桌面 Agent 建立標準的測試框架，內建基於執行結果的驗收卡點與軌跡執行效率量測指標。
 
 ## Exercises｜練習
 
-1. 為教學測試 harness擴充第二個應用程式（技術論壇）。為其編寫 3 個新任務以及對應的黃金標準軌跡。
+1. 為教學測試框架擴充第二個應用程式（技術論壇）。為其編寫 3 個新任務以及對應的黃金標準軌跡。
 2. 為每個任務新增軌跡執行效率報告。在你的教學模型中，Agent 的步數相比於黃金標準是 1 倍、2 倍還是 3 倍？
 3. 實作一個「干擾項（Distractor）」工具——黃金軌跡從未使用過的誘餌工具。觀察腳本化 Agent 是否會受到干擾？
 4. 研讀 OSWorld-G 論文。在你的自訂評測中，你會如何將「介面定位失敗」與「邏輯規劃失敗」區分開來統計？

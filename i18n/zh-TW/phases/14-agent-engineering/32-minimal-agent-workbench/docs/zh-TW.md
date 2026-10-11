@@ -86,7 +86,7 @@ python3 code/main.py
 在各大生產級 Agent 產品內部，同樣的三個檔案以不同名稱出現：
 
 - **Claude Code**：以 `AGENTS.md` 或 `CLAUDE.md` 作為路由器，以 `.claude/state.json` 風格的儲存維護狀態，以 Hooks 串接看板。
-- **Codex / Cursor**：以工作區規則（Workspace Rules）作為路由器，以 Session Memory 維護狀態，以聊天側邊欄中的排程任務作為看板。
+- **Codex / Cursor**：以工作區規則（Workspace Rules）作為路由器，以 Session Memory 維護狀態，以聊天側邊欄中的佇列中的任務作為看板。
 - **自建 Python Agent**：直接使用你剛寫好的這三個檔案。
 
 名稱隨環境而變；架構本質始終不變。

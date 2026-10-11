@@ -12,7 +12,7 @@
 - 指出 Reflexion 的三大核心元件——Actor（執行者）、Evaluator（評估器）、Self-Reflector（自我反思器），以及情節記憶（Episodic memory）的關鍵定位。
 - 以純 Python 標準函式庫實作一套包含二元評估器、反思緩衝區與全新重試機制的 Reflexion 迴圈。
 - 針對具體的工程任務，在純量（Scalar）、啟發式（Heuristic）與模型自評（Self-evaluated）三種回饋來源間做出正確選型。
-- 深入闡明為何語言強化學習能即時捕獲並修復傳統梯度 RL 需要數千次試驗才能解決的認知錯誤。
+- 深入闡明為何語言強化學習能捕捉梯度式 RL 需要數千次試驗才能修正的錯誤。
 
 ## The Problem｜問題
 
@@ -54,7 +54,7 @@ Reflexion 與其說是一項全新演算法，不如說是一種被明確定義�
 
 - Letta 的睡眠期運算（Sleep-time compute，第 8 課）：獨立的後台 agent 在閒暇時復盤過往對話，並將教訓寫入記憶區塊。
 - Claude Code 的 `CLAUDE.md` / 「save memory」模式：將失敗反思提煉為經驗沉澱，在未來的對話工作階段中自動前置載入。
-- 專業工作流程的 `/learn-rule` 指令：將使用者的糾正即時轉化為明確的規則約束。
+- pro-workflow 的 `/learn-rule` 指令：將使用者的糾正即時轉化為明確的規則約束。
 - LangGraph 的反思節點（Reflection nodes）：專門評估輸出品質並在需要時將流程導向修正節點。
 
 所有這些實踐皆源於同一個核心洞見：**自然語言本身就具備足夠豐富的表現力，足以在不同次執行之間承載「我從失敗中學到了什麼」**。
@@ -73,7 +73,7 @@ Reflexion 在以下情境表現優異：
 - 失敗源自外部不可抗力（網路中斷、工具服務當機）——對「網路斷線」的反思對未來執行毫無意義；
 - 反思演變為盲目迷信——將某次偶發的隨機波動錯誤歸納為固定敘事。
 
-2026 年的典型維運陷阱：**記憶腐化（Memory rot）**。歷史反思不斷堆疊積累；部分經驗已經過時甚至有害；情節記憶緩衝區愈大，重新執行就愈慢。應對之道：定期實施記憶壓縮（第 6 課）、為反思設定存活時間（TTL），或調度專門的後台清理 agent。
+2026 年的典型維運陷阱：**記憶腐化（Memory rot）**。歷史反思不斷堆疊積累；部分經驗已經過時甚至有害；情節記憶緩衝區愈大，重新執行就愈慢。應對之道：定期實施記憶壓縮（第 6 課）、為反思設定存活時間（TTL），或調度專用的背景清理 agent（如 Letta）。
 
 ```figure
 react-trace
@@ -100,7 +100,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory` 指令與 pro-workflow 的 `/learn-rule` 將情節記憶外部化儲存為 Markdown 文件。Letta 的睡眠期運算在系統閒置時非同步執行 Self-Reflector，確保主線 agent 的即時回應速度不受影響。OpenAI Agents SDK 雖未直接內建 Reflexion，但你可以透過自訂 Guardrail（依評分拒絕不良軌跡）搭配可跨次執行保留狀態的記憶體 `Session` 輕鬆組裝出該模式。
+LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory` 指令與 pro-workflow 的 `/learn-rule` 將情節記憶外部化儲存為 Markdown 文件。Letta 的睡眠期運算在系統閒置時非同步執行 Self-Reflector，確保主線 agent 的即時回應速度不受影響。OpenAI Agents SDK 雖未直接內建 Reflexion，但你可以透過自訂 Guardrail（依評分拒絕不良軌跡）搭配可跨次執行保留狀態的記憶 `Session` 輕鬆組裝出該模式。
 
 ## Ship It｜交付成果
 
@@ -122,7 +122,7 @@ LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory`
 | Verbal reinforcement | 「無梯度學習」 | 將自然語言反思前置於下一次試驗的 prompt 中進行認知引導 |
 | Episodic memory | 「任務專屬反思記憶」 | 為特定任務類別維護的有界限歷史反思緩衝區 |
 | Scalar evaluator | 「二元成功信號」 | 依據真實標籤所產出的通過／失敗或數值評分 |
-| Heuristic evaluator | 「特徵規則檢測器」 | 基於預定義失效特徵（如卡死迴圈、步驟超限）的規則檢驗器 |
+| Heuristic evaluator | 「特徵規則偵測器」 | 基於預定義失效特徵（如卡死迴圈、步驟超限）的規則檢驗器 |
 | Self-evaluator | 「模型自審自評」 | 缺乏真實標籤時由 LLM 對自身軌跡評分——需搭配工具驗證以防幻覺 |
 | Memory rot | 「過期記憶腐化」 | 情節緩衝區堆滿了過時或錯誤的反思；透過壓縮與 TTL 淘汰治理 |
 | Sleep-time reflection | 「非同步後台復盤」 | 脫離即時呼叫路徑在系統閒暇時非同步執行反思，確保主線維持低延遲 |

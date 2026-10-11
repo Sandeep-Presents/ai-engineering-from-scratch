@@ -1,6 +1,6 @@
 # 生產級 Agent 執行環境——極速實例化與強型別工作流程
 
-> 生產級 Agent 執行環境著重最佳化那些原型驗證框架所忽略的關鍵維度：實例化開銷、強型別工作流程介面，以及生產就緒的高並發後端。2026 年的前沿雙雄：Agno（Python）追求微秒級的極速實例化與無狀態 FastAPI 後端；Mastra 則在 Vercel AI SDK 基底上，為 TypeScript 生態交付整合了 Agents、Tools、Workflows、統一模型路由與複合式儲存的一站式架構。
+> 生產級 Agent 執行環境著重最佳化那些原型驗證框架所忽略的關鍵維度：實例化開銷、強型別工作流程介面，以及具備高平行處理能力的生產級後端。2026 年的前沿雙雄：Agno（Python）追求微秒級的極速實例化與無狀態 FastAPI 後端；Mastra 則在 Vercel AI SDK 基底上，為 TypeScript 生態交付整合了 Agents、Tools、Workflows、統一模型路由與複合式儲存的一站式架構。
 
 **Type:** Learn
 **Languages:** Python, TypeScript
@@ -28,7 +28,7 @@ LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當�
 - 官方生產路徑：無狀態、工作階段範疇的 FastAPI 後端。每個進來的 HTTP 請求皆啟動一個全新乾淨的 agent 實例；工作階段狀態持久化於外部資料庫中。
 - 原生支援多模態（multimodal）輸入（文字、圖片、音訊、影片、檔案）與 Agentic RAG。
 
-微秒級的實例化速度在「每秒需衍生數千個短生命週期 Agent」（例如聊天訊息高並發分流、大規模批次評測管線）時扮演著決定性角色。而當單一 Agent 本身就需要持續執行 10 分鐘時，該優勢則相對不顯著。
+微秒級的實例化速度在「每秒需衍生數千個短生命週期 Agent」（例如大量聊天訊息的平行分流、大規模批次評測管線）時扮演著決定性角色。而當單一 Agent 本身就需要持續執行 10 分鐘時，該優勢則相對不顯著。
 
 ### Mastra
 
@@ -54,12 +54,12 @@ LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當�
 - **Agno**：Python 後端、存在海量短生命週期 agent、效能需求高、FastAPI 技術堆疊。
 - **Mastra**：TypeScript 後端、部署於 Next.js / Vercel、需要統一跨多服務供應商模型路由、仰賴 Zod 強型別工具。
 - **LangGraph**（第 13 課）：當持久化狀態與顯式圖推理的重要性遠高於純粹執行速度時。
-- **OpenAI / Claude Agent SDK**：當期望直接享用大廠產品化的專屬harness形態時（第 16–17 課）。
+- **OpenAI / Claude Agent SDK**：當期望直接享用大廠產品化的專屬執行環境形態時（第 16–17 課）。
 
 ### 典型架構失效模式
 
 - **為效能而效能的盲目過度最佳化**：單純因為「2μs」聽起來很厲害而挑選 Agno，而實際業務負載是每次請求只有一次緩慢的大型語言模型呼叫。此時框架自身的微秒開銷不是系統瓶頸。
-- **生態系鎖定**：Mastra 與 Vercel 的高度契合在 Vercel 平台上是巨大加分項，但在非 Node / 非 Vercel 環境中則可能成為束縛。
+- **生態系鎖定**：Mastra 與 Vercel 的高度契合在 Vercel 平台上是巨大加分項，但在其他環境中則可能成為束縛。
 - **企業授權混淆**：Mastra 的 `ee/` 目錄屬於 Source-available 限制性授權，而非純 Apache 2.0。若計畫 Fork 或進行二次商業包裝，務必仔細研讀授權條款。
 
 ```figure

@@ -1,6 +1,6 @@
 # Janus-Pro：大一統多模態模型的解耦編碼器架構（Janus-Pro: Decoupled Encoders for Unified Multimodal Models）
 
-> 大一統多模態模型始終面臨著不可調和的內在張力。多模態「理解」渴求語意特徵——例如 SigLIP 或 DINOv2 產出的高維特徵向量，富含深度的概念抽象；多模態「生成」則渴求便於像素還原的重構碼——例如能清晰解碼回銳利像素的 VQ 離散 token。這兩種截然不同的目標，根本無法在單一視覺編碼器中和平共存。DeepSeek 的 Janus（2024 年 10 月）與 Janus-Pro（2025 年 1 月）指出了一條明路：別再試圖強行調和，果斷「解耦」這兩大編碼器！在底層完全共享 Transformer 骨幹大腦，但在輸入端依任務將理解導流至 SigLIP，將生成導流至專屬的 VQ Tokenizer。在僅僅 7B 的參數量下，Janus-Pro 在 GenEval 評測上擊潰了 DALL-E 3，並在 MMMU 上打平了 LLaVA。本課帶你洞悉雙編碼器架構何以在單編碼器折戟之處大獲全勝。
+> 大一統多模態模型始終面臨著不可調和的內在張力。多模態「理解」渴求語意特徵——例如 SigLIP 或 DINOv2 產出的高維特徵向量，富含深度的概念抽象；多模態「生成」則渴求便於像素還原的重構碼——例如能清晰解碼回銳利像素的 VQ 離散 token。這兩種截然不同的目標，根本無法在單一視覺編碼器中和平共存。DeepSeek 的 Janus（2024 年 10 月）與 Janus-Pro（2025 年 1 月）指出了一條明路：別再試圖強行調和，果斷「解耦」這兩大編碼器！在底層完全共享 Transformer 骨幹大腦，但在輸入端依任務將理解導流至 SigLIP，將生成導流至專屬的 VQ Tokenizer。在僅僅 7B 的參數量下，Janus-Pro 在 GenEval 評測上勝過了 DALL-E 3，並在 MMMU 上打平了 LLaVA。本課帶你洞悉雙編碼器架構何以在單編碼器折戟之處大獲全勝。
 
 **Type:** Build
 **Languages:** Python (stdlib, dual-encoder routing + shared-body signal)
@@ -102,7 +102,7 @@ l5-janus-decouple
 - 共享 Transformer 骨幹原型：無差別處理各編碼器送入的 token 序列。
 - 模擬從第 1 階段（特徵對齊）演進至第 3 階段（指令調校）的加權樣本排程調度。
 
-執行該程式碼，印出三組典型實例（影像問答、文生圖、圖生圖編輯）的分流路徑日誌。
+執行該程式碼，印出三組典型實例（影像問答、文生圖、圖生圖編輯）的分流路徑紀錄。
 
 ## Ship It｜交付成果
 

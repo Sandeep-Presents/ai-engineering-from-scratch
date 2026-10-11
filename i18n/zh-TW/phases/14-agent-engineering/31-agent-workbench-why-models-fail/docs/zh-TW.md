@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 將模型本身的推理能力，與工程執行的可靠性區分開來。
+- 將模型能力，與工程執行的可靠性區分開來。
 - 說出決定 Agent 能否交付的七大工作台表面（Surfaces）。
 - 在一個小型程式碼庫任務上，比較純 Prompt 執行與工作台引導的執行。
 - 產出失效模式報告，將每個缺漏的表面對應到它造成的症狀。
@@ -62,7 +62,7 @@ Prompt 工程告訴模型「這一回合你要什麼」。工作台則規範模�
 
 ### 從原語推理，而非依循廠商分類
 
-目前有大量關於「harness（執行框架）工程學（Harness Engineering）」的討論，包括 Addy Osmani、OpenAI、Anthropic、LangChain、Martin Fowler、MongoDB、HumanLayer、Augment Code、Thoughtworks、walkinglabs awesome 清單，以及 Medium 與 Hacker News 上持續不斷的文章。各方對 harness 的邊界、範疇與術語各有主張。我們不必選邊站。這七大表面屬於外層的使用者體驗（UX）；在每個工作台的底層，支撐它的始終是任何高可靠後端系統都必須依賴的分散式系統基礎原語。
+目前有大量關於「執行環境工程（Harness Engineering）」的討論，包括 Addy Osmani、OpenAI、Anthropic、LangChain、Martin Fowler、MongoDB、HumanLayer、Augment Code、Thoughtworks、walkinglabs awesome 清單，以及 Medium 與 Hacker News 上持續不斷的文章。各方對執行環境的邊界、範疇與術語各有主張。我們不必選邊站。這七大表面屬於外層的使用者體驗（UX）；在每個工作台的底層，支撐它的始終是任何高可靠後端系統都必須依賴的分散式系統基礎原語。
 
 先暫時拿掉「Agent」這個標籤：一次 Agent 執行，本質上是跨越時間、行程與機器的運算。要讓它可靠，需要的正是任何正式環境系統都需要的原語。
 
@@ -73,7 +73,7 @@ Prompt 工程告訴模型「這一回合你要什麼」。工作台則規範模�
 | 觸發器（Trigger） | 呼叫特定函式的事件來源 | 迴圈 Tick 定時器、HTTP 請求、佇列訊息、Cron、檔案變更、掛鉤 |
 | 執行環境（Runtime） | 決定何者在何處執行、擁有何種超時與資源配額的邊界 | Claude Code 行程、LangGraph 執行環境、工作者容器 |
 | 呼叫協定（HTTP / RPC） | 呼叫端與工作者之間的連線協定 | 工具呼叫協定、MCP 請求、模型 API |
-| 佇列（Queue） | 觸發器與工作者之間的持久化緩衝區；背壓、重試、冪等性 | 任務看板、回饋日誌、審核收件匣 |
+| 佇列（Queue） | 觸發器與工作者之間的持久化緩衝區；背壓、重試、冪等性 | 任務看板、回饋紀錄、審核收件匣 |
 | 工作階段持久化（Session persistence） | 跨越系統崩潰、重啟與模型切換依然倖存的持久化狀態 | `agent_state.json`、檢查點、KV 儲存、儲存庫檔案本身 |
 | 授權原則（Authorization policy） | 規範誰獲准以何種權限範疇呼叫何種函式 | 允許／禁止檔案清單、審批授權邊界、MCP 能力清單 |
 
@@ -82,7 +82,7 @@ Prompt 工程告訴模型「這一回合你要什麼」。工作台則規範模�
 - **Instructions**——策略 + 函式中繼資料。規則即檢查函式。路由（router，`AGENTS.md`）即綁定於執行環境啟動時的策略。
 - **State**——工作階段持久化。執行環境在每一步讀取的鍵值儲存。不論形式是檔案、KV 還是資料庫，關鍵在於持久化語義，而非底層儲存後端。
 - **Scope**——任務層級的授權策略。允許／禁止的檔案 Glob 路徑即存取控制清單（ACL）；必備的審批即權限格網。
-- **Feedback**——寫入佇列的呼叫日誌。每次 Shell 命令都是一筆可持久化、可重播的紀錄。
+- **Feedback**——寫入佇列的呼叫紀錄。每次 Shell 命令都是一筆可持久化、可重播的紀錄。
 - **Verification**——確定性函式。依輸入產出確定性結果；在任務關閉時觸發；失敗時關閉（Fail closed）。
 - **Review**——獨立的 Worker 行程。對建置產物擁有唯讀授權，對審核報告擁有唯寫授權。
 - **Handoff**——由工作階段結束觸發器所發布的持久化記錄；供下一次工作階段的啟動觸發器讀取。
@@ -110,29 +110,29 @@ Agent 迴圈本質上就是一個 Worker 行程：消費事件（使用者訊息
 
 ### 實際證據怎麼說
 
-「harness 架構重於模型本身」這一論斷，如今已有確鑿的業界量化數字支持。值得了解，因為這些數字也是反駁「只要等更聰明的模型」的唯一誠實論據：
+「執行環境架構重於模型本身」這一論斷，如今已有確鑿的業界量化數字支持。值得了解，因為這些數字也是反駁「只要等更聰明的模型」的唯一誠實論據：
 
-- **Terminal Bench 2.0**：同一模型，只調整外圍的 harness 架構，一款寫程式的 agent 便從 30 名之外躍升至第 5 名（LangChain，*Anatomy of an Agent Harness*）。
+- **Terminal Bench 2.0**：同一模型，只調整外圍的執行環境架構，一款寫程式的 agent 便從 30 名之外躍升至第 5 名（LangChain，*Anatomy of an Agent Harness*）。
 - **Vercel**：刪除了其 agent 80% 的工具，任務成功率從 80% 升至 100%（MongoDB 案例研究）。
-- **Harvey**：法律專業 agent 只靠 harness 工程的最佳化，準確率就翻了一倍以上（MongoDB 案例研究）。
+- **Harvey**：法律專業 agent 只靠執行環境工程的最佳化，準確率就翻了一倍以上（MongoDB 案例研究）。
 - **88% 的企業級 AI Agent 專案無法進入正式環境**：失敗集中在執行環境，而非推理能力（preprints.org，*Harness Engineering for Language Agents*，2026 年 3 月）。
 - **2025 年跨框架基準研究**：三款熱門開源框架回報約 50% 的任務完成率；在長脈絡條件下，WebAgent 從 40-50% 崩跌至 10% 以下，元兇大多是死迴圈與目標遺忘（2026 年初的諸多文章廣泛報導）。
 
-核心結論不是「harness 永遠勝過模型」。模型隨時間確實會吸收部分 harness 技巧。真正的重點在於：**目前承擔關鍵負荷的工程都在模型周邊，而非模型內部；而承擔這份負荷的，正是任何高可靠正式環境系統一直需要的經典分散式原語。**
+核心結論不是「執行環境永遠勝過模型」。模型隨時間確實會吸收部分執行環境技巧。真正的重點在於：**目前承擔關鍵負荷的工程都在模型周邊，而非模型內部；而承擔這份負荷的，正是任何高可靠正式環境系統一直需要的經典分散式原語。**
 
 ### 廠商文章止步之處
 
 這一部分不必客氣。
 
-- LangChain 的 *Anatomy of an Agent Harness* 列出十一個元件：prompts、工具、hooks、沙盒、編排、記憶、skills、子 agent，以及一個執行「呆板迴圈」的執行環境。它沒有提到佇列、作為部署單位的工作者、觸發器語義、獨立處理的工作階段持久化，或授權策略。它把 harness 當成可設定的物件，而不是需要部署的工程系統。
-- Addy Osmani 的 *Agent Harness Engineering* 提出 `Agent = Model + Harness` 公式與棘輪模式，但並未說明 harness 由哪些基礎架構組成。讀起來更像立場宣示，而非可實作的規格。
-- Anthropic 與 OpenAI 在工作台表面上走得最深，但仍停留在各自的執行環境內。2026 年 4 月 Agents SDK 的「控制與運算分離」（harness-compute separation）公告，是廠商首次明確支持控制平面與資料平面的切分——但這本就是分散式原語的概念，並非新發明。
-- agentic_harness 一書將 harness 視為純設定物件（Jaymin West 的 *Agentic Engineering* 第 6 章），其最有力的論點是「harness 是 Agentic 系統中的首要安全邊界」——這不過是把授權策略換個說法重述。
-- Hacker News 上的討論也一再回到同一結論。2026 年 4 月的熱門討論 *The agent harness belongs outside the sandbox* 主張 harness 應當「更像一個獨立於一切之外的 Hypervisor，依據脈絡與使用者決定存取權限」。這同樣是在重申：授權策略應作為獨立平面。
+- LangChain 的 *Anatomy of an Agent Harness* 列出十一個元件：prompts、工具、hooks、沙盒、編排、記憶、skills、子 agent，以及一個執行「呆板迴圈」的執行環境。它沒有提到佇列、作為部署單位的工作者、觸發器語義、獨立處理的工作階段持久化，或授權策略。它把執行環境當成可設定的物件，而不是需要部署的工程系統。
+- Addy Osmani 的 *Agent Harness Engineering* 提出 `Agent = Model + Harness` 公式與棘輪模式，但並未說明執行環境由哪些基礎架構組成。讀起來更像立場宣示，而非可實作的規格。
+- Anthropic 與 OpenAI 在工作台表面上走得最深，但仍停留在各自的執行環境內。2026 年 4 月 Agents SDK 的「控制與運算分離」（執行環境與運算分離）公告，是廠商首次明確支持控制平面與資料平面的切分——但這本就是分散式原語的概念，並非新發明。
+- agentic_harness 一書將執行環境視為純設定物件（Jaymin West 的 *Agentic Engineering* 第 6 章），其最有力的論點是「執行環境是 Agentic 系統中的首要安全邊界」——這不過是把授權策略換個說法重述。
+- Hacker News 上的討論也一再回到同一結論。2026 年 4 月的熱門討論 *The agent harness belongs outside the sandbox* 主張執行環境應當「更像一個獨立於一切之外的 Hypervisor，依據脈絡與使用者決定存取權限」。這同樣是在重申：授權策略應作為獨立平面。
 
 你不必反對上述任何一篇，也能察覺其中的缺口：它們是在對一套早已存在的系統做使用者體驗（UX）層面的重新包裝。而我們是在建構這套系統。系統建構正確時，七大工作台表面會自然從分散式原語中浮現；建構錯誤時，再怎麼潤飾 `AGENTS.md`，也補不回缺少的佇列緩衝。
 
-因此，當你在其他地方聽到「harness 工程學」時，請把它還原為經典原語。Prompts 與規則就是策略與函式；鷹架就是執行環境；護欄就是授權與驗證；Hooks 就是觸發器；記憶就是工作階段持久化；Ralph Loop 就是重新排隊；子 agent 就是工作者；沙盒就是運算平面。術語日新月異；工程本質歷久彌新。工作台是面向 Agent 的作業表面；而 harness——在經歷無數廠商重新包裝後依然成立的部分——就是函式、工作者、觸發器、執行環境、佇列、持久化與授權策略，正確地串接在一起。
+因此，當你在其他地方聽到「執行環境工程學」時，請把它還原為經典原語。Prompts 與規則就是策略與函式；鷹架就是執行環境；護欄就是授權與驗證；Hooks 就是觸發器；記憶就是工作階段持久化；Ralph Loop 就是重新排隊；子 agent 就是工作者；沙盒就是運算平面。術語日新月異；工程本質歷久彌新。工作台是面向 Agent 的作業表面；而執行環境——在經歷無數廠商重新包裝後依然成立的部分——就是函式、工作者、觸發器、執行環境、佇列、持久化與授權策略，正確地串接在一起。
 
 ```figure
 wb-seven-surfaces
@@ -150,7 +150,7 @@ wb-seven-surfaces
 python3 code/main.py
 ```
 
-輸出包含：兩次執行的對照日誌、摘要純 Prompt 執行的 `failure_modes.json` 報告，以及工作台執行的一行判定。
+輸出包含：兩次執行的對照紀錄、摘要純 Prompt 執行的 `failure_modes.json` 報告，以及工作台執行的一行判定。
 
 該 Agent 是一個極簡的規則式替身（stub）；本課的重點在於**工作台表面**，而非模型本身。在後續課程中，你會把每個表面實作成真實、可重複使用的工程產物。
 
@@ -210,11 +210,11 @@ python3 code/main.py
 
 書籍、學術論文與開源參考實作：
 
-- [Jaymin West, Agentic Engineering — Chapter 6: Harnesses](https://www.jayminwest.com/agentic-engineering-book/6-harnesses) ——整本書的論述，將 harness 視為首要安全邊界
+- [Jaymin West, Agentic Engineering — Chapter 6: Harnesses](https://www.jayminwest.com/agentic-engineering-book/6-harnesses) ——整本書的論述，將執行環境視為首要安全邊界
 - [preprints.org, Harness Engineering for Language Agents (March 2026)](https://www.preprints.org/manuscript/202603.1756) ——學術框架：控制、能動性與執行環境
 - [walkinglabs/awesome-harness-engineering](https://github.com/walkinglabs/awesome-harness-engineering) ——涵蓋脈絡、評測、可觀測性與編排的精選閱讀清單
 - [ai-boost/awesome-harness-engineering](https://github.com/ai-boost/awesome-harness-engineering) ——另一份精選清單（工具、Evals、記憶、MCP、權限）
-- [HKUDS/OpenHarness](https://github.com/HKUDS/OpenHarness) ——內建個人 agent 的開源 harness
+- [HKUDS/OpenHarness](https://github.com/HKUDS/OpenHarness) ——內建個人 agent 的開源執行環境
 
 值得閱讀的 Hacker News 討論（重點在分歧，而非共識）：
 
