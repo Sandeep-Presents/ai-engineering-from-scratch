@@ -19,7 +19,7 @@
 
 ![MT pipeline: tokenize → encode → decode with attention → detokenize](../assets/mt-pipeline.svg)
 
-現代機器翻譯是在平行文字上訓練的 transformer 編碼器－解碼器。編碼器用該語言的 tokenization 讀來源。解碼器一次生成一個子詞，經由交叉注意力（cross-attention，第 10 課）使用編碼器的輸出。解碼用集束搜尋，避開貪婪解碼的陷阱。輸出再還原 token、還原大小寫（detruecase），然後對著參考譯文打分。
+現代機器翻譯是在平行文字上訓練的 transformer 編碼器－解碼器。編碼器用該語言的 tokenization 讀來源。解碼器一次生成一個子詞，經由交叉注意力（cross-attention，第 10 課）使用編碼器的輸出。解碼用集束搜尋，避開貪婪解碼的陷阱。輸出再把 token 序列合併還原成文字，還原大小寫（detruecase），然後對著參考譯文打分。
 
 三個操作上的選擇，決定真實世界的翻譯品質。
 
