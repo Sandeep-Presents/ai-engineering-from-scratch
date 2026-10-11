@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 說明三元組（triplet）、對比損失（contrastive loss）、以及以 proxy 為基礎（proxy-based）的度量學習損失（loss），並依資料集（dataset）挑對的一個
-- 正確實作 L2 正規化（normalization）和餘弦相似度，並檢查「同一個物件」和「同一個類別」的檢索差在哪
+- 正確實作 L2 正規化（normalization）和餘弦相似度（cosine similarity），並檢查「同一個物件」和「同一個類別」的檢索差在哪
 - 建立 FAISS 索引，用文字和影像查詢，並對留出的查詢集合回報 recall@K
 - 把 DINOv2、CLIP、SigLIP 當成現成的 embedding 骨幹（backbone），並知道各自什麼時候贏
 
