@@ -41,7 +41,7 @@ flowchart TD
 
 執行環境內部的每一次具體操作皆會產出一個專屬的 Span。一個標準的 Span 包含：Trace ID（標記整個 Agent 任務呼叫鏈）、Span ID（標記本次單一具體操作）、名稱（如 `gen_ai.chat`、`gen_ai.tool.execution`）、遵循 GenAI 約定的標準屬性、起始與終止時間戳記，以及執行狀態碼。
 
-GenAI 語意約定標準化了以下核心屬性 Key：`gen_ai.system`（標明底層供應商，如 `anthropic`、`openai`）、`gen_ai.request.model`（請求模型名稱）、`gen_ai.request.max_tokens`、`gen_ai.usage.input_tokens`、`gen_ai.usage.output_tokens`、`gen_ai.response.model`、`gen_ai.response.id`、`gen_ai.operation.name`，以及專屬於工具調用的 `gen_ai.tool.name` 與 `gen_ai.tool.call.id`。
+GenAI 語意約定標準化了以下核心屬性 Key：`gen_ai.system`（標明底層供應商，如 `anthropic`、`openai`）、`gen_ai.request.model`（請求模型 ID）、`gen_ai.request.max_tokens`、`gen_ai.usage.input_tokens`、`gen_ai.usage.output_tokens`、`gen_ai.response.model`、`gen_ai.response.id`、`gen_ai.operation.name`，以及專屬於工具調用的 `gen_ai.tool.name` 與 `gen_ai.tool.call.id`。
 
 匯出器將追蹤資料寫入 JSONL 檔案。每行一個標準的 JSON 物件。這是下游串流工具、grep 命令列以及資料倉儲最容易消費、過濾與匯入的極簡工業格式。在真實正式環境中匯出器通常透過 OTLP gRPC 協定發送；而在本課中，本地 JSONL 匯出器提供了完全對等的離線替代，在任何個人工作站上皆可零依賴完美運行。
 
@@ -79,7 +79,7 @@ Span 建構器是一個小巧的類別，提供 `span(name, attrs)` 方法並回
 
 Span ID 與 Trace ID 皆為 16 位元組（128-bit）的十六進位字串，由 `os.urandom` 隨機生成。這與 OTel 的 W3C Trace Context 規範完全對齊。匯出器自身具備容錯設計，絕不會向外拋出未捕獲異常；回報 I/O 錯誤，但讓 harness 繼續執行。
 
-直方圖採用預設的標準桶邊界集合（OTel 官方針對毫秒級延遲推薦的標準區間：5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, +Inf）。原始數值被暫存在清單中；在對外暴露指標時動態統計每個區間的分佈頻次。
+直方圖採用預設的標準桶邊界集合（OTel 預設的延遲桶邊界：5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, +Inf）。原始數值被暫存在清單中；在對外暴露指標時動態統計每個區間的分佈頻次。
 
 ## 為何親手實作而非盲目引入 SDK
 

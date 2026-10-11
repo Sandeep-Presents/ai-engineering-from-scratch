@@ -118,7 +118,7 @@ cf-issue-to-pr
 
 ## Exercises｜練習
 
-1. 為系統擴充「不穩定測試（Flaky Test）自動修復」模式：當打上 `@agent stabilize-flake TestX` 標籤時，Worker 自動在沙盒中將該測試連續執行 50 次，並產出一個能徹底消除隨機失敗的最小修復補丁。
+1. 為系統擴充「不穩定測試（Flaky Test）自動修復」模式：當打上 `@agent stabilize-flake TestX` 標籤時，Worker 自動在沙盒中將該測試連續執行 50 次，並提出旨在穩定該測試的最小變更。
 2. 在三道共有 Issue 上，對比自建系統與商業級 Cursor Background Agents 的具體成本與程式碼表現。精確指出兩者在工具調用鏈路上的優劣。
 3. 開發一套即時成本監控看板：即時統計每個儲存庫每日花費走勢、單個工程師觸發的累計帳單，並在出現異常頻繁觸發時自動告警。
 4. 建構「Dry-Run 演練模式」：在完全不執行龐大 CI 測試的前提下，僅快速生成並開啟一個 Draft 草稿 PR，供工程師低成本快速審查 Agent 的初步思路。

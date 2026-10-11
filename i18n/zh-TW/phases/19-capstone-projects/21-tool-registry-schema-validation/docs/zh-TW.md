@@ -36,7 +36,7 @@ ToolRecord
   timeout_ms  : int          (override per-tool dispatcher default)
 ```
 
-Schema 是驗證器唯一觸摸的實體欄位。處理常式（Handler）對驗證器而言是完全黑盒透明的。我們刻意將兩者解耦劃清界限。Schema 是靜態資料；Handler 是可執行程式碼。將兩者混為一談極易誘使工程師在 Handler 內部編寫參數驗證邏輯，而這正是我們極力撲滅的架構反模式。
+Schema 是驗證器唯一觸摸的實體欄位。處理常式（Handler）對驗證器而言完全不透明。我們刻意將兩者解耦劃清界限。Schema 是靜態資料；Handler 是可執行程式碼。將兩者混為一談極易誘使工程師在 Handler 內部編寫參數驗證邏輯，而這正是我們極力撲滅的架構反模式。
 
 ## JSON Schema 2020-12 核心子集
 

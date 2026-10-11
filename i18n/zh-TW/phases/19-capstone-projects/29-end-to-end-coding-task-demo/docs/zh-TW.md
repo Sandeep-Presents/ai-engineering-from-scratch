@@ -1,6 +1,6 @@
 # 專案實戰第 29 課：基於執行環境的端到端編程任務實戰演示（Capstone Lesson 29: End-to-End Coding Agent on the Harness）
 
-> 這是 Track A 整個架構體系的終極收官與成果兌現。本課將驗證閘門鏈、安全沙盒、自動化評測套件以及 OpenTelemetry Span 全量縫合為一個真正運作的自主編程 Agent，成功修復一個多檔案 Python 專案中的真實、小型 fixture 規模缺陷。該 Agent 採用確定性決策策略（Deterministic Policy）而非使用 LLM；這一替換使本課具備可重現性，也顯示整個系統的核心在於執行環境本身。底層合約完全相同：真實大模型可在該策略接縫處無縫替換。
+> 這是 Track A 的整合成果。本課將驗證閘門鏈、安全沙盒、自動化評測套件以及 OpenTelemetry Span 全量縫合為一個真正運作的自主編程 Agent，成功修復一個多檔案 Python 專案中的真實、小型 fixture 規模缺陷。該 Agent 採用確定性決策策略（Deterministic Policy）而非使用 LLM；這一替換使本課具備可重現性，也顯示整個系統的核心在於執行環境本身。底層合約完全相同：真實大模型可在該策略接縫處無縫替換。
 
 **Type:** Build
 **Languages:** Python (stdlib)

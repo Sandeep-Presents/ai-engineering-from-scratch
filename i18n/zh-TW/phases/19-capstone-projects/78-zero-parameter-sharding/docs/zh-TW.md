@@ -92,7 +92,7 @@ python3 code/main.py
 
 **混合精度是整套體系的靈魂所在**：ZeRO 本質上是一套專門針對混合精度訓練的記憶體最佳化架構；被分片拆解的核心大頭正是高達 12P 的 FP32 主權重與動量。若在純 fp32 精度下運作 ZeRO，你既要承受 fp32 master copy 的記憶體負擔，卻沒有相應的 fp16 前向效益。正式環境必須將 ZeRO 與 autocast 或 BF16 權重緊密結合。
 
-**Stage 1 是一項近乎完全「免費」的巨大勝利**：其網路頻寬開銷與原生 DDP 完全同一；其記憶體節省隨節點數 N 呈線性下降；唯一的代價僅僅是維護最佳化器分片的記憶體記帳邏輯。在現代工業界技術堆疊中，除非模型大到連參數本體都塞不下，否則全體預設開啟 Stage 1；只有在記憶體依然不足時，才進一步考慮升級至 Stage 2 或 Stage 3 以頻寬換顯存。
+**Stage 1 是一項近乎完全「免費」的巨大勝利**：其網路頻寬開銷與原生 DDP 完全同一；其記憶體節省隨節點數 N 呈線性下降；唯一的代價僅僅是維護最佳化器分片的記憶體記帳邏輯。在正式環境中，預設使用 Stage 1；如果參數分片所需的記憶體也成為問題，則可考慮使用 Stage 2 或 Stage 3，以增加通訊量換取記憶體。
 
 ## Use It｜實際應用
 
@@ -100,7 +100,7 @@ python3 code/main.py
 
 - **DeepSpeed ZeRO**：參考實作。透過 `deepspeed_config.json` 靈活切換 Stage 1/2/3 與分區大小。
 - **PyTorch FSDP**：PyTorch 官方原生內建的同構框架。其 `ShardingStrategy.SHARD_GRAD_OP` 精確對標 ZeRO-2；而 `FULL_SHARD` 則對標 ZeRO-3。
-- **Hugging Face Accelerate**：在統一的配置檔案下無縫包裹並抹平了 DeepSpeed 與 FSDP 的呼叫細節。
+- **Hugging Face Accelerate**：在統一設定方式下無縫包裹並抹平了 DeepSpeed 與 FSDP 的呼叫細節。
 
 ## Ship It｜交付成果
 

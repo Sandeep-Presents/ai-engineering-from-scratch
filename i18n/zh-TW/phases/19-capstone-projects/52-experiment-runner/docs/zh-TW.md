@@ -80,7 +80,7 @@ def ablate(base: ExperimentSpec, knob: str, values: list[Any]) -> list[Experimen
 
 傳入基礎實驗規格與目標旋鈕名稱，該輔助函式針對每個候選值回傳一個繼承基礎設定且精準覆蓋 `config[knob]` 的獨立規格物件。每個派生規格皆擁有依指定格式衍生的 `spec_id`（如 `f"{base.spec_id}_{knob}_{value}"`）。執行器內建 `AblationRunner`，依序執行所有規格，並回傳以旋鈕數值為 Key 的 `AblationTable`。
 
-為何堅持一次只調節一個旋鈕？全因子（Full Factorial）網格爆炸會引發計算維度的幾何級數激增，並產出評估器根本無法解讀的混亂共線性結果。一次只動一個變數，才能產出評估器能夠清晰繪圖的純淨因果座標軸。本課將多變數實驗嚴格解耦為連續多次單變數消融的依序組合。
+為何堅持一次只調節一個旋鈕？全因子（Full Factorial）網格爆炸會引發計算維度的幾何級數激增，並產出評估器無法解讀的結果。一次只動一個變數，才能產出評估器能夠清晰繪圖的純淨因果座標軸。本課將多變數實驗嚴格解耦為連續多次單變數消融的依序組合。
 
 ## 確定性保證
 
@@ -88,7 +88,7 @@ def ablate(base: ExperimentSpec, knob: str, values: list[Any]) -> list[Experimen
 
 ## 模擬實驗腳本
 
-本課內建了一個標準的模擬實驗腳本：`code/experiments/sparsity_experiment.py`。這是一個真實的可執行 Python 腳本：讀取配置檔案路徑、基於 numpy 隨機數模擬一次微型訓練過程，並在退出時印出一行標準的 JSON 指標。腳本支援接收 `sleep_s` 參數用於觸發超時測試，接收 `allocate_mb` 參數用於觸發記憶體溢出測試。
+本課內建了一個標準的模擬實驗腳本：`code/experiments/sparsity_experiment.py`。這是一個真實的可執行 Python 腳本：讀取配置檔案路徑、基於 numpy 隨機數模擬一次微型訓練過程，並在退出時印出一行標準的 JSON 指標。腳本支援接收 `sleep_s` 參數用於觸發超時測試，接收 `allocate_mb` 參數，用於測試記憶體限制的輪詢與終止路徑。
 
 該模擬腳本並未進行真實的神經網路運算。它是一個數值計算模擬器，精準模擬了訓練迴圈的核心形態：損失函數下降曲線、最終困惑度指標、物理時鐘耗時。本課的核心在於掌握執行器本身的工程架構，而非被龐大的具體模型分散精力。在真實專案中，只需將該腳本替換為真實的大模型訓練腳本即可。
 

@@ -18,7 +18,7 @@
 
 資料攝取協定全面採用 OTLP HTTP。SDK 自動生成符合 GenAI 語意約定的標準 Span 欄位：`gen_ai.system`、`gen_ai.request.model`、`gen_ai.usage.input_tokens`、`gen_ai.response.id`、`llm.prompts`、`llm.completions`。Span 串流批次寫入 ClickHouse 進行高性能列式儲存與 OLAP 分析；業務中繼資料（用戶 ID、工作階段 Session、應用 App）則持久化至 Postgres。
 
-自動評估工作以批次任務形式在抽樣 Trace 上持續運作。DeepEval 自動為回答的忠實度、毒性與相關性評分。當 Trace 攜帶檢索上下文時，RAGAS 自動度量檢索精準度。自定義的 LLM 裁判則針對垂直業務規則展開合規排查（如 PII 外洩、跨越安全紅線）。所有評測結果皆作為子 Span 關聯回原始的父級 Trace，並寫回同一個 ClickHouse 叢集。
+自動評估工作以批次任務形式在抽樣 Trace 上持續運作。DeepEval 自動為回答的忠實度、毒性與相關性評分。當 Trace 攜帶檢索上下文時，RAGAS 自動度量檢索指標。自定義的 LLM 裁判則針對垂直業務規則展開合規排查（如 PII 外洩、跨越安全紅線）。所有評測結果皆作為子 Span 關聯回原始的父級 Trace，並寫回同一個 ClickHouse 叢集。
 
 資料漂移檢測機制持續監控 Prompt embedding在特徵空間中的分佈演變（透過對 Prompt 語義向量計算總體穩定性指標 PSI 或 KL 散度）以及綜合評測得分的走勢趨勢。告警訊號流入 Prometheus Alertmanager，並進一步路由至 Slack 或 PagerDuty。前端採用 Next.js 15 搭配 Recharts 進行高效渲染。
 
@@ -83,7 +83,7 @@ ce-otel-drift
 
 7. **全功能可觀測儀表板**。使用 Next.js 15 開發全功能頁面：全局概覽（每秒 Span 吞吐、每用戶平均花費、p95 延遲走勢）、鏈路詳情（即時檢索 + 瀑布圖 Waterfall 展開）、評測面板（忠實度走勢、毒性分佈）、漂移分析（PSI 歷史曲線）、告警歷史。
 
-8. **告警聯動鏈路**。使用 Prometheus Exporter 定時聚合評測得分與延遲分位數；透過 Alertmanager 將一般 Warning 警告推播至 Slack，將重大 SLO 違規與安全漏洞直接升級至 PagerDuty 電話告警。
+8. **告警聯動鏈路**。使用 Prometheus Exporter 定時聚合評測得分與延遲分位數；透過 Alertmanager 將一般 Warning 警告推播至 Slack，將重大違規事件升級至 PagerDuty。
 
 9. **線上回退注入實測**。手動注入故障：讓受測的聊天機器人在 1% 的隨機機率下吐出虛構的假美國社會安全碼（SSN）。度量平均修復時間（MTTR）：從故障程式碼上線到 Slack 收到報警通知的端到端秒數。
 

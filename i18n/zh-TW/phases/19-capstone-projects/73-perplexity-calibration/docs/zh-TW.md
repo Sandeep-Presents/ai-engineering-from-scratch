@@ -114,10 +114,10 @@ report.populated_bins  # int
 
 ## 程式碼導讀
 
-`main.py` 定義了 `perplexity`、`expected_calibration_error`、`brier_score`、`reliability_diagram`，以及 `CalibrationReport` 與 `PerplexityResult` 資料類別。底部的演示程式在已知 Ground Truth 的合成預測上運作：一個校準良好的模型、一個過度自信的模型，以及一個過度自卑的模型。`code/tests/test_calibration.py` 單元測試鎖定了所有極限邊界與數值精度。
+`main.py` 定義了 `perplexity`、`expected_calibration_error`、`brier_score`、`reliability_diagram`，以及 `CalibrationReport` 與 `PerplexityResult` 資料類別。底部的演示程式在已知 Ground Truth 的合成預測上運作：一個校準良好的模型、一個過度自信的模型，以及一個信心偏低的模型。`code/tests/test_calibration.py` 單元測試鎖定了所有極限邊界與數值精度。
 
 自頂向下通讀 `main.py`。程式碼編排由純量運算過渡至向量運算、最後收斂至綜合報告。每個函式皆包含嚴密的數學註解與合約規範。
 
 ## 工程深化
 
-機率校準是目前公開大模型評測論文中最常被忽略的面向。絕大多數商業排行榜只顧著吹噓單一的 Accuracy 準確率數值，隨後便宣告大獲全勝。一個在準確率上拔得頭籌但在布里爾分數上一塌糊塗的模型，在真實正式環境中往往是一場災難——相較之下，一個準確率稍微低了兩點、但能夠精準誠實回報自身不確定性的模型，才是真正能夠放心部署上線的合格產品。當你將本課的校驗管線完整就緒後，在保留驗證集上實施溫度縮放（Temperature Scaling），重新計算 ECE，親眼看著校準偏差大幅縮小——那是通往高階工程殿堂的必經之路。
+機率校準是目前公開大模型評測論文中最常被忽略的面向。大多數排行榜只回報單一的 Accuracy 準確率數值，便認為評估已完成。一個在準確率上拔得頭籌但在布里爾分數上一塌糊塗的模型，在真實正式環境中往往是一場災難——相較之下，一個準確率低了幾個百分點、但能夠精準誠實回報自身不確定性的模型，才是真正能夠放心部署上線的合格產品。當你將本課的校驗管線完整就緒後，在保留驗證集上實施溫度縮放（Temperature Scaling），重新計算 ECE，親眼看著校準偏差大幅縮小——那是通往高階工程殿堂的必經之路。

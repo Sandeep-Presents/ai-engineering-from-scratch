@@ -1,6 +1,6 @@
 # 專案實戰第 39 課：透過監督式 fine-tuning 實施指令 fine-tuning（Capstone Lesson 39: Instruction Tuning by Supervised Fine-Tuning）
 
-> 預訓練底座模型擁有強大的文字接續能力，但對「遵循人類指令」一無所知。監督式 fine-tuning（SFT）是用於修正該缺陷的最精簡實用技術：向模型餵入「指令-期望回答」配對樣本，並訓練神經網路預測回答部分的 Token。整個流程中最核心的技術玄機在於：**損失函數必須且僅能計算回答部分，而嚴格對指令部分實施梯度遮罩**。本課將親手實作 Alpaca 風格的 SFT 訓練迴圈，編寫自定義的 Collate 批次組裝函式，使用 `ignore_index=-100` 精確遮罩指令 Token，在包含 200 組問答對的語料上訓練，並在獨立保留測試集上使用精確匹配率（Exact-Match）進行驗收。
+> 預訓練底座模型擁有強大的文字接續能力，但對「遵循人類指令」一無所知。監督式 fine-tuning（SFT）是用於修正該缺陷的最精簡實用技術：向模型餵入「指令—回答」配對樣本，並訓練神經網路預測回答部分的 Token。關鍵在於：**損失函數必須且僅能計算回答部分，而嚴格對指令部分實施梯度遮罩**。本課將親手實作 Alpaca 風格的 SFT 訓練迴圈，編寫自定義的 Collate 批次組裝函式，使用 `ignore_index=-100` 精確遮罩指令 Token，在包含 200 組指令—回答配對的語料上訓練，並在獨立保留測試集上使用精確匹配率（Exact-Match）進行驗收。
 
 **Type:** Build
 **Languages:** Python (torch, numpy)
@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 將配對的「指令-回答」資料格式化為帶有明確特殊邊界標籤的單一自回歸序列。
+- 將「指令—回答」配對資料格式化為帶有明確特殊邊界標籤的單一自回歸序列。
 - 建構專屬的 Collate 批次組裝函式，精確遮罩指令 Token，使交叉熵損失僅作用於回答 Token。
 - 在 SFT 目標下執行 fine-tuning，訓練微型 Transformer 主幹，親眼見證評測指標的顯著躍升。
 - 實作嚴格遵循「回答起始邊界（Response-Start Boundary）」的貪婪搜尋與溫度取樣生成演算法。
@@ -47,7 +47,7 @@ flowchart LR
 
 ## 資料集設計
 
-`main.py` 以確定性方式合成 200 組「指令-回答」問答對，全面覆蓋六大核心任務類型：
+`main.py` 以確定性方式合成 200 組「指令—回答」配對，全面覆蓋六大核心任務類型：
 
 - 事實型單輪問答（例如：某國的首都在哪裡）
 - 基礎算術運算
@@ -127,8 +127,8 @@ cc-sft-loss-mask
 
 所有實作收斂於單一的 `main.py` 與附帶測試模組：
 
-1. `InstructionTokenizer`：支援保留特殊標籤的位元組級編碼器。支援編碼純指令前綴或完整的「指令-回答」對。
-2. `make_dataset`：鎖定隨機種子，在六大任務維度上合成 200 組問答對。
+1. `InstructionTokenizer`：支援保留特殊標籤的位元組級編碼器。支援編碼純指令前綴或完整的「指令—回答」配對。
+2. `make_dataset`：鎖定隨機種子，在六大任務維度上合成 200 組指令—回答配對。
 3. `SFTDataset`：封裝底層資料，為每個樣本提供準備好遮罩的 `(input_ids, labels)`。
 4. `sft_collate`：動態批次 Padding 填充，建構 Batch 張量，並精確將 `-100` 寫入指令與 Padding 位置。
 5. `TinyGPT`：微型 Transformer 主幹，包含 Token embedding、位置 embedding 與 LM Head。

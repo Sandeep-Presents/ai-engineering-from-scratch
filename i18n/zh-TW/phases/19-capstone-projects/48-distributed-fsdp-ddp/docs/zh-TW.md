@@ -50,7 +50,7 @@ DDP 的本質合約就是：**建構時 `broadcast` 參數，反向傳播後 `al
 
 ### 梯度平均與單行程計算的數學等價性
 
-在 N 個 Rank 節點上平行訓練大小為 B 的小批次，在數學上必須產出與單個行程在 N*B 的大批次上訓練相同的梯度。其奧祕在於：將各 Rank 計算出的局部梯度求和並除以 N，在線性代數上精確等於在全量輸入上調用均值歸約（Mean Reduction）交叉熵損失函數所產出的理論梯度。本課程式碼嚴密斷言：手動 All-Reduce 的梯度與單行程參考 baseline 梯度的最大絕對誤差嚴格低於 `max-abs-diff < 1e-3`（在 CPU 雙精度下通常低於 1e-8）。
+在 N 個 Rank 節點上平行訓練大小為 B 的小批次，在數學上必須產出與單個行程在 N*B 的大批次上訓練相同的梯度。其奧祕在於：將各 Rank 計算出的局部梯度求和並除以 N，在線性代數上精確等於在全量輸入上調用均值歸約（Mean Reduction）交叉熵損失函數所產出的理論梯度。本課程式碼嚴密斷言：手動 All-Reduce 的梯度與單行程參考 baseline 梯度的最大絕對誤差嚴格低於 `max-abs-diff < 1e-3`（實測差異通常約為 1e-8）。
 
 ### FSDP 參數分片架構速寫
 
@@ -90,7 +90,7 @@ os.environ["MASTER_PORT"] = str(port)
 dist.init_process_group(backend="gloo", rank=rank, world_size=world_size)
 ```
 
-`MASTER_ADDR` 與 `MASTER_PORT` 是多節點握手的約會點（Rendezvous）：所有 Rank 節點皆連線至相同主機的相同連接埠。本課透過「隨機綁定後立即關閉」的巧妙技巧動態選取閒置連接埠，確保在多任務共用同一台實體伺服器時絕不發生連接埠碰撞衝突。
+`MASTER_ADDR` 與 `MASTER_PORT` 是多節點握手的約會點（Rendezvous）：所有 Rank 節點皆連線至相同主機的相同連接埠。本課透過「隨機綁定後立即關閉」的巧妙技巧動態選取閒置連接埠，降低多任務共用同一台實體伺服器時的連接埠碰撞風險。
 
 ### 第二步：建構時強制廣播參數
 

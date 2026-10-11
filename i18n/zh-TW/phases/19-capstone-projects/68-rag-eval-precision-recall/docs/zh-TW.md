@@ -76,7 +76,7 @@ nDCG 的最大優勢在於它天然相容**連續分級的相關性**：黃金�
 
 模型的回答是否真正切中了使用者的提問意圖？忠實度衡量的是「回答是否錨定於上下文？」；而答案相關性衡量的是「回答是否錨定於使用者的問題？」。一個忠實但答非所問的回答，會呈現高忠實度、低相關性；而一個言簡意賅但完全拋開上下文盲猜的回答，會呈現高相關性、低忠實度。
 
-標準實踐同樣依託 LLM 裁判：傳入 (提問, 回答)，判定回答是否直接切題。本課內建了基於關鍵詞重疊的模擬評分器。
+標準實踐同樣依託 LLM 裁判：傳入 (提問, 回答)，判定回答是否直接切題。本課實作了結合 token 重疊評分與裁判的替代方案。
 
 ## 標準 qrels 測試夾具結構
 
@@ -109,7 +109,7 @@ ci-rag-metric-ladder
 - `precision_at_k(retrieved, gold, k)`：標準精確率算子。
 - `recall_at_k(retrieved, gold, k)`：標準召回率算子。
 - `mean_reciprocal_rank(retrieved_list_of_lists, gold_list)`：跨提問求平均的 MRR 算子。
-- `ndcg_at_k(retrieved, graded_relevance, k)`：支援連續分級相關性的 nDCG 算子。
+- `ndcg_at_k(retrieved, graded_relevance, k)`：支援二元或分級增益的 nDCG 算子。
 - `extract_claims(answer)`：將長篇回答精確切分為單句級別的待審核論斷清單。
 - `faithfulness(claims, context_texts, judge)`：度量論斷受上下文支撐比例的忠實度算子。
 - `answer_relevance(question, answer, judge)`：審查回答是否切題的相關性算子。
@@ -133,7 +133,7 @@ python3 code/main.py
 | 良好 Recall@K，但低 MRR | 正確切塊已進入前 Top-K，但遺憾未能排在第 1 名 | 引入 Cross-Encoder 二次重排序器（第六十六課） |
 | 高 MRR，但低忠實度（Faithfulness） | 上下文完全正確，但產生器無視上下文開始胡亂幻覺 | 最佳化生成 Prompt；強制模型必須嚴格附帶引用或在無把握時拒絕作答 |
 | 高忠實度，但低答案相關性 | 回答有理有據，但徹底答非所問 | 引入前置查詢重寫器（第六十七課），或重新修正生成 Prompt 意圖對齊 |
-| 六大指標全高，但用戶依然投訴 | 評測測試集缺乏代表性，脫離了真實業務場景 | 擴充 qrels，大量引入真實線上使用者的歷史模糊提問 |
+| 四項（檢索／排序）指標皆高，但用戶依然投訴 | 評測測試集缺乏代表性，脫離了真實業務場景 | 擴充 qrels，大量引入真實線上使用者的歷史模糊提問 |
 
 ## 實戰中必須警惕的四大暗坑
 
@@ -149,9 +149,9 @@ python3 code/main.py
 
 工業級生產最佳實踐：
 
-- 每當調整檢索器、更換 embedding 模型或修改生成 prompt 時，強制全量跑一遍評測；將 Recall@K 的任何異常回撤視為嚴重的 CI 建置阻斷故障。
+- 每次更動檢索器或生成器時都執行評測。將 recall@k 退步視為測試失敗。
 - 將每一次提問的評測鏈路進行長效持久化。當線上用戶投訴時，立即查詢匹配的 qrels 條目，核實該事故在歷史評測中是否早已露出端倪。
-- 建立三級梯隊 qrels 評測矩陣：20 道提問的冒煙測試集（掛載於每一次 Git Commit CI 中）；200 道提問的回歸測試集（每晚定時跑通）；2000 道提問的深層全量測試集（每週末自動執行）。
+- 建立三級梯隊 qrels 評測矩陣：20 道提問的冒煙測試集（於 CI 中執行）；200 道提問的回歸測試集（每晚定時跑通）；2000 道提問的深層全量測試集（每週末自動執行）。
 
 ## Ship It｜交付成果
 
@@ -167,7 +167,7 @@ python3 code/main.py
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際含義 |
 |------|-----------------|------------------------|
 | Precision@k | 「檢索結果命中率」 | 檢索精確率：被檢索出的 Top-K 個切塊中，真正命中黃金標註文件的比例 |
 | Recall@k | 「黃金文件命中率」 | 檢索召回率：在全庫所有真實黃金文件中，成功被召回進入 Top-K 的比例 |
@@ -181,7 +181,7 @@ python3 code/main.py
 
 - Buckley, Voorhees, 2000（《Evaluating Evaluation Measure Stability》）：資訊檢索排名評估指標穩定性的奠基性經典文獻。
 - Järvelin, Kekäläinen（《Cumulated Gain-based Evaluation of IR Techniques》）：nDCG 原始原創學術論文。
-- [Ragas：RAG 管線自動化評估](https://docs.ragas.io)：大模型 RAG 自動化評估領域的事實工業標準。
+- [Ragas：RAG 管線自動化評估](https://docs.ragas.io)：RAG 管線的自動化評估工具。
 - [Anthropic：Introducing Contextual Retrieval](https://www.anthropic.com/engineering/contextual-retrieval)：以 $1 - \text{Recall@20}$ 為核心指標度量檢索突破。
 - 第 11 階段第 10 課（評估框架基礎）。
 - 第 19 階段第 64 至 67 課：全面回顧被本評測套件打分驗收的切塊、混合檢索、重排序與查詢重寫元件。

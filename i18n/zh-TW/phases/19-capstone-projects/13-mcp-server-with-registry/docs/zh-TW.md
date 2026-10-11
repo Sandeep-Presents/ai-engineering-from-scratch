@@ -146,7 +146,7 @@ MCP `2026-07-28` 規範徹底廢除了傳統的「協定工作階段（Protocol 
 - `Mcp-Name`：專屬於 `tools/call`、`resources/read` 與 `prompts/get`；
 - `Accept: application/json, text/event-stream`。
 
-若複製的標頭與主體內容發生衝突，伺服器必須立即以標準 `-32020` 錯誤拒絕請求。嚴格校驗 `Origin` 跨域來源、將本地開發伺服器鎖定在 loopback 環回介面、對遠端用戶端實施強制身分驗證，並將被用戶端主動關閉的 SSE 串流嚴格視為「任務取消」訊號處理。
+若複製的標頭與主體內容發生衝突，伺服器必須立即以標準 `-32020` 錯誤拒絕請求。嚴格校驗 `Origin` 跨域來源、將本地開發伺服器鎖定在 loopback 環回介面、對遠端用戶端實施強制身分驗證，並將被用戶端主動關閉的 SSE 串流嚴格視為「請求取消」訊號處理。
 
 ```mermaid
 flowchart LR
