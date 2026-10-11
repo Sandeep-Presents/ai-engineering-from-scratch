@@ -7,5 +7,6 @@
   "phases/17-infrastructure-and-production/06-sglang-radixattention/docs/en.md": "af59a1a2a5e715f773cfb4eae88654c80efa1a8d5b569b8d2c4f885e3114daca",
   "phases/17-infrastructure-and-production/07-tensorrt-llm-blackwell/docs/en.md": "680c63c00fffe57852cb42cb24d17afdfa66084a5f4427aef99a91f5f3cc9942",
   "phases/17-infrastructure-and-production/08-inference-metrics-goodput/docs/en.md": "d53d3c31b91e81969c851c0a9c1cc679e726c10541048c53a34c848c54f6d0c4",
-  "phases/17-infrastructure-and-production/09-production-quantization/docs/en.md": "426f95fbda1dff2cd772a878c671a4ac245e175f3af5fa4b5086d6eb0656ed63"
+  "phases/17-infrastructure-and-production/09-production-quantization/docs/en.md": "426f95fbda1dff2cd772a878c671a4ac245e175f3af5fa4b5086d6eb0656ed63",
+  "phases/17-infrastructure-and-production/10-cold-start-mitigation/docs/en.md": "d293a25aa3551eb703e1826e04cff4feb370996bcc769da2448f9e65eb27c2eb"
 }
