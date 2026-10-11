@@ -244,7 +244,7 @@ Example output:
 
 1. **簡單。** 在 L2 正規化後的 TF-IDF 輸出上實作 `cosine_similarity(doc_vec_a, doc_vec_b)`。驗證相同文件分數是 1.0，詞彙完全不相交的文件分數是 0.0。
 2. **中等。** 為 `bag_of_words` 加上 `n-gram`。參數 `n` 產出 `n`-gram 的計數。測試 `n=2` 作用在 `["the", "cat", "sat"]` 時，會為 `["the cat", "cat sat"]` 產出二元 n-gram 計數。
-3. **困難。** 用 GloVe 100 維向量（下載一次，放進快取）做出上面那個 TF-IDF 加權 embedding 的混合。在 20 Newsgroups 資料集（dataset）上，和純 TF-IDF、純平均池化 embedding 比分類準確率。回報哪一種在哪裡贏。
+3. **困難。** 用 GloVe 100 維向量（下載一次，放進快取）做出上面那個 TF-IDF 加權 embedding 的混合。在 20 Newsgroups 資料集（dataset）上，和純 TF-IDF、純平均池化 embedding 比分類準確率（accuracy）。回報哪一種在哪裡贏。
 
 ## Key Terms｜關鍵術語
 
