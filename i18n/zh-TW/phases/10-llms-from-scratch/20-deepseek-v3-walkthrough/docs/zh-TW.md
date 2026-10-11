@@ -1,6 +1,6 @@
 # DeepSeek-V3 架構導覽
 
-> 第 10 階段第 14 課指出了所有開源模型都會調校的六個架構旋鈕。DeepSeek-V3（2024 年 12 月，總參數量 6,710 億，活躍參數 370 億）撥動了這全部六個旋鈕，並在此之上加入了另外四項：多頭潛在注意力（MLA）、無輔助損失負載平衡（auxiliary-loss-free load balancing）、多 Token 預測（MTP），以及 DualPipe 平行訓練。本課自頂向下深度剖析 DeepSeek-V3 的架構，並從已公開的設定檔推導每個參數量的計算。學完之後，你將能透徹解釋為何 671B/37B 的比例是極具遠見的精準押注，以及為何在尖端領域 MLA 與 MoE 的結合威力能遠超單獨使用的任一技術。
+> 第 10 階段第 14 課指出了所有開源模型都會調校的六個架構旋鈕。DeepSeek-V3（2024 年 12 月，總參數量 6,710 億，活躍參數 370 億）撥動了這全部六個旋鈕，並在此之上加入了另外四項：多頭潛在注意力（Multi-Head Latent Attention，MLA）、無輔助損失負載平衡（auxiliary-loss-free load balancing）、多 Token 預測（Multi-Token Prediction，MTP），以及 DualPipe 平行訓練。本課自頂向下深度剖析 DeepSeek-V3 的架構，並從已公開的設定檔推導每個參數量的計算。學完之後，你將能透徹解釋為何 671B/37B 的比例是極具遠見的精準押注，以及為何在尖端領域 MLA 與 MoE 的結合威力能遠超單獨使用的任一技術。
 
 **Type:** Learn
 **Languages:** Python (stdlib, parameter calculator)
@@ -179,7 +179,7 @@ moe-routing
 | 前 k 個稠密層（First k dense layers） | 「早期層保持稠密」 | MoE 模型的前幾個區塊跳過 MoE 路由器並執行稠密 MLP，以維持訓練初期數值穩定性 |
 | num_experts_per_tok | 「Top-k 路由數量」 | 每個 token 啟動的路由專家數量；DeepSeek-V3 採用 8 |
 | 共享專家（Shared experts） | 「常駐專家」 | 無論路由決策如何皆會處理每個 token 的專家；DeepSeek-V3 採用 1 個 |
-| 無輔助損失路由（Auxiliary-loss-free routing） | 「偏差調整負載平衡」 | 在訓練期間動態調整逐專家偏置項以維持專家負載均衡，不引入額外的輔助損失項 |
+| 無輔助損失路由（Auxiliary-loss-free routing） | 「偏置調整負載平衡」 | 在訓練期間動態調整逐專家偏置項以維持專家負載均衡，不引入額外的輔助損失項 |
 | MTP 模組 | 「額外的預測頭」 | 從 h^(1) 與 E(t+1) 預測 t+2 的 transformer 區塊；提供更稠密訓練訊號並充當免費推測解碼草稿模型 |
 | DualPipe | 「雙向管線」 | 將前向／反向運算與跨節點 all-to-all 通訊完美的雙向訓練排程演算法 |
 | 活躍參數比例（Active parameter ratio） | 「稀疏度」 | 活躍參數 / 總參數；DeepSeek-V3 達到極致的 5.5% |
