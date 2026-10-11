@@ -22,5 +22,6 @@
   "phases/18-ethics-safety-alignment/21-fairness-criteria-group-individual-counterfactual/docs/en.md": "936f4875ebd967b777b73990662cfd380bbf58790694af81230e84707bad41df",
   "phases/18-ethics-safety-alignment/22-differential-privacy-for-llms/docs/en.md": "0f05d09ab51d09c553677ace2ec81064232132803ec1dac721d72e8ad1118db4",
   "phases/18-ethics-safety-alignment/23-watermarking-synthid-stable-signature-c2pa/docs/en.md": "ae55115b02803bcdeaa1a2e65035857646ce3b9703e3d2eb5fd9992b958c767c",
-  "phases/18-ethics-safety-alignment/24-regulatory-frameworks-eu-us-uk-korea/docs/en.md": "5babaaec2f1c7dc2d619dea0a8bb46ee4e94754dec3182adb72a7e7d6e1c7032"
+  "phases/18-ethics-safety-alignment/24-regulatory-frameworks-eu-us-uk-korea/docs/en.md": "5babaaec2f1c7dc2d619dea0a8bb46ee4e94754dec3182adb72a7e7d6e1c7032",
+  "phases/18-ethics-safety-alignment/25-echoleak-cves-for-ai/docs/en.md": "193ed71dd1b1e94227fa8a44bec5df31eda6ffdab54ec130cd5c51997a581ebb"
 }
