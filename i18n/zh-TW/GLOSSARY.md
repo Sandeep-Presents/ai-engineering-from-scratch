@@ -9,6 +9,14 @@
 | agent | agent | 是 | 智慧體、代理程式 | AI agent 語境中保留英文；一般法律／人員語境另依上下文。 |
 | fine-tuning | fine-tuning | 是 | 微調 | 依使用者指定保留英文。 |
 | embedding | embedding | 是 | 嵌入、嵌入向量 | 依使用者指定保留英文。 |
+| word embedding | word embedding | 是 | 詞嵌入 | 詞的 embedding。不要寫「嵌入」。 |
+| skip-gram | skip-gram | 是 |  | Word2Vec 由中心詞預測周圍詞。 |
+| CBOW | CBOW | 是 |  | continuous bag of words。由周圍詞預測中心詞。 |
+| negative sampling | 負採樣 | 否 |  | 用少數負例的二元分類取代整個詞彙表的 softmax。 |
+| distributional hypothesis | 分布假說 | 否 |  | 出現在相似脈絡的詞，意思也相似。 |
+| polysemy | 一詞多義 | 否 |  | 一個詞有多個意思。 |
+| static embedding | static embedding | 是 |  | 一個詞一個向量，不看脈絡。 |
+| contextual embedding | contextual embedding | 是 |  | 依脈絡為每次出現給不同向量。 |
 | eager execution | 立即執行 | 否 |  | PyTorch 的設計：呼叫當下就算出結果。 |
 | pure function | 純函式 | 否 |  | 輸出只取決於輸入，沒有副作用。 |
 | pytree | pytree | 是 |  | JAX 可走訪的巢狀清單、tuple、dict 與陣列。 |
@@ -341,6 +349,8 @@
 | policy optimization | 策略最佳化 | 否 |  |  |
 | value learning | 價值學習 | 否 |  |  |
 | reward | 獎勵 | 否 |  | 強化學習語境。 |
+| reward model | 獎勵模型 | 否 |  | RLHF 語境中，依人類成對偏好訓練、替回應打分的模型。 |
+| preference pair | 偏好對 | 否 |  | 同一 prompt 的兩個回覆，標出一優一次，作為偏好訓練資料。 |
 | penalty | 懲罰 | 否 |  | 強化學習語境。 |
 | neural network | 神經網路 | 否 | 神經網絡 |  |
 | neuron | 神經元 | 否 |  |  |
@@ -351,6 +361,10 @@
 | prediction | 預測 | 否 |  |  |
 | dataset | 資料集 | 否 |  |  |
 | tokenization | tokenization | 是 |  | 文字處理步驟；保留 token 的英文用法。 |
+| tokenizer | tokenizer | 是 | 標記器、分詞器 | 依業界慣例保留英文。 |
+| fertility | fertility | 是 | 產詞率 | tokenizer 效率指標：每個字詞平均被切成多少 token；業界文件多保留英文。 |
+| stemming | 詞幹提取 | 否 |  | 用規則砍詞尾。結果不一定是真的詞。 |
+| lemmatization | 詞形還原 | 否 |  | 收回字典形式。需要詞性等文法脈絡。 |
 | language modeling | 語言建模 | 否 |  |  |
 | question answering | 問答 | 否 |  |  |
 | text classification | 文字分類 | 否 |  |  |
@@ -867,6 +881,13 @@
 | diagonal matrix | 對角矩陣 | 否 |  | 僅主對角線非零的矩陣。 |
 | commutative | 可交換 | 否 |  | 運算順序不影響結果的性質。 |
 | recurrent neural network | 循環神經網路 | 否 |  | 具有迴圈結構、處理序列的網路；RNN。 |
+| context vector | 脈絡向量 | 否 |  | 編碼器最後隱藏狀態；序列到序列的瓶頸。 |
+| teacher forcing | teacher forcing | 是 |  | 訓練時餵真實標籤的前一個 token。 |
+| exposure bias | 暴露偏差 | 否 |  | 訓練用真 token、推論用自己的預測，造成的落差。 |
+| beam search | 集束搜尋 | 否 |  | 每一步保留前 k 條部分序列。 |
+| hallucination | 幻覺 | 否 |  | 模型輸出來源沒有支撐的內容。 |
+| cross-attention | 交叉注意力 | 否 |  | 解碼器對編碼器狀態做的注意力。 |
+| constrained decoding | 約束解碼 | 否 |  | 強迫某些 token 出現或不出現。 |
 | RNN | RNN | 是 |  | recurrent neural network 縮寫。 |
 | data augmentation | 資料增強 | 否 |  | 以變換擴增訓練資料。 |
 | dynamical system | 動態系統 | 否 |  | 狀態隨時間演化的系統。 |
@@ -993,6 +1014,16 @@
 | MCMC | MCMC | 是 |  | Markov chain Monte Carlo 縮寫。 |
 | L-BFGS | L-BFGS | 是 |  | 擬牛頓最佳化演算法名稱。 |
 | conditional random field | 條件隨機場 | 否 |  |  |
+| named entity recognition | 命名實體辨識 | 否 |  | 把 token 片段標成人物、組織、地點等類型。 |
+| part-of-speech tagging | 詞性標記 | 否 |  | 給每個 token 一個文法類別。 |
+| syntactic parsing | 句法剖析 | 否 |  | 還原句子的樹狀結構。 |
+| dependency parsing | 依存剖析 | 否 |  | 每個詞依存於一個中心詞。 |
+| hidden Markov model | 隱藏馬可夫模型 | 否 |  | 以發射與轉移機率做序列標記。 |
+| LSTM | LSTM | 是 |  | Long Short-Term Memory。 |
+| BiLSTM | BiLSTM | 是 |  | 雙向 LSTM。 |
+| gazetteer | 專名表 | 否 |  | 已知專名的查表清單。 |
+| zero-shot | 零樣本 | 否 |  | 沒有該任務的標註例子就直接做。 |
+| few-shot | 少樣本 | 否 |  | 只用少數標註例子。 |
 | second moment | 二階矩 | 否 |  | Adam 語境，梯度平方的平均量。 |
 | natural gradient | 自然梯度 | 否 |  | 使用 Fisher 資訊矩陣的梯度方法。 |
 | Fisher information matrix | Fisher 資訊矩陣 | 否 |  | 衡量參數資訊量的矩陣。 |
@@ -1116,6 +1147,10 @@
 | alternating least squares | 交替最小平方法 | 否 |  | ALS。 |
 | noise reduction | 降噪 | 否 |  |  |
 | matrix factorization | 矩陣分解 | 否 |  |  |
+| co-occurrence | 共現 | 否 |  | 兩個詞出現在彼此脈絡裡。 |
+| subword | 子詞 | 否 |  | 詞的片段；字元 n-gram 或學出來的 token。 |
+| BPE | BPE | 是 |  | Byte-Pair Encoding；反覆合併最常相鄰的配對。 |
+| byte-level BPE | 位元組層級 BPE | 否 |  | 從 256 個位元組開始的 BPE。 |
 | truncated SVD | 截斷奇異值分解 | 否 |  |  |
 | SVD truncation | SVD 截斷 | 否 |  |  |
 | low-rank | 低秩 | 否 |  |  |
@@ -1240,6 +1275,10 @@
 | evidence | 證據 | 否 |  | 貝氏定理分母語境。 |
 | naive Bayes | 單純貝氏 | 否 | 朴素貝叶斯 |  |
 | Laplace smoothing | 拉普拉斯平滑 | 否 |  |  |
+| sentiment analysis | 情感分析 | 否 |  | 判斷文字是正面、負面或其他態度。 |
+| polarity | 極性 | 否 |  | 情感的正負方向。 |
+| negation scoping | 否定範圍 | 否 |  | 否定詞往後影響到下一個標點。 |
+| aspect-based sentiment | 面向情感分析 | 否 |  | 把情感歸到文中的特定面向。 |
 | false positive | 偽陽性 | 否 | 假陽性 | 檢定誤報語境；台灣醫檢用偽陽性。 |
 | false negative | 偽陰性 | 否 | 假陰性 |  |
 | conjugate prior | 共軛先驗 | 否 |  |  |
@@ -1527,6 +1566,10 @@
 | inverse document frequency | 逆文件頻率 | 否 |  | 詞在所有文件中的稀有程度指標。 |
 | count vectorizer | 計數向量化器 | 否 |  | 統計各詞在文件中出現次數的文字特徵方法。 |
 | bag of words | 詞袋 | 否 |  | 只計詞頻、不計順序的文字表示法。 |
+| document frequency | 文件頻率 | 否 |  | 含有該詞的文件數。 |
+| n-gram | n-gram | 是 |  | 連續 n 個 token。 |
+| sparse vector | 稀疏向量 | 否 |  | 大部分元素為零的向量。 |
+| stopword | 停用詞 | 否 |  | 功能詞；情感分析常常不該刪掉否定詞。 |
 | corpus | 語料庫 | 否 |  | 文件的集合。 |
 | document | 文件 | 否 |  | 文字分析中的單一文本單位。 |
 | word count | 詞數 | 否 |  |  |
@@ -1690,3 +1733,9 @@
 | open-weights | 開放權重 | 否 | | 權重可取得不等於開源授權；依所附授權條款描述。 |
 | ground-truth patch | 標準答案修補檔 | 否 | | SWE-bench 類基準的參照修補檔；與 ground truth（真實標籤）語境不同。 |
 | attestation | 認證 | 否 | | 供應鏈／發布流程的簽名證明文件；與 authentication（身分驗證）不同。 |
+| batch size | 批次大小 | 否 | 批數 | 訓練超參數，指單一批次的樣本數；「批次數量」易誤讀為批次的個數。 |
+| demographic parity | 人口統計均等 | 否 | | 公平性指標：各群體獲得正面結果的比率相等。 |
+| goal-directedness | 目標導向性 | 否 | | 謀劃行為三支柱之一；指有內在目標驅動，不等於 multi-step planning。 |
+| uplift | 提升幅 | 否 | | 行銷／成長情境的指標提升幅度；勿譯為「效率」。 |
+| retriever | 檢索器 | 否 | | RAG／搜尋管線中負責取回候選文件的元件。 |
+| detector | 偵測器 | 否 | | 偵測異常、越獄、訊號的元件；勿誤譯為「檢索器」（那是 retriever）。 |
