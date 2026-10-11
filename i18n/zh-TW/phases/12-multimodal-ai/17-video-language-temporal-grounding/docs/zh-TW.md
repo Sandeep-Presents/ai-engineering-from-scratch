@@ -127,7 +127,7 @@ video-temporal-patches
 
 2. 相較於傳統簡單的一維時間 embedding 查表，TMRoPE 究竟額外帶來了哪些傳統機制完全無法實現的根本能力？
 
-3. 為時間軸定位任務撰寫一份完整的 JSON Schema，使其能被 VLM 穩定遵循輸出，並包含當未發現目標事件時的合規錯誤回傳欄位定義。
+3. 為時間軸定位任務撰寫一份完整的 JSON Schema，使其能被 VLM 穩定遵循輸出，並納入錯誤案例。
 
 4. 閱讀 Video-LLaVA 論文第 3 節關於「投影前先對齊（Alignment Before Projection）」的論述。為何這種聯合訓練範式，遠勝過分別訓練孤立的靜態影像編碼器與動態視訊編碼器？
 

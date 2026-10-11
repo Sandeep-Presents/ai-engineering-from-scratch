@@ -33,7 +33,7 @@ MIO 建構的 Tokenizer 武器庫如下：
 
 - 文字端：標準 BPE tokenizer，詞彙量約 32,000。
 - 影像端：SEED-Tokenizer（2023）——包含 4096 個碼本向量的離散量化 VAE，每張影像切分為 32×32 個 token。
-- 語音端：SpeechTokenizer 殘差 VQ（Residual-VQ，2023）——將 16kHz 原始波形編碼為 8 層階層式碼本；第 1 層專注於粗粒度文字內容，後續層級則逐步補充語調、情感與說話者音色特徵。
+- 語音端：SpeechTokenizer 殘差 VQ（Residual-VQ，2023）——將 16kHz 原始波形編碼為 8 層階層式碼本；第 1 層編碼粗略內容，後續層級則逐步補充韻律與說話者身分。
 - 音樂端：基於相似的階層式殘差 VQ（源自 Meta 的 MusicGen / Encodec 家族），配備 4 到 8 層碼本。
 
 每個模態皆輸出標準的離散整數 token。在全域共用詞彙表中，為它們劃分彼此完全隔離的獨立 ID 區間：

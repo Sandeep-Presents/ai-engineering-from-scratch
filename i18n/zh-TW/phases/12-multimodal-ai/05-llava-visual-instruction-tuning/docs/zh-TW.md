@@ -124,7 +124,7 @@ LLaVA-1.5-7B 的參數組成剖析：
 - 語言模型：Llama-7B 佔 70 億參數。
 - 全系統總計：約 73 億參數。在第 2 階段實際參與梯度更新的為 70 億 LLM 加上 2200 萬投影器。
 
-第 2 階段的訓練耗時：在單台配備 8 張 A100 的伺服器節點上僅需約 20 小時。這正是關鍵數字——「一天之內、單一節點、百分之百可重現」。這正是 LLaVA 能夠席捲全球開源社群的最核心動力。
+第 2 階段的訓練耗時：在單台配備 8 張 A100 的伺服器節點上僅需約 20 小時。這正是關鍵數字——「一天之內、單一節點、可重現」。這正是 LLaVA 能夠席捲全球開源社群的最核心動力。
 
 ```figure
 mm-llava-projector
@@ -135,7 +135,7 @@ mm-llava-projector
 `code/main.py` 完整實作了：
 
 1. 雙層 MLP 投影器（為展示玩具規模，設定維度為 16 → 32 → 32），以純 Python 撰寫。
-2. Prompt 建構管線：組合prompt（system prompt）+ 將 `<image>` 替換為 N 個投影後的視覺 token + 使用者發問 + 助理回答佔位符。
+2. Prompt 建構管線：組合 prompt（system prompt）+ 將 `<image>` 替換為 N 個投影後的視覺 token + 使用者發問 + 助理回答佔位符。
 3. 視覺化檢驗 576 個視覺 token 在 LLM context 中的空間佔比（在 2k / 32k / 128k 等不同 context 視窗下所消耗的百分比）。
 
 ## Ship It｜交付成果
@@ -171,8 +171,8 @@ mm-llava-projector
 
 ## Further Reading｜延伸閱讀
 
-- [Liu et al. — Visual Instruction Tuning (arXiv:2304.08485)](https://arxiv.org/abs/2304.08485)
-- [Liu et al. — Improved Baselines with Visual Instruction Tuning (arXiv:2310.03744)](https://arxiv.org/abs/2310.03744)
-- [Chen et al. — ShareGPT4V (arXiv:2311.12793)](https://arxiv.org/abs/2311.12793)
-- [Karamcheti et al. — Prismatic VLMs (arXiv:2402.07865)](https://arxiv.org/abs/2402.07865)
-- [Li et al. — LLaVA-OneVision (arXiv:2408.03326)](https://arxiv.org/abs/2408.03326)
+- [Liu et al. — Visual Instruction Tuning (arXiv:2304.08485)](https://arxiv.org/abs/2304.08485) — LLaVA 論文。
+- [Liu et al. — Improved Baselines with Visual Instruction Tuning (arXiv:2310.03744)](https://arxiv.org/abs/2310.03744) — LLaVA-1.5。
+- [Chen et al. — ShareGPT4V (arXiv:2311.12793)](https://arxiv.org/abs/2311.12793) — 密集描述資料集。
+- [Karamcheti et al. — Prismatic VLMs (arXiv:2402.07865)](https://arxiv.org/abs/2402.07865) — 設計空間消融研究。
+- [Li et al. — LLaVA-OneVision (arXiv:2408.03326)](https://arxiv.org/abs/2408.03326) — 統一處理單張影像、多張影像與影片。

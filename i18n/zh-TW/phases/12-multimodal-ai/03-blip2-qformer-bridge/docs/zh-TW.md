@@ -62,7 +62,7 @@ BLIP-2 採取兩階段預訓練策略：
 
 ### InstructBLIP 與具備指令感知能力的 Q-Former
 
-InstructBLIP（2023）為 Q-Former 引入了額外的輸入：指令文字本身。在執行交叉注意力時，Query 不僅能凝視影像 patch，還能同步讀取使用者給出的指令。這使得 Query 能針對特定任務靈活特化（例如「數一下有幾輛車」或「描述畫面色調情緒」），而非千篇一律生成固定的全景摘要。這在多項未知測試任務上取得了顯著的基準提升。
+InstructBLIP（2023）為 Q-Former 引入了額外的輸入：指令文字本身。在執行交叉注意力時，Query 不僅能凝視影像 patch，還能同步讀取使用者給出的指令。這使得 Query 能針對特定任務靈活特化（例如「數一下有幾輛車」或「描述畫面色調情緒」），而非千篇一律生成固定的全景摘要。這在多項未參與訓練的測試任務上取得了顯著的基準提升。
 
 ### MiniGPT-4 與純投影器途徑
 
@@ -136,9 +136,9 @@ modality-projection
 
 ## Further Reading｜延伸閱讀
 
-- [Li et al. — BLIP-2 (arXiv:2301.12597)](https://arxiv.org/abs/2301.12597)
-- [Li et al. — BLIP (arXiv:2201.12086)](https://arxiv.org/abs/2201.12086)
-- [Li et al. — ALBEF (arXiv:2107.07651)](https://arxiv.org/abs/2107.07651)
-- [Dai et al. — InstructBLIP (arXiv:2305.06500)](https://arxiv.org/abs/2305.06500)
-- [Zhu et al. — MiniGPT-4 (arXiv:2304.10592)](https://arxiv.org/abs/2304.10592)
-- [Jaegle et al. — Perceiver IO (arXiv:2107.14795)](https://arxiv.org/abs/2107.14795)
+- [Li et al. — BLIP-2 (arXiv:2301.12597)](https://arxiv.org/abs/2301.12597) — 核心論文。
+- [Li et al. — BLIP (arXiv:2201.12086)](https://arxiv.org/abs/2201.12086) — 前身研究，提出 ITC／ITM／ITG 三種目標。
+- [Li et al. — ALBEF (arXiv:2107.07651)](https://arxiv.org/abs/2107.07651) — 「先對齊再融合」 — 第 1 階段訓練的概念前身。
+- [Dai et al. — InstructBLIP (arXiv:2305.06500)](https://arxiv.org/abs/2305.06500) — 能感知指令的 Q-Former。
+- [Zhu et al. — MiniGPT-4 (arXiv:2304.10592)](https://arxiv.org/abs/2304.10592) — 僅使用投影器的方法。
+- [Jaegle et al. — Perceiver IO (arXiv:2107.14795)](https://arxiv.org/abs/2107.14795) — 可學習 Query 交叉注意力的一般架構。

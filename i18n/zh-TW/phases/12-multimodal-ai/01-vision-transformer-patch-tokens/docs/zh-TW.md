@@ -41,7 +41,7 @@ Dosovitskiy 等人（2020）提出了一個直截了當的靈魂拷問：如果�
 
 Patch 本身不具備任何固有順序——在 Transformer 眼中它們只是一堆雜亂無章的無序集合。早期的 ViT 會加上可學習的一維 position embedding（每個位置對應一個 768 維向量，共 197 個）。這種做法可行，但會將模型死死綁定於訓練時的固定解析度：在推論階段若改變網格大小，就必須對位置表進行插值。
 
-現代視覺骨幹（backbone）多採用 2D-RoPE（如 Qwen2-VL 的 M-RoPE、SigLIP 2 的預設方案）或分解式二維位置編碼。2D-RoPE 依據 patch 的（列, 行）二維座標旋轉查詢與鍵向量，模型即可直接從旋轉角度推匯出相對的二維空間位置。無需預先儲存位置表，使模型在推論階段能無縫支援任意解析度的網格尺寸。
+現代視覺骨幹（backbone）多採用 2D-RoPE（如 Qwen2-VL 的 M-RoPE、SigLIP 2 的預設方案）或分解式二維位置編碼。2D-RoPE 依據 patch 的（列、欄）二維座標旋轉查詢與鍵向量，模型即可直接從旋轉角度推導出相對的二維空間位置。無需預先儲存位置表，使模型在推論階段能無縫支援任意解析度的網格尺寸。
 
 ### CLS Token、池化輸出與暫存器 Token
 
@@ -149,9 +149,9 @@ image-patch-tokens
 
 ## Further Reading｜延伸閱讀
 
-- [Dosovitskiy et al. — An Image is Worth 16x16 Words (arXiv:2010.11929)](https://arxiv.org/abs/2010.11929)
-- [He et al. — Masked Autoencoders Are Scalable Vision Learners (arXiv:2111.06377)](https://arxiv.org/abs/2111.06377)
-- [Oquab et al. — DINOv2 (arXiv:2304.07193)](https://arxiv.org/abs/2304.07193)
-- [Darcet et al. — Vision Transformers Need Registers (arXiv:2309.16588)](https://arxiv.org/abs/2309.16588)
-- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786)
-- [Zhai et al. — Scaling Vision Transformers (arXiv:2106.04560)](https://arxiv.org/abs/2106.04560)
+- [Dosovitskiy et al. — An Image is Worth 16x16 Words (arXiv:2010.11929)](https://arxiv.org/abs/2010.11929) — 原始 ViT 論文。
+- [He et al. — Masked Autoencoders Are Scalable Vision Learners (arXiv:2111.06377)](https://arxiv.org/abs/2111.06377) — MAE、自我監督式預訓練。
+- [Oquab et al. — DINOv2 (arXiv:2304.07193)](https://arxiv.org/abs/2304.07193) — 大規模自我蒸餾，無需標籤。
+- [Darcet et al. — Vision Transformers Need Registers (arXiv:2309.16588)](https://arxiv.org/abs/2309.16588) — 暫存器 token 與假影分析。
+- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786) — 2026 年的預設視覺骨幹。
+- [Zhai et al. — Scaling Vision Transformers (arXiv:2106.04560)](https://arxiv.org/abs/2106.04560) — 實證縮放定律。

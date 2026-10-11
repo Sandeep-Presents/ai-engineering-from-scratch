@@ -138,7 +138,7 @@ Transformer 本身只是玩具；雙損失流程、注意力遮罩建構與推�
 | Two-loss training | 「雙損失聯合訓練」 | 單一 Transformer 在同一次梯度更新中，同時最佳化文字交叉熵與連續影像 MSE 損失 |
 | Flow matching | 「流匹配／整流流」 | 一種擴散模型變體，直接預測從純噪聲流向清晰資料的速度場；數學形式比 DDPM 更直觀 |
 | MMDiT | 「多模態擴散 Transformer」 | Stable Diffusion 3 採用的核心架構：全域聯合注意力搭配模態特化的專屬 MLP 與 Norm 層 |
-| Block-triangular mask | 「區塊三角遮罩」 | 對文字序列維持嚴格因果因果遮罩，但對影像內部區域開放全域雙向注意力的混合遮罩 |
+| Block-triangular mask | 「區塊三角遮罩」 | 對文字序列維持嚴格因果遮罩，但對影像內部區域開放全域雙向注意力的混合遮罩 |
 | Continuous image representation | 「純連續無量化」 | 直接將影像 patch 視為實數向量進行處理，徹底告別 VQ 離散碼本量化造成的細節丟失 |
 | Velocity prediction | 「v 參數化預測」 | 類神經網路直接預測噪聲與乾淨資料之間的瞬時速度向量場，而非直接預測噪聲本身 |
 

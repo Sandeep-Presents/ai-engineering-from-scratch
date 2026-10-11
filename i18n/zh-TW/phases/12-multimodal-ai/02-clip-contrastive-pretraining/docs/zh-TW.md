@@ -18,7 +18,7 @@
 
 在 CLIP 出現之前，電腦視覺本質上是高度仰賴人工標籤的監督式學習。收集標註資料集（例如 ImageNet：120 萬張影像、1000 個類別）、訓練 CNN、發布模型。然而標籤成本極其昂貴，標籤內容往往受限於標註員彼此能達成共識的狹隘類別，且在未進行 fine-tuning 的情況下幾乎無法直接遷移至全新的下游任務。
 
-相反地，網際網路上的圖文配對資源超過數十億組，且完全唾手可得。一張金毛尋回犬的照片搭配替代文字「my dog Max in the park」，本身就蘊含著明確的監督訊號——文字如實描述了影像。關鍵挑戰在於：我們能否將這種弱監督訊號轉化為扎實有效的模型訓練？
+相反地，網際網路上的圖文配對資源超過 10 億組，且完全唾手可得。一張金毛尋回犬的照片搭配替代文字「my dog Max in the park」，本身就蘊含著明確的監督訊號——文字如實描述了影像。關鍵挑戰在於：我們能否將這種弱監督訊號轉化為扎實有效的模型訓練？
 
 CLIP 給出的革命性解答是：將圖文配對視為一種檢索匹配任務。給定由 N 個影像與 N 個描述文字組成的批次，模型必須學會將每張影像精確匹配至其專屬的描述文字，並成功排除其餘 N-1 個干擾項。這種監督訊號本質上就是「這兩者屬於一對；其餘 N-1 個則不是」。無需人為預設類別標籤，無需耗時的人工精細標註，只需依賴對比損失函式。
 
@@ -69,7 +69,7 @@ SigLIP 以逐元素的 sigmoid 取代了 softmax：針對每一組配對 `(i, j)
 L = -1/N sum over (i, j) [ y_ij log sigmoid(S[i,j]) + (1-y_ij) log sigmoid(-S[i,j]) ]
 ```
 
-當 `i == j` 時 `y_ij = 1`，其餘情況為 0。由於每個配對的損失各自獨立，完全無需跨節點進行 all-gather 通訊！每張 GPU 只需計算其局部的區塊矩陣並進行純純的純量加總。這使得 SigLIP 2 能以極其低廉的通訊成本輕鬆擴展至 32k 至 512k 的海量批次，而傳統 CLIP 在相同規模下則需按比例增加通訊量。
+當 `i == j` 時 `y_ij = 1`，其餘情況為 0。由於每個配對的損失各自獨立，完全無需跨節點進行 all-gather 通訊！每張 GPU 只需計算其局部的區塊矩陣並進行純量加總。這使得 SigLIP 2 能以極其低廉的通訊成本輕鬆擴展至 32k 至 512k 的海量批次，而傳統 CLIP 在相同規模下則需按比例增加通訊量。
 
 ### 零樣本分類（Zero-Shot Classification）
 
@@ -153,8 +153,8 @@ multimodal-fusion
 
 ## Further Reading｜延伸閱讀
 
-- [Radford et al. — Learning Transferable Visual Models From Natural Language Supervision (arXiv:2103.00020)](https://arxiv.org/abs/2103.00020)
-- [Zhai et al. — Sigmoid Loss for Language Image Pre-Training (arXiv:2303.15343)](https://arxiv.org/abs/2303.15343)
-- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786)
-- [Jia et al. — ALIGN (arXiv:2102.05918)](https://arxiv.org/abs/2102.05918)
-- [Cherti et al. — Reproducible scaling laws for contrastive language-image learning (arXiv:2212.07143)](https://arxiv.org/abs/2212.07143)
+- [Radford et al. — Learning Transferable Visual Models From Natural Language Supervision (arXiv:2103.00020)](https://arxiv.org/abs/2103.00020) — CLIP 論文。
+- [Zhai et al. — Sigmoid Loss for Language Image Pre-Training (arXiv:2303.15343)](https://arxiv.org/abs/2303.15343) — SigLIP。
+- [Tschannen et al. — SigLIP 2 (arXiv:2502.14786)](https://arxiv.org/abs/2502.14786) — 多語言與 NaFlex。
+- [Jia et al. — ALIGN (arXiv:2102.05918)](https://arxiv.org/abs/2102.05918) — 以含雜訊的網路資料擴展。
+- [Cherti et al. — Reproducible scaling laws for contrastive language-image learning (arXiv:2212.07143)](https://arxiv.org/abs/2212.07143) — OpenCLIP 縮放定律。
