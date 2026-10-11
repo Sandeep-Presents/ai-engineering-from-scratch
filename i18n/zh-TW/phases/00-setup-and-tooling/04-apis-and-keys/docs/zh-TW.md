@@ -22,8 +22,8 @@
 
 ```mermaid
 sequenceDiagram
-    participant C as 你的程式碼（Your Code）
-    participant S as API 伺服器（API Server）
+    participant C as 你的程式碼
+    participant S as API 伺服器
     C->>S: HTTP Request (with API key)
     S->>C: HTTP Response (JSON)
 ```
