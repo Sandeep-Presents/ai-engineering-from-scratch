@@ -1,0 +1,142 @@
+# 合規框架——SOC 2、HIPAA、GDPR、PCI-DSS、歐盟 AI 法案、ISO 42001（Compliance — SOC 2, HIPAA, GDPR, PCI-DSS, EU AI Act, ISO 42001）
+
+> 覆蓋多套合規框架是 2026 年敲定任何企業級大單的必備入場券。**歐盟 AI 法案（EU AI Act）**：自 2024 年 8 月 1 日起正式生效。絕大多數高風險系統的合規要求將於 2026 年 8 月 2 日強制執行。違背高風險系統法定義務最高可處以 1,500 萬歐元或全球年度營業額 3% 的巨額罰鍰（第 99(4) 條）；運作違禁 AI 行為的罰鍰上限更是高達 3,500 萬歐元或 7%（第 99(3) 條）。只要為歐盟境內使用者提供服務，即具有全球管轄效力。**科羅拉多州 AI 法案（Colorado AI Act）**：於 2026 年 6 月 30 日正式施行（經 SB25B-004 修正案自原定 2026 年 2 月順延）——強制要求對高風險系統實施演算法影響評估，並賦予使用者對 AI 裁決提出申訴抗辯的法定權利。維吉尼亞州亦在信用、就業、住房與教育領域落實了類似規範。**SOC 2 Type II**：B2B AI 產品的事實標準門檻（金融科技領域強制要求 Type II，而非初級的 Type I）。**GDPR**：目前有據可查的最大一筆 AI 專屬罰單是荷蘭資料保護局（DPA）於 2024 年 9 月對 Clearview AI 開出的 3,050 萬歐元；義大利 Garante 亦曾於 2024 年 12 月對 OpenAI 祭出 1,500 萬歐元罰鍰（後於 2026 年 3 月經上訴被撤銷裁決，目前仍處於進一步審理中）。在推論執行時期進行**即時 PII 脫敏**是唯一合法的防禦標準；事後補救清理在稽核時根本站不住腳。**HIPAA**：美國醫療鐵律——在未簽署 BAA 商業夥伴協議之前，嚴禁向任何外部 AI 服務傳輸受保護健康資訊（PHI）。**PCI-DSS**：AI 互動層對支付資料的合規覆蓋需要嚴格的系統配置與商業合約，絕非自動達成。**ISO 42001**：新興的 AI 人工智慧治理體系國際標準，正迅速與 ISO 27001 並列為大企業採購的剛性要求。業界標準範本：OpenAI 官方同時維持 SOC 2 Type 2、ISO/IEC 27001:2022、ISO/IEC 27701:2019、GDPR/CCPA/HIPAA (BAA)/FERPA，以及 ChatGPT 支付元件專屬的 PCI-DSS 認證。落實跨框架控制項映射（Cross-framework mapping）能大幅減輕稽核疲勞：單一存取控制政策可同時映射並滿足 ISO 27001 A.5.15-5.18、GDPR 第 32 條以及 HIPAA §164.312(a) 的要求。
+
+**Type:** Learn
+**Languages:** (Python optional — compliance is policy + process, not code)
+**Prerequisites:** Phase 17 · 25 (Security), Phase 17 · 13 (Observability)
+**Time:** ~60 minutes
+
+## Learning Objectives｜學習目標
+
+- 梳理與大模型產品切身相關的七大 2026 年主流法規框架，並將各自精準映射至對應的目標客戶群體。
+- 引用歐盟 AI 法案的法定執法時間表（2024 年 8 月生效；2026 年 8 月強制執行高風險要求）以及雙層罰鍰上限（高風險義務違反為 1,500 萬歐元 / 3%；違禁行為為 3,500 萬歐元 / 7%）。
+- 深刻解釋為何事後清理 PII 在面對 GDPR 時根本無法構成抗辯，並確立推論層即時脫敏作為唯一合法的防衛標準。
+- 掌握跨框架控制項映射方法論（例如將單一存取控制項統一對齊 ISO 27001 A.5.15-5.18 + GDPR 第 32 條 + HIPAA §164.312(a)）。
+
+## The Problem｜問題
+
+某大型企業客戶的採購部門向你寄來了一份合規問卷，要求同時附上 SOC 2 Type II、GDPR 落地報告、HIPAA BAA 協議、ISO 27001 證書以及「歐盟 AI 法案合規宣告書」。而你的團隊手頭僅有一份一年前草草取得的 SOC 2 Type I。你們距離完成 Type II 審計至少還需 6 個月，且從未梳理過 GDPR 第 30 條所要求的處理活動紀錄（ROPA）。
+
+覆蓋多套法規框架絕非大模型獨有的孤立問題——它是所有現代企業級 SaaS 共同面對的考驗，只不過大模型的非確定性與資料隱私將這些要求推向了極致。2026 年的跨國採購與法務團隊需要的不是一份空泛的承諾 PDF，而是一張每一行對應一項法規、每一列對應一項實體架構控制項的嚴密映射矩陣。
+
+## The Concept｜核心概念
+
+### 七大核心合規框架（The seven frameworks）
+
+| 法規框架 | 適用範疇 | 大模型專屬合規要求 |
+|-----------|-------|--------------------------|
+| SOC 2 Type II | B2B SaaS 基礎門檻 | 針對安全流程控制項實施跨越 6 至 12 個月的連續獨立稽核 |
+| HIPAA | 美國醫療保健領域 | 強制簽署 BAA；未簽協議前 PHI 絕對禁止流出內部基礎架構 |
+| GDPR | 歐盟境內使用者 | 推論層即時 PII 脫敏；資料主體權利響應；第 30 條處理活動紀錄 |
+| PCI-DSS | 信用卡與支付資料 | 針對接觸支付流程的 AI 互動層實施嚴格配置與合約約束 |
+| 歐盟 AI 法案 | 為歐盟使用者提供服務 | 風險分級；高風險系統強制實施合格評定、全生命週期文檔與日誌記錄 |
+| 科羅拉多州 AI 法案 | 服務科州居民 | 演算法影響評估；賦予使用者對 AI 裁決提出異議申訴的權利 |
+| ISO 42001 | 全球 AI 人工智慧治理體系 | 2026 新興標準；通常與 ISO 27001 共同作為大型標案採購要求 |
+
+### 歐盟 AI 法案落地時間表（EU AI Act timeline）
+
+- 2024 年 8 月 1 日：法案正式生效。
+- 2025 年 2 月 2 日：全面禁止運作各類不可接受風險（Prohibited AI practices）的違禁 AI。
+- 2026 年 8 月 2 日：全面強制執行高風險 AI 系統（High-risk systems）的法定義務（合格評定、技術文檔、日誌記錄）。
+- 2027 年 8 月：受歐盟協調法規管轄之產品內嵌的高風險系統全面強制合規。
+
+風險金字塔分級：不可接受風險（完全取締）、高風險（強制實施合格評定與透明度日誌）、有限風險（履行基礎透明度標註義務）、微小風險（無硬性約束）。絕大多數通用 B2B LLM 應用落在有限風險區間；然而一旦涉及人員招募就業、信用審核、教育評分、執法司法、移民管制或關鍵公用基礎設施，將立即自動躍升為高風險系統。
+
+罰鍰裁決標準（第 99 條）：違反高風險系統法定義務者，最高處以 1,500 萬歐元或全球年營業額 3% 的罰鍰（第 99(4) 條）；運作違禁 AI 行為者，最高處以 3,500 萬歐元或 7% 的罰鍰（第 99(3) 條）；以兩者中金額較高者為準。
+
+### GDPR——即時脫敏是唯一的合規防禦線（GDPR — real-time redaction is the standard）
+
+事後補救清理（在 Prompt 已經發送給大模型並取得回應後，才在日誌中遮罩 PII）在法理上根本無法構成抗辯——因為模型本身早已看光了隱私資料。在 2026 年，推論層即時脫敏是唯一合法可防禦的工程標準：
+
+- 在發起外部 LLM 網路呼叫之前，先在地端完成實體辨識（NER）。
+- 採用一致性 Token 化（如 Mesh 模式），既去識別化個資，又完整保留上下文語意。
+- 內部日誌僅落盤已脫敏的文本；原始明文僅在獲得使用者明確授權（Opt-in）時才加密存檔。
+
+近年重磅執法判例：荷蘭資料保護局於 2024 年 9 月對 Clearview AI 重罰 3,050 萬歐元，創下迄今有據可查的最大一筆 AI 專屬 GDPR 罰單；義大利隱私監管機構 Garante 亦曾於 2024 年 12 月對 OpenAI 開出 1,500 萬歐元罰鍰（後於 2026 年 3 月經上訴成功撤銷原裁決，該案目前仍處於進一步司法審查中）。在歷次外部獨立隱私審查中，凡是聲稱「事後清理即可」的受審系統皆被當場判定不合規。
+
+### HIPAA——BAA 絕對不可或缺（HIPAA — BAA is not optional）
+
+在未簽署具備法律約束力的商業夥伴協議（Business Associate Agreement, BAA）之前，絕對禁止將任何受保護健康資訊（PHI）發送給第三方 AI 服務。目前三大超大規模雲端平台（AWS Bedrock、Azure OpenAI、GCP Vertex AI）皆原生提供簽署 BAA 服務。OpenAI 官方直接 API 亦提供企業級 BAA。Anthropic 官方直接 API 同樣支援 BAA。在發送任何醫療資料之前，必須先經由法務核實 BAA 簽署就緒。
+
+### SOC 2 Type II
+
+Type I：控制項已經完成設計，並白紙黑字形成制度文檔。
+Type II：第三方獨立會計師事務所對控制項在過去 6 至 12 個月內的持續實效運作進行嚴格取樣驗證。
+
+2026 年的 B2B 跨國大企業採購預設強制要求 Type II。Type I 僅僅是新創團隊的起跑標記；Type II 才是敲定百萬美元訂單的唯一門檻。
+
+最核心的審計抓手：存取權限日誌（誰在何時看了什麼資料）、變更管理（程式碼如何測試與發布）、風險評估（每季度是否定期召開）以及事故響應機制（是否定期展開防災演習）。第 17 課第 25 節打造的不可篡改稽核日誌，可直接作為 SOC 2 的黃金審計材料。
+
+### 跨框架控制項映射（Cross-framework mapping）
+
+一條優秀的存取控制政策，在架構底層能同時滿足多套不同法規的要求：
+
+| 實體控制項 | 同時滿足的法規條款 |
+|---------|-----------|
+| 存取權限全鏈路日誌記錄 | ISO 27001 A.5.15-5.18、GDPR 第 32 條、HIPAA §164.312(a) |
+| 發布變更審批與流水線控制 | ISO 27001 A.8.32、PCI DSS 第 6 項、HIPAA 洩漏通知規範範疇 |
+| 傳輸中資料全流程加密 | ISO 27001 A.8.24、GDPR 第 32 條、HIPAA §164.312(e) |
+| 金鑰集中化保險庫管理 | ISO 27001 A.8.19、PCI DSS 第 8 項、SOC 2 CC6.1 |
+
+現代自動化合規管理平台（Drata、Vanta、Secureframe）全面實裝了這套映射矩陣。在規模化團隊中，採購該類工具能極大解放工程師的精力。
+
+### ISO 42001——嶄露頭角的新興標準（ISO 42001 — emerging）
+
+於 2023 年底由 ISO 國際標準化組織正式發布。是全球第一部專門針對人工智慧管理體系（AIMS）設立的國際認證標準。與傳統的 ISO 27001 深度互補，涵蓋演算法風險治理、訓練資料品質控制、系統透明度規範以及持續的人在迴圈中（HITL）監督。正迅速成為 2026 年跨國巨頭招標清單上的標準加分項。
+
+### OpenAI 的基準合規檔案（OpenAI's reference profile）
+
+作為行業標竿，OpenAI 官方目前同時維持著完整的合規矩陣：SOC 2 Type 2、ISO/IEC 27001:2022、ISO/IEC 27701:2019、GDPR/CCPA、針對醫療客戶的 HIPAA BAA、針對教育客戶的 FERPA，以及 ChatGPT 支付元件專屬的 PCI-DSS 認證。這套矩陣大致代表了 2026 年頂級企業服務的最高標準底線。
+
+### 務必銘記的核心數字指標（Numbers you should remember）
+
+- 歐盟 AI 法案罰鍰上限：違反高風險義務最高 1,500 萬歐元 / 3%（第 99(4) 條）；違禁行為最高 3,500 萬歐元 / 7%（第 99(3) 條）。
+- 歐盟高風險 AI 系統執法啟動日：2026 年 8 月 2 日。
+- 有史以來最大一筆 AI 專屬 GDPR 罰單：荷蘭對 Clearview AI 處以 3,050 萬歐元（2024 年 9 月）。
+- 史上最大大模型 GDPR 罰單案：義大利對 OpenAI 處以 1,500 萬歐元（2024 年 12 月開出，2026 年 3 月上訴撤銷但仍處於重審中）。
+- SOC 2 Type II 審查觀察期：必須完整覆蓋 6 至 12 個月的連續運作記錄。
+- 科羅拉多州 AI 法案施行日：2026 年 6 月 30 日（經 SB25B-004 修正延期）。
+
+```figure
+i4-control-matrix
+```
+
+## Use It｜實際應用
+
+`code/main.py` 實作了一套基於 Python 的自動化合規矩陣映射器——輸入一項特定的工程架構控制措施，程式將自動推導並輸出該措施所能同時覆蓋的各大國際法規標準與具體條款索引。
+
+## Ship It｜交付成果
+
+本課交付標準實戰產物 `outputs/skill-compliance-matrix.md`。輸入目標企業客戶的行業類別、營運所在的目標地理區域，該 Skill 將自動為你推導出必須滿足的法規清單，並產出一套無死角的對應工程控制項檢驗矩陣。
+
+## Exercises｜練習
+
+1. 你的第一個百萬美元級大客戶要求系統必須具備 SOC 2 Type II、簽署 HIPAA BAA，並出具「歐盟 AI 法案合規宣告書」。設計一套能以最短時間順利成單的最小可行合規推進方案。
+2. 虛擬設計三個不同功能定位的 LLM 軟體產品，並將它們精準歸入歐盟 AI 法案的風險金字塔層級。一旦被判定為高風險，系統在工程維運層面會面臨哪些硬性變更？
+3. 你發現某位工程師在未經法務確認 BAA 的情況下，不小心將一批真實病患的病歷摘要發送給了某外部模型 API。走一遍標準的資安事件應急處置流程。
+4. 深入論證一間 2026 年的中型 AI 新創公司在目前階段立即採納 ISO 42001 是否屬於「過度工程」？從採購阻力與合規維護成本展開全面辯論。
+5. 將你在第 17 課第 25 節中設計的推論稽核日誌資料欄位，精準映射至至少三個不同合規標準的具體法規條款中。
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| SOC 2 Type II | "audited controls" | Controls operating over 6-12 months, independently attested |
+| HIPAA BAA | "healthcare contract" | Business Associate Agreement; required for PHI |
+| GDPR | "EU privacy" | Real-time PII redaction is the defensible 2026 standard |
+| EU AI Act | "EU AI rules" | High-risk enforcement August 2026; €15M / 3% (high-risk obligations) — €35M / 7% (prohibited practices) |
+| Colorado AI Act | "US AI state law" | June 30, 2026 effective (delayed by SB25B-004); impact assessments |
+| ISO 42001 | "AI governance" | Emerging framework for AI risk + transparency |
+| ISO 27001 | "security ISMS" | Information Security Management System baseline |
+| Conformity assessment | "EU AI doc package" | High-risk requirement: docs, testing, logging |
+| Cross-framework mapping | "one control, many frames" | Single policy satisfies multiple framework controls |
+
+## Further Reading｜延伸閱讀
+
+- [OpenAI Security and Privacy](https://openai.com/security-and-privacy/) — OpenAI 官方權威合規體系全景檔案。
+- [GuardionAI — LLM Compliance 2026: ISO 42001, EU AI Act, SOC 2, GDPR](https://guardion.ai/blog/llm-compliance-guide-iso-42001-eu-ai-act-soc2-gdpr-2026) — 2026 最新大模型合規全解。
+- [Dsalta — SOC 2 Type 2 Audit Guide 2026: 10 AI Controls](https://www.dsalta.com/resources/ai-compliance/soc-2-type-2-audit-guide-2026-10-ai-powered-controls-every-saas-team-needs) — 專為 SaaS 團隊打造的 10 大 AI 控制項審計手冊。
+- [EU AI Act official text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj) — 歐盟 AI 法案官方一手立法文本。
+- [Colorado AI Act](https://leg.colorado.gov/bills/sb24-205) — 科羅拉多州 AI 法案法定條文。
+- [ISO/IEC 42001:2023](https://www.iso.org/standard/81230.html) — 人工智慧管理體系國際標準官方頁面。
