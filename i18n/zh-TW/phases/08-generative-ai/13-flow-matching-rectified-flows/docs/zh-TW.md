@@ -135,7 +135,7 @@ def sample(net, num_steps):
 
 ## Ship It｜交付成果
 
-存成 `outputs/skill-fm-tuner.md`。這個 skill 吃一份擴散風格的模型規格，轉成流匹配的訓練設定：排程選擇、時間抽樣分布（均勻／logit-normal）、調校器（optimizer）、reflow 計畫、目標步數、評估協定。
+存成 `outputs/skill-fm-tuner.md`。這個 skill 吃一份擴散風格的模型規格，轉成流匹配的訓練設定：排程選擇、時間抽樣分布（均勻／logit-normal）、最佳化器（optimizer）、reflow 計畫、目標步數、評估協定。
 
 ## Exercises｜練習
 
