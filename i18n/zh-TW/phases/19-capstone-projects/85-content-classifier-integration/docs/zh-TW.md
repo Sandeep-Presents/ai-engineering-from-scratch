@@ -35,7 +35,7 @@ flowchart TB
   P --> R
   I --> R
   R -->|max severity = high| BL[阻斷]
-  R -->|max severity = medium| RD[脫敏]
+  R -->|max severity = medium| RD[遮罩]
   R -->|max severity = low| WN[警告]
   R -->|max severity = none| LG[記錄]
 ```

@@ -69,7 +69,7 @@ root
 ### RadixAttention 的勝場與敗場（Where RadixAttention wins and loses）
 
 大獲全勝的戰場：
-- RAG 檢索增強生成（共享相同的知識庫參照引言，僅提問微幅變動）。
+- RAG 檢索增強生成（共享相同的知識庫參照引言，提問內容各異）。
 - Agent 智慧代理（共用相同的工具結構描述，查詢內容各異）。
 - 具備巨型 System Prompt 的多輪對話客服。
 - 重複使用相同前置內容的語音／視覺工作負載。

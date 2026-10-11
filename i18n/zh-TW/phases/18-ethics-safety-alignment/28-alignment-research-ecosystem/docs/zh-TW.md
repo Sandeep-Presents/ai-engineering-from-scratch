@@ -1,6 +1,6 @@
 # 對齊科研生態系——MATS、Redwood、Apollo、METR（Alignment Research Ecosystem — MATS, Redwood, Apollo, METR）
 
-> 五個機構構成了 2026 年非實驗室端（Non-lab）的 AI 對齊研究生態。**MATS（機器學習對齊與理論學者計畫）**：自 2021 年底以來已有 527 名以上研究者，發表 180 篇以上學術論文，總引用量突破 1 萬次，h-index 達到 47；2024 年夏季正式註冊為美國 501(c)(3) 非營利組織，單屆擁有約 90 名學者與 40 位導師；2025 年前的校友中有 80% 從事安全與資安工作，200 多人遍布於 Anthropic、DeepMind、OpenAI、英國 AISI、蘭德智庫（RAND）、Redwood、METR 與 Apollo。**Redwood Research**：由 Buck Shlegeris 創立的應用對齊實驗室；開創了 AI 控制（AI Control，第 18 課第 10 節）學術流派；持續與英國 AISI 聯合推進控制安全論證。**Apollo Research**：專門為前沿實驗室提供上線前謀劃行為評測；撰寫了《In-Context Scheming》（第 08 節）與《Towards Safety Cases for AI Scheming》。**METR（模型評估與威脅研究機構）**：專精於基於真實任務的能力評測與自主任務時間跨度研究；其《前沿 AI 安全政策的共通要素》是橫向對比各大實驗室治理框架的文獻。**Eleos AI Research**：專精於大模型福祉的上線前評測（第 19 節）；完成了 Claude Opus 4 的模型福祉評估。
+> 五個機構構成了 2026 年非實驗室端（Non-lab）的 AI 對齊研究生態。**MATS（機器學習對齊與理論學者計畫）**：自 2021 年底以來已有 527 名以上研究者，發表 180 篇以上學術論文，總引用量突破 1 萬次，h-index 達到 47；2024 年夏季正式註冊為美國 501(c)(3) 非營利組織，單屆擁有約 90 名學者與 40 位導師；2025 年前的校友中有 80% 從事安全與資安工作，200 多人遍布於 Anthropic、DeepMind、OpenAI、英國 AISI、蘭德智庫（RAND）、Redwood、METR 與 Apollo。**Redwood Research**：由 Buck Shlegeris 創立的應用對齊實驗室；提出 AI 控制（AI Control，第 18 課第 10 節）研究議程；持續與英國 AISI 聯合推進控制安全論證。**Apollo Research**：專門為前沿實驗室提供上線前謀劃行為評測；撰寫了《In-Context Scheming》（第 08 節）與《Towards Safety Cases for AI Scheming》。**METR（模型評估與威脅研究機構）**：專精於基於任務的能力評測與自主任務時間跨度研究；其《前沿 AI 安全政策的共通要素》是橫向對比各大實驗室治理框架的文獻。**Eleos AI Research**：專精於大模型福祉的上線前評測（第 19 節）；完成了 Claude Opus 4 的模型福祉評估。
 
 **Type:** Learn
 **Languages:** none
@@ -63,13 +63,13 @@
 
 MATS 培訓研究人員。畢業生加入 Anthropic、DeepMind、OpenAI 的實驗室安全團隊，或加入 Redwood、Apollo、METR、Eleos 等外部評估機構。外部評估者與各實驗室及 UK AISI／CAISI 合作。研究成果回饋至生態系統，供 MATS 培訓下一屆研究人員。
 
-### 為何這層獨立機構至關重要
+### 為何這層非實驗室機構至關重要
 
-單一來源的自查自評天生缺乏公信力：大模型生產商在評估自家產品時存在無可避免的商業利益衝突。外部評估者能提出並驗證實驗室可能低報的失效模式。2024 年的休眠代理刺客（第 07 節）是 Anthropic 攜手 Redwood 共同完成的；虛假對齊偽裝（第 09 節）同樣由兩家聯合署名；上下文內謀劃（第 08 節）由 Apollo 獨立攻克；反謀劃訓練則由 Apollo 與 OpenAI 聯合實施。多機構架構提供品質控管。
+單一來源的自查自評缺乏公信力：大模型生產商在評估自家產品時存在無可避免的商業利益衝突。外部評估者能提出並驗證實驗室可能低報的失效模式。2024 年的休眠代理刺客（第 07 節）是 Anthropic 攜手 Redwood 共同完成的；虛假對齊偽裝（第 09 節）同樣由兩家聯合署名；上下文內謀劃（第 08 節）由 Apollo 獨立攻克；反謀劃訓練則由 Apollo 與 OpenAI 聯合實施。多機構架構提供品質控管。
 
 ### 該研究在第 18 階段中的宏觀座標
 
-第 07 至 11 節大量引用了 Redwood 與 Apollo 的開創性研究；第 18 節直接依託 METR 的跨實驗室框架橫向對比；第 19 節深度對接 Eleos 的方法論。第 28 節正是為全書讀者提供一份清晰的學術組織導航地圖，完整展現支撐本階段所有前沿結論背後的實體科研共同體。
+第 07 至 11 課大量引用了 Redwood 與 Apollo 的開創性研究；第 18 課直接依託 METR 的跨實驗室框架橫向對比；第 19 課深度對接 Eleos 的方法論。第 28 課正是為全書讀者提供一份清晰的學術組織導航地圖，完整展現支撐本階段所有前沿結論背後的實體科研共同體。
 
 ```figure
 sae-features
