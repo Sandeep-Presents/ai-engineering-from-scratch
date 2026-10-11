@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-2026 年，5 秒音訊就夠用消費級 GPU 高品質仿製任何人的聲音。ElevenLabs、F5-TTS、OpenVoice v2、VoiceBox 都交付零樣本（zero-shot）或少樣本仿製。這項技術是恩惠（無障礙 TTS、配音、輔助聲音），也是武器（詐騙電話、政治深偽、智慧財產竊取）。
+2026 年，5 秒音訊就夠用消費級 GPU 高品質仿製任何人的聲音。ElevenLabs、F5-TTS、OpenVoice v2、VoiceBox 都交付零樣本（zero-shot）或少樣本（few-shot）仿製。這項技術是恩惠（無障礙 TTS、配音、輔助聲音），也是武器（詐騙電話、政治深偽、智慧財產竊取）。
 
 兩個緊鄰的任務：
 
