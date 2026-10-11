@@ -21,7 +21,7 @@ RLHF（Christiano 等人，2017；Ouyang 等人，2022）把偏好轉成獎勵�
 
 ![Three-stage RLHF: SFT, RM training on pairwise prefs, PPO with KL penalty](../assets/rlhf.svg)
 
-**階段 1：監督式 fine-tuning（SFT）。** 從預訓練好的基模型（base model）開始。以人類撰寫的目標行為示範進行 fine-tuning（遵照指令的回應、有幫助的回覆，諸如此類）。結果：一個*偏向好行為*、但動作空間仍沒有上界的模型 `π_SFT`。
+**階段 1：監督式 fine-tuning（SFT）。** 從預訓練好的基模型（base model）開始。以人類撰寫的目標行為示範進行 fine-tuning（遵照指令的回應、有幫助的回覆，諸如此類）。結果：一個*偏向好行為*、但動作空間（action space）仍沒有上界的模型 `π_SFT`。
 
 **階段 2：獎勵模型訓練。**
 

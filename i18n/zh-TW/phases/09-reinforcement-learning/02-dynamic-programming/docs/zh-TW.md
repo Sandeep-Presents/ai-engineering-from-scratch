@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-你有一個已知模型（model）的 MDP：任何狀態－動作配對，你都能查 `P(s' | s, a)` 和 `R(s, a, s')`。庫存管理員知道需求分布。棋類遊戲的轉移是確定的。GridWorld 是四行 Python。你手上有*模型*。
+你有一個已知模型（model）的 MDP：任何狀態（state）－動作（action）配對，你都能查 `P(s' | s, a)` 和 `R(s, a, s')`。庫存管理員知道需求分布。棋類遊戲的轉移是確定的。GridWorld 是四行 Python。你手上有*模型*。
 
 無模型（model-free）的 RL（Q-learning、PPO、REINFORCE）是為了沒有模型、只能從環境抽樣的情況發明的。但你真的有模型時，有更快、更好的方法：動態規劃。Bellman 在 1957 年設計它們。它們到現在仍定義正確性：當人們說「這個 MDP 的最佳策略」，意思就是 DP 會回傳的那個策略。
 

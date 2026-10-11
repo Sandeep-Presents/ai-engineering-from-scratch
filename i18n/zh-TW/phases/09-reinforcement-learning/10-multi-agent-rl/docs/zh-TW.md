@@ -11,9 +11,9 @@
 
 機器人學著在房間裡走，是單 agent 的 RL 問題。一支足球隊不是。AlphaStar 對上 StarCraft 的對手不是。一群出價 agent 的市場不是。兩輛車在四向停車的路口協商誰先走，也不是。很多真實世界的多對多問題都不是。
 
-在每個多 agent 設定裡，從任何一個 agent 來看，其他 agent *就是*環境的一部分。他們學習、改變行為，環境就變成非定態（non-stationary）的。馬可夫性質（Markov property）——「下一個狀態只依賴現在的狀態和我的動作」——被打破，因為下一個狀態也依賴*其他* agent 選了什麼，而他們的策略（policy）是持續變動的目標。
+在每個多 agent 設定裡，從任何一個 agent 來看，其他 agent *就是*環境的一部分。他們學習、改變行為，環境就變成非定態（non-stationary）的。馬可夫性質（Markov property）——「下一個狀態只依賴現在的狀態（state）和我的動作（action）」——被打破，因為下一個狀態也依賴*其他* agent 選了什麼，而他們的策略（policy）是持續變動的目標。
 
-這打破表格式收斂證明（Q-learning 的保證假設環境平穩）。單純的深度 RL 同樣會失效：agent 互相追逐，無法收斂到穩定策略。你需要多 agent 專用的技術：集中訓練（centralized training）／分散執行（decentralized execution）、反事實基準（counterfactual baseline）、聯賽對戰（league play）、自我對弈（self-play）。
+這打破表格式收斂證明（Q-learning 的保證假設環境是定態的）。單純的深度 RL 同樣會失效：agent 互相追逐，無法收斂到穩定策略。你需要多 agent 專用的技術：集中訓練（centralized training）／分散執行（decentralized execution）、反事實基準（counterfactual baseline）、聯賽對戰（league play）、自我對弈（self-play）。
 
 2026 年的應用：機器人群、交通路由、自駕車隊、市場模擬器、多 agent 的 LLM 系統（第 16 階段），以及任何超過一個智慧玩家的遊戲。
 
@@ -21,13 +21,13 @@
 
 ![Four MARL regimes: indep, centralized critic, self-play, league](../assets/marl.svg)
 
-**形式化：馬可夫賽局（Markov game）。** MDP 的推廣：狀態 `S`、聯合動作（joint action） `a = (a_1, …, a_n)`、轉移 `P(s' | s, a)`，以及每個 agent 的獎勵 `R_i(s, a, s')`。每個 agent `i` 在自己的策略 `π_i` 下，最大化自己的回報。獎勵相同，就是**完全合作（fully cooperative）**。零和，就是**對抗**。混合，就是**一般和（general-sum）**。
+**形式化：馬可夫賽局（Markov game）。** MDP 的推廣：狀態 `S`、聯合動作（joint action） `a = (a_1, …, a_n)`、轉移 `P(s' | s, a)`，以及每個 agent 的獎勵（reward）`R_i(s, a, s')`。每個 agent `i` 在自己的策略 `π_i` 下，最大化自己的回報。獎勵相同，就是**完全合作（fully cooperative）**。零和，就是**對抗**。混合，就是**一般和（general-sum）**。
 
 **核心難題：**
 
 - **非定態。** 從 agent `i` 的角度看，`P(s' | s, a_i)` 依賴正在改變的 `π_{-i}`。
 - **功勞分配（credit assignment）。** 獎勵是共享的，如何將其歸因於個別 agent？
-- **探索的協調。** agent 必須探索互補的策略，不要重複探索同一個狀態。
+- **探索（exploration）的協調。** agent 必須探索互補的策略，不要重複探索同一個狀態。
 - **可擴展性。** 聯合動作空間隨 `n` 指數長大。
 - **部分可觀測。** 每個 agent 只看得到自己的觀測；全域狀態無法直接觀測。
 

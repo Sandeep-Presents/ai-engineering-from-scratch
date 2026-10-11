@@ -85,9 +85,9 @@ h = h + CrossAttention(Q=h, K=text_embed, V=text_embed)
 
 ## 容易踩的坑
 
-- **VAE 縮放因子不一致。** SD 1.x 的 VAE 在編碼後有一個縮放常數，`scaling_factor ≈ 0.18215`。忘了這個，U-Net 訓練的潛在表示變異數（variance）會差很遠。每個檢查點都帶一個。
+- **VAE 縮放因子不一致。** SD 1.x 的 VAE 在編碼後有一個縮放常數，`scaling_factor ≈ 0.18215`。忘了這個，U-Net 訓練的潛在表示變異數（variance）會差很遠。每個 model checkpoint 都會附帶一個。
 - **文字編碼器不聲不響地錯。** SD3 需要 T5-XXL，而且至少 128 個 token；退回只用 CLIP 會遺失資訊。一定要確認 `use_t5=True`，不然 prompt 忠實度會崩。
-- **混用潛在空間。** SDXL、SD3、Flux 用的 VAE 都不同。在 SDXL 潛在表示上訓練的 LoRA，到 SD3 不會動。Hugging Face diffusers 0.30 以後拒絕載入對不上的檢查點。
+- **混用潛在空間。** SDXL、SD3、Flux 用的 VAE 都不同。在 SDXL 潛在表示上訓練的 LoRA，到 SD3 不會動。Hugging Face diffusers 0.30 以後拒絕載入不相容的 model checkpoint。
 - **CFG 太高。** `w > 10` 會產出飽和、油膩的影像，過度擬合（overfit）prompt，代價是多樣性。甜蜜點（sweet spot）是 `w = 3-7`。
 - **負面 prompt 洩漏。** 空的負面 prompt 會變成空 token；填了內容的負面 prompt 會變成 `ε_uncond`。這兩件事不一樣。有些管線（pipeline）會不聲不響地預設成空 token。
 
@@ -106,7 +106,7 @@ h = h + CrossAttention(Q=h, K=text_embed, V=text_embed)
 
 ## Ship It｜交付成果
 
-存成 `outputs/skill-sd-prompter.md`。這個 skill 吃一段文字 prompt 和目標風格，輸出：模型和檢查點、CFG 尺度、取樣器、負面 prompt、解析度、可選的 ControlNet／IP-Adapter 組合，以及逐步的品檢清單。
+存成 `outputs/skill-sd-prompter.md`。這個 skill 吃一段文字 prompt 和目標風格，輸出：模型和 model checkpoint、CFG 尺度、取樣器、負面 prompt、解析度、可選的 ControlNet／IP-Adapter 組合，以及逐步的品檢清單。
 
 ## Exercises｜練習
 
@@ -145,4 +145,4 @@ h = h + CrossAttention(Q=h, K=text_embed, V=text_embed)
 - [Esser et al. (2024). Scaling Rectified Flow Transformers for High-Resolution Image Synthesis](https://arxiv.org/abs/2403.03206) ——SD3、MMDiT。
 - [Ho & Salimans (2022). Classifier-Free Diffusion Guidance](https://arxiv.org/abs/2207.12598) ——CFG。
 - [Labs (2024). Flux.1 — Black Forest Labs announcement](https://blackforestlabs.ai/announcing-black-forest-labs/) ——Flux.1 家族。
-- [Hugging Face Diffusers docs](https://huggingface.co/docs/diffusers/index) ——上面每個檢查點的參考實作。
+- [Hugging Face Diffusers docs](https://huggingface.co/docs/diffusers/index) ——上面每個 model checkpoint 的參考實作。

@@ -19,9 +19,9 @@
 
 你擁有一個基模型：Llama 3 8B。你希望它以你公司的特定語氣回答客服工單。SFT（監督式 fine-tuning）是正解。但 SFT 的成本是個問題。
 
-全量 fine-tuning 會更新模型中的每一個參數。Llama 3 8B 擁有 80 億個參數。在 fp16 精度下，每個參數佔用 2 個位元組。光是載入模型權重就需 16GB。在訓練期間，你還需要為梯度預留 16GB、為 Adam 最佳化器（optimizer）狀態（動量 + 變異數）預留 32GB，再加上活化值（activations）記憶體。總計：單一 8B 模型大約需要 56GB 的 VRAM。
+全量 fine-tuning 會更新模型中的每一個參數。Llama 3 8B 擁有 80 億個參數。在 fp16 精度下，每個參數佔用 2 個位元組。光是載入模型權重就需 16GB。在訓練期間，你還需要為梯度預留 16GB、為 Adam 最佳化器狀態（動量 + 變異數）預留 32GB，再加上活化值（activations）記憶體。總計：單一 8B 模型大約需要 56GB 的 VRAM。
 
-一張 A100 80GB 顯卡勉強放得下。在雲端服務供應商租用兩張 A100 的費用約為每小時 3 到 4 美元；在 50,000 筆樣本上訓練 3 個 epoch 需 6 到 10 小時，單次實驗成本約 30 到 40 美元。若執行 10 次實驗以調校超參數，在尚未正式部署任何系統前，你就已經花掉了 $400。
+一張 A100 80GB 顯卡勉強放得下。在雲端服務供應商租用兩張 A100 的費用約為 $3-4/hour；在 50,000 筆樣本上訓練 3 個 epoch 需 6 到 10 小時，單次實驗成本約為 $30-40 per experiment。若執行 10 次實驗以調校超參數，在尚未正式部署任何系統前，你就已經花掉了 $400。
 
 若將此規模擴展到 Llama 3 70B，數字將變得荒謬：單是存放權重就需要 140GB，必須調動多節點叢集，單次實驗成本動輒 $100+。
 
@@ -135,7 +135,7 @@ QLoRA 在技術上有三項貢獻：
 
 **二次量化（Double quantization）**：量化常數本身也需要消耗空間。每 64 個權重區塊需要一個 fp32 縮放因子（4 位元組）。在 7B 模型中，這會額外佔用 0.4GB。二次量化將這些縮放因子進一步壓縮為 fp8，將額外開銷壓低至 0.1GB。節省的記憶體雖不多，但積少成多。
 
-**分頁最佳化器（Paged optimizers）**：在訓練長序列文本時，最佳化器狀態（Adam 的動量與變異數）可能會超出 GPU 記憶體上限。分頁最佳化器運用 NVIDIA 的統一記憶體（Unified Memory）機制，當 GPU 顯存（GPU memory）即將耗盡時，自動將最佳化器狀態分頁置換至 CPU RAM，並在需要時換回。這在付出些微吞吐代價的前提下，避免了 OOM 崩潰。
+**分頁最佳化器（Paged optimizers）**：在訓練長序列文本時，最佳化器狀態（Adam 的動量與變異數）可能會超出 GPU 記憶體上限。分頁最佳化器運用 NVIDIA 的統一記憶體（Unified Memory）機制，當 GPU 記憶體耗盡時，自動將最佳化器狀態分頁置換至 CPU RAM，並在需要時換回。這在付出些微吞吐代價的前提下，避免了 OOM 崩潰。
 
 ### 品質衰減疑慮
 
@@ -173,7 +173,7 @@ LoRA 在 r=16 時，在多數基準測試上與全量 fine-tuning 的差距不�
 | **Unsloth** | 以手寫 Triton 核心改寫前向與反向傳遞 | 追求 2 到 5 倍加速、VRAM 減半且沒有準確率損失；支援 Llama/Mistral/Qwen 家族 |
 | **Axolotl** | 封裝 PEFT + TRL + DeepSpeed + Unsloth 的 YAML 設定式框架 | 追求可重現、納入版本控制的訓練流程 |
 | **LLaMA-Factory** | 建構於 PEFT 與 TRL 之上、提供 GUI/CLI/API 的訓練套件 | 追求免寫程式碼即可訓練；支援 100 多種主流模型家族 |
-| **torchtune** | 官方 PyTorch 原生訓練配方，不需 `transformers` 相依套件 | 追求較少的外部相依，且團隊內部已標準化為 PyTorch 原生架構 |
+| **torchtune** | PyTorch 原生訓練配方，不需 `transformers` 相依套件 | 追求較少的外部相依，且團隊內部已標準化為 PyTorch 原生架構 |
 
 實務選型經驗法則：學術研究或單次探索實驗 → PEFT。可重現的正式環境訓練管線 → 啟用 Unsloth 核心的 Axolotl。快速原型開發 → LLaMA-Factory。
 
@@ -197,7 +197,7 @@ LoRA 在 r=16 時，在多數基準測試上與全量 fine-tuning 的差距不�
 
 Fine-tuning 是第三種選項，而不是第一選項。
 
-**第一優先：Prompt 工程。** 撰寫更好的 system prompt、加入少樣本範例、使用思維鏈。這不需要額外硬體成本，只要幾分鐘就能迭代。如果純 Prompt 能解決 80% 的問題，你通常不需要 fine-tuning。
+**第一優先：Prompt 工程。** 撰寫更好的 system prompt、加入少樣本範例、使用思維鏈。這不花任何費用，且只需幾分鐘就能迭代。如果純 Prompt 能解決 80% 的問題，你通常不需要 fine-tuning。
 
 **第二優先：RAG。** 若模型需要吸收的是專屬業務知識（內部文件、知識庫、產品目錄），檢索架構比將資料寫入神經權重的做法成本更低，也更容易維護。詳見第 06 課。
 
@@ -343,7 +343,7 @@ def dequantize_from_nf4(quantized, scales, original_shape):
     return dequantized.reshape(original_shape)
 ```
 
-這在 CPU/GPU 上透過 64 個數字的分塊區間，將浮點權重對應至 16 個離散階梯，模擬 4 位元量化行為。正式環境的 QLoRA 會使用 bitsandbytes 函式庫，在 GPU 上執行真正的 NF4 運算。
+這將權重在每個含 64 個權重的區塊內對應至 16 個離散階層，以模擬 4 位元量化。正式環境的 QLoRA 會使用 bitsandbytes 函式庫，在 GPU 上執行真正的 NF4 運算。
 
 ### 步驟 7：訓練迴圈
 
@@ -547,5 +547,5 @@ model.save_pretrained("./lora-adapter")
 - Yadav et al., "TIES-Merging: Resolving Interference When Merging Models" (2023) ——探討如何合併多個 LoRA 轉接器，同時避免品質劣化
 - [Rafailov et al., "Direct Preference Optimization: Your Language Model is Secretly a Reward Model" (NeurIPS 2023)](https://arxiv.org/abs/2305.18290) ——DPO 數學推導論文；接續在 SFT 之後的偏好對齊階段，無需額外訓練獎勵模型
 - [TRL documentation](https://huggingface.co/docs/trl/) ——官方技術手冊，涵蓋 `SFTTrainer`、`DPOTrainer`、`KTOTrainer` 以及與 PEFT/bitsandbytes/Unsloth 整合的介面
-- [Unsloth documentation](https://docs.unsloth.ai/) ——透過融合核心，使 fine-tuning 吞吐量翻倍、記憶體減半
+- [Unsloth documentation](https://docs.unsloth.ai/) ——透過融合核心，使 fine-tuning 吞吐量翻倍、記憶體減半；也是 TRL 底層的效能層
 - [Axolotl documentation](https://axolotl-ai-cloud.github.io/axolotl/) ——基於 YAML 宣告式設定的多 GPU SFT/DPO/QLoRA 訓練套件；「設定即程式碼」的替代方案

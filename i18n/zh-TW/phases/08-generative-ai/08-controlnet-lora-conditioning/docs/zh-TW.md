@@ -100,7 +100,7 @@ h = base(x) + gated
 - **把 LoRA 的強度拉太高。** `α = 2` 或 `α = 3` 是常見的「讓它更強」手法，會產出風格過重或直接壞掉的結果。保持 `α ≤ 1.5`。
 - **ControlNet 權重打架。** 姿勢 ControlNet 權重 1.0，再加深度 ControlNet 權重 1.0，通常會衝過頭。權重和大約 1.0 是安全預設。
 - **LoRA 配錯基模型。** SDXL 的 LoRA 在 SD 1.5 上會不聲不響地變成空操作，因為注意力維度（dimension）對不上。Diffusers 0.30 以後會警告。
-- **Textual Inversion 會漂。** 在一個檢查點上訓練的 token，換到另一個會漂得很兇。LoRA 比較好搬。
+- **Textual Inversion 會漂。** 在一個 model checkpoint 上訓練的 token，換到另一個 model checkpoint 會漂得很兇。LoRA 比較好搬。
 - **LoRA 權重併進與存放。** 你可以把 LoRA 烤進基模型權重，推論更快，執行時不用再加，但你失去執行時縮放（runtime scaling） `α` 的能力。兩份都留。
 
 ## Use It｜實際應用
@@ -141,7 +141,7 @@ h = base(x) + gated
 
 ## 正式環境筆記：LoRA 熱切換、ControlNet 通道、多租戶服務
 
-真正的文字生影像 SaaS，會在同一個基模型檢查點上服務幾百個 LoRA 和十來個 ControlNet。這個服務問題很像 LLM 的多租戶（multi-tenancy）。正式環境文獻把 LLM 那一面放在連續批次（continuous batching）和 LoRAX／S-LoRA 底下講：
+真正的文字生影像 SaaS，會在同一個基模型 model checkpoint 上服務幾百個 LoRA 和十來個 ControlNet。這個服務問題很像 LLM 的多租戶（multi-tenancy）。正式環境文獻把 LLM 那一面放在連續批次（continuous batching）和 LoRAX／S-LoRA 底下講：
 
 - **熱切換 LoRA，不要併進基模型。** 把 `W' = W + α·B·A` 併進基模型，每步推論大約快 3% 到 5%，但會凍住 `α` 和基模型。讓 LoRA 以秩 r 的差值熱著留在 VRAM；diffusers 提供 `pipe.load_lora_weights()` 加 `pipe.set_adapters([...], adapter_weights=[...])`，依請求啟用。切換成本是 `2 · d · r · num_layers` 那些權重——MB 級、不到一秒。
 - **ControlNet 是第二條注意力通道。** 複製的編碼器和基模型平行跑。兩個 ControlNet 權重各 1.0，等於每步多兩次前向，不是併成一次。批次（batch）大小的餘裕按平方下降。每個啟用的 ControlNet，單步成本按大約 1.5 倍來預算。

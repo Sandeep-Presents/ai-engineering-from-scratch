@@ -89,7 +89,7 @@ def make_tokens(style, length, vocab_size, rng):
 - **音樂結構。** 30 秒的 token，在 75 Hz 是 2 萬多個 token。這對 transformer 很難。MusicGen 用滑動視窗（sliding window）加 prompt 續寫；Stable Audio 用較短片段加交叉淡化（crossfade）。
 - **邊界假影。** 生成片段之間的交叉淡化，重疊相加（overlap-add）要很小心。
 - **對乾淨資料胃口很大。** 音樂產生器需要數萬小時、有授權的音樂。Suno／Udio 的 RIAA 訴訟（2024）把這件事抬到檯面上。
-- **聲音克隆的倫理。** 3 秒樣本加上一段文字 prompt，就夠 VALL-E／XTTS／ElevenLabs 克隆一個聲音。每個生產級模型都需要濫用偵測，外加退出名單（opt-out）。
+- **聲音克隆的倫理。** 3 秒樣本加上一段文字 prompt，就夠 VALL-E／XTTS／ElevenLabs 克隆一個聲音。每個生產級模型都需要濫用偵測，外加不允許克隆的聲音清單（opt-out lists）。
 
 ## Use It｜實際應用
 
@@ -129,7 +129,7 @@ def make_tokens(style, length, vocab_size, rng):
 
 ## 正式環境筆記：音訊是串流問題
 
-音訊是使用者期待*邊生成邊送到*的那種輸出模態，不是一次到齊。用正式環境的框法，這表示 TPOT 要緊（每個輸出 token 的時間，Time Per Output Token），因為目標吞吐量（throughput）是使用者的聆聽速度——不是閱讀速度。16 kHz 音訊若 tokenization 成約每秒 75 個 token（Encodec），伺服器必須為每位使用者每秒產生至少 75 個 token，播放才順。
+音訊是使用者期待*邊生成邊送到*的那種輸出模態，不是一次到齊。在正式環境中，TPOT 很重要（每個輸出 token 的時間，Time Per Output Token），因為目標吞吐量（throughput）是使用者的聆聽速度——不是閱讀速度。16 kHz 音訊若 tokenization 成約每秒 75 個 token（Encodec），伺服器必須為每位使用者每秒產生至少 75 個 token，播放才順。
 
 兩個架構上的後果：
 

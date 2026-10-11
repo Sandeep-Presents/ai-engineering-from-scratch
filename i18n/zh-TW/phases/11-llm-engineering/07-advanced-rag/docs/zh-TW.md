@@ -23,7 +23,7 @@
 
 **多跳問題（Multi-hop question）**：「哪一個團隊的客戶滿意度提升幅度最高？」這需要先分別找出每個團隊的歷史滿意度評分、計算差異進行比較，最後得出最大值。沒有任何單一區塊直接包含最終答案，關鍵資訊分散在各團隊的獨立報告中。
 
-**海量語料庫挑戰（Large corpus problem）**：當系統擁有 200 萬個區塊，正確答案位於第 1,847,293 號區塊。你的 top-5 檢索撈出了第 14 號、第 89,201 號、第 1,200,000 號、第 44 號與第 901,333 號區塊。它們在 embedding 空間中確實很近，但全都不包含實質答案。在此規模下，近似最近鄰（approximate nearest neighbor）搜尋引入了足夠的近似搜尋造成的誤差，將真正相關的結果擠出了 top-k 之外。
+**海量語料庫挑戰（Large corpus problem）**：當系統擁有 200 萬個區塊，正確答案位於第 1,847,293 號區塊。你的 top-5 檢索撈出了第 14 號、第 89,201 號、第 1,200,000 號、第 44 號與第 901,333 號區塊。它們在 embedding 空間中確實很近，但全都不包含實質答案。在此規模下，近似最近鄰搜尋引入的誤差足以將相關結果擠出 top-k。
 
 基礎 RAG 之所以失效，是因為向量相似度並不等同於問題關聯度。一個區塊可以在語意上與查詢高度相似，卻對解答問題毫無實質幫助。進階 RAG 透過四大關鍵技術破解此困境：混合搜尋（加入關鍵字精確比對）、重新排序（對候選文件再次評分）、查詢轉換（在搜尋前重構查詢語句），以及更精細的分塊設計（以合適粒度檢索）。
 
@@ -37,7 +37,7 @@
 
 混合搜尋同時平行執行這兩套機制，並將結果融合。
 
-**BM25**（Best Matching 25）是標準演算法的關鍵字搜尋演算法，自 1990 年代起便一直是現代搜尋引擎的核心骨幹（backbone）。其計算公式：
+**BM25**（Best Matching 25）是標準的關鍵字搜尋演算法，自 1990 年代起便一直是現代搜尋引擎的核心骨幹（backbone）。其計算公式：
 
 ```
 BM25(q, d) = sum over terms t in q:
@@ -113,7 +113,7 @@ subscription period and processed within 5-7 business days."
 
 為這份假想答案生成 embedding，並在向量庫中搜尋與之最為鄰近的真實文件。其核心直覺在於：在 embedding 幾何空間中，假想答案往往比起原始問題更加貼近真實答案。問題與答案本質上具備不同的語言結構；透過生成假想答案，你成功搭建了跨越「問題空間」與「解答空間」的語意橋樑。
 
-HyDE 的代價是在檢索前增加了一次 LLM 呼叫，會額外引入 500 到 2000ms 的延遲。但當原始查詢極度口語或模糊時，這項投入對檢索品質的提升無可替代。
+HyDE 的代價是在檢索前增加了一次 LLM 呼叫，會額外引入 500 到 2000ms 的延遲。但當原始查詢的檢索品質不佳時，這項投入就值得採用。
 
 ### 父子分塊（Parent-Child Chunking）
 
@@ -518,7 +518,7 @@ response = collection.query.hybrid(
 | 重新排序（Reranking） | 「二次細部打分」 | 使用運算成本較高但極度精準的交叉編碼器模型，對初篩候選集進行深度重新評分 |
 | 交叉編碼器（Cross-encoder） | 「聯合評估模型」 | 將查詢與文件合併為單一輸入並輸出關聯度分數的模型；精度遠高於雙編碼器，但無法預先計算整個語料庫的交叉編碼器分數；因此只對初篩候選集重新排序 |
 | 雙編碼器（Bi-encoder） | 「獨立向量化模型」 | 將查詢與文件各自獨立編碼為向量的模型；速度飛快因為向量可預先快取，但交互精細度遜於交叉編碼器 |
-| HyDE | 「用假想答案搜尋」 | 先為問題生成一份虛擬答案並向量化，隨後搜尋與之語意鄰近的真實文件以架構橋樑 |
+| HyDE | 「用假想答案搜尋」 | 先為問題生成一份虛擬答案並向量化，隨後搜尋與該答案語意相近的真實文件 |
 | 父子分塊（Parent-child chunking） | 「小塊檢索，大塊回答」 | 以細粒度的小區塊負責精準命中檢索，以大篇幅的父區塊注入 Prompt 提供充沛脈絡 |
 | 詮釋資料過濾（Metadata filtering） | 「搜尋前先縮小範圍」 | 在執行向量比對前，先依據結構化屬性（日期、來源、類別）剔除無關文件以縮小搜尋空間 |
 | 忠實度（Faithfulness） | 「答案是否有所本」 | 生成的回答是否嚴格由檢索出的文件所支撐，而非來自模型訓練資料庫中未經證實的內在幻覺 |
@@ -527,7 +527,7 @@ response = collection.query.hybrid(
 
 - Robertson & Zaragoza, "The Probabilistic Relevance Framework: BM25 and Beyond" (2009) ——BM25 權威經典參考文獻，闡明公式背後的機率論理論基礎
 - Cormack et al., "Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods" (2009) ——證明 RRF 優於更複雜機器學習融合方法的原創奠基論文
-- Gao et al., "Precise Zero-Shot Dense Retrieval without Relevance Labels" (2022) ——證明假設性文件 embedding 在無需任何訓練資料下顯著提升檢索品質的 HyDE 原創論文
+- Gao et al., "Precise Zero-Shot Dense Retrieval without Relevance Labels" (2022) ——證明假設性文件 embedding 在無需任何訓練資料下提升檢索品質的 HyDE 原創論文
 - Nogueira & Cho, "Passage Re-ranking with BERT" (2019) ——證實以交叉編碼器在 BM25 之上重新排序能大幅拉升檢索品質的先驅研究
 - [Khattab et al., "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines" (2023)](https://arxiv.org/abs/2310.03714) ——將 Prompt 建構與權重挑選視為檢索管線上的編譯最佳化問題；邁向「程式化呼叫 LLM」的必讀之作
 - [Edge et al., "From Local to Global: A Graph RAG Approach to Query-Focused Summarization" (Microsoft Research 2024)](https://arxiv.org/abs/2404.16130) ——微軟 GraphRAG 論文：結合實體關係抽取與 Leiden 社群偵測（community detection）技術，專門解決巨觀全域性摘要檢索

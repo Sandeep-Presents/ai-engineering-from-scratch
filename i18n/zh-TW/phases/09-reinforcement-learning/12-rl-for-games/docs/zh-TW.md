@@ -9,11 +9,11 @@
 
 ## The Problem｜問題
 
-遊戲擁有 RL 想要的一切。乾淨的獎勵（贏／輸）。無限回合（自我對弈重設）。完美模擬（遊戲*就是*模擬器）。離散，或很小的連續動作空間。多 agent 結構會迫使 agent 在對抗環境中展現穩健性。
+遊戲擁有 RL 想要的一切。乾淨的獎勵（reward；贏／輸）。無限回合（自我對弈重設）。完美模擬（遊戲*就是*模擬器）。離散，或很小的連續動作空間（action space）。多 agent 結構會迫使 agent 在對抗環境中展現穩健性。
 
 而且各項重大的 RL 突破，都以遊戲作為測試場域。TD-Gammon（西洋雙陸棋，1992）。Atari-DQN（2013）。AlphaGo（2016）。AlphaZero（2017）。OpenAI Five（Dota 2，2019）。AlphaStar（StarCraft II，2019）。MuZero（學到的模型，2019）。AlphaTensor（矩陣乘法，2022）。AlphaDev（排序演算法，2023）。DeepSeek-R1（數學推理，2025）——最新一次顯示，遊戲 RL 的技術在文字上能運作。
 
-這堂收尾課以同一個觀點統整三個里程碑架構——AlphaZero、MuZero、GRPO：**自我對弈（self-play）+ 搜尋（search）+ 策略改進**。每一個都推廣前一個方法；GRPO 尤其是把 AlphaZero 的配方用到語言模型推理上，token 是動作，數學驗證是贏的訊號（signal）。
+這堂收尾課以同一個觀點統整三個里程碑架構——AlphaZero、MuZero、GRPO：**自我對弈（self-play）+ 搜尋（search）+ 策略改進（policy improvement）**。每一個都推廣前一個方法；GRPO 尤其是把 AlphaZero 的配方用到語言模型推理上，token 是動作，數學驗證是贏的訊號（signal）。
 
 ## The Concept｜核心概念
 
@@ -40,7 +40,7 @@ while True:
 **MuZero（2019）。** Schrittwieser 等人。拿掉「規則已知」這個要求。
 
 - 不靠固定環境，改學一個*潛在動態模型* `(h, g, f)`：
-  - `h(s)`：把觀測編成潛在（latent）狀態。
+  - `h(s)`：把觀測編成潛在狀態（latent state）。
   - `g(s_latent, a)`：預測下一個潛在狀態，加上獎勵。
   - `f(s_latent)`：預測策略先驗，加上價值。
 - MCTS 跑在*學到的潛在空間（latent space）*裡。同一個搜尋，同一個訓練迴圈（training loop）。
@@ -144,7 +144,7 @@ def grpo_step(theta, p_idx, G=8, beta=0.01, lr=0.1, rng=None):
 ## Pitfalls｜容易踩的坑
 
 - **鑽驗證器的獎勵操弄（reward hacking）。** GRPO 繼承 RLHF 的風險：驗證器如果有錯誤或存在可利用的漏洞，LLM 就會找到那個漏洞。穩健的驗證器（多組測試、形式證明）很重要。
-- **組太小。** 組基準的變異大約是 `1/√G`。低於 `G = 4`，優勢訊號雜訊就很大；標準選擇是 `G = 8` 到 `64`。
+- **組太小。** 組基準的變異數（variance）大約是 `1/√G`。低於 `G = 4`，優勢訊號雜訊就很大；標準選擇是 `G = 8` 到 `64`。
 - **長度偏差。** 不同長度的 LLM 完成結果，對數機率不一樣。依 token 數正規化，或用序列層級的對數機率，或截到最大長度。
 - **純自我對弈的循環。** AlphaZero 風格的訓練，在一般和遊戲上可能卡在支配循環裡。用多樣的對手池緩解（聯賽對戰，第 10 課）。
 - **搜尋和策略不合。** AlphaZero 訓練策略去模仿搜尋的輸出。策略網路如果小到表示不了搜尋的分布，訓練就會停滯。
@@ -196,7 +196,7 @@ Refuse AlphaZero on imperfect-info games (route to CFR). Refuse GRPO without a t
 ## Exercises｜練習
 
 1. **簡單。** 在 `code/main.py` 實作 GRPO 多臂老虎機。在 2 個 prompt、各 4 個答案 token 上訓練。用 `G=8`，不到 1 千次更新就收斂。
-2. **中等。** 接上 PPO（截斷版）和原味 REINFORCE。在同一個老虎機上，和 GRPO 比樣本效率與獎勵變異。
+2. **中等。** 接上 PPO（截斷版）和原味 REINFORCE。在同一個老虎機上，和 GRPO 比樣本效率與獎勵變異數。
 3. **困難。** 擴成長度 2 的「推理鏈」：agent 吐出兩個 token，驗證器獎勵這一對。衡量 GRPO 如何處理兩步序列上的功勞分配。（提示：依*完整序列（full sequence）*算組優勢，再傳回兩個 token 位置。）
 
 ## Key Terms｜關鍵術語

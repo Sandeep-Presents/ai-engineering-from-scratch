@@ -152,7 +152,7 @@ for step in range(steps):
 
 - **NeRF／triplane。** 推論（inference）是射線步進（ray marching），再加上每個取樣點一次 MLP 前向傳遞。一張 512² 渲染要數百萬次 MLP 前向傳遞。把射線上的取樣點積極做成批次（batch）；SDPA／xformers 用得上。
 - **多視角擴散加 LRM 重建。** 兩階段管線。第 1 階段（多視角 DiT）是擴散伺服器，跟第 07 課一樣。第 2 階段（LRM transformer）是把那些視角一次前向傳遞跑完。整體的延遲輪廓是「擴散加一次到位」——各階段的服務元件就照這個挑。
-- **SDS／DreamFusion。** 這是逐資產擬合，不是推論。建的是工作，不是請求處理器。
+- **SDS／DreamFusion。** 這是逐資產擬合，不是推論。應將它設計成逐資產的建置工作，而非請求處理器。
 
 多數 2026 的產品，對的做法是：「請求來了就跑多視角擴散，非同步重建成 3DGS，再把 3DGS 拿來即時看」。工作就乾淨地拆成 GPU 推論伺服器（inference server，快）和離線最佳化器（optimizer，慢）。
 

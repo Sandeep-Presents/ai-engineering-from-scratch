@@ -166,7 +166,7 @@ graph TD
 
 **固定大小分塊（Fixed-size chunking）**：每隔 N 個 token 進行切分，並保留 M 個 token 的重疊（overlap）。實作簡單且完全可預期。當文件缺乏清晰章節結構時效果顯著。例如 512 token 的分塊搭配 50 token 的重疊：區塊 1 涵蓋 token 0-511，區塊 2 涵蓋 token 462-973。
 
-**基於句子的分塊（Sentence-based chunking）**：在句子邊界處切分，持續累加句子直到逼近 token 上限。每個區塊至少包含一個完整句子。顯著優於固定切分，因為它絕不會在句子中途將避免切斷句子中的內容。
+**基於句子的分塊（Sentence-based chunking）**：在句子邊界處切分，持續累加句子直到逼近 token 上限。每個區塊至少包含一個完整句子。顯著優於固定切分，因為它不會在句中切斷一個完整的想法。
 
 **遞迴分塊（Recursive chunking）**：優先嘗試在最大邊界處切分（如章節標題）。若區塊依然過大，再嘗試段落邊界，接著是句子標點，最後才退回字元限制。這正是 LangChain 的 `RecursiveCharacterTextSplitter` 機制，極適合格式雜亂的混合文件。
 
@@ -197,21 +197,21 @@ graph LR
     CE --> R["top 10 個結果"]
 ```
 
-主流重新排序模型：Cohere Rerank 3.5（每 1000 次查詢收費 2 美元）、BGE-reranker-v2（免費開源）、Jina Reranker v2（免費開源）。
+主流重新排序模型：Cohere Rerank 3.5（$2/1,000 次查詢）、BGE-reranker-v2（免費開源）、Jina Reranker v2（免費開源）。
 
-### 可截斷 embedding Embedding
+### Matryoshka Embeddings（可截斷 embedding）
 
 傳統 embedding 具有「全有或全無」的僵化特性。一個 1536 維的向量必須佔用 1536 個浮點數空間。若不重新訓練模型，你無法隨意將其截斷至 256 維。
 
 可截斷 embedding表示法學習（Matryoshka Representation Learning, Kusupati 等人，2022）解決了此困境。模型在訓練時以此方式訓練，使其前 N 個維度已凝聚了最重要的核心資訊，如同層層嵌套的俄羅斯娃娃。將 1536 維的 Matryoshka embedding 直接截斷至前 256 維，只會損失微量精度，但依然保有高度鑑別力。
 
-OpenAI 的 text-embedding-3-small 與 text-embedding-3-large 透過 `dimensions` 參數原生支援 Matryoshka 截斷。請求 256 維而非 1536 維可使儲存開銷銳減至 縮減為原來的 1/6，而在 MTEB 基準測試上的精度損失僅約 3% 到 5%。
+OpenAI 的 text-embedding-3-small 與 text-embedding-3-large 透過 `dimensions` 參數原生支援 Matryoshka 截斷。請求 256 維而非 1536 維可使儲存空間縮減為原來的 1/6，而在 MTEB 基準測試上的精度損失僅約 3% 到 5%。
 
 ### 二值量化
 
 以 float32 儲存的 1536 維 embedding 單一向量需消耗 6,144 位元組。乘以 1000 萬份文件：光是向量本身就需吞噬 61 GB 儲存空間。
 
-二值量化（Binary quantization）將每個浮點數壓縮為單個位元：正數轉為 1，負數轉為 0。儲存容量瞬間從 6,144 位元組降至至 192 位元組——達成高達 32 倍的驚人壓縮。相似度計算改採漢明距離（Hamming distance，計算相異位元數），現代 CPU 可以在單一指令週期內完成該計算。
+二值量化（Binary quantization）將每個浮點數壓縮為單個位元：正數轉為 1，負數轉為 0。儲存容量瞬間從 6,144 位元組降至 192 位元組——達成高達 32 倍的驚人壓縮。相似度計算改採漢明距離（Hamming distance，計算相異位元數），現代 CPU 可以在單一指令週期內完成該計算。
 
 其對檢索召回率的衝擊通常約在 5% 到 10% 之間。業界常見的標準架構：先用二值量化在數百萬個向量中進行超高速初篩，篩選出前 1,000 個候選，再用完整浮點精度的向量進行精準重評分。這讓你能在享有 32 倍儲存空間節省的同時，保有 95% 以上的原生精度。
 
@@ -464,7 +464,7 @@ model = SentenceTransformer("BAAI/bge-small-en-v1.5")
 embeddings = model.encode(["semantic search query", "another document"])
 ```
 
-我們先前實作的 VectorIndex 類別能無縫相容上述任何一種方案。只需抽換 embedding 生成函式，核心搜尋邏輯不需修改搜尋邏輯。
+我們先前實作的 VectorIndex 類別能無縫相容上述任何一種方案。只需抽換 embedding 生成函式，保留核心搜尋邏輯即可。
 
 ## Ship It｜交付成果
 
@@ -494,7 +494,7 @@ embeddings = model.encode(["semantic search query", "another document"])
 | HNSW | 「高速向量搜尋」 | 分層導航小世界圖結構——透過多層圖拓撲實現 O(log n) 的近似最近鄰搜尋 |
 | 雙編碼器（Bi-encoder） | 「各自編碼，高速比對」 | 將查詢與文件分別獨立編碼為向量；支援預先計算與超大規模高速檢索 |
 | 交叉編碼器（Cross-encoder） | 「慢速但極精確的重排器」 | 將查詢—文件對合併輸入整個模型進行聯合推論；精度更高，但無法預先計算向量 |
-| 可截斷 embedding Embedding（Matryoshka embeddings） | 「可截斷的向量」 | 經過特殊訓練使得前 N 個維度已凝聚核心資訊的向量，支援可變尺寸的彈性儲存 |
+| Matryoshka embeddings（可截斷 embedding） | 「可截斷的向量」 | 經過特殊訓練使得前 N 個維度已凝聚核心資訊的向量，支援可變尺寸的彈性儲存 |
 | 二值量化（Binary quantization） | 「1-bit embedding」 | 將浮點向量壓縮為僅保留符號位元的二進位值，達成 32 倍空間節省並搭配漢明距離運算 |
 | 分塊（Chunking） | 「切分文件以利 embedding」 | 將長篇文件拆解為 256 到 512 token 的語意片段，使每個區塊皆能獨立建立向量與精準檢索 |
 | 向量資料庫（Vector database） | 「專為 embedding 設計的搜尋引擎」 | 針對向量儲存與大規模近似最近鄰搜尋進行深度最佳化的資料庫系統 |

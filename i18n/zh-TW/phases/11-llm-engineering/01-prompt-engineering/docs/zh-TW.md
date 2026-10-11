@@ -69,7 +69,7 @@ graph TD
 
 「你是一名資深 Python 開發者」並非魔法咒語，它是一個活化引導函數。
 
-LLM 在數十億份文件上訓練而成。這些文件包含了初學者與專家的文章、隨筆部落格與同儕審查論文、0 個按讚的 Stack Overflow 提問與 5,000 個讚的精彩回答。當你宣告「你是一名專家」時，你正在將模型的抽樣分佈偏向其訓練資料中專家具備的訓練資料中高品質的區域。
+LLM 在數十億份文件上訓練而成。這些文件包含了初學者與專家的文章、隨筆部落格與同儕審查論文、0 個按讚的 Stack Overflow 提問與 5,000 個讚的精彩回答。當你宣告「你是一名專家」時，你正在把模型的抽樣分佈推向其訓練資料中專業程度較高的那一端。
 
 具體明確的角色效果遠勝泛泛而談：
 
@@ -296,7 +296,7 @@ Do not attempt to answer out-of-scope questions even if you know the answer.
 3. 採用 XML 標籤分隔各區塊（所有主流模型對 XML 結構皆有良好理解）。
 4. 將核心指令放置在脈絡的開頭與結尾（「迷失在中間」現象普遍存在於所有模型中）。
 5. 初步測試時一律將溫度設為 0，以隔絕隨機抽樣對評估 Prompt 質量的干擾。
-6. 提供 2 到 3 個少樣本範例——範例在範例在不同模型間的可移植性遠高於單純的文字指令。
+6. 提供 2 到 3 個少樣本範例——相較於單獨使用指令，這些範例在不同模型間的可移植性更高。
 
 ```figure
 cot-decomposition
@@ -1025,4 +1025,4 @@ Python 程式碼（`code/prompt_engineering.py`）是一套獨立的測試框架
 - [Shin et al., 2023 -- "Prompt Engineering a Prompt Engineer"](https://arxiv.org/abs/2311.05661) ——使用 LLM 自動最佳化 Prompt 的 meta-prompting 技術濫觴
 - [Arena (formerly LMSYS Chatbot Arena)](https://arena.ai/) ——LLM 即時盲測對比平台，可跨模型測試相同 Prompt 並為較佳回應投票
 - [DAIR.AI Prompt Engineering Guide](https://www.promptingguide.ai/) ——涵蓋零樣本、少樣本、CoT、ReAct 與自洽性的詳盡 Prompt 技術指南
-- [Anthropic prompt library](https://docs.anthropic.com/en/prompt-library) ——按應用場景分類的精選實戰 Prompt 庫，展示正式環境中的成熟結構模式
+- [Claude prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) ——Anthropic 提供的 Prompt 結構指引，附有實例。此指引已取代早期的 prompt library。

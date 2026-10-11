@@ -1,6 +1,6 @@
 # 蒙地卡羅方法（Monte Carlo）——從完整回合學習
 
-> 動態規劃（dynamic programming）需要模型。蒙地卡羅只要回合，別的都不用。執行策略，看回報（return），再平均。這是強化學習（reinforcement learning）裡最單純的想法——也是後面一切的鑰匙。
+> 動態規劃（dynamic programming）需要模型。蒙地卡羅只要回合，別的都不用。執行策略（policy），看回報（return），再平均。這是強化學習（reinforcement learning）裡最單純的想法——也是後面一切的鑰匙。
 
 **Type:** Build
 **Languages:** Python
@@ -9,11 +9,11 @@
 
 ## The Problem｜問題
 
-動態規劃很優雅，但它假設你能查每個狀態（state）和動作的 `P(s' | s, a)`。真實世界幾乎沒有東西是這樣運作的。機器人沒辦法解析地算出關節力矩之後、相機像素的分布。定價演算法沒辦法把每一種可能的顧客反應積分進去。LLM 沒辦法在一個 token 之後枚舉所有可能的續寫。
+動態規劃很優雅，但它假設你能查每個狀態（state）和動作（action）的 `P(s' | s, a)`。真實世界幾乎沒有東西是這樣運作的。機器人沒辦法解析地算出關節力矩之後、相機像素的分布。定價演算法沒辦法把每一種可能的顧客反應積分進去。LLM 沒辦法在一個 token 之後枚舉所有可能的續寫。
 
 你需要一個方法，只要能從環境*抽樣*就夠。執行策略。得到一條軌跡（trajectory）`s_0, a_0, r_1, s_1, a_1, r_2, …, s_T`。用它估計價值。這就是蒙地卡羅。
 
-從 DP 走到 MC，在觀念上很重要：我們從*已知模型 + 精確回推*走到*抽樣出來的展開 + 平均後的回報*。變異數大幅增加，適用範圍卻大幅擴展。這一課之後的每個 RL 演算法——TD、Q-learning、REINFORCE、PPO、GRPO——本質上都是蒙地卡羅估計量（Monte Carlo estimator），有時再疊一層自助（bootstrapping）。
+從 DP 走到 MC，在觀念上很重要：我們從*已知模型 + 精確回推*走到*抽樣出來的展開 + 平均後的回報*。變異數（variance）大幅增加，適用範圍卻大幅擴展。這一課之後的每個 RL 演算法——TD、Q-learning、REINFORCE、PPO、GRPO——本質上都是蒙地卡羅估計量（Monte Carlo estimator），有時再疊一層自助（bootstrapping）。
 
 ## The Concept｜核心概念
 
@@ -33,7 +33,7 @@
 
 1. **探索性起始（exploring starts）。** 每個回合從隨機的 (s, a) 配對開始。保證覆蓋（coverage）；實務上不現實（你沒辦法把機器人「重設」到任意狀態）。
 2. **ε-貪婪（epsilon-greedy）。** 依當下的 Q 採取貪婪動作，但以機率 `ε` 挑一個隨機動作。所有狀態－動作配對在漸近意義下都會被抽到。
-3. **異策略（off-policy）MC。** 在行為策略（behavior policy）`μ` 下蒐集資料，用重要性取樣（importance sampling）去學目標策略（target policy）`π`。變異很高，但它是通往 DQN 這類重放緩衝（replay buffer）方法的橋。
+3. **異策略（off-policy）MC。** 在行為策略（behavior policy）`μ` 下蒐集資料，用重要性取樣（importance sampling）去學目標策略（target policy）`π`。變異數很高，但它是通往 DQN 這類重放緩衝（replay buffer）方法的橋。
 
 **蒙地卡羅控制（Monte Carlo control）。** 評估 → 改進 → 評估，就像策略迭代，只是評估改成抽樣式的：
 
@@ -135,10 +135,10 @@ def mc_control(env, episodes, gamma=0.99, epsilon=0.1):
 ## 容易踩的坑
 
 - **無限回合。** MC 要求回合會*終止*。如果策略可能永遠打轉，就把 `max_steps` 封頂，把封頂當成隱含的失敗。隨機策略的 GridWorld 常常逾時——這很正常，只要計數正確即可。
-- **變異。** MC 用完整回報。回合一長，變異（variance）就很大——結尾一個倒楣的獎勵，會把 `V(s_0)` 挪動同樣的量。TD 方法（第 04 課）用自助來降低這種變異。
+- **變異數。** MC 用完整回報。回合一長，變異數（variance）就很大——結尾一個倒楣的獎勵（reward），會把 `V(s_0)` 挪動同樣的量。TD 方法（第 04 課）用自助來降低這種變異數。
 - **狀態覆蓋。** 全新的 Q 如果有平手，貪婪 MC 永遠只會試一個動作。你*必須*探索（ε-貪婪、探索性起始、UCB）。
 - **非定態策略（non-stationary policy）。** 如果 `π` 會變（像 MC 控制那樣），舊回報來自另一個策略。常數 α 的 MC 能處理這種情況；樣本平均的 MC 則不行。
-- **異策略重要性取樣。** 權重 `π(a|s)/μ(a|s)` 沿著軌跡相乘。變異隨視野爆炸。改用逐步（per-decision）加權重要性取樣來控制變異，或改走 TD。
+- **異策略重要性取樣。** 權重 `π(a|s)/μ(a|s)` 沿著軌跡相乘。變異數隨視野爆炸。改用逐步（per-decision）加權重要性取樣來控制變異數，或改走 TD。
 
 ## Use It｜實際應用
 
@@ -183,8 +183,8 @@ Refuse to run MC on non-episodic tasks without a finite horizon cap. Refuse to r
 ## Exercises｜練習
 
 1. **簡單。** 在 4×4 GridWorld 上，實作均勻隨機策略的首次造訪 MC 評估。跑 1 萬個回合。把 `V(0,0)` 畫成回合數的函數，和 DP 的答案畫在一起。
-2. **中等。** 實作 ε-貪婪 MC 控制，`ε ∈ {0.01, 0.1, 0.3}`。比較 2 萬個回合後的平均回報。曲線長什麼樣子？偏差－變異取捨（bias–variance tradeoff）落在哪裡？
-3. **困難。** 實作*異策略* MC 加上重要性取樣：在均勻隨機策略 `μ` 下蒐集資料，為確定性最佳策略 `π` 估計 `V^π`。比較普通 IS、逐步 IS、加權 IS。哪個變異最低？
+2. **中等。** 實作 ε-貪婪 MC 控制，`ε ∈ {0.01, 0.1, 0.3}`。比較 2 萬個回合後的平均回報。曲線長什麼樣子？偏差－變異數取捨（bias–variance tradeoff）落在哪裡？
+3. **困難。** 實作*異策略* MC 加上重要性取樣：在均勻隨機策略 `μ` 下蒐集資料，為確定性最佳策略 `π` 估計 `V^π`。比較普通 IS、逐步 IS、加權 IS。哪個變異數最低？
 
 ## Key Terms｜關鍵術語
 
@@ -203,6 +203,6 @@ Refuse to run MC on non-episodic tasks without a finite horizon cap. Refuse to r
 
 - [Sutton & Barto (2018). Ch. 5 — Monte Carlo Methods](http://incompleteideas.net/book/RLbook2020.pdf) ——標準說明。
 - [Singh & Sutton (1996). Reinforcement Learning with Replacing Eligibility Traces](https://link.springer.com/article/10.1007/BF00114726) ——首次造訪對上每次造訪的分析。
-- [Precup, Sutton, Singh (2000). Eligibility Traces for Off-Policy Policy Evaluation](http://incompleteideas.net/papers/PSS-00.pdf) ——異策略 MC 和變異控制。
-- [Mahmood et al. (2014). Weighted Importance Sampling for Off-Policy Learning](https://arxiv.org/abs/1404.6362) ——現代的低變異 IS 估計量。
+- [Precup, Sutton, Singh (2000). Eligibility Traces for Off-Policy Policy Evaluation](http://incompleteideas.net/papers/PSS-00.pdf) ——異策略 MC 和變異數控制。
+- [Mahmood et al. (2014). Weighted Importance Sampling for Off-Policy Learning](https://arxiv.org/abs/1404.6362) ——現代的低變異數 IS 估計量。
 - [Tesauro (1995). TD-Gammon, A Self-Teaching Backgammon Program](https://dl.acm.org/doi/10.1145/203330.203343) ——MC／TD 自我對弈收斂到超越人類的第一個大規模實證；這個階段後半每一課的概念前身。

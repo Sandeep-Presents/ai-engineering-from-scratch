@@ -23,7 +23,7 @@
 The product is the Sony WH-1000XM5 headphones, which cost $348.00 and are currently in stock.
 ```
 
-這是一個完全正確的回答。但對於你的應用程式來說，它對應用程式毫無用處。你的庫存系統需要的是 `{"product": "Sony WH-1000XM5", "price": 348.00, "in_stock": true}`。你需要一個具有特定鍵值、特定型別與數值限制條件的 JSON 物件，而不是一句通順的話。
+這是一個完全正確的回答，但對你的應用程式毫無用處。你的庫存系統需要的是 `{"product": "Sony WH-1000XM5", "price": 348.00, "in_stock": true}`。你需要一個具有特定鍵值、特定型別與數值限制條件的 JSON 物件，而不是一句通順的話。
 
 直覺的解法是在 Prompt 中加入「請以 JSON 回應」。這在 90% 的情況下有效。另外的 10%，模型會將 JSON 包裹在 Markdown 程式碼區塊中，或者加上「這是您的 JSON：」等開場贅字，又或者因為提早閉合括號而產生語法錯誤的 JSON。你的 JSON 解析器崩潰，整個資料管線失效。你加入了 try/except 與重試迴圈。重試有時又會產出不同的資料。現在，除了解析問題之外，你還得面對資料一致性問題。
 
@@ -127,7 +127,7 @@ graph TD
 
 **列舉值混淆**：你將某個欄位限制在 `["in_stock", "out_of_stock", "preorder"]`。模型輸出了 `"available"`——語意上完全通順，但不在允許的候選集合內。優良的受限解碼能從源頭杜絕此問題，而純 Prompt 方法則無法保證。
 
-**巢狀物件過深**：深層巢狀 Schema（4 層以上）會引發更多錯誤。每一層巢狀結構都是模型可能導致模型無法維持結構。
+**巢狀物件過深**：深層巢狀 Schema（4 層以上）會引發更多錯誤。每增加一層巢狀結構，模型就多一個可能無法維持結構脈絡的地方。
 
 **陣列長度偏差**：模型在陣列中產出的項目數量可能過多或過少。Schema 支援 `minItems` 與 `maxItems`，但並非所有服務供應商都在解碼層級嚴格執行這項限制。
 
@@ -267,7 +267,7 @@ def model_to_schema(name, fields):
 
 ### 步驟 3：受限 Token 過濾器
 
-模擬受限解碼。給定部分的 JSON 字串與目標 Schema，推斷出在當前位置上哪些 token 類別在目前位置有效。
+模擬受限解碼。給定部分 JSON 字串與目標 Schema，判斷目前位置上哪些 token 類別有效。
 
 ```python
 def next_valid_tokens(partial_json, schema):

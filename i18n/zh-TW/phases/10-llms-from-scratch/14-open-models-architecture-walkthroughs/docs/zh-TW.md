@@ -270,7 +270,7 @@ config = {
 | RMSNorm | 「沒有平均值的 LayerNorm」 | 僅以均方根進行正規化並帶有可學習縮放——運算更省且效果匹敵 LayerNorm |
 | RoPE | 「旋轉位置編碼」 | 將 Q 與 K 向量在 2D 平面上按依賴位置的角度進行成對旋轉——可透過縮放技巧外推至訓練長度之外 |
 | SwiGLU | 「新世代 MLP 活化函數」 | 帶有 Swish 的門控線性單元：`(xW1) * sigmoid(xW1) * xV`——2024 年後所有開源模型的標準配備 |
-| GQA | 「折衷型注意力」 | 分組查詢注意力（Grouped-Query Attention）：G 個 Q 頭組成的群組共享一個 K 與一個 V 頭——縮減 KV 快取且無 MQA 的精度暴跌 |
+| GQA | 「折衷型注意力」 | 分組查詢注意力（Grouped-Query Attention）：G 個 Q 頭組成的群組共享一個 K 與一個 V 頭——縮減 KV 快取且無 MQA 的精度損失 |
 | MLA | 「DeepSeek 的注意力機制」 | 多頭潛在注意力（Multi-Head Latent Attention）：將 K/V 壓縮進共享低秩潛在表示中並逐頭解壓縮——大模型下體積最小的 KV 快取方案 |
 | MoE | 「稀疏專家」 | 混合專家（Mixture of Experts）：每個區塊包含 N 個 MLP，由路由器為每個 token 挑選 top-k——總參數量龐大，活躍參數量精簡 |
 | Top-k 路由（Top-k routing） | 「每個 token 挑選 k 個專家」 | 路由器為每個專家計算得分並啟動最高的 k 個——典型 k 為 2（Mixtral）到 8（DeepSeek） |
