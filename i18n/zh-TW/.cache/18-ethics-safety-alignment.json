@@ -24,5 +24,6 @@
   "phases/18-ethics-safety-alignment/23-watermarking-synthid-stable-signature-c2pa/docs/en.md": "ae55115b02803bcdeaa1a2e65035857646ce3b9703e3d2eb5fd9992b958c767c",
   "phases/18-ethics-safety-alignment/24-regulatory-frameworks-eu-us-uk-korea/docs/en.md": "5babaaec2f1c7dc2d619dea0a8bb46ee4e94754dec3182adb72a7e7d6e1c7032",
   "phases/18-ethics-safety-alignment/25-echoleak-cves-for-ai/docs/en.md": "193ed71dd1b1e94227fa8a44bec5df31eda6ffdab54ec130cd5c51997a581ebb",
-  "phases/18-ethics-safety-alignment/26-model-system-dataset-cards/docs/en.md": "ad07f39e9a2754a2f058ee40fa2673b9caa391e13007b2bf2c442a87dd2582ab"
+  "phases/18-ethics-safety-alignment/26-model-system-dataset-cards/docs/en.md": "ad07f39e9a2754a2f058ee40fa2673b9caa391e13007b2bf2c442a87dd2582ab",
+  "phases/18-ethics-safety-alignment/27-data-provenance-training-governance/docs/en.md": "d54fe97d020370049a72763518047b23ebc1a86a62796db68f2780e76c4173e9"
 }
