@@ -60,12 +60,12 @@ y = Wx + BAx
 
 ```mermaid
 graph LR
-    X["Input x"] --> W["Frozen W (d x d)"]
+    X["輸入 x"] --> W["凍結的 W（d x d）"]
     X --> A["A (r x d)"]
     A --> B["B (d x r)"]
-    W --> Plus["+ (merge)"]
+    W --> Plus["+（合併）"]
     B --> Plus
-    Plus --> Y["Output y"]
+    Plus --> Y["輸出 y"]
 
     style W fill:#1a1a2e,stroke:#e94560,color:#fff
     style A fill:#0f3460,stroke:#16213e,color:#fff
@@ -197,19 +197,19 @@ LoRA 在 r=16 時，在多數基準測試上與全量 fine-tuning 的差距不�
 
 Fine-tuning 是第三種選項，而不是第一選項。
 
-**第一優先：Prompt 工程。** 撰寫更好的系統提示、加入少樣本範例、使用思維鏈。這不需要額外硬體成本，只要幾分鐘就能迭代。如果純 Prompt 能解決 80% 的問題，你通常不需要 fine-tuning。
+**第一優先：Prompt 工程。** 撰寫更好的 system prompt、加入少樣本範例、使用思維鏈。這不需要額外硬體成本，只要幾分鐘就能迭代。如果純 Prompt 能解決 80% 的問題，你通常不需要 fine-tuning。
 
 **第二優先：RAG。** 若模型需要吸收的是專屬業務知識（內部文件、知識庫、產品目錄），檢索架構比將資料寫入神經權重的做法成本更低，也更容易維護。詳見第 06 課。
 
-**第三選擇：Fine-tuning。** 僅在以下情境採用：需要模型內化純靠 Prompt 無法達成的特定風格、固定輸出格式或推理模式；需要穩定一致的結構化輸出；需要將較大的模型蒸餾為較小的模型；或者在延遲很重要的場景下，無法負擔少樣本提示所帶來的額外 token 開銷。
+**第三選擇：Fine-tuning。** 僅在以下情境採用：需要模型內化純靠 Prompt 無法達成的特定風格、固定輸出格式或推理模式；需要穩定一致的結構化輸出；需要將較大的模型蒸餾為較小的模型；或者在延遲很重要的場景下，無法負擔少樣本 prompting 所帶來的額外 token 開銷。
 
 ```mermaid
 graph TD
-    Start["Need better model behavior?"] --> PE["Try prompt engineering"]
-    PE -->|"Works"| Done["Ship it"]
-    PE -->|"Not enough"| RAG["Need external knowledge?"]
-    RAG -->|"Yes"| RAGBuild["Build RAG pipeline"]
-    RAG -->|"No, need style/format change"| FT["Fine-tune with LoRA/QLoRA"]
+    Start["需要改善模型行為？"] --> PE["試試 Prompt 工程"]
+    PE -->|"Works"| Done["交付"]
+    PE -->|"Not enough"| RAG["需要外部知識？"]
+    RAG -->|"Yes"| RAGBuild["建置 RAG 管線"]
+    RAG -->|"No, need style/format change"| FT["使用 LoRA/QLoRA 進行 fine-tuning"]
     RAGBuild -->|"Works"| Done
     RAGBuild -->|"Also need style change"| FT
     FT --> Done
