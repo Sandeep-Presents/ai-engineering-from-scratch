@@ -135,7 +135,7 @@ gx-var-next-scale
 | 殘差 VQ | 「相加式 tokenization」 | 每個尺度的 token 編碼較低尺度留下的殘差；解碼器把加總所有尺度的 embedding。 |
 | VAR 縮放定律 | 「影像版 GPT 縮放」 | FID 隨算力遵循可預測的冪律，就像語言模型的困惑度。 |
 | HART | 「混合的 VAR 加文字」 | 文字條件的 VAR 變體，把 MaskGIT 式的迭代解碼和 VAR 的尺度結構合在一起。 |
-| 尺度位置 embedding | 「（尺度、列、行）三元組」 | 位置編碼同時帶尺度索引，以及該尺度內的空間座標。 |
+| 尺度位置 embedding | 「（尺度、列、欄）三元組」 | 位置編碼同時帶尺度索引，以及該尺度內的空間座標。 |
 
 ## Further Reading｜延伸閱讀
 
