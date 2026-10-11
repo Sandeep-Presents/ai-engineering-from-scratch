@@ -40,15 +40,15 @@
 
 ```mermaid
 graph LR
-    Client["Client<br/>(Web, Mobile, API)"]
-    GW["API Gateway<br/>Auth + Rate Limit"]
-    PR["Prompt Router<br/>Template Selection"]
-    Cache["Semantic Cache<br/>Embedding Lookup"]
-    LLM["LLM Call<br/>Streaming"]
-    Guard["Guardrails<br/>Input + Output"]
-    Eval["Eval Logger<br/>Quality Tracking"]
-    Cost["Cost Tracker<br/>Token Accounting"]
-    Resp["Response<br/>SSE Stream"]
+    Client["用戶端<br/>(網頁、行動裝置、API)"]
+    GW["API 閘道<br/>身分驗證 + 速率限制"]
+    PR["Prompt 路由器<br/>範本選擇"]
+    Cache["語意快取<br/>embedding 查找"]
+    LLM["LLM 呼叫<br/>串流"]
+    Guard["防護欄<br/>輸入 + 輸出"]
+    Eval["評估日誌記錄器<br/>品質追蹤"]
+    Cost["成本追蹤器<br/>Token 計費"]
+    Resp["回應<br/>SSE 串流"]
 
     Client --> GW --> Guard
     Guard -->|Input Check| PR
@@ -85,8 +85,8 @@ graph LR
 
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant S as Server
+    participant C as 用戶端
+    participant S as 伺服器
     participant L as LLM API
 
     C->>S: POST /chat (stream=true)
@@ -176,11 +176,11 @@ claude-sonnet-5 -> gpt-4o -> gpt-4o-mini -> cached response -> "Service temporar
 
 ```mermaid
 graph TD
-    R["Incoming Request"]
+    R["傳入的請求"]
     H["Hash(user_id) mod 100"]
-    A["Prompt v1 (90%)"]
-    B["Prompt v2 (10%)"]
-    L["Log Both Results"]
+    A["prompt v1 (90%)"]
+    B["prompt v2 (10%)"]
+    L["記錄兩者的結果"]
     
     R --> H
     H -->|0-89| A
@@ -197,7 +197,7 @@ graph TD
 
 **Cursor**：當前開啟的檔案、周邊相鄰檔案、近期修改紀錄與終端機輸出共同構成脈絡。Prompt 路由器進行分流：程式碼自動完成走較小的模型（Cursor-small，約 20ms），聊天則走較大的模型（Claude Sonnet 4.6 / GPT-5，約 3 秒）。脈絡被大幅壓縮——僅截取相關的程式碼片段而非整份檔案；程式碼庫 embedding 提供長程關聯；推測編輯（Speculative edits）以串流輸出 diff 而非整份覆寫；MCP 整合使第三方工具無需客製程式碼即可接入。
 
-**ChatGPT**：擴充功能、函式呼叫與 MCP 伺服器讓模型能夠聯網、執行 Python 程式碼、產圖與存取資料庫。路由層負責判斷該啟用何種能力；長期記憶機制跨工作階段保存個人偏好；包含 1,500+ token 的系統規範，透過 Prompt 快取儲存；多模型並用：GPT-5 處理核心文字、GPT-Image 產圖、Whisper 負責語音、o4-mini 負責深度推理。
+**ChatGPT**：擴充功能、函式呼叫與 MCP 伺服器讓模型能夠聯網、執行 Python 程式碼、產圖與存取資料庫。路由層負責判斷該啟用何種能力；長期記憶機制跨工作階段保存個人偏好；包含 1,500+ token 的 system prompt，透過 Prompt 快取儲存；多模型並用：GPT-5 處理核心文字、GPT-Image 產圖、Whisper 負責語音、o4-mini 負責深度推理。
 
 ### 規模化擴展策略
 
@@ -223,7 +223,7 @@ graph TD
 |----------|-------|--------|
 | 每日活躍使用者（DAU） | 10,000 人 | 產品營運預估 |
 | 每人每日平均查詢次數 | 5 次 | 產品分析指標 |
-| 每次查詢平均輸入 token | 1,500 tokens | 實測統計（系統提示 + 脈絡 + 使用者提問） |
+| 每次查詢平均輸入 token | 1,500 tokens | 實測統計（system prompt + 脈絡 + 使用者提問） |
 | 每次查詢平均輸出 token | 400 tokens | 實測統計 |
 | 每百萬輸入 token 牌價 | $5.00 | OpenAI GPT-5 官方費率 |
 | 每百萬輸出 token 牌價 | $15.00 | OpenAI GPT-5 官方費率 |
