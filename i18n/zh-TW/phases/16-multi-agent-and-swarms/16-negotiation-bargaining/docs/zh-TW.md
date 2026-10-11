@@ -92,7 +92,7 @@ arXiv:2402.05863 提供了標準的談判基準。主要發現：
 
 ### LLM 利害關係人互動協商（NeurIPS 2024）
 
-NeurIPS 2024 發表的研究（https://proceedings.neurips.cc/paper_files/paper/2024/file/984dd3db213db2d1454a163b65b84d08-Paper-Datasets_and_Benchmarks_Track.pdf）引入多方可計分的博弈，包含**秘密分數**與**最低接受門檻**。每位利害關係人都有私有效用；LLM 必須從訊息中推斷這些效用。這是把雙方議價推廣到 N 方聯盟形成（coalition formation）。適用於工作者能力異質的正式環境任務市場。
+NeurIPS 2024 發表的研究 (https://proceedings.neurips.cc/paper_files/paper/2024/file/984dd3db213db2d1454a163b65b84d08-Paper-Datasets_and_Benchmarks_Track.pdf) 引入多方可計分的博弈，包含**秘密分數**與**最低接受門檻**。每位利害關係人都有私有效用；LLM 必須從訊息中推斷這些效用。這是把雙方議價推廣到 N 方聯盟形成（coalition formation）。適用於工作者能力異質的正式環境任務市場。
 
 ### 「敘述與機制」的規則
 

@@ -66,7 +66,7 @@ MultiAgentBench（MARBLE，ACL 2025，arXiv:2503.01935）在包含研究、程�
 
 ### AgentVerse 揭示的兩大湧現行為模式
 
-AgentVerse（ICLR 2024，https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf）記錄了多 Agent 辯論中，即使沒有明確設計也會出現的兩種行為：
+AgentVerse (ICLR 2024, https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf) 記錄了多 Agent 辯論中，即使沒有明確設計也會出現的兩種行為：
 
 - **自願承擔行為（Volunteer behavior）。** 某個 Agent 未經提示便主動提供協助（「我可以負責下一步」）。這很有用：它會把子任務分配給最有能力的 Agent。
 - **從眾順從行為（Conformity behavior）。** 某個 Agent 調整自己的立場以符合批判者，即使批判者是錯的。這是辯論中的諂媚現象（Phase 16 · 14）。

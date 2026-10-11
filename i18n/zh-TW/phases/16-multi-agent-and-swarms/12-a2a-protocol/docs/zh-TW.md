@@ -80,13 +80,13 @@ sequenceDiagram
     participant C as 用戶端
     participant S as Agent 伺服器
     C->>S: GET /.well-known/agent-card.json
-    S-->>C: Agent Card（JSON）
+    S-->>C: Agent Card JSON
     C->>S: POST /message:send (returnImmediately)
-    S-->>C: 任務，TASK_STATE_SUBMITTED
+    S-->>C: task, TASK_STATE_SUBMITTED
     C->>S: GET /tasks/{id}
     S-->>C: TASK_STATE_WORKING
     C->>S: GET /tasks/{id}
-    S-->>C: TASK_STATE_COMPLETED、工件
+    S-->>C: TASK_STATE_COMPLETED, artifacts
 ```
 
 上述展示了標準的 HTTP+JSON 綁定路徑，且每一個請求標頭皆強制攜帶 `A2A-Version: 1.0`。在預設情況下，`SendMessage` 會持續阻塞直到任務達成終端狀態或被中斷，因此採用輪詢的用戶端會主動設定 `configuration.returnImmediately` 以便在第一時間立即取得建立的任務物件。

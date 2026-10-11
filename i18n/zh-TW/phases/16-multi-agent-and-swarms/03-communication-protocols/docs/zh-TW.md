@@ -58,10 +58,10 @@ sequenceDiagram
     participant Agent as Agent（用戶端）
     participant MCP1 as MCP 伺服器<br/>（資料庫、API、檔案）
 
-    Agent->>MCP1: 列出工具
-    MCP1-->>Agent: 工具定義
-    Agent->>MCP1: 呼叫工具 X
-    MCP1-->>Agent: 結果
+    Agent->>MCP1: list tools
+    MCP1-->>Agent: tool definitions
+    Agent->>MCP1: call tool X
+    MCP1-->>Agent: result
 ```
 MCP 本質上是 **Agent 到工具（agent-to-tool）** 的通訊。它無法協助 agent 之間展開彼此對話。
 
@@ -80,19 +80,19 @@ sequenceDiagram
     participant Remote as 遠端 Agent
 
     Client->>Remote: GET /.well-known/agent-card.json
-    Remote-->>Client: Agent Card（技能、模式、安全性）
+    Remote-->>Client: Agent Card (skills, modes, security)
 
     Client->>Remote: POST /message:send (returnImmediately)
-    Remote-->>Client: 任務（TASK_STATE_SUBMITTED 或 TASK_STATE_WORKING）
+    Remote-->>Client: Task (TASK_STATE_SUBMITTED or TASK_STATE_WORKING)
 
-    alt 輪詢
+    alt Polling
         Client->>Remote: GET /tasks/{id}
-        Remote-->>Client: 任務狀態與產出物
-    else 串流
+        Remote-->>Client: Task status + artifacts
+    else Streaming
         Client->>Remote: POST /message:stream
         Remote-->>Client: SSE: statusUpdate
         Remote-->>Client: SSE: artifactUpdate
-        Remote-->>Client: SSE：statusUpdate TASK_STATE_COMPLETED，串流關閉
+        Remote-->>Client: SSE: statusUpdate TASK_STATE_COMPLETED, stream closes
     end
 ```
 #### 真實的 Agent Card
@@ -165,12 +165,12 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> SUBMITTED
     SUBMITTED --> WORKING
-    WORKING --> INPUT_REQUIRED: 需要更多資訊
-    INPUT_REQUIRED --> WORKING: 用戶端送出資料
-    WORKING --> COMPLETED: 成功
-    WORKING --> FAILED: 錯誤
-    WORKING --> CANCELED: 用戶端取消
-    SUBMITTED --> REJECTED: agent 拒絕
+    WORKING --> INPUT_REQUIRED: needs more info
+    INPUT_REQUIRED --> WORKING: client sends data
+    WORKING --> COMPLETED: success
+    WORKING --> FAILED: error
+    WORKING --> CANCELED: client cancels
+    SUBMITTED --> REJECTED: agent declines
 
     COMPLETED --> [*]
     FAILED --> [*]
@@ -178,9 +178,9 @@ stateDiagram-v2
     REJECTED --> [*]
 
     note right of COMPLETED
-        終端狀態不可變。
-        後續追蹤會在同一個 contextId 內
-        建立新任務。
+        Terminal states are immutable.
+        Follow-ups create new tasks
+        within the same contextId.
     end note
 ```
 全部 8 種狀態（規格中額外定義了作為哨兵值的 `UNSPECIFIED`，此處予以省略）：
@@ -283,10 +283,10 @@ sequenceDiagram
     participant Audit as 稽核日誌
 
     Client->>ACP: POST /runs (mode: sync)
-    ACP->>ACP: 處理請求…
-    ACP->>Audit: 記錄軌跡：<br/>推理與工具呼叫
-    ACP-->>Client: 回應與 TrajectoryMetadata
-    Note over Audit: 每個步驟皆被記錄：<br/>tool_name、tool_input、<br/>tool_output、reasoning
+    ACP->>ACP: Process request...
+    ACP->>Audit: Log trajectory:<br/>reasoning + tool calls
+    ACP-->>Client: Response + TrajectoryMetadata
+    Note over Audit: Every step recorded:<br/>tool_name, tool_input,<br/>tool_output, reasoning
 ```
 #### ACP 中的 Agent 發現機制
 
@@ -338,11 +338,11 @@ ACP 採用「Run（執行次）」而非「Task」。一個 Run 代表一次 age
 stateDiagram-v2
     [*] --> created
     created --> in_progress
-    in_progress --> completed: 成功
-    in_progress --> failed: 錯誤
-    in_progress --> awaiting: 需要輸入
-    awaiting --> in_progress: 用戶端恢復執行
-    in_progress --> cancelling: 取消請求
+    in_progress --> completed: success
+    in_progress --> failed: error
+    in_progress --> awaiting: needs input
+    awaiting --> in_progress: client resumes
+    in_progress --> cancelling: cancel request
     cancelling --> cancelled
 
     completed --> [*]
@@ -477,13 +477,13 @@ sequenceDiagram
     participant Domain as Agent A 的網域
     participant B as Agent B
 
-    A->>B: HTTP 請求 + DID + 簽章
-    B->>Domain: 抓取 DID 文件（HTTPS）
-    Domain-->>B: DID 文件 + 公鑰
-    B->>B: 以公鑰驗證簽章
-    B-->>A: 核發存取權杖
-    A->>B: 後續請求使用權杖
-    Note over A,B: 信任 = TLS 網域驗證<br/>+ DID 簽章驗證<br/>+ 最小信任原則
+    A->>B: HTTP request + DID + signature
+    B->>Domain: Fetch DID document (HTTPS)
+    Domain-->>B: DID document + public key
+    B->>B: Verify signature with public key
+    B-->>A: Issue access token
+    A->>B: Subsequent requests use token
+    Note over A,B: Trust = TLS domain verification<br/>+ DID signature verification<br/>+ Principle of least trust
 ```
 其信任源自於三大支柱：
 1. **網域名稱層級的 TLS 憑證** 驗證了 DID 文件的託管主機真偽
@@ -511,9 +511,9 @@ sequenceDiagram
     participant B as Agent B
 
     A->>B: protocolNegotiation (candidateProtocols)
-    B->>A: protocolNegotiation（反提案）
-    A->>B: protocolNegotiation（已接受）
-    Note over A,B: Agent 動態生成程式碼<br/>以處理約定的格式。<br/>最多 10 輪，之後逾時。
+    B->>A: protocolNegotiation (counter-proposal)
+    A->>B: protocolNegotiation (accepted)
+    Note over A,B: Agents dynamically generate code<br/>to handle the agreed format.<br/>Max 10 rounds, then timeout.
 ```
 兩個 agent 進行來回交涉（最多 10 輪），直到雙方針對通訊格式達成一致共識，隨後動態生成處理該格式的執行程式碼。協商狀態包含：`negotiating`、`rejected`、`accepted`、`timeout`。
 
@@ -1090,10 +1090,10 @@ function signPayload(identity: AgentIdentity, payload: string): string {
 ```mermaid
 graph LR
     REQ[傳入請求] --> ANP_V{ANP：驗證 DID}
-    ANP_V -->|有效| A2A_D{A2A：探索 Agent}
-    ANP_V -->|無效| REJECT[拒絕]
-    A2A_D -->|找到| ACP_A[ACP：稽核執行]
-    A2A_D -->|找不到| REJECT
+    ANP_V -->|Valid| A2A_D{A2A：探索 Agent}
+    ANP_V -->|Invalid| REJECT[拒絕]
+    A2A_D -->|Found| ACP_A[ACP：稽核執行]
+    A2A_D -->|Not Found| REJECT
     ACP_A --> A2A_T[A2A：建立任務]
     A2A_T --> RESULT[任務 + 稽核條目]
 
@@ -1423,16 +1423,16 @@ protocolDemo().catch((err) => {
 ```mermaid
 graph TD
     START{agent 需要使用工具嗎？}
-    START -->|是| MCP_R[使用 MCP]
-    START -->|否| TALK{agent 之間需要彼此溝通嗎？}
-    TALK -->|否| NONE[你不需要<br/>任何協定]
-    TALK -->|是| AUDIT{需要合規用的稽核軌跡嗎？}
-    AUDIT -->|是| ACP_R[A2A + ACP<br/>軌跡模式]
-    AUDIT -->|否| ORG{所有 agent 都在你的組織內嗎？}
-    ORG -->|是| A2A_R[A2A<br/>Agent Cards + 任務]
-    ORG -->|否| INFRA{共用<br/>基礎設施？}
-    INFRA -->|是| BROKER[A2A + 訊息中介程式]
-    INFRA -->|否| ANP_R[ANP + A2A<br/>DID 驗證]
+    START -->|Yes| MCP_R[使用 MCP]
+    START -->|No| TALK{agent 之間需要彼此溝通嗎？}
+    TALK -->|No| NONE[你不需要<br/>任何協定]
+    TALK -->|Yes| AUDIT{需要合規用的稽核軌跡嗎？}
+    AUDIT -->|Yes| ACP_R[A2A + ACP<br/>軌跡模式]
+    AUDIT -->|No| ORG{所有 agent 都在你的組織內嗎？}
+    ORG -->|Yes| A2A_R[A2A<br/>Agent Cards + 任務]
+    ORG -->|No| INFRA{共用<br/>基礎設施？}
+    INFRA -->|Yes| BROKER[A2A + 訊息中介程式]
+    INFRA -->|No| ANP_R[ANP + A2A<br/>DID 驗證]
 
     style MCP_R fill:#d1fae5,stroke:#059669
     style A2A_R fill:#dbeafe,stroke:#2563eb
