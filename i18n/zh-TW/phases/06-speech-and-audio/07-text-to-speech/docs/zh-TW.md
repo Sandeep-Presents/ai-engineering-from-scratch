@@ -1,6 +1,6 @@
 # 文字轉語音（TTS）：從 Tacotron 到 F5 與 Kokoro
 
-> ASR 將語音轉成文字。TTS 把文字倒成語音。2026 年的堆疊是三塊：文字到 token，token 到梅爾頻譜圖（mel-spectrogram），梅爾頻譜圖到波形。每一塊都有一個筆電放得下的預設模型。
+> ASR 將語音轉成文字。TTS 把文字轉成語音。2026 年的堆疊是三塊：文字到 token，token 到梅爾頻譜圖（mel-spectrogram），梅爾頻譜圖到波形。每一塊都有一個筆電放得下的預設模型。
 
 **Type:** Build
 **Languages:** Python
