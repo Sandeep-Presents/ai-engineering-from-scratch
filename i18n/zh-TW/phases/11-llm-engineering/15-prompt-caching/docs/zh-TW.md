@@ -1,6 +1,6 @@
 # Prompt 快取與脈絡快取（Prompt Caching and Context Caching）
 
-> 你的系統提示有 4,000 個 token，你的 RAG 脈絡有 20,000 個 token。你在每一次請求中都發送了這兩者，而每一次你都在全價付費。Prompt 快取讓服務供應商（provider）端能在伺服器端為你保持該前綴（prefix）的運算狀態，在重複使用時僅收取正常費率的 10%。運用得當，它能將推論成本降低 50% 到 90%，並將首字延遲（TTFT）降低 40% 到 85%。
+> 你的 system prompt 有 4,000 個 token，你的 RAG 脈絡有 20,000 個 token。你在每一次請求中都發送了這兩者，而每一次你都在全價付費。Prompt 快取讓服務供應商（provider）端能在伺服器端為你保持該前綴（prefix）的運算狀態，在重複使用時僅收取正常費率的 10%。運用得當，它能將推論成本降低 50% 到 90%，並將首字延遲（TTFT）降低 40% 到 85%。
 
 **Type:** Build
 **Languages:** Python
@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-一個寫程式的 agent 在一場對話的每一輪都向 Claude 發送相同的 15,000 token 系統提示。在 20 輪對話中，若每百萬輸入 token 為 3 美元，單是系統提示本身就耗費 0.90 美元輸入成本——這還沒算進使用者的任何實際訊息。若乘以每日 10,000 場對話，每天光是傳送相同的文字，帳單就高達 9,000 美元。
+一個寫程式的 agent 在一場對話的每一輪都向 Claude 發送相同的 15,000 token system prompt。在 20 輪對話中，若每百萬輸入 token 為 3 美元，單是 system prompt 本身就耗費 0.90 美元輸入成本——這還沒算進使用者的任何實際訊息。若乘以每日 10,000 場對話，每天光是傳送相同的文字，帳單就高達 9,000 美元。
 
 你不能刪減 prompt，因為這會損害輸出品質；你也不能不傳它，因為模型在每一輪對話中都需要依賴它。唯一的解法，就是停止為服務供應商早已看過並運算過的前綴支付全額費用。
 
@@ -42,7 +42,7 @@
 [current user message]   <-- never cache (different every time)
 ```
 
-破壞了這個順序——例如把使用者訊息放在系統提示上方，或者在少樣本範例之間穿插動態檢索內容——快取將無法命中。
+破壞了這個順序——例如把使用者訊息放在 system prompt 上方，或者在少樣本範例之間穿插動態檢索內容——快取將無法命中。
 
 ### 損益兩平計算
 
@@ -165,7 +165,7 @@ resp = client.models.generate_content(
 
 ## 2026 年依然常見的陷阱
 
-- **在頂部放置動態時間戳記。** 例如在系統提示首行寫上 `"Current time: 2026-04-22 15:30:02"`。這會導致每一次請求都未命中。請將動態時間戳記移至快取中斷點（cache breakpoint）的下方。
+- **在頂部放置動態時間戳記。** 例如在 system prompt 首行寫上 `"Current time: 2026-04-22 15:30:02"`。這會導致每一次請求都未命中。請將動態時間戳記移至快取中斷點（cache breakpoint）的下方。
 - **工具定義順序隨機變動。** 請確保工具定義序列化時具備穩定的固定順序——部署之間字典鍵值的隨機重排會破壞每一次快取命中。
 - **自由文字的微小差異。** 例如「You are helpful.」與「You are a helpful assistant.」——哪怕只有一個位元組的差異，整段後續快取都會未命中。
 - **區塊尺寸低於閾值。** Anthropic 強制執行 1,024 個 token 的最低門檻（Haiku 為 2,048）。過小的區塊會靜默略過快取。
@@ -177,7 +177,7 @@ resp = client.models.generate_content(
 
 | 應用情境 | 最佳選型 |
 |-----------|------|
-| 擁有穩定 10K+ 系統提示、多輪互動的 Agent | 採用帶有 5 分鐘 TTL 的 Anthropic cache_control |
+| 擁有穩定 10K+ system prompt、多輪互動的 Agent | 採用帶有 5 分鐘 TTL 的 Anthropic cache_control |
 | 需在 30 分鐘以上反覆複用前綴的批次離線任務 | 採用帶有 `ttl: "1h"` 的 Anthropic 快取 |
 | 無自架基礎設施、基於 GPT-5 的 Serverless 端點（endpoint） | 採用 OpenAI 自動快取（只需確保前綴長且恆定穩定） |
 | 跨數天反覆複用超大型程式碼庫或文件語料庫 | 採用 Gemini 顯式 `CachedContent` API |
@@ -212,7 +212,7 @@ Refuse to ship a cache plan that places a dynamic field above the breakpoint. Re
 
 ## Exercises｜練習
 
-1. **基礎題**。取一場針對 Claude 且擁有 5,000 token 系統提示的 10 輪對話。分別在未加 `cache_control` 與加上 `cache_control` 的條件下執行，計算並比較兩者的輸入 token 總帳單。
+1. **基礎題**。取一場針對 Claude 且擁有 5,000 token system prompt 的 10 輪對話。分別在未加 `cache_control` 與加上 `cache_control` 的條件下執行，計算並比較兩者的輸入 token 總帳單。
 2. **進階題**。撰寫一套測試評估工具：給定一個 Prompt 範本與歷史請求日誌，精確計算出各服務供應商（Anthropic 5m、Anthropic 1h、OpenAI 自動、Gemini 顯式）的預期快取命中率與實質節省美金金額。
 3. **挑戰題**。建構一套佈局最佳化器（optimizer）：給定一個 Prompt 以及標註為 `stable=True/False` 的欄位清單，在不丟失任何資訊的前提下，將其自動重構為在最佳位置放置單一快取中斷點的高效佈局。在真實 Anthropic 端點上驗證成效。
 
