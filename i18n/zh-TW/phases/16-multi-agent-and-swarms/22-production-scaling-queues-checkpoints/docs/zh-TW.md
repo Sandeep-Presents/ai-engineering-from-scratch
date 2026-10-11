@@ -1,0 +1,183 @@
+# 正式環境規模化擴展——佇列、檢查點與持久化（Production Scaling — Queues, Checkpoints, Durability）
+
+> 將多 Agent 系統水平擴展至數千個並行執行次，必須依賴**持久化執行（Durable execution）**——結合工作佇列與檢查點機制，只要具備健全的租約管理、冪等性外部副作用與確定性重播，任何工作節點皆能在系統遭遇任何當機崩潰後隨時接手恢復任何執行緒。LangGraph 的執行時期是該模式的經典代表：它在每一個超級步驟（super-step）之後，以 `thread_id` 為鍵落盤儲存檢查點（預設使用 PostgreSQL）；一旦 worker 崩潰，其租約自動釋放，另一個 worker 立即接棒復原。Agent 能在等待人類輸入時進入無限期休眠而毫無資源浪費。**MegaAgent**（arXiv:2408.09955）為每位 Agent 配置了獨立的生產者-消費者佇列，包含三大狀態（閒置 Idle／處理中 Processing／回應 Response），並實施雙層協同架構（組內討論 + 組間管理協調）。**纖程／非同步（Async/Fiber）** 在處理 LLM 串流時全面碾壓傳統的「每個任務一執行緒」模式：執行緒有 99% 的時間都在無所事事地乾等下一個 Token 到達，而纖程能在 I/O 等待時協同式主動讓出 CPU。務實的反思視角：Ashpreet Bedi 在《Scaling Agentic Software》中強力呼籲**堅持「FastAPI + Postgres + 不增加任何額外複雜性」**，除非實測負載明確證明它已無法承載——極簡架構往往能走得比預期遠得多。本課將親手建構持久化檢查點日誌、單一 Agent 工作佇列狀態機、非同步 vs 多執行緒效能展示，並確立質樸實用的「從極簡起步」架構鐵律。
+
+**Type:** Learn + Build
+**Languages:** Python (stdlib, `asyncio`, `sqlite3`)
+**Prerequisites:** Phase 16 · 09 (Parallel Swarm Networks), Phase 16 · 13 (Shared Memory)
+**Time:** ~75 minutes
+
+## Problem｜問題
+
+原型階段的多 Agent 系統通常只在單一一台筆電上運作，三位 Agent 共享同一個記憶體內部的事件迴圈。這很美好。然而一旦推向真實正式環境：
+
+- Agent 有時需要持續運作數小時（深度調研、等待人在迴圈中的漫長人工確認）。
+- 背景工作節點（Worker 行程）隨時可能突發當機。重新啟動會導致所有中間記憶瞬間歸零。
+- 尖峰負載往往高達日常平均的 10 倍以上；你必須具備無縫的水平動態擴展能力。
+- 使用者依據 Agent 的實際執行付費；你必須在金融結算層面提供嚴格的「精確執行一次（Exactly-once）」語意保證。
+
+單純的記憶體事件迴圈面對上述任何一項挑戰皆徹底無能為力。你必須在底層鋪設一層堅不可摧的持久化執行層。2026 年的工業級主流選項包括：
+
+1. 配備檢查點的工作流程編排引擎（Temporal、LangGraph 執行時期）。
+2. 配備持久化狀態儲存的訊息佇列（Postgres + SQS/RabbitMQ）。
+3. 基於 Actor 模型的框架（MegaAgent 的單一 Agent 專屬生產者-消費者佇列）。
+4. 純手刻的 FastAPI + Postgres（Bedi 主張的極簡主義）。
+
+本課將親手實作這些架構的精巧微縮版。
+
+## Concept｜核心概念
+
+### 持久化執行（Durable Execution）架構模式
+
+持久化執行引擎會在每一個「步驟」（在 LangGraph 術語中稱為超級步驟 super-step）完成後，將完整的程式狀態落盤持久化。當遭遇節點崩潰時：
+
+```
+worker crashes mid-step
+  -> lease timeout
+  -> another worker picks up the thread_id
+  -> resumes from last checkpoint
+  -> no duplicate side effects
+```
+
+該機制得以穩定運轉的三大先決條件：
+
+- **可序列化的狀態（Serializable state）。** Agent 的所有內部狀態皆必須能夠被無損序列化。包含即時資料庫活躍連線的函式閉包在崩潰重啟後絕對無法復原。
+- **確定性的重播復原（Deterministic resume）。** 給定完全相同的初始狀態與相同的外部輸入，Agent 必須能夠確定性地產出完全相同的動作（或在呼叫 LLM 時依賴外部確定性神諭快取）。
+- **外部副作用必須具備嚴格冪等性（Idempotent side effects）。** 發送至外部系統的操作（工具呼叫、付款交易）必須具備冪等性保證，或嚴格綁定全域去重金鑰。
+
+LangGraph 在每個超級步驟之後寫入檢查點；Temporal 在每個 Activity 之後寫入；Restate 則採用事件溯源日誌。這三者在底層本質上實現了完全相同的架構模式。
+
+### 逐步驟檢查點執行時期（Checkpoint-Per-Step Runtime）
+
+LangGraph 的執行時期是該模式教科書級的實戰範例：每位 Agent 綁定唯一的 `thread_id`；系統狀態是一個具備強型別的字典；每個超級步驟完成時，會向檢查點資料庫自動插入一筆全新資料列。當系統需要喚醒復原時，執行時期會直接從最近的檢查點進行快速重播，而絕不需要從最開頭推倒重來。當 Agent 呼叫 `interrupt()` 等待人類確認時，執行時期會將狀態落盤並立即釋放該工作節點的運算資源。待人類確認到達時，叢集中的任何一個空閒節點皆能立即平滑喚醒並接棒執行。
+
+這正是 2026 年 4 月工業級正式環境部署的黃金參考標準。
+
+### MegaAgent 的單一 Agent 專屬佇列
+
+論文 arXiv:2408.09955 記錄了一項極限規模的壓力測試：在單一叢集中同時並行運作數千個自主 Agent。其核心架構設計：
+
+```
+agent i:
+  state ∈ {Idle, Processing, Response}
+  in_queue   <- messages addressed to agent i
+  out_queue  -> replies + side effects
+
+coordinators:
+  intra-group chat  (agents in the same group)
+  inter-group admin chat  (high-level routing)
+```
+
+這種雙層協同架構允許組內成員展開高頻密集的內部交流，同時確保跨組之間的管理通訊維持極度的稀疏克制——這項關鍵設計成功讓管理數千個 Agent 的系統開銷始終維持在優雅的線性區間。
+
+### 非同步纖程（Async）vs 每個任務一執行緒（Thread-Per-Job）
+
+LLM 的 API 呼叫本質上屬於嚴重的 I/O 密集型任務。一個苦苦等待下一個串流 Token 回傳的作業系統執行緒，有 99% 的時間都在浪費時間陷入純粹的阻塞空轉。每個作業系統執行緒通常需要消耗約 1MB 的記憶體空間；在 10,000 個並行呼叫的衝擊下，單純維持呼叫堆疊（Stack）就需要白白浪費高達 10GB 的實體記憶體。
+
+而纖程（Python `asyncio`、Go goroutines、Rust `tokio`）能夠在遭遇 I/O 阻塞時協同式主動讓出 CPU 核心。相同的 10,000 個並行呼叫能夠以極其輕巧的姿態輕鬆容納於單一應用程式行程中。在多 Agent 規模化擴展的維度下，非同步不再是一項單純的效能最佳化——它直接決定了整體架構的生死存亡。
+
+例外情況：對於屬於 CPU 密集型的後處理任務（例如本地 Embedding 矩陣運算、Tokenizer 複雜字元解析），依然應當交由專屬的獨立執行緒或實體行程處理。務必將你的非同步 I/O 層與密集 CPU 運算層進行物理隔離。
+
+### Bedi 的質樸實務抗辯
+
+Ashpreet Bedi 在其 2026 年的知名專論《Scaling Agentic Software》中提出了一個極具清醒震撼力的觀點：絕大多數工程團隊在尚未真正面臨真實流量負載之前，便已經嚴重過度設計。在實務中最具性價比的質樸預設起點：
+
+- **FastAPI + PostgreSQL。**
+- 每次 Agent 執行僅表現為資料庫中的一筆資料列；狀態更新直接透過樂觀並行控制進行就地修改。
+- 背景非同步任務直接透過 `pg_notify` 或極簡的 Celery 工作節點進行排程。
+- 重試原則直接由簡潔的應用程式程式碼把關。
+
+面對並行數在 100 以內、規模可控的常規任務，這套極簡組合往往已能完美覆蓋全部業務需求。唯有當真實的監控指標明確發出警報時，才啟動架構升級。
+
+黃金鐵律：唯有當你遭遇了極簡架構在物理上確實無法解決的具體致命痛點時，才考慮導入沉重的持久化執行框架。過早引入龐雜架構，只會將寶貴的工程精力白白浪費在毫無實質收益的形式主義上。
+
+### 精確執行一次的語意（Exactly-Once Semantics）
+
+面對付費的 Agent 執行次，你必須提供「實質上精確執行一次（At-least-once delivery + Idempotent consumer）」的嚴格保證。必備的工程組合拳：
+
+- **為每次執行指派全域唯一的去重金鑰（Dedup key）。** 在每一次發起外部副作用呼叫時皆強制攜帶該金鑰。
+- **發件箱模式（Outbox pattern）。** 外部副作用首先作為意圖落盤寫入資料庫發件箱資料表，隨後由獨立的後台行程非同步執行。兩個環節皆保證具備冪等性。
+- **補償交易（Compensating transactions）。** 當外部副作用已順利生效、但本地的狀態記錄寫入意外失敗時，系統能自動排程並觸發反向補償動作。
+
+這些全都是經典的資料庫工程模式，而非 AI 領域特有的產物。LLM 帶來的唯一額外負擔只是呼叫耗時顯著更長；其餘的一切皆屬於標準的分散式系統基礎工程。
+
+### 彩虹部署架構（Rainbow Deployment）
+
+Anthropic 的多 Agent 科研系統在正式環境中採用了「彩虹部署」：允許多個不同版本的 Agent 執行時期在叢集中並行運作，從而確保長達數小時的在途長任務絕不會因為例行的軟體版本發布而被暴力中斷。將新流量依比例灰度導入全新版本；待舊版本上的所有在途 Agent 自然完工排空後，再優雅除役舊版容器。
+
+這對於長時程有狀態系統而言是業界標準規範；2026 年的全新適配在於 Agent 的生命週期往往長達數小時，因此軟體交付的部署週期必須對此給予充分相容。
+
+### 正式環境必備架構檢查清單
+
+- 具備持久化能力的狀態儲存（檢查點、快照，或發件箱 + 可重播日誌）。
+- 外部副作用保證具備嚴格冪等性。
+- 專門用於 LLM 網路呼叫的非同步 I/O 底座。
+- 配備去重機制的「至少送達一次」訊息語意。
+- 針對有狀態長時程負載量身打造的彩虹／金絲雀漸進式部署管線。
+- 全鏈路可觀測性：逐 Agent 追蹤鏈條、超級步驟稽核日誌、全域重試計數器。
+
+```figure
+sw-checkpoint-replay
+```
+
+## Build It｜動手實作
+
+`code/main.py` 完整實作了以下模組：
+
+- `CheckpointStore`——以 SQLite 為底座、基於 thread-id 索引的持久化檢查點日誌。每個超級步驟完成時自動追加一筆新資料列。
+- `run_with_checkpoint(agent, thread_id)`——精準模擬在執行中途突發當機崩潰；第二個全新工作節點從最近的檢查點順暢喚醒接棒。
+- `AgentQueue`——實現具備閒置 Idle／處理中 Processing／回應 Response 三大狀態的單一 Agent 專屬工作佇列。
+- `demo_async_vs_threads()`——分別透過 asyncio 與作業系統多執行緒並行發起 500 個模擬的「LLM 網路呼叫」；量化輸出端到端實際耗時與峰值記憶體開銷估算。
+
+執行指令：
+
+```
+python3 code/main.py
+```
+
+預期終端輸出：檢查點在模擬崩潰後成功實現確定性復原；非同步版本在不到 1 秒內極速完成 500 次並行呼叫；而多執行緒版本消耗了數秒之久，且在每個並行單元的記憶體消耗上高出數個數量級。
+
+## Use It｜實際應用
+
+`outputs/skill-scaling-advisor.md` 是一項專業的架構決策 skill，能為具體的多 Agent 業務精準裁決最適的持久化擴展方案：是在「FastAPI + Postgres」、「LangGraph 執行時期」、「Temporal」還是「自研佇列」之間進行抉擇。依據真實負載、狀態保留週期與軟體部署頻率進行量化校準。
+
+## Ship It｜交付成果
+
+正式環境系統硬體化的必備鐵律：
+
+- **堅持從極簡起步（Bedi 鐵律）。** 堅守 FastAPI + Postgres，直到真實的監控指標明確證明它已無法承載。
+- **在啟動任何最佳化之前，必須先完成全鏈路埋點。** 建立單次執行延遲長條圖、超級步驟耗時統計、重試計數器以及故障分類統計。
+- **針對外部副作用全面實施發件箱模式。** 尤其是金融付款與高危外部 API 呼叫。
+- **實施彩虹滾動部署。** 絕對嚴禁在部署新程式碼時暴力斬斷正在執行中的在途 Agent。
+- **唯有在遭遇特定物理痛點時才引入高階工作流引擎（Temporal / LangGraph / Restate）**：例如需要跨越數小時等待人類確認、跨資料中心多區域協同，或需要極度複雜的重試與補償交易政策時。
+- **I/O 層強制全面非同步化。** 作業系統執行緒僅保留給 CPU 密集型的本地後處理任務。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。驗證檢查點在崩潰後是否成功實現復原；精確記錄非同步與多執行緒並行在耗時與資源消耗上的巨大差距。
+2. 實現一個**發件箱（Outbox）資料表**：所有工具呼叫必須先寫入發件箱，隨後由獨立的非同步排程器取出執行。透過連續執行兩次相同的工具呼叫，驗證其底層冪等性。
+3. 模擬一次**彩虹滾動部署**：同時運作兩個不同版本的執行時期；將一半的新 thread_id 導流至新版；確認在舊版上運作中的在途執行緒完全未遭受任何中斷。
+4. 閱讀 LangGraph 執行時期官方技術文件（文末附連結）。指出該執行時期所提供的各項特性中，哪一項是在手刻的「FastAPI + Postgres」架構中最難以自行復現的？這項難度是否構成你當前立即導入該框架的充分理由？
+5. 閱讀 MegaAgent 論文（arXiv:2408.09955）第 3 節。其雙層協同架構（組內討論 + 組間管理協調）極具代表性。嘗試繪製一份架構圖，說明你該如何將其優雅映射至具備兩大主題家族的實體訊息佇列中。
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Durable execution | "Persist the program state" | Engine writes state after each super-step; crash recovery is deterministic. |
+| Super-step | "Transactional boundary" | Unit of work between checkpoints. LangGraph term. |
+| thread_id | "Agent run identifier" | Key that binds checkpoints and resume logic. |
+| Idempotency | "Safe to retry" | Repeating a side effect produces the same result as one attempt. |
+| Outbox pattern | "Decouple side effects" | Write intent to a table; a separate executor performs and marks done. |
+| At-least-once delivery | "Possible duplicates" | Message queue semantics; dedup key makes consumer effective-once. |
+| Rainbow deploy | "Overlapping versions" | Multiple runtime versions concurrent during long-running workloads. |
+| Async fiber | "Cooperative yielding" | User-mode concurrency; cheap compared to threads for I/O-bound loads. |
+| Checkpoint | "State snapshot" | Serialized state at a super-step boundary; key for resume. |
+
+## Further Reading｜延伸閱讀
+
+- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — LangGraph 執行時期的深度架構設計解析。
+- [MegaAgent](https://arxiv.org/abs/2408.09955) — 單一 Agent 專屬生產者-消費者佇列；在數千個並行 Agent 規模下的雙層協同架構。
+- [Matrix](https://arxiv.org/abs/2511.21686) — 將訊息佇列作為底層協同基石的去中心化框架。
+- [Temporal docs](https://docs.temporal.io/) — 分散式持久化執行工作流引擎的業界黃金參考標準。
+- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 來自正式環境部署的實戰工程教訓，包含彩虹部署模式。
