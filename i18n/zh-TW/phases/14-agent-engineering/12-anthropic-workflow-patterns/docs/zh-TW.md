@@ -39,7 +39,7 @@
 
 3. **平行化（Parallelization）**：並發發起 N 個 LLM 呼叫，隨後聚合結果。包含兩種形態：**分段處理（Sectioning）**（分別處理不同區塊）與**投票表決（Voting）**（同一 Prompt 執行 N 次，取多數決或進行綜合提煉）。
 
-4. **編排者—工作者（Orchestrator-workers）**：由協調者 LLM 動態決定啟動哪些專業工作者（Worker LLMs），並綜合彙整其輸出產物。雖然類似 Agent 迴圈，但協調者絕不進行無休止的漫無目的循環。
+4. **編排者—工作者（Orchestrator-workers）**：由編排者 LLM 動態決定啟動哪些專業工作者（Worker LLMs），並綜合彙整其輸出產物。雖然類似 Agent 迴圈，但協調者絕不進行無休止的漫無目的循環。
 
 5. **評估者—最佳化者（Evaluator-optimizer）**：一個 LLM 產出方案初稿，另一個 LLM 進行獨立評估。交替迴圈直到評估者批准通過。這正是 Self-Refine（第 5 課）的通用化實踐。
 
@@ -70,7 +70,7 @@ workflow-chain
 - `prompt_chain(input, steps)`：循序鏈結呼叫。
 - `route(input, classifier, handlers)`：分類判斷與動態分派。
 - `parallel_vote(prompt, n, aggregator)`：N 次並發呼叫並聚合結果。
-- `orchestrator_workers(task, workers)`：由協調者靈活挑選工作者。
+- `orchestrator_workers(task, workers)`：由編排者靈活挑選工作者。
 - `evaluator_optimizer(task, proposer, evaluator, max_iter)`：迭代修正直到評估者通過。
 
 執行實驗：
@@ -109,7 +109,7 @@ python3 code/main.py
 | Prompt chaining | 「循序鏈結呼叫」 | 第 N 次呼叫的輸出直接作為第 N+1 次呼叫的輸入 |
 | Routing | 「分類器意圖分派」 | 依據輸入分類動態挑選最適當的下游鏈或模型處理 |
 | Parallelization | 「並發分流」 | 同時發起 N 次並行呼叫；透過分段（Sectioning）或投票（Voting）聚合 |
-| Orchestrator-workers | 「編排者—工作者」 | 協調者 LLM 動態指揮多個專業專家 LLM 協同工作 |
+| Orchestrator-workers | 「編排者—工作者」 | 編排者 LLM 動態指揮多個專業專家 LLM 協同工作 |
 | Evaluator-optimizer | 「提案者 + 審核者」 | 提案者與評估者交替循環直到評估通過；Self-Refine 的通用化模式 |
 
 ## Further Reading｜延伸閱讀
