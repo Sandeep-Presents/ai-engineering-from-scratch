@@ -36,20 +36,20 @@ Bai 等人（2022 年）將這條管線設計為兩個階段。
 
 ```mermaid
 graph TD
-    subgraph SL["Stage 1: SL-CAI"]
-        P1["Harmful prompt"] --> R1["Initial response\n(possibly harmful)"]
-        R1 --> C1["Model critiques\nagainst principle"]
-        C1 --> REV["Model revises\nresponse"]
-        REV --> SFT["SFT on\n(prompt, revised)"]
+    subgraph SL["階段 1：SL-CAI"]
+        P1["有害 prompt"] --> R1["初始回應\n（可能有害）"]
+        R1 --> C1["模型依原則檢視\n回應"]
+        C1 --> REV["模型修訂\n回應"]
+        REV --> SFT["使用 SFT 訓練\n(prompt, 修訂後回應)"]
     end
 
-    subgraph RL["Stage 2: RLAIF"]
-        P2["Prompt"] --> S1["Sample response A"]
-        P2 --> S2["Sample response B"]
-        S1 --> J["Model judges\nA vs B via constitution"]
+    subgraph RL["階段 2：RLAIF"]
+        P2["Prompt"] --> S1["抽樣回應 A"]
+        P2 --> S2["抽樣回應 B"]
+        S1 --> J["模型依據憲法原則\n評判 A 與 B"]
         S2 --> J
-        J --> RM["Preference dataset"]
-        RM --> TRAIN["DPO / PPO training"]
+        J --> RM["偏好資料集"]
+        RM --> TRAIN["DPO / PPO 訓練"]
     end
 
     SL --> RL
@@ -138,14 +138,14 @@ DeepSeek 在應用於 R1-Zero 之後將此稱為「拒絕取樣 fine-tuning（re
 
 ```mermaid
 graph LR
-    M0["SFT Model v0"] --> G["Generate G responses\nper prompt"]
-    G --> S["Score with rule\nor constitution"]
-    S --> F["Filter / rank"]
-    F --> T["Fine-tune\n(SFT or GRPO)"]
-    T --> M1["SFT Model v1"]
+    M0["SFT 模型 v0"] --> G["每個 prompt 產生 G 個回應"]
+    G --> S["依規則或憲法原則\n評分"]
+    S --> F["篩選／排序"]
+    F --> T["fine-tuning\n（SFT 或 GRPO）"]
+    T --> M1["SFT 模型 v1"]
     M1 -.->|iterate| G
 
-    H["Human data\n(small fraction)"] --> T
+    H["人類資料\n（少部分）"] --> T
 
     style M0 fill:#1a1a2e,stroke:#e94560,color:#fff
     style M1 fill:#1a1a2e,stroke:#51cf66,color:#fff
