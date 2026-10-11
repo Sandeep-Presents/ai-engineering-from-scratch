@@ -66,7 +66,7 @@ cd-constitution-loop
 - `no-pii-in-examples`（高危）：示例資料不得包含符合電話或電子郵件格式的字串。
 - `cite-when-asserting-fact`（低危）：以「According to」開頭的陳述句，末尾必須包含括號引用來源。
 - `no-internal-library-leak`（高危）：嚴禁在輸出文字中出現 `internal-only` 或 `policybot-internal` 等內部敏感標識。
-- `bounded-length`（低危）：回答總詞數嚴格限制在 800 字以內。
+- `bounded-length`（低危）：回答不得超過 800 個英文單字。
 
 ## Use It｜實際應用
 

@@ -77,7 +77,7 @@
 
 Python 標準庫參考實作中的 `validate_registry_document` 函式刻意設計為一個輕量級的遠端設定檔校驗器。它檢驗官方強制要求的 `name`、`description` 與 `version` 欄位；可選的 `title`；發布名稱與長度限制；具體語義版本規格；以及每個 `streamable-http` 或 `sse` 遠端端點的 HTTP(S) URL 格式。此外，由於本專案實戰強制要求實施線上動態探測，該校驗器強制要求 `remotes` 清單不得為空。`validate_publisher_namespace` 獨立負責檢驗名稱是否歸屬於已認證的發布者網域，而 `validate_runtime_alignment` 則負責比對發布檔案名稱、版本號與線上即時 `serverInfo` 是否存在漂移。官方完整 Schema 亦支援純套件形式與更豐富的欄位。在正式發布至正式環境前，應使用官方鎖定的 JSON Schema 或 `mcp-publisher` 工具實施全量校驗；切勿將本標準庫子集視為完全替代品。
 
-伺服器必須完整實作 `server/discover` RPC 方法；用戶端在調用任何其他具體業務方法前皆應當優先呼叫它。本專案實戰用戶端在解析出端點位址後立即發起該探測，接收當前通訊協定版本與線上即時能力特徵：
+伺服器必須完整實作 `server/discover` RPC 方法；用戶端可在呼叫其他方法前先呼叫它。本專案實戰用戶端在解析出端點位址後立即發起該探測，接收當前通訊協定版本與線上即時能力特徵：
 
 ```json
 {

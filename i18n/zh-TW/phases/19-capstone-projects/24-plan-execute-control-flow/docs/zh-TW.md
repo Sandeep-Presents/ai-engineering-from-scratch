@@ -30,7 +30,7 @@ cg-plan-replan
 3. Replan        (hand the error to the planner, get a new plan from the cursor)
 ```
 
-正是第三種「重規劃（Replan）」機制，將一段脆弱的死板腳本徹底昇華為具備自癒能力的自主 Agent。
+重規劃（Replan）讓腳本成為 agent。
 
 ## 步驟的標準結構
 
@@ -53,7 +53,7 @@ def planner(goal: str, history: list[Step], last_error: str | None) -> list[Step
     ...
 ```
 
-規劃器是一個純函式。`goal` 是終端使用者的最終目標。`history` 是先前已經執行完畢的步驟歷史清單（其中已裝填好執行結果與錯誤訊息）。在第一次呼叫時 `last_error` 為 None，在後續的所有重規劃呼叫中則傳入最新一次的具體故障報錯。規劃器依據這些線索，回傳從當前遊標開始的下一階段新計畫。
+規劃器是一個純函式。`goal` 是終端使用者的最終目標。`history` 是已執行步驟的歷史（含結果與錯誤）。在第一次呼叫時 `last_error` 為 None，在後續的所有重規劃呼叫中則傳入最新一次的具體故障報錯。規劃器依據這些線索，回傳從當前遊標開始的下一階段新計畫。
 
 規劃器對執行器內部細節一無所知。它不關心重試機制，亦不關心網路逾時。它的唯一職責就是產出具備邏輯一致性的計畫。
 

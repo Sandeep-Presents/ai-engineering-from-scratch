@@ -1,6 +1,6 @@
 # 專案實戰 09——程式碼遷移 Agent（儲存庫層級語言與執行環境升級）（Capstone 09 — Code Migration Agent (Repo-Level Language / Runtime Upgrade)）
 
-> 亞馬遜的 MigrationBench（Java 8 到 Java 17）與 Google App Engine 的 Python 2 到 Python 3 遷移器樹立了 2026 年的工業標準。Moderne 的 OpenRewrite 負責大規模確定性 AST 語法樹重寫。Grit 則透過 Codemod 風格的 DSL 攻克對等問題。正式環境的成熟架構將兩者深度結合：由確定性底座執行高安全性的機械重寫，由 Agent 智慧層解決語義模糊的棘手邊界，在branch 層級隔離沙盒中持續進行建置測試，並確保在自動開啟 PR 前 CI 測試全線翻綠。本專案實戰要求你針對 50 個真實開源儲存庫執行全自動遷移，產出精確的通過率資料，並建立一套系統化的遷移失敗分類學。
+> 亞馬遜的 MigrationBench（Java 8 到 Java 17）與 Google App Engine 的 Python 2 到 Python 3 遷移器訂定 2026 年基準。Moderne 的 OpenRewrite 負責大規模確定性 AST 語法樹重寫。Grit 則透過 Codemod 風格的 DSL 攻克對等問題。正式環境的成熟架構將兩者深度結合：由確定性底座執行高安全性的機械重寫，由 Agent 智慧層解決語義模糊的棘手邊界，在branch 層級隔離沙盒中持續進行建置測試，並確保在自動開啟 PR 前 CI 測試全線翻綠。本專案實戰要求你針對 50 個真實儲存庫執行全自動遷移，產出精確的通過率資料，並建立一套系統化的遷移失敗分類學。
 
 **Type:** Capstone
 **Languages:** Python (agent), Java / Python (targets), TypeScript (dashboard)
@@ -113,7 +113,7 @@ $ migrate legacy-java-service --target java17
 
 ## Exercises｜練習
 
-1. 僅調用 OpenRewrite 確定性配方（完全不啟用 Agent 智慧修復迴圈）運行整條遷移管線。對比兩者在 50 個儲存庫上的通過率差距。精確指出哪幾類致命問題是純靠靜態配方永遠無法解決、唯有依賴 Agent 智慧層方能修復的？
+1. 僅調用 OpenRewrite 確定性配方（完全不啟用 Agent 智慧修復迴圈）運行整條遷移管線。對比兩者在 50 個儲存庫上的通過率差距。指出哪些案例中 Agent 帶來額外改善。
 2. 引入「程式碼風格（Lint-Clean）」強制檢查：遷移完成後，在沙盒中調用靜態程式碼檢查工具（Java 端使用 Spotless，Python 端使用 Ruff）。若遷移後的程式碼引入了新的風格違規，強制打回 PR。度量「測試全過但因程式碼風格退化而失敗」的發生比例。
 3. 為系統加入一個「最小 Diff（Minimal-Diff）最佳化器」：在 Agent branch成功跑通所有測試後，啟動第二輪清理掃描，精確剔除所有不必要的格式更動或無效冗餘程式碼。度量開啟該模組後 Git Diff 的行數縮減比例。
 4. 將該架構橫向遷移至第三種升級情境：Node.js 18 升級至 Node.js 22。複用相同的沙盒隔離機制；將 Java 配方層替換為自定義的 JavaScript Codemod 腳本。

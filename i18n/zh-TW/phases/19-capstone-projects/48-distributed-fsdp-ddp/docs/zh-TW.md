@@ -50,7 +50,7 @@ DDP 的本質合約就是：**建構時 `broadcast` 參數，反向傳播後 `al
 
 ### 梯度平均與單行程計算的數學等價性
 
-在 N 個 Rank 節點上平行訓練大小為 B 的小批次，在數學上必須產出與單個行程在 N*B 的大批次上訓練完全一致的梯度更新。其奧祕在於：將各 Rank 計算出的局部梯度求和並除以 N，在線性代數上精確等於在全量輸入上調用均值歸約（Mean Reduction）交叉熵損失函數所產出的理論梯度。本課程式碼嚴密斷言：手動 All-Reduce 的梯度與單行程參考 baseline 梯度的最大絕對誤差嚴格低於 `max-abs-diff < 1e-3`（在 CPU 雙精度下通常低於 1e-8）。
+在 N 個 Rank 節點上平行訓練大小為 B 的小批次，在數學上必須產出與單個行程在 N*B 的大批次上訓練相同的梯度。其奧祕在於：將各 Rank 計算出的局部梯度求和並除以 N，在線性代數上精確等於在全量輸入上調用均值歸約（Mean Reduction）交叉熵損失函數所產出的理論梯度。本課程式碼嚴密斷言：手動 All-Reduce 的梯度與單行程參考 baseline 梯度的最大絕對誤差嚴格低於 `max-abs-diff < 1e-3`（在 CPU 雙精度下通常低於 1e-8）。
 
 ### FSDP 參數分片架構速寫
 
@@ -72,7 +72,7 @@ flowchart LR
 
 ### CPU 與 gloo 通訊後端
 
-雖然 CUDA 與 NCCL 是正式環境的標配，但相同的 API 在 CPU 上完全對等存在。`gloo` 是專門針對 CPU 設計的分散式集合通訊函式庫。雖然其絕對頻寬無法與 GPU 上的 `nccl` 相比，但其對外暴露的 API 抽象完全同一。本課使用 `backend="gloo"` 初始化行程組，並透過 `torch.multiprocessing` 派生子行程，而非 `torchrun`；其在底層呼叫的皆是標準的 `torch.distributed` 原語。在多卡 GPU 節點上，只需將參數更換為 `backend="nccl"` 並使用 `torchrun` 指令啟動即可。
+雖然 CUDA 與 NCCL 是正式環境的標配，但相同的 API 在 CPU 上完全對等存在。`gloo` 是專門針對 CPU 設計的分散式集合通訊函式庫。雖然其絕對頻寬無法與 GPU 上的 `nccl` 相比，但其對外暴露的 API 抽象完全同一。本課使用 `backend="gloo"` 初始化行程組，並透過 `torch.multiprocessing` 派生子行程，而非 `torchrun`；其在底層呼叫的皆是標準的 `torch.distributed` 原語。在多卡 GPU 節點上，只需改用 `backend="nccl"`、裝置張量，並以 `torchrun` 啟動即可。
 
 ```figure
 cg-allreduce-ring
@@ -139,7 +139,7 @@ PyTorch 官方的 FSDP 則追加了：將多個參數展平為連續大緩衝區
 
 ## Exercises｜練習
 
-1. 以 `--world-size 4` 參數啟動 4 個行程，驗證在訓練全流程中所有 Rank 之間的參數離散誤差始終嚴格小於 $10^{-3}$。
+1. 以 `--world-size 4` 參數啟動 4 個行程，驗證在訓練全流程中所有 Rank 之間的參數離散誤差始終嚴格小於 1e-3。
 2. 將手動的求和再除法替換為 PyTorch 原生支援的 `dist.all_reduce(op=dist.ReduceOp.AVG)` 算子，對比兩者在底層通訊耗時上的具體差異。
 3. 為 DDP 封裝器追加反向傳播 Post-Backward Hook：在特定層計算出梯度的瞬間立即向網路非同步發射該層的 All-Reduce，使通訊與後續層的反向傳播在時間線上重疊；客觀測量其帶來的物理耗時縮短。
 4. 完整實作 FSDP 的重新分片（Re-shard）步驟：在前向傳播計算結束的瞬間，立即將龐大的全量張量自顯示記憶體中銷毀，僅重新持有本地的微小切片。客觀度量單節點顯示記憶體佔用的驟降幅度。

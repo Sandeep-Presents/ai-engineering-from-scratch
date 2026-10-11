@@ -1,6 +1,6 @@
 # 專案實戰 16——GitHub Issue 自動轉 PR 自主 Agent（Capstone 16 — GitHub Issue-to-PR Autonomous Agent）
 
-> 為 Issue 打上一枚標籤，自動收穫一個綠燈 PR——這正是 2026 年自主程式設計 Agent 的標準商業產品形態：在雲端沙盒中非同步啟動 Agent、跑通全套單元測試、自動發起可供審查的 PR，並在 PR 正文中詳細闡述架構修復思路。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版以及 Google Jules 皆遵循此模式。最艱鉅的工程挑戰在於：如何在無快取的乾淨環境下全自動精準還原程式碼儲存庫的建置環境、杜絕金鑰憑證外洩、嚴格落實每個儲存庫每日預算封頂，並確保 Agent 絕對無法進行危險的強制推播（Force-Push）。本專案實戰要求你私有化自建該系統，並在修復成功率與推論成本維度上直接對標各大商業競品。
+> 為 Issue 打上一枚標籤，自動收穫一個綠燈 PR——這正是 2026 年自主程式設計 Agent 的標準商業產品形態：在雲端沙盒中非同步啟動 Agent、跑通全套單元測試、自動發起可供審查的 PR，並在 PR 正文中附上修復理由。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版以及 Google Jules 皆遵循此模式。最艱鉅的工程挑戰在於：如何在無快取的乾淨環境下全自動精準還原程式碼儲存庫的建置環境、杜絕金鑰憑證外洩、嚴格落實每個儲存庫每日預算封頂，並確保 Agent 絕對無法進行危險的強制推播（Force-Push）。本專案實戰要求你私有化自建該系統，並在修復成功率與推論成本維度上直接對標各大商業競品。
 
 **Type:** Capstone
 **Languages:** Python (agent), TypeScript (GitHub App), YAML (Actions)
@@ -10,7 +10,7 @@
 
 ## Problem｜問題
 
-非同步雲端程式設計 Agent（Async Cloud Coding Agent）與終端機互動式程式設計 Agent（專案實戰 01）代表了截然不同的產品形態。其使用者體驗完全寄生於 GitHub 標籤（Labels）之上：工程師在 GitHub Issue 上打上 `@agent fix this` 標籤，背景排程器隨即在雲端沙盒中喚醒一個 Worker 容器、克隆儲存庫、執行測試套件、編輯程式碼、驗證測試翻綠，並最終自動發布一個附帶完整推理思路的 PR。全流程完全無人值守，無需本地終端機介入。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版、Google Jules 以及 Factory Droids 皆全面收斂於此架構。
+非同步雲端程式設計 Agent（Async Cloud Coding Agent）與終端機互動式程式設計 Agent（專案實戰 01）代表了截然不同的產品形態。其使用者體驗完全寄生於 GitHub 標籤（Labels）之上：工程師在 GitHub Issue 上打上 `@agent fix this` 標籤，背景排程器隨即在雲端沙盒中喚醒一個 Worker 容器、克隆儲存庫、執行測試套件、編輯程式碼、驗證測試翻綠，並最終自動發布一個附上修復理由的 PR。全流程完全無人值守，無需本地終端機介入。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版、Google Jules 以及 Factory Droids 皆全面收斂於此架構。
 
 真正的工程難題極其具體：環境自動還原（Agent 必須在完全沒有預先快取特定開發環境的前提下，從零自適應建置程式碼儲存庫）、不穩定測試（Flaky Tests，必須進行多輪重試或動態隔離）、憑證權限控制（GitHub App 必須採用極致收斂的細粒度權限）、每個儲存庫每日成本配額封頂，以及物理層面的防強制推播（No-force-push）資安防禦。本專案實戰將全面量化該自建系統相較於全託管商業競品的修復成功率、單任務成本與安全防禦指標。
 
@@ -79,7 +79,7 @@ cf-issue-to-pr
 
 4. **建置環境自動推導**。自動掃描儲存庫檔案特徵，辨析主開發語言（Python、Node.js、Go、Rust）與套件管理工具（uv、pnpm、go mod、cargo）。若程式碼儲存庫未提供現成的 Dockerfile，自動動態合成一個乾淨的建置容器。
 
-5. **Agent 自動化程式設計迴圈**。調用 mini-swe-agent 或 SWE-agent v2 驅動 Claude Opus 4.7。裝填六大工具：ripgrep、tree-sitter repo-map、read_file、edit_file、run_tests、git。設定硬性安全邊界：單任務成本上限 20 美元、執行時間上限 30 分鐘、最多執行 30 輪工具調用。
+5. **Agent 自動化程式設計迴圈**。調用 mini-swe-agent 或 SWE-agent v2 驅動 Claude Opus 4.7。裝填六大工具：ripgrep、tree-sitter repo-map、read_file、edit_file、run_tests、git。設定硬性安全邊界：單任務成本上限 20 美元、執行時間上限 30 分鐘、最多 30 輪 Agent 迴圈。
 
 6. **沙盒全量測試驗收**。在 Agent 宣告修復完成後，強制在沙盒中啟動完整測試套件。調用 jacoco 或 coverage.py 計算覆蓋率變動 Delta。若 CI 測試失敗：立即終止，絕對嚴禁發起 PR；若測試全過但覆蓋率下滑超過 2%：開啟 PR 但強制附帶 `needs-review` 標籤。
 

@@ -21,7 +21,7 @@
 
 三大防禦層級，依序執行：
 
-1. **正規化步驟（Normalize）**：剝離零寬度隱形字元與雙向文字控制字元（Bidi Controls）。將字串複製一份轉為小寫。自動解碼長相形似 base64、rot13 或十六進位 hex 的編碼 Token。將leet-speak（以數字／符號替代字母）還原為正常英文字母。同時保留未經修改的原始 Prompt，因為某些規則需要依託原始位元組特徵（例如插入零寬度字元本身就是一個強烈的惡意攻擊信號）。
+1. **正規化步驟（Normalize）**：剝離零寬度隱形字元與雙向文字控制字元（Bidi Controls）。將字串複製一份轉為小寫。自動解碼長相形似 base64、rot13 或十六進位 hex 的編碼 Token。將leet-speak（以數字／符號替代字母）還原為正常英文字母。同時保留未經修改的原始 Prompt，因為某些規則需要依託原始位元組特徵（例如插入零寬度字元本身就是一個訊號）。
 2. **子字串精準規則（Substring rules）**：精心編寫的關鍵詞模式，如 `"ignore previous"`、`"as an unrestricted"`、`"answer starting with"`、`"sure, here is"`。每個模式皆綁定具體類別與基礎分數。規則可同時在原始文字或正規化文字上觸發。
 3. **正規表示式規則（Regex rules）**：能夠捕捉一整類變體的 Token 級語法模式。例如 `r"\bignor\w*\s+(all|prior|previous|earlier)\b"` 能通殺一整族指令覆蓋攻擊；`r"\b(decode|rot13|base64|hex)\b.*\banswer\b"` 則能精準抓出編碼混淆企圖。每條正規表示式皆綁定具體類別與基礎分數。
 

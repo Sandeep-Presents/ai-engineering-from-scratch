@@ -1,6 +1,6 @@
 # GPT 全模型組裝（GPT Model Assembly）
 
-> 12 個 Transformer 區塊縱向堆疊、一個 token embedding 矩陣、一個可學習位置 embedding 矩陣、一個全局最終 LayerNorm，以及一個綁定權重的語言模型預測頭（LM Head）。這就是總參數量達 1.24 億的標準 GPT-2 模型的完整實體。本課將把上述所有模組組裝為一個流暢運作的模型類別、精確盤點參數量以確認模型幾何結構與官方 124M 基準 100% 精確吻合，並透過多項分布取樣（Multinomial Sampling）、溫度係數（Temperature）與 Top-k 截斷實現自回歸文字生成。
+> 12 個 Transformer 區塊縱向堆疊、一個 token embedding 矩陣、一個可學習位置 embedding 矩陣、一個全局最終 LayerNorm，以及一個綁定權重的語言模型預測頭（LM Head）。這就是總參數量達 1.24 億的標準 GPT-2 模型的完整實體。本課將把上述所有模組組裝為一個流暢運作的模型類別、盤點參數量以確認參數量符合 124M 參考規格，並透過多項分布取樣（Multinomial Sampling）、溫度係數（Temperature）與 Top-k 截斷實現自回歸文字生成。
 
 **Type:** Build
 **Languages:** Python
@@ -117,7 +117,7 @@ python3 code/main.py
 
 ## Exercises｜練習
 
-1. 手動解除 LM Head 與 token embedding 矩陣的權重綁定，重新計算全模型獨立參數量。驗證兩者的參數差值精確等於 $50257 \times 768 = 38597376$ 個參數。
+1. 手動解除 LM Head 與 token embedding 矩陣的權重綁定，重新計算全模型獨立參數量。驗證兩者的參數差值等於 50257 乘以 768 = 3800 萬。
 2. 將可學習位置 embedding 替換為在建構時一次性計算好的固定正弦查表。確認模型前向傳播依然完全正常，且全模型參數量精準下降了 786,432 個參數。
 3. 為 generate 函式擴充 `greedy=True` 旗標：直接跳過隨機抽樣，固定選取最大機率（Argmax）對應的 Token。驗證在多次重複運作中輸出的 Token 序列具備 100% 的確定性。
 4. 引入 `repetition_penalty` 重複懲罰係數：在執行 Softmax 之前，將 Prompt 與歷史生成文字中已出現過的所有 Token 對應的 Logits 強制除以該懲罰係數。在固定 Prompt 上進行實測，證明大於 1 的係數能顯著抑制模型陷入車軲轆話反覆復讀的病態循環。

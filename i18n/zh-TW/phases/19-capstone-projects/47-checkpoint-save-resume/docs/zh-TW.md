@@ -1,6 +1,6 @@
 # 檢查點保存與中斷續訓（Checkpoint Save and Resume）
 
-> 訓練過程中斷會毀滅任務；而健全的檢查點（Checkpoint）則能讓任務絕處逢生。以具備原子性（Atomically）的方式，完整保存模型權重、最佳化器狀態、學習率排程、歷史損失紀錄、步數計數器以及全隨機數生成器（RNG）狀態，確保在任何猝不及防的斷電崩潰瞬間，磁碟上始終保留著一份 100% 完好合法的存檔檔案。
+> 訓練過程中斷會毀滅任務；而健全的檢查點（Checkpoint）則能讓任務絕處逢生。以具備原子性（Atomically）的方式，完整保存模型權重、最佳化器狀態、學習率排程、歷史損失紀錄、步數計數器以及全隨機數生成器（RNG）狀態，即使行程在任何時刻遭到終止，磁碟上仍會留下有效檔案。
 
 **Type:** Build
 **Languages:** Python
@@ -78,7 +78,7 @@ flowchart LR
 
 ### Epoch 中途精確接續
 
-如果續訓機制只能粗暴地回退到「下一個 Epoch 的開頭」，這意味著中途崩潰會無端白白浪費數小時甚至整整一天的算力。唯一優雅的解法是精確記錄 `(epoch, batch_in_epoch)` 以及完整的 RNG 隨機狀態。在載入檢查點後，訓練迴圈直接命令隨機數產生器向前快轉（Fast-forward），快速跳過當前 Epoch 中已經被消耗掉的批次，直接自 `batch_in_epoch` 處無縫接軌。本課程式碼嚴密實作了該邏輯：續訓後的損失收斂軌跡與從未發生中斷的連續基準線相比，誤差嚴格低於 $10^{-4}$。
+如果續訓機制只能粗暴地回退到「下一個 Epoch 的開頭」，這意味著中途崩潰會無端白白浪費數小時甚至整整一天的算力。唯一優雅的解法是精確記錄 `(epoch, batch_in_epoch)` 以及完整的 RNG 隨機狀態。在載入檢查點後，訓練迴圈直接命令隨機數產生器向前快轉（Fast-forward），快速跳過當前 Epoch 中已經被消耗掉的批次，直接自 `batch_in_epoch` 處無縫接軌。本課程式碼嚴密實作了該邏輯：續訓後的損失收斂軌跡與從未發生中斷的連續基準線相比，誤差嚴格低於 1e-4。
 
 ```figure
 cc-atomic-checkpoint
@@ -100,7 +100,7 @@ cc-atomic-checkpoint
 
 `save_checkpoint` 將模型、最佳化器、排程器、訓練計數器與 RNG 狀態打包為單一字典。`load_checkpoint` 負責逆向解析並回傳標準的 `TrainState`。schema 版本欄位是系統未來的升級接縫：未來的格式升級只需遞增版本字串，載入器即可優雅分發處理。
 
-`load_checkpoint` 強制調用 `torch.load(..., weights_only=True)`。一個 `.pt` 檔案本質上是一個 Python Pickle 串流；若在 `weights_only=False` 下反序列化一個未經授權的惡意檔案，檔案中所寫入的任何惡意程式碼皆會在當前機器上以最高權限被直接執行！開啟 `weights_only=True` 僅允許載入張量與基礎容器，堅決封殺所有可執行程式碼物件，這正是第一步中我們刻意將 RNG 狀態轉換為純清單儲存的關鍵原因。完整性檢查一律拋出顯式的 `ValueError` 而非使用 `assert`，因為 `python -O` 最佳化旗標會將 assert 語句直接剝離抹除。本課要求使用 PyTorch 2.6 或更高版本，以徹底封死早期版本中存在的未授權繞過漏洞。
+`load_checkpoint` 強制調用 `torch.load(..., weights_only=True)`。一個 `.pt` 檔案本質上是一個 Python Pickle 串流；若在 `weights_only=False` 下反序列化一個未經授權的惡意檔案，檔案中所寫入的任何惡意程式碼皆會在當前機器上被執行！開啟 `weights_only=True` 僅允許載入張量與基礎容器，堅決封殺所有可執行程式碼物件，這正是第一步中我們刻意將 RNG 狀態轉換為純清單儲存的關鍵原因。完整性檢查一律拋出顯式的 `ValueError` 而非使用 `assert`，因為 `python -O` 最佳化旗標會將 assert 語句直接剝離抹除。使用 PyTorch 2.6 或更高版本：在此版本之前，weights_only=True 存在已知繞過漏洞（CVE-2025-32434），因此本課依賴的保證僅適用於 2.6 起的版本。
 
 ### 第四步：分片式檢查點擴充
 
@@ -116,7 +116,7 @@ cc-atomic-checkpoint
 python3 code/main.py
 ```
 
-單檔案檢查點與分片式檢查點演示皆嚴格驗證誤差低於 $10^{-4}$。詳細審計報告自動落盤至 `outputs/resume-demo.json`。
+單檔案檢查點與分片式檢查點演示皆嚴格驗證誤差低於 1e-4。詳細審計報告自動落盤至 `outputs/resume-demo.json`。
 
 ## Use It｜實際應用
 

@@ -1,6 +1,6 @@
 # 專案實戰 11——LLM 可觀測性與評估儀表板（Capstone 11 — LLM Observability & Eval Dashboard）
 
-> Langfuse 轉向開放核心（Open-Core）模式。Arize Phoenix 發布了 2026 年 GenAI 語意約定映射規範。Helicone 與 Braintrust 皆深度押注基於單用戶維度的精確成本分攤。Traceloop 開發的 OpenLLMetry 則成為事實上的跨 SDK 自動埋點標準。2026 年的工業級生產標準已全面收斂為：使用 ClickHouse 儲存全量 Span 鏈路追蹤、使用 Postgres 儲存應用與用戶中繼資料、使用 Next.js 建構現代化前端儀表板，並調度一組專屬的後台自動化評估工作行程（DeepEval、RAGAS、LLM-as-a-Judge）在抽樣的 Trace 上持續打分。本專案實戰要求你私有化自建整套系統、自至少四類主流 SDK 中攝取相容資料，並實測在 5 分鐘內精準揪出人為注入的線上退化異常。
+> Langfuse 轉向開放核心（Open-Core）模式。Arize Phoenix 發布了 2026 年 GenAI 語意約定映射規範。Helicone 與 Braintrust 皆深度押注基於單用戶維度的精確成本分攤。Traceloop 開發的 OpenLLMetry 則成為事實上的跨 SDK 自動埋點標準。2026 年常見的正式環境架構包括：使用 ClickHouse 儲存 Span 追蹤、使用 Postgres 儲存應用與用戶中繼資料、使用 Next.js 建構現代化前端儀表板，並調度一組專屬的後台自動化評估工作行程（DeepEval、RAGAS、LLM-as-a-Judge）在抽樣的 Trace 上持續打分。本專案實戰要求你私有化自建整套系統、自至少四類主流 SDK 中攝取相容資料，並實測在 5 分鐘內精準揪出人為注入的線上退化異常。
 
 **Type:** Capstone
 **Languages:** TypeScript (UI), Python / TypeScript (ingest + evals), SQL (ClickHouse)

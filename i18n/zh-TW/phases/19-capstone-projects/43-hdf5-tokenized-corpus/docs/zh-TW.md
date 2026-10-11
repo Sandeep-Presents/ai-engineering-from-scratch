@@ -50,7 +50,7 @@ flowchart TD
 
 ### 基於記憶體映射的高效讀取
 
-在模型訓練執行時期，每個背景 Worker 執行緒以 `swmr=True`（單寫多讀）模式打開其分配到的 HDF5 分片，發起 `tokens[start:stop]` 的切片請求。HDF5 的 Chunk 排布使得一旦某個分塊被命中，後續的讀取完全由作業系統 Page Cache 提供硬體級支援。Worker 永遠不需要在記憶體中全量載入整個檔案：切片資料被快速拷貝至 DataLoader 的批次緩衝區中，隨後 DataLoader 在組裝 Batch 時將其拷貝至釘選記憶體（Pinned Memory）訓練張量中。在訓練熱點路徑上，跨越 Chunk 分塊邊界時僅需發起一次系統呼叫；其餘時間全是在記憶體中進行極速讀取。
+在模型訓練執行時期，每個背景 Worker 執行緒以 `swmr=True`（單寫多讀）模式打開其分配到的 HDF5 分片，發起 `tokens[start:stop]` 的切片請求。HDF5 的 Chunk 排布使得一旦某個分塊被命中，後續的讀取由作業系統 Page Cache 支援。Worker 永遠不需要在記憶體中全量載入整個檔案：切片資料被快速拷貝至 DataLoader 的批次緩衝區中，隨後 DataLoader 在組裝 Batch 時將其拷貝至釘選記憶體（Pinned Memory）訓練張量中。在訓練熱點路徑上，跨越 Chunk 分塊邊界時僅需發起一次系統呼叫；其餘時間全是在記憶體中進行極速讀取。
 
 ### 滑動視窗 DataLoader
 
