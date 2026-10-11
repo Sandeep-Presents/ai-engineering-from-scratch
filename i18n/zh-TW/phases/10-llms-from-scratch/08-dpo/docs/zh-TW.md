@@ -82,28 +82,28 @@ DPO 損失促使模型提高勝出回應的對數機率比，並降低落敗回�
 
 ```mermaid
 graph TD
-    subgraph DPO["DPO Training"]
+    subgraph DPO["DPO 訓練"]
         direction TB
-        D["Preference Dataset\n(prompt, winner, loser)"] --> P1["Compute log P(winner)\nunder current model"]
-        D --> P2["Compute log P(loser)\nunder current model"]
-        D --> R1["Compute log P(winner)\nunder reference model"]
-        D --> R2["Compute log P(loser)\nunder reference model"]
+        D["偏好資料集\n(prompt, winner, loser)"] --> P1["計算 log P(winner)\n使用目前模型"]
+        D --> P2["計算 log P(loser)\n使用目前模型"]
+        D --> R1["計算 log P(winner)\n使用參考模型"]
+        D --> R2["計算 log P(loser)\n使用參考模型"]
 
-        P1 --> RATIO_W["Log ratio (winner)\nlog pi/pi_ref"]
+        P1 --> RATIO_W["對數比率（勝出回應）\nlog pi/pi_ref"]
         R1 --> RATIO_W
-        P2 --> RATIO_L["Log ratio (loser)\nlog pi/pi_ref"]
+        P2 --> RATIO_L["對數比率（落敗回應）\nlog pi/pi_ref"]
         R2 --> RATIO_L
 
         RATIO_W --> DIFF["beta * (ratio_w - ratio_l)"]
         RATIO_L --> DIFF
 
         DIFF --> LOSS["-log sigmoid(diff)"]
-        LOSS --> UPDATE["Gradient update\non current model"]
+        LOSS --> UPDATE["梯度更新\n目前模型"]
     end
 
-    subgraph Models["Models"]
-        PI["Current Model (pi)\nupdated each step"]
-        REF["Reference Model (pi_ref)\nfrozen SFT checkpoint"]
+    subgraph Models["模型"]
+        PI["目前模型 (pi)\n每一步更新"]
+        REF["參考模型 (pi_ref)\n凍結的 SFT checkpoint"]
     end
 
     Models --> DPO
