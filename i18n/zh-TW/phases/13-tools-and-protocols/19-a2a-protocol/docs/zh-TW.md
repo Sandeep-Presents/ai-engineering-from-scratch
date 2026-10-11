@@ -1,6 +1,6 @@
 # A2A — Agent-to-Agent 協定
 
-> MCP 是「Agent 到工具」（Agent-to-tool）；A2A（Agent2Agent）則是「Agent 到 Agent」（Agent-to-agent）——一項讓建構於不同框架上的不透明（opaque）agent 能夠相互協作的開放協定。由 Google 於 2025 年 4 月發布、2025 年 6 月捐贈給 Linux 基金會，並於 2026 年 4 月邁向 v1.0，獲得包含 AWS、Cisco、Microsoft、Salesforce、SAP 與 ServiceNow 等 150 多家機構支援。它整併了 IBM 的 ACP，並新增了 AP2 支付擴充功能。本課將透過 A2A 1.0.1 線路傳輸名稱，完整走過 Agent Card、Task 生命週期與三大協定綁定模式。
+> MCP 是「Agent 到工具」（Agent-to-tool）；A2A（Agent2Agent）則是「Agent 到 Agent」（Agent-to-agent）——一項讓建構於不同框架上的不透明（opaque）agent 能夠相互協作的開放協定。由 Google 於 2025 年 4 月發布、2025 年 6 月捐贈給 Linux 基金會，並於 2026 年 4 月達到 v1.0，獲得包含 AWS、Cisco、Microsoft、Salesforce、SAP 與 ServiceNow 等 150 多家機構支援。它整併了 IBM 的 ACP，並新增了 AP2 支付擴充功能。本課將透過 A2A 1.0.1 線路傳輸名稱，完整走過 Agent Card、Task 生命週期與三大協定綁定模式。
 
 **Type:** Build
 **Languages:** Python (stdlib, Agent Card + Task harness)

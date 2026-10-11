@@ -149,14 +149,14 @@ CIMD 用戶端標識則截然不同，因為它是一個自託管的公開 HTTPS
 1. 本機生成高熵（High-entropy）隨機字串 `code_verifier`；
 2. 計算其 SHA-256 摘要並生成 S256 `code_challenge`；
 3. 發起授權請求，完整攜帶 `client_id`、`redirect_uri`、`scope`、`code_challenge` 以及 `resource` 參數；
-4. 接收授權伺服器回傳的授權碼 `code`，以及回傳的 `iss` 標識；
+4. 接收含有授權碼 `code` 的授權回應；若回應含有 `iss`，也一併接收；
 5. 在呼叫任何其他欄位之前，先嚴格校驗 `iss` 是否與當初紀錄的簽發者完全一致；
-6. 透過 Token 端點交換金鑰，出示 `code_verifier`、相同的重導向 URI 以及相同的 `resource`；
+6. 向 token 端點送出授權碼，並附上 `code_verifier`、相同的重導向 URI 以及相同的 `resource`，以取得 token；
 7. 將取得的 Access Token 嚴密儲存於 `(issuer, resource)` 複合索引鍵值下。
 
 源自 RFC 8707 的 `resource` 參數在授權請求與 Token 交換請求中皆必須顯式出現，用以精確聲明該權杖所專屬綁定的目標 MCP 伺服器標準 URI。
 
-### 嚴格精確校驗 `iss` 標頭
+### 嚴格精確校驗授權回應中的 `iss` 欄位
 
 RFC 9207 規範能有效防止授權回應被混淆冒充（Mix-Up Attacks）——即防止攻擊者誘導用戶端將簽發給合法伺服器的授權碼，誤發送給惡意偽造的授權伺服器。
 
@@ -243,7 +243,7 @@ t3-scope-stepup
 
 ## Build It｜動手實作
 
-`code/main.py` 在行程內部實作了一套完整的協定與授權模擬器。它涵蓋了受保護資源服務發現、授權伺服器中繼資料解析、CIMD 動態註冊、帶有版本防護的 DCR 降級相容、應用程式型別校驗、PKCE 密碼學挑戰、簽發者嚴格對齊、綁定資源指示器的 Token 簽發、權限範圍動態挑戰提升、`server/discover`、`tools/list` 以及標準的無狀態工具呼叫流程。
+`code/main.py` 在行程內部實作了一套完整的協定與授權模擬器。它涵蓋了受保護資源服務發現、授權伺服器中繼資料解析、CIMD 登錄、帶有版本防護的 DCR 降級相容、應用程式型別校驗、PKCE 密碼學挑戰、簽發者嚴格對齊、綁定資源指示器的 Token 簽發、權限範圍動態挑戰提升、`server/discover`、`tools/list` 以及標準的無狀態工具呼叫流程。
 
 該模型運作於已完成 Body 與標頭解析的環境下。它不負責底層 `Content-Type` 與 `Accept` 的字串解析。若需完整的傳輸層轉接器，請介接第 09 課中嚴格要求 `Content-Type: application/json` 以及包含 `application/json` 與 `text/event-stream` 之 `Accept` 標頭的標準 Streamable HTTP 轉接層。
 
@@ -288,7 +288,7 @@ python3 -m unittest discover code/tests -v
 | DCR | 動態用戶端註冊；已廢棄的動態登錄流程，僅純粹作為向下相容老舊服務保留 |
 | `application_type` | 宣告為 `native` 或 `web`，用於授權伺服器嚴格校驗重導向 URI 的合法規則 |
 | PKCE | 包含隨機校驗碼與 S256 挑戰摘要的防禦機制，保護傳輸中的授權碼免遭攔截截胡 |
-| `iss` | RFC 9207 規範在授權回應中強制回傳的簽發者身分識別碼，防止授權混淆攻擊 |
+| `iss` | RFC 9207 授權回應中的簽發者識別欄位，防止授權混淆攻擊 |
 | Resource indicator | RFC 8707 參數；在請求中顯式指明該 Token 所專屬綁定的目標 MCP 伺服器 URI |
 | Audience | 權杖受眾；該 Access Token 被合法授權存取的目標資源服務範圍 |
 | Step-up | 動態權限提升；當操作超出當前權杖範圍時，發起增量授權並簽發新權杖的機制 |

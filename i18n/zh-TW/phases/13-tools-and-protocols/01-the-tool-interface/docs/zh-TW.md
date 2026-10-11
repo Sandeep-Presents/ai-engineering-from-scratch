@@ -143,14 +143,14 @@ tp-tool-loop
 | Parallel tool calls | 「多工具並行呼叫」 | 模型在單一思考輪次中同時輸出多個互相獨立、可藉由 id 異步關聯的工具呼叫物件 |
 | Strict mode | 「保證符合結構描述」 | 底層採用語法受限解碼技術，確保模型輸出符合宣告的 JSON Schema |
 | Pure tool | 「純唯讀查詢工具」 | 不會變更任何外部狀態、無副作用的工具；允許被系統反覆且安全地投機性預先執行 |
-| Consequential tool | 「具副作用的動作」 | 會修改外部狀態、產生金錢開銷或涉及個資的操作；必須設置授權審核閘門 |
+| Consequential tool | 「具副作用的動作」 | 會修改外部狀態、產生金錢開銷或涉及個資的操作；必須設定授權審核閘門 |
 | Four-step loop | 「工具呼叫核心生命週期」 | 宣告描述（describe）→ 決策發起（decide）→ 執行（execute）→ 觀察回饋（observe） |
 | Host | 「Agent 宿主執行環境」 | 負責維護工具註冊表、向模型發起呼叫，並在實際環境中執行工具程式碼的主控程式 |
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling)
-- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) — `tool_use` / `tool_result` block format
-- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling) — `functionDeclarations` and parallel-call semantics in Gemini
-- [Model Context Protocol — Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28)
-- [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes)
+- [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling) — OpenAI 風格工具宣告與呼叫格式的權威參考
+- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) — Claude 的 `tool_use`／`tool_result` 區塊格式
+- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling) — Gemini 中的 `functionDeclarations` 與平行呼叫語意
+- [Model Context Protocol — Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28) — 將工具介面概念推廣為目前無狀態且不依賴特定服務供應商的規範
+- [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) — 現代工具 API 通用的結構描述方言

@@ -116,7 +116,7 @@ GOOD : Invalid input: 'city' is required. Example: {"city": "Bengaluru"}.
 ### 權威評測基準
 
 - **StableToolBench**：在固定工具註冊表上精確衡量模型的工具選取準確率，為對比不同結構描述設計的優劣的標準評測。
-- **MCPToolBench++**：將測試全面拓展至真實 MCP 伺服器生態，涵蓋動態工具探測與多輪呼叫。
+- **MCPToolBench++**：將 StableToolBench 延伸至 MCP 伺服器，涵蓋服務發現與工具選取。
 - **SafeToolBench**：專門在對抗性惡意工具集（含投毒說明文字）下檢驗系統的安全性邊界。
 
 這三項基準皆為開源；在一般 GPU 環境下，完整評測流程不到一小時。建議在 CI 中納入其中一項（以評測驅動開發將於後續階段介紹）。
@@ -138,13 +138,13 @@ tp-schema-routing
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-tool-schema-linter.md`。給定任意工具註冊表定義，該審查技能將全面對照本課設計規範進行自動化靜態審計，並產出標註有嚴重等級（Blocker、Warning、Info）與具體改寫建議的修復清單。可無縫整合進 GitHub Actions CI 自動化閘門。
+本課產出 `outputs/skill-tool-schema-linter.md`。給定任意工具註冊表定義，該審查技能將全面對照本課設計規範進行自動化靜態審計，並產出包含嚴重程度與具體改寫建議的修復清單。可無縫整合進 GitHub Actions CI 自動化閘門。
 
 ## Exercises｜練習
 
 1. 取出 `code/main.py` 中的 `BAD_REGISTRY`，將其中的每一個工具進行規範化重構，直至全數通過 Linter 檢查。統計重構前後的說明文字長度變化與規則違規歸零情況。
 
-2. 為一套個人筆記應用程式設計完整的 MCP 伺服器工具註冊表，包含細粒度原子化工具：list、search、create、update、delete，外加一個 `summarize` 斜線提示指令。執行檢查器審核，確保零告警通過。
+2. 為一套個人筆記應用程式設計完整的 MCP 伺服器工具註冊表，包含細粒度原子化工具：list、search、create、update、delete，外加一個 `summarize` 斜線提示指令。執行檢查器審核，目標為零發現。
 
 3. 從官方 MCP 註冊表中挑選一款當前熱門的開源伺服器，對其公開的工具說明文字進行靜態掃描。找出至少兩處具備明確業務價值的可改進之處。
 

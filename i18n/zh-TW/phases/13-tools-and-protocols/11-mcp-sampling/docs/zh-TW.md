@@ -244,10 +244,10 @@ python3 -m unittest discover tests -v
 | MRTR | 多輪往返請求（Multi Round-Trip Requests）；在需要用戶端輸入時採用的無狀態重試模式 |
 | `InputRequiredResult` | 標註有 `resultType: "input_required"` 的中間狀態成果 |
 | `inputRequests` | 伺服器指派的嵌附式詢問、取樣或根目錄輸入請求映射字典 |
-| `inputResponses` | 用戶端在當前輪次採集完畢、與 `inputRequests` 鍵值對應的模型輸出成果 |
+| `inputResponses` | 用戶端在當前輪次回傳、以 `inputRequests` 對應鍵值索引的回應 |
 | `requestState` | 伺服器簽發的不透明狀態識別碼，由用戶端原樣回傳並由伺服器防篡改校驗 |
 | `resultType` | 標註於每個現代 MCP 成果外層的必備鑑別欄位 |
-| Direct model integration | 直接整合模型；新建伺服器需要模型推論時的官方推薦標準做法 |
+| Direct model integration | 直接整合模型；新建伺服器需要模型推論時的建議替代做法 |
 | Capability gate | 能力閘門；嚴禁向用戶端發送任何未經用戶端顯式宣告支援的嵌附請求 |
 | Loop budget | 迴圈預算；為整套操作所嚴格配置的最大輪次、token 數量、耗時與花費上限 |
 

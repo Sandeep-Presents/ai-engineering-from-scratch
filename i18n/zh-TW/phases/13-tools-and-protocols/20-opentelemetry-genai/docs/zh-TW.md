@@ -65,7 +65,7 @@ agent.invoke_agent  (top, INTERNAL span)
 
 ### 選擇性內容擷取（Opt-in Content Capture）
 
-在預設情況下，spans 僅會記錄效能指標與時間延遲數值——絕不會記錄 prompt 或 completion 的原始對話文字。龐大的訊息酬載與個人敏感資訊（PII）預設一律排除。需透過設定環境變數 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` 以及專屬的內容擷取旗標方可啟用文字記錄。在正式環境啟用前應仔細檢視。
+在預設情況下，spans 會記錄效能指標與時間延遲數值——不會記錄 prompt 或 completion 的原始對話文字。龐大的訊息酬載與個人敏感資訊（PII）預設一律排除。需透過設定環境變數 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` 以及專屬的內容擷取旗標方可啟用文字記錄。在正式環境啟用前應仔細檢視。
 
 ### Span 事件（Events on Spans）
 

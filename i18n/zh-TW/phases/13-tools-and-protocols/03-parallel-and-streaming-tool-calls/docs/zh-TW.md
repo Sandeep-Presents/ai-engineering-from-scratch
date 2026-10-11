@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 解釋 `parallel_tool_calls: true` 存在的原因，以及何時應停用（此為 OpenAI 參數；Anthropic 對應 `disable_parallel_tool_use`）。
+- 解釋 `parallel_tool_calls: true` 存在的原因，以及何時應停用。
 - 在多工具並行扇出期間，將網路封包中交錯到達的串流引數碎片，精準關聯至各自對應的工具呼叫 ID。
 - 安全重組局部的 `arguments` 字串為完整合法的 JSON，杜絕「過早解析（Parse-early）」引發的例外崩潰。
 - 執行三座城市天氣查詢的實測基準，直觀量化串列循序 vs 並行發起的實際延遲差距。
@@ -157,8 +157,8 @@ tp-parallel-fanout
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Parallel function calling](https://platform.openai.com/docs/guides/function-calling#parallel-function-calling)
-- [Anthropic — Parallel tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use)
-- [Google — Gemini function calling parallel section](https://ai.google.dev/gemini-api/docs/function-calling)
-- [OpenAI — Streaming responses with tools](https://platform.openai.com/docs/api-reference/responses-streaming)
-- [Anthropic — Streaming messages](https://docs.anthropic.com/en/api/messages-streaming) — `content_block_delta` with `input_json_delta`
+- [OpenAI — Parallel function calling](https://platform.openai.com/docs/guides/function-calling#parallel-function-calling) — 預設行為與停用旗標
+- [Anthropic — Parallel tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use) — `disable_parallel_tool_use` 與結果批次處理
+- [Google — Gemini function calling parallel section](https://ai.google.dev/gemini-api/docs/function-calling) — Gemini 3 以 ID 關聯的平行呼叫
+- [OpenAI — Streaming responses with tools](https://platform.openai.com/docs/api-reference/responses-streaming) — OpenAI 串流中分塊引數的重組
+- [Anthropic — Streaming messages](https://docs.anthropic.com/en/api/messages-streaming) — 包含 `input_json_delta` 的 `content_block_delta`

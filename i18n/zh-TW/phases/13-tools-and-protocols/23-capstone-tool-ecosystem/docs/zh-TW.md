@@ -135,12 +135,12 @@ Agent Skill 能向執行環境指引如何執行這套研究流程、預期會�
 
 ```mermaid
 flowchart TD
-  RI[Repository instructions] --> H[Host runtime]
-  SK[Agent Skill procedure] --> H
-  H --> P[Invocation and permission policy]
-  P --> MCP[MCP client adapter]
-  P --> A2A[A2A client adapter]
-  P --> EX[Sandboxed executor]
+  RI[儲存庫指引] --> H[宿主執行環境]
+  SK[Agent Skill 流程] --> H
+  H --> P[呼叫與權限策略]
+  P --> MCP[MCP 用戶端配接器]
+  P --> A2A[A2A 用戶端配接器]
+  P --> EX[沙盒化執行器]
 ```
 
 當程式性指引引用了輔助檔案時，必須交付完整的 skill 實體目錄。本課這份較早期的單一檔案產物純屬教學大綱範本，絕非宿主環境能直接保留可移植套件的證據。第 24 至 27 課將完整建構並測試套件的完整生命週期。
@@ -242,7 +242,7 @@ python3 code/main.py
 1. 執行 `code/main.py`。將輸出內容中已獲證實的確定性事實，與仍需整合測試提供證據的正式環境承諾清晰剝離。
 2. 新增第二個靜態後端，並為名稱相同的兩款工具定義命名衝突解決規則。隨後將兩個清單替換為真實的 `tools/list` 網路呼叫。
 3. 將寫作 agent 的 stub 替換為 A2A 測試伺服器。記錄其 Agent Card、訊息請求、超時處理路徑與回傳的產物。
-4. 新增能承受行程重啟的持久化任務儲存。證明用戶端能透過 `tasks/get` 順利恢復連線、遵循 `pollIntervalMs` 間隔，並在不依賴 `tasks/result` 的前提下讀取已完成任務的最終結果。
+4. 新增能承受行程重啟的持久化任務儲存。證明用戶端能透過 `tasks/get` 順利續取任務、遵循 `pollIntervalMs` 間隔，並在不依賴 `tasks/result` 的前提下讀取已完成任務的最終結果。
 5. 打造一個極簡的 MCP App，並在具備嚴格 CSP 策略與明確權限宣告的瀏覽器環境中驗證 `app.callServerTool` 的運作。
 6. 透過 OTel SDK 將模擬的 spans 匯出至本地收集器。在接收端斷言接收狀態、trace ID、父子關係與錯誤狀態碼。
 7. 為全儲存庫維護規則撰寫 `AGENTS.md`，並為可復用的研究流程撰寫專屬的 skill 套件。深入闡明為何這兩份檔案皆無權賦予實體工具執行權限。

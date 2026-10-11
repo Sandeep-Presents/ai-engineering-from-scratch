@@ -161,8 +161,8 @@ function-call-args
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling)
-- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) — `tool_use` and `tool_result` block semantics
-- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling)
-- [Vertex AI — Function calling reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling)
-- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs)
+- [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling) — OpenAI 風格工具宣告與呼叫格式的權威參考，包含 strict mode 與平行呼叫
+- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) — `tool_use` 和 `tool_result` 區塊的語意
+- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling) — Gemini 中的平行呼叫、唯一 ID 與 OpenAPI 子集
+- [Vertex AI — Function calling reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling) — Gemini 的企業版介面
+- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs) — strict mode 的結構描述強制執行細節

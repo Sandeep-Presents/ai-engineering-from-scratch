@@ -38,7 +38,7 @@
 
 ### JSON Schema 2020-12——通用協定通用語
 
-各大服務供應商全面遵循標準的 JSON Schema 2020-12 方言。最常運用的核心約束關鍵字：
+各服務供應商皆接受 JSON Schema 2020-12。最常運用的核心約束關鍵字：
 
 - `type`：取值限定為 `object`、`array`、`string`、`number`、`integer`、`boolean`、`null`。
 - `properties`：定義欄位名稱與對應子結構描述的映射字典。
@@ -148,8 +148,8 @@ constrained-decoding
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs)
-- [OpenAI — Introducing structured outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/)
-- [Pydantic AI — Output](https://ai.pydantic.dev/output/)
-- [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes)
-- [Microsoft — Structured outputs in Azure OpenAI](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs)
+- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs) — strict mode、拒絕回應與結構描述要求
+- [OpenAI — Introducing structured outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/) — 2024 年 8 月的發布文章，說明解碼保證
+- [Pydantic AI — Output](https://ai.pydantic.dev/output/) — 可序列化至各服務供應商的具型別 output_type 繫結
+- [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) — 權威規範
+- [Microsoft — Structured outputs in Azure OpenAI](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs) — 企業部署說明與 strict mode 注意事項
