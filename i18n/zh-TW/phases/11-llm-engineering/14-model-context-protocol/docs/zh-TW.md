@@ -223,7 +223,7 @@ python3 -m unittest discover tests -v
 
 ## Ship It｜交付成果
 
-`outputs/skill-mcp-server-designer.md` 能將特定業務領域轉化為無狀態 MCP 架構設計。其驗收門檻涵蓋：探索結果宣告、單請求中繼資料政策、確定性具快取感知的清單排序、明確的狀態代號（status code）、傳輸標頭規範、授權驗證與危險操作核准規則。
+`outputs/skill-mcp-server-designer.md` 能將特定業務領域轉化為無狀態 MCP 架構設計。其驗收門檻涵蓋：探索結果宣告、單請求中繼資料政策、確定性具快取感知的清單排序、明確的狀態識別碼（state handle）、傳輸標頭規範、授權驗證與危險操作核准規則。
 
 ## Continue the MCP Deep Dive｜深入探索 MCP 系列
 
@@ -254,7 +254,7 @@ python3 -m unittest discover tests -v
 | 無狀態 MCP（Stateless MCP） | 「不用維護 Session」 | 每個請求自帶版本與能力宣告；協定層不維護任何綁定於連線實體上的隱式狀態 |
 | `server/discover` | 「能力探測端點」 | 伺服器必須實作的標準方法，對外宣告支援版本、功能範疇與身分識別 |
 | `resultType` | 「結果狀態旗標」 | 明確將回傳結果標記為已完成（`complete`）或需補充輸入（`input_required`） |
-| 狀態代號（State handle） | 「工作流 ID」 | 由伺服器核發、作為普通工具引數傳遞的應用層不透明識別標籤 |
+| 狀態識別碼（state handle） | 「工作流 ID」 | 由伺服器核發、作為普通工具引數傳遞的應用層不透明識別標籤 |
 | Streamable HTTP | 「遠端傳輸協定」 | 僅暴露單一接受 POST 的 HTTP 端點，以 JSON 或請求級 SSE 串流傳回回應 |
 | MRTR | 「詢問並重試」 | 多輪來回請求模式——在結果中置入輸入請求，隨後對原操作發起帶有補全引數的重新呼叫 |
 
