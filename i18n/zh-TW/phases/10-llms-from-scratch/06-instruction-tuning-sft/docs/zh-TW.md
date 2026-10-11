@@ -158,27 +158,27 @@ fine-tuning 可能會摧毀模型的通用能力。在遵循指令的資料上�
 
 ```mermaid
 graph TD
-    subgraph SFT["Supervised Fine-Tuning Pipeline"]
+    subgraph SFT["監督式 fine-tuning 管線"]
         direction TB
-        D["Instruction Dataset\n(10K-100K examples)"] --> F["Format into\n(instruction, response) pairs"]
-        F --> T["Tokenize with\nchat template"]
-        T --> M["Create loss mask\n(1 for response, 0 for instruction)"]
-        M --> FW["Forward pass\n(full sequence)"]
-        FW --> L["Compute masked loss\n(response tokens only)"]
-        L --> BW["Backward pass"]
-        BW --> U["Update weights\n(lr=2e-5, 1-3 epochs)"]
+        D["指令資料集\n（10K-100K 個範例）"] --> F["格式化為\n(instruction, response) 配對"]
+        F --> T["依聊天範本進行 tokenization"]
+        T --> M["建立損失遮罩\n（response 為 1，instruction 為 0）"]
+        M --> FW["前向傳遞\n（完整序列）"]
+        FW --> L["計算遮罩後的損失\n（僅計算 response token）"]
+        L --> BW["反向傳遞"]
+        BW --> U["更新權重\n(lr=2e-5，1-3 個 epoch)"]
     end
 
-    subgraph Base["Base Model\n(pre-trained)"]
-        B1["Knows language"]
-        B2["Knows facts"]
-        B3["No conversation pattern"]
+    subgraph Base["基礎模型\n（預訓練）"]
+        B1["理解語言"]
+        B2["知道事實"]
+        B3["不具備對話模式"]
     end
 
-    subgraph Chat["Chat Model\n(after SFT)"]
-        C1["Knows language"]
-        C2["Knows facts"]
-        C3["Follows instructions"]
+    subgraph Chat["對話模型\n（SFT 後）"]
+        C1["理解語言"]
+        C2["知道事實"]
+        C3["遵循指令"]
     end
 
     Base --> SFT --> Chat
