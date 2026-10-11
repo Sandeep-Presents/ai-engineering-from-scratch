@@ -1,0 +1,120 @@
+# 模型卡、系統卡與資料集規格書（Model, System, and Dataset Cards）
+
+> 三大標準化文檔格式構築了當代 AI 透明度體系的基石。**模型卡（Model Cards）**（Mitchell 等人，2019）——為機器學習模型量身打造的「營養成分標籤」：訓練資料集、跨人口學特徵的量化細分分析、倫理考量與限制警示；然而 Oreamuno 等人（2023）的實證審計發現，Hugging Face 上僅有 0.3% 的模型卡認真記錄了倫理考量。**資料集規格書（Datasheets for Datasets）**（Gebru 等人，2018，CACM 2021）——借鑑電子硬體晶片規格書思想：涵蓋立項動機、資料構成、採集流程、標註清洗、分發途徑與後續維護。**資料卡（Data Cards）**（Pushkarna 等人，Google 2022）——模組化的多層次視圖（遠望鏡級、潛望鏡級、顯微鏡級），充當跨領域溝通的邊界物件（Boundary objects）。2024 至 2025 年最新演進：基於大模型的自動化文檔生成（CardGen，Liu 等人，2024）；詳盡的模型卡可使 Hugging Face 上的下載量顯著提升高達 29%（Liang 等人，2024）；基於機密運算 TEE 與數位簽名的可驗證證詞（Laminator，Duddu 等人，2024）；碳排放與水資源消耗等永續性環境指標的正式納入（Jouneaux 等人，2025 年 7 月）；歐盟法案與 ISO 合規卡的全面興起。**系統卡（System Cards）**（Sidhpurwala 2024；Meta 系統級透明度；《Blueprints of Trust》arXiv:2509.20394）——涵蓋底層模型 + 安全防禦技術堆疊 + 實體部署情境的端到端全景文檔，無死角覆蓋安全防護能力、Prompt 注入抵禦、資料外洩偵測與人類核心價值觀對齊。
+
+**Type:** Build
+**Languages:** Python (stdlib, model-card + datasheet + system-card generator)
+**Prerequisites:** Phase 18 · 18 (safety frameworks), Phase 18 · 24 (regulatory)
+**Time:** ~60 minutes
+
+## Learning Objectives｜學習目標
+
+- 深入描述 Mitchell 等人 2019 年原創的模型卡（Model Card）與 Gebru 等人 2018 年的資料集規格書（Datasheet）的核心結構。
+- 掌握 Google Data Cards 的「遠望鏡／潛望鏡／顯微鏡」三級多維度分層揭露架構。
+- 描述系統卡（System Card）的架構範疇，及其超越單一模型卡的端到端全鏈路覆蓋面。
+- 梳理 2024 至 2025 年文檔領域的三大前沿突破（大模型自動化生成、硬體級可驗證證詞、綠色永續性環境指標）。
+
+## The Problem｜問題
+
+無論是主權國家的法律法規（第 18 課第 24 節），還是頂尖實驗室內部的安全承諾（第 18 節），皆強制要求出具透明嚴謹的工程文檔。文檔的覆蓋範疇經歷了三代深刻演進：從孤立的模型維度（模型卡），走向底層資料維度（資料集規格書），最終昇華至全鏈路系統維度（系統卡）。每一種格式各自錨定透明度的不同切面。而 2024 至 2025 年湧現的自動化生成工具與硬體級密碼學證明，正在從根本上解決過去長期困擾開源社群的「規格書形同虛設、採納率低迷」的歷史頑疾。
+
+## The Concept｜核心概念
+
+### 模型卡（Model Cards，Mitchell 等人，2019）
+
+標準核心章節：
+- 模型基礎規格（架構細節、參數量級、授權協議）。
+- 預期用途與嚴禁場景（Intended use vs Out-of-scope uses）。
+- 評估維度因數（性別、種族、方言、光照等相關人口學或環境因數）。
+- 效能度量指標（準確率、F1 分數、延遲）。
+- 評測資料集與驗證基準。
+- 訓練資料集血緣與清洗流程。
+- 細分量化分析（按上述評估因數展開交叉多維度切片分析）。
+- 倫理考量與潛在社會影響。
+- 局限性警示與工程落地建議。
+
+歷史採納率困境：Oreamuno 等人（2023）對 Hugging Face 上數十萬個開源模型卡展開全景審查，發現僅有淒慘的 0.3% 真正認真填寫了倫理考量章節。
+
+### 資料集規格書（Datasheets for Datasets，Gebru 等人，2018）
+
+借鑑傳統電子硬體晶片規格書（Datasheet）的嚴謹工業思想。核心章節：
+- 立項動機（為何採集該資料集、背後的資助機構）。
+- 資料集構成（樣本總量、實體類別分佈、是否存在標記缺失）。
+- 採集流程（如何爬取、使用何種感測器或 API、是否獲得受試者知情同意）。
+- 標註清洗管線（若適用，標註員的背景與薪資待遇、品質驗收標準）。
+- 預期用途與嚴禁使用場景。
+- 分發途徑與下載授權。
+- 後續長遠維護責任主體與勘誤機制。
+
+於 2021 年正式發表於頂級期刊 CACM。資料集規格書是整個 AI 鏈路的最上游文檔；模型卡的真實度完全建立在資料集規格書的準確性之上。
+
+### 資料卡（Data Cards，Pushkarna 等人，Google 2022）
+
+模組化的多層次變焦架構。針對不同背景的受眾提供三級縮放視圖：
+- **遠望鏡級（Telescopic）**：為非技術決策者與法務人員提供的高階宏觀摘要。
+- **潛望鏡級（Periscopic）**：為機器學習演算法工程師提供的中等架構概覽。
+- **顯微鏡級（Microscopic）**：為專業稽核人員與資料科學家提供的特徵級深度微觀資料。
+
+邊界物件（Boundary objects）哲學：讓背景截然不同的多元利害關係人，皆能從同一份標準文檔中無障礙提取出自身所需的關鍵決策依據。
+
+### 系統卡（System Cards）
+
+涵蓋範疇：超越單一模型本身，覆蓋由「底層模型 + 安全防禦技術堆疊 + 實體業務部署情境」構成的端到端 AI 複雜系統。典型章節：
+- 系統整體資安防護能力。
+- Prompt 注入抵禦架構。
+- 敏感資料外洩偵測與脫敏流水線。
+- 與人類公認核心價值觀的對齊機制。
+- 事故應急響應與人工介入回滾方案。
+
+Sidhpurwala（2024）與 Meta 官方的系統級透明度白皮書；《Blueprints of Trust》（arXiv:2509.20394）在形式上將系統卡確立為模型卡在企業正式環境部署層面的必要互補。
+
+### 2024 至 2025 年關鍵突破
+
+- **CardGen 自動化生成（Liu 等人，2024）**：利用大模型自動閱讀程式碼與日誌生成模型卡；實測顯示其在 Mitchell 2019 標準欄位上的客觀中立性顯著超越了多數由人類匆忙起草的文檔。
+- **商業下載量正相關（Liang 等人，2024）**：詳細完整的模型卡能直接帶來 Hugging Face 上高達 29% 的額外下載量轉化——推動完善文檔的動力已全面由傳統的「法規強迫」蛻變為「市場商業競爭」。
+- **Laminator 硬體級可驗證證詞（Duddu 等人，2024）**：利用機密運算硬體安全飛地（TEE）與密碼學數位簽名，讓模型卡不再僅僅是一面紙上談兵的承諾，而是附帶不可偽造的數學證明（Proof-of-claim）。
+- **綠色永續性指標（Jouneaux 等人，2025 年 7 月）**：正式納入碳排放足跡、伺服器水資源消耗與總耗電度數，深度對齊 ISO 新興環境標準。
+- **法規合規卡興起**：歐盟 AI 法案（第 24 節）GPAI 實踐準則的「透明度」專章，已強制將模型卡作為必備的法定交付物。
+
+### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+
+第 24 與 25 節解決主權法規與 CVE 實體漏洞；第 26 節建立透明度文檔規範；第 27 節將溯源至資料規格書最上游的預訓練資料血緣治理；第 28 節則梳理向這些卡片提供客觀評測跑分的全球外部研究生態網路。
+
+```figure
+an-card-scopes
+```
+
+## Use It｜實際應用
+
+`code/main.py` 實作了一套微型文檔生成器：針對一套玩具等級的業務部署，一鍵產出標準的模型卡（Model Card）、資料集規格書（Datasheet）與系統卡（System Card）。嚴格遵循國際通用的標準章節結構，直觀對比三種不同文檔在職責邊界與揭露深度上的本質差異。
+
+## Ship It｜交付成果
+
+本課交付標準實戰產物 `outputs/skill-card-audit.md`。輸入一份現成的模型卡、資料集規格書或系統卡，該 Skill 將自動全面審計：章節覆蓋完備性、量化細分交叉分析的深度，以及是否具備現代硬體級的密碼學可驗證證詞。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。檢視輸出的三份卡片。指出其中哪些章節屬於純文字佔位符（Placeholders），並明確說明需要補充何種具體實證材料才能使其具備工業級說服力。
+2. 為模型卡擴充一段跨越兩個人口學群體的量化細分交叉評測分析（銜接第 18 課第 20 節的偏見度量技術）。
+3. 研讀 Oreamuno 等人（2023）關於倫理考量章節僅有 0.3% 填寫率的實證報告。為模型卡官方規格提出一項具體的結構性改革提議，以制度化提升開發者填寫該章節的動力。
+4. Laminator（Duddu 等人，2024）利用 TEE 提供可驗證證詞。為模型卡設計一個專門承載評測結果密碼學簽名的欄位，並描述獨立第三方稽核員的驗證交互流程。
+5. 為你團隊過去參與過的一個真實專案或一個假想系統，親手撰寫一份系統卡（System Card，注意非單純模型卡）。明確標註出在面對第三方獨立合規審計時最具商業說服力的核心章節。
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Model Card | "the Mitchell card" | Mitchell et al. 2019 standard documentation for ML models |
+| Datasheet | "the Gebru datasheet" | Gebru et al. 2018 standard documentation for datasets |
+| Data Card | "the Pushkarna card" | Google 2022 modular layered data documentation |
+| System Card | "the deployment card" | End-to-end AI system documentation including safety stack |
+| Boundary object | "different readers, one doc" | Data Cards framing: same document serves diverse audiences |
+| Verifiable attestation | "the Laminator attestation" | Cryptographic or TEE proof attached to a documentation claim |
+| Sustainability field | "carbon / water footprint" | Emerging 2025 addition for environmental accounting |
+
+## Further Reading｜延伸閱讀
+
+- [Mitchell et al. — Model Cards for Model Reporting (arXiv:1810.03993, FAT* 2019)](https://arxiv.org/abs/1810.03993) — 模型卡經典奠基原著。
+- [Gebru et al. — Datasheets for Datasets (CACM 2021, arXiv:1803.09010)](https://arxiv.org/abs/1803.09010) — 資料集規格書權威論文。
+- [Pushkarna et al. — Data Cards (Google 2022)](https://arxiv.org/abs/2204.01075) — 階梯分層資料卡架構設計。
+- [Sidhpurwala et al. — Blueprints of Trust (arXiv:2509.20394)](https://arxiv.org/abs/2509.20394) — 系統卡形式化規格指南。
