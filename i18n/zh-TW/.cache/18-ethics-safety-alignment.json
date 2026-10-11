@@ -19,5 +19,6 @@
   "phases/18-ethics-safety-alignment/18-frontier-safety-frameworks-rsp-pf-fsf/docs/en.md": "21747f5afd1eecf95e7ac6a270e263bc855e85d9223e2c0fb834501671d84bf1",
   "phases/18-ethics-safety-alignment/19-model-welfare-research/docs/en.md": "5ed1c98707f3ae2292def2e86348c666094c96f7ae694922b2621841b4308a7e",
   "phases/18-ethics-safety-alignment/20-bias-representational-harm/docs/en.md": "22fbd564e6af48d8fe16272e0ed23b50088f13d25ae454d50e8b8e352b8da753",
-  "phases/18-ethics-safety-alignment/21-fairness-criteria-group-individual-counterfactual/docs/en.md": "936f4875ebd967b777b73990662cfd380bbf58790694af81230e84707bad41df"
+  "phases/18-ethics-safety-alignment/21-fairness-criteria-group-individual-counterfactual/docs/en.md": "936f4875ebd967b777b73990662cfd380bbf58790694af81230e84707bad41df",
+  "phases/18-ethics-safety-alignment/22-differential-privacy-for-llms/docs/en.md": "0f05d09ab51d09c553677ace2ec81064232132803ec1dac721d72e8ad1118db4"
 }
