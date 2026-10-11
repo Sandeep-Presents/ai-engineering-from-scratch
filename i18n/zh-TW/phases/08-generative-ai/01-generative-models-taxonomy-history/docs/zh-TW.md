@@ -21,7 +21,7 @@
 
 **1. 顯式密度，算得出來。** 把 `log p(x)` 寫成你真的能算的一個和。自迴歸（autoregressive）模型（PixelCNN、WaveNet、GPT）把聯合機率拆成 `p(x) = ∏ p(x_i | x_<i)`。正規化流（normalizing flow，RealNVP、Glow）把 `p(x)` 建成簡單基底分布的可逆變換。好處：精確概似（likelihood）、乾淨的訓練損失（loss）。壞處：自迴歸的推論（inference）是序列的，長序列很慢；流需要可逆架構，架構上很受限制。
 
-**2. 顯式密度，近似。** 從下方框住 `log p(x)`，這個下界叫證據下界（ELBO），再最佳化這個下界。VAE（Kingma 2013）用編碼器–解碼器（encoder–decoder）配變分後驗（variational posterior）。擴散模型（DDPM，Ho 2020）訓練一個去噪器，隱含地調高一個加權的 ELBO。2026 年，擴散是影像、影片和 3D 的主要骨幹（backbone）。
+**2. 顯式密度，近似。** 從下方框住 `log p(x)`，這個下界叫證據下界（ELBO），再最佳化這個下界。VAE（Kingma 2013）用編碼器–解碼器（encoder–decoder）配變分後驗（variational posterior）。擴散模型（DDPM，Ho 2020）訓練一個去噪器，隱含地最佳化一個加權的 ELBO。2026 年，擴散是影像、影片和 3D 的主要骨幹（backbone）。
 
 **3. 隱式密度。** 完全跳過密度；學一個產生器（generator）`G(z)` 來產生樣本，和一個鑑別器（discriminator）`D(x)` 來分辨真假。GAN（Goodfellow 2014）。推論很快，一次前向傳遞（forward pass），但訓練時出了名地不穩。StyleGAN 1／2／3 到 2026 年仍是固定領域照片級寫實（臉、臥室）的前沿。
 
