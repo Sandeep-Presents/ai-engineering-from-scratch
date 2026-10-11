@@ -17,5 +17,6 @@
   "phases/18-ethics-safety-alignment/16-red-team-tooling-garak-llamaguard-pyrit/docs/en.md": "380a3437c4bb05212e34be0ea75e0dca5f86e377a4f0465fed9befa2fc4f3dd8",
   "phases/18-ethics-safety-alignment/17-wmdp-dual-use-evaluation/docs/en.md": "9cd15aab7f11142663fed3dd4f3c093b45e6d48333468186cff4db555a61af65",
   "phases/18-ethics-safety-alignment/18-frontier-safety-frameworks-rsp-pf-fsf/docs/en.md": "21747f5afd1eecf95e7ac6a270e263bc855e85d9223e2c0fb834501671d84bf1",
-  "phases/18-ethics-safety-alignment/19-model-welfare-research/docs/en.md": "5ed1c98707f3ae2292def2e86348c666094c96f7ae694922b2621841b4308a7e"
+  "phases/18-ethics-safety-alignment/19-model-welfare-research/docs/en.md": "5ed1c98707f3ae2292def2e86348c666094c96f7ae694922b2621841b4308a7e",
+  "phases/18-ethics-safety-alignment/20-bias-representational-harm/docs/en.md": "22fbd564e6af48d8fe16272e0ed23b50088f13d25ae454d50e8b8e352b8da753"
 }
