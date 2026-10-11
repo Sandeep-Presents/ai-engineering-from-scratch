@@ -31,25 +31,25 @@ RAG 是另一種解法：不改動模型權重。當問題進來時，在你的�
 
 ```mermaid
 graph LR
-    Q["User Query"] --> R["Retrieve"]
-    R --> A["Augment Prompt"]
-    A --> G["Generate"]
-    G --> Ans["Answer"]
+    Q["使用者查詢"] --> R["檢索"]
+    R --> A["增強 prompt"]
+    A --> G["生成"]
+    G --> Ans["答案"]
 
-    subgraph "Retrieve"
-        R --> Embed["Embed query"]
-        Embed --> Search["Search vector store"]
-        Search --> TopK["Return top-k chunks"]
+    subgraph "檢索"
+        R --> Embed["為查詢產生 embedding"]
+        Embed --> Search["搜尋向量儲存庫"]
+        Search --> TopK["傳回 top-k 個區塊"]
     end
 
-    subgraph "Augment"
-        TopK --> Format["Format chunks into prompt"]
-        Format --> Combine["Combine with user question"]
+    subgraph "增強"
+        TopK --> Format["將區塊格式化為 prompt"]
+        Format --> Combine["與使用者問題合併"]
     end
 
-    subgraph "Generate"
-        Combine --> LLM["LLM generates answer"]
-        LLM --> Cite["Answer grounded in retrieved docs"]
+    subgraph "生成"
+        Combine --> LLM["LLM 生成答案"]
+        LLM --> Cite["以檢索文件為依據的答案"]
     end
 ```
 
@@ -149,17 +149,17 @@ L2(a, b) = sqrt(sum((a_i - b_i)^2))
 
 ```mermaid
 graph TD
-    subgraph "Indexing (offline)"
-        D["Documents"] --> C["Chunk"]
-        C --> E["Embed each chunk"]
-        E --> S["Store vectors + text"]
+    subgraph "索引（離線）"
+        D["文件"] --> C["分塊"]
+        C --> E["為每個區塊產生 embedding"]
+        E --> S["儲存向量 + 文字"]
     end
 
-    subgraph "Querying (online)"
-        Q["User query"] --> QE["Embed query"]
-        QE --> VS["Vector search (top-k)"]
-        VS --> P["Build prompt with chunks"]
-        P --> LLM["LLM generates answer"]
+    subgraph "查詢（線上）"
+        Q["使用者查詢"] --> QE["為查詢產生 embedding"]
+        QE --> VS["向量搜尋（top-k）"]
+        VS --> P["使用區塊組成 prompt"]
+        P --> LLM["LLM 生成答案"]
     end
 
     S -.->|"same vector space"| VS
@@ -174,7 +174,7 @@ graph TD
 - 每次查詢檢索 **k = 5 到 10** 個區塊
 - **區塊大小 = 256 到 512 tokens**，搭配 50-token 重疊
 - **脈絡預算**：每次查詢預留 2,500 到 5,000 tokens 給檢索內容
-- **整體 Prompt 大小**：約 8,000 到 16,000 tokens（系統提示 + 檢索區塊 + 對話歷程 + 當前問題）
+- **整體 Prompt 大小**：約 8,000 到 16,000 tokens（system prompt + 檢索區塊 + 對話歷程 + 當前問題）
 - **Embedding 維度**：依選用模型不同介於 384 到 3072 維之間
 - **索引吞吐量（throughput）**：呼叫 API embedding 時約每秒 100 到 1,000 份文件
 - **查詢延遲（query latency）**：檢索耗時 50 到 200ms，生成耗時 500 到 3000ms
