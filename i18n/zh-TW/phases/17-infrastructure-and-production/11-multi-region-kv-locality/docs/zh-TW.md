@@ -1,0 +1,130 @@
+# 多區域 LLM 服務與 KV 快取局部性（Multi-Region LLM Serving and KV Cache Locality）
+
+> 輪詢式負載平衡（Round-robin）對於具備快取特性的 LLM 推論而言具備致命破壞力。一個未精準命中持有該前綴節點的請求，將被迫付出完整的 Prefill 前向運算代價——在長 Prompt 負載下，P50 延遲約為 800 ms，而命中快取時僅需約 80 ms。2026 年的工業級標準範式是快取感知路由器（如以 Rust 編寫的 vLLM Router、llm-d router）：持續訂閱並消費各節點的 KV 快取事件，並基於前綴雜湊（Prefix-hash）精準調度。最新研究（GORGO）更進一步將跨區域網路往返延遲顯式納入路由目標函數。各雲端巨頭推出的商業化「跨區域推論」服務（如 AWS Bedrock 跨區域推論、GKE 多叢集閘道）將推論視為完全黑盒——它們僅解決全局高可用性，對 TTFT 首字延遲毫無感知。摩根大通（JPMorgan）與梅奧醫學中心（Mayo Clinic）在 2024 年 11 月的 us-east-1 實戰演練中實現了約 22 分鐘的災難復原切換。冷酷的災備現實是：高達 32% 的 LLM 災難復原失敗，純粹是因為團隊備份了權重，卻致命遺漏了 Tokenizer 字典檔案或量化配置。
+
+**Type:** Learn
+**Languages:** Python (stdlib, toy prefix-cache-aware router simulator)
+**Prerequisites:** Phase 17 · 04 (vLLM Serving), Phase 17 · 06 (SGLang RadixAttention)
+**Time:** ~60 minutes
+
+## Learning Objectives｜學習目標
+
+- 深刻解釋為何輪詢式負載平衡會直接破壞前綴快取，並量化其對 TTFT 首字延遲所帶來的巨大懲罰。
+- 精準繪製快取感知路由器架構圖：掌握輸入特徵（KV 快取事件日誌）、核心演算法（前綴雜湊匹配）以及決勝仲裁邏輯（GPU 利用率平衡）。
+- 指出導致 32% LLM 災難復原失敗的核心元兇（遺漏 Tokenizer 檔案與量化設定檔），並落實三合一黃金災備清單。
+- 嚴格釐清商業跨區域產品（Bedrock CRI、GKE Multi-Cluster Gateway）與應用層 KV 快取感知路由之間的本質邊界。
+
+## The Problem｜問題
+
+你的推論服務同時跨越 us-east-1、us-west-2 與 eu-west-1 三大區域運作。你在前端掛載了一台傳統 ALB 負載平衡器，並配置了經典的輪詢（Round-robin）策略。上線後正式環境的前綴快取命中率暴跌至 8%。P50 TTFT 首字延遲暴增為原先的三倍。vLLM 的底層日誌無情揭示：每一個請求都在顯存中重複支付完整的 Prefill 算力代價。
+
+輪詢演算法是為無狀態（Stateless）微服務量身打造的完美策略。然而大模型推論在本質上高度有狀態——KV 快取深深刻錄著模型過去所看過的一切歷史。盲目的負載均衡，無異於將請求持續送進錯誤的顯存空洞中。
+
+與此同時，你的團隊制定了一套災難復原（DR）計畫。你們定期將模型權重跨區域同步備份至 S3。某個清晨某個主區域突發嚴重斷網；你們匆忙啟動異地容錯移轉（Failover）；然而新拉起的副本卻報錯拒絕啟動。排查發現：tokenizer.json、量化配置參數與 RoPE 頻率縮放設定被放置在另一個未同步的獨立儲存貯體中。
+
+多區域 LLM 推論本質上是快取問題、路由問題與嚴肅的災備衛生問題——絕非單純換個傳統負載平衡器所能解決。
+
+## The Concept｜核心概念
+
+### 快取感知路由機制（Cache-aware routing）
+
+當攜帶 Prompt 的新請求抵達時：路由器首先對其公共前綴進行雜湊運算（例如截取前 512 個 Token 的 Hash 值）；隨後向叢集內的所有推論副本發起快速檢索：「你們誰的顯存中已經快取了這個前綴？」。推論副本在內部動態配置或釋放 KV Block 時，會透過 Pub/Sub 事件佇列即時廣播 KV 快取生命週期事件。路由器直接命中持有該前綴的副本；若全場皆無快取，則優雅降級回退至依據當前 GPU 佇列深度進行最優負載均衡。
+
+**vLLM Router**（2026 年以 Rust 深度重構的工業級路由元件）：在背景即時監聽 `kv.cache.block_added` 等微事件，在記憶體中維護高效率的 prefix-hash → replica 倒排索引，實現 O(1) 極速路由檢索。在完全未命中時自動回退至最小排隊深度調度。
+
+**llm-d router**：採用完全相同的架構哲學，專為 Kubernetes 原生環境設計。透過 ControlPlane API 宣告式同步快取狀態。
+
+**SGLang RadixAttention**（第 17 課第 06 節）：負責解決單一實體節點內部的樹狀快取複用；而跨副本的快取感知路由器，則是嚴格架構於節點上游的全局總指揮。
+
+### 核心數字差距（Numbers）
+
+在單張 H100 上運作 Llama 3.3 70B FP8 處理 2k Token 的輸入 Prompt，其 P50 TTFT 對比如下：
+- 快取精準命中（相同副本、前綴常駐）：僅約 80 ms。
+- 快取完全未命中（冷啟動 Prefill）：高達約 800 ms。
+
+整整 10 倍的物理天壤之別。若你的智慧路由器能在跨副本間實現 60% 至 80% 的前綴快取命中率，你便能以 N 個副本的龐大吞吐容量，維持逼近單副本快取的極限低延遲。若命中率僅有 10%，多副本擴容在延遲層面實質宣告失敗。
+
+### 跨區域引入了全新的物理約制——網路延遲（Cross-region has a new constraint — network latency）
+
+跨區域之間的物理光纖往返時延（RTT）：
+- us-east-1 ↔ us-west-2：約 65 ms。
+- us-east-1 ↔ eu-west-1：約 75 ms。
+- us-east-1 ↔ ap-southeast-1：高達約 220 ms。
+
+若路由器為了追求命中熱門前綴，強行將發源於 us-east-1 的請求跨大洋路由至 ap-southeast-1，那麼即便在 Prefill 階段節省了 720 ms（800 ms → 80 ms），這份收益也將被高達 440 ms 的跨洋網路往返傳輸與 TLS 握手徹底吃乾抹淨。2026 年最新前沿研究 GORGO 將這項權衡數學化：系統必須聯合最佳化 `prefill_time + network_latency` 的總和，絕非單純盲目追求顯存快取命中。成熟架構的標準策略是：快取路由嚴格限制在本區域內部；唯有當面對需要消耗數秒運算的多兆位元組（Multi-MB）超長巨型前綴時，跨洲跨區調度才具備實質正向收益。
+
+### 商業「跨區域推論」在此無法提供實質幫助（Commercial "cross-region inference" does not help here）
+
+AWS Bedrock 的跨區域推論（Cross-Region Inference, CRI）能夠在某個區域算力飽和或遭遇突發水位時，自動將請求靜默重定向至其他區域。其底層最佳化目標是全域可用性（Availability），它將推論視為完全黑盒，對底層 KV 快取毫無感知。GKE Multi-Cluster Gateway 亦屬同理——它僅負責服務層級的自動容錯移轉。
+
+即便導入了上述雲端託管服務，你在應用層依然必須部署專屬的快取感知路由器。託管服務負責處理「整個 us-east-1 陷入火海」的災難自癒；而應用層智慧路由才真正掌控每一毫秒的 TTFT 極致效能。
+
+### 災難復原紀律——致命的 32% 設定缺漏問題（DR hygiene — the 32% missing-files problem）
+
+2026 年業界權威統計數字：高達 32% 的大模型災難復原演練之所以遭遇慘痛失敗，純粹是因為工程團隊只備份了龐大的權重權重，卻將以下關鍵檔案拋諸腦後：
+
+- `tokenizer.json` 或 `tokenizer.model` 字典檔案。
+- 量化配置描述檔（`quantize_config.json`、AWQ 縮放矩陣、GPTQ 零點檔案）。
+- 模型專屬架構設定（RoPE 頻率擴展參數、注意力遮罩規則、Chat 模板定義）。
+- 推論服務引擎啟動配置（`vllm_config.yaml`、採樣預設值、LoRA 適配器清單）。
+
+標準解法是落實嚴格的「災備三合一資訊清單（DR Manifest）」：
+
+1. HuggingFace 模型倉庫路徑下的全量檔案（權重 + 完整 Config + Tokenizer）。
+2. 推論服務引擎專屬的組態配置檔。
+3. 容器部署清單（K8s 宣告式 YAML、Dockerfile、相依套件精確鎖定檔）。
+
+此外：每季度強制發起一次全流程無預警災備切換演練。摩根大通在 2024 年 11 月之所以能在 22 分鐘內完成 us-east-1 的全量切換，完全得益於日常反覆實戰演練的自動化 Runbook。
+
+### 資料落地合規與快取路由完全正交（Data residency is orthogonal）
+
+歐盟境內客戶的敏感個人與醫療資料（PHI）在法律層面絕對禁止流出歐盟本土。若你的快取感知路由器為了節省幾十毫秒的 TTFT，將發源於巴黎的敏感請求私自轉發至 us-east-1 的熱門節點，無論效能提升多麼誘人，你已實質觸犯歐盟 GDPR 隱私法規並面臨巨額罰鍰。在啟動快取命中演算法之前，必須先在邊界處依據法律合規嚴格對流量進行分區隔離。
+
+### 務必銘記的核心數字指標（Numbers you should remember）
+
+- 2k Token 輸入下快取命中 vs 未命中的 TTFT 差距：整整 10 倍（80 ms vs 800 ms）。
+- 美東至歐洲（US-EU）實體跨洋光纖 RTT：約 75 ms。
+- 大模型災備切換失敗率：32% 源自遺漏 Tokenizer 或量化配置。
+- 摩根大通 us-east-1 實戰演練復原耗時：22 分鐘（SLA 上限為 30 分鐘）。
+
+```figure
+cache-aware-router
+```
+
+## Use It｜實際應用
+
+`code/main.py` 在一套跨多區域的模擬業務負載下，全方位模擬了三種路由調度策略：傳統輪詢（Round-robin）、區域內快取感知路由（Cache-aware regional）以及全域跨區快取感知路由（Cache-aware global）。終端機即時輸出各策略下的快取命中率、P50/P99 TTFT 分佈曲線，以及產生的跨區域網路頻寬帳單開銷。
+
+## Ship It｜交付成果
+
+本課交付標準實戰產物 `outputs/skill-multi-region-router.md`。輸入具體託管區域分佈、資料落地合規約束與延遲 SLA 門檻，該 Skill 將自動為你推導出最佳的多區域路由拓撲與精確的故障轉移策略。
+
+## Exercises｜練習
+
+1. 執行 `code/main.py`。在美歐跨洋 RTT 為 75 ms 的實體條件下，輸入 Prompt 長度達到多少 Token 以上時，跨區域快取路由的整體延遲才會超越區域本機冷啟動 Prefill？
+2. 系統監控警報顯示正式環境的前綴快取命中率從 70% 斷崖式暴跌至 12%。列出三項最可能的架構元兇，並指出能分別予以證實的關鍵可觀測性指標。
+3. 為一個在 vLLM 中託管、掛載了 5 個 LoRA 變體的 70B AWQ 量化模型設計一份標準的災難復原資訊清單（DR Manifest）。完整枚舉所有必須納入備份的具體檔案名稱與配置項目。
+4. 針對對 TTFT SLO 具備極其嚴苛要求（如 P99 < 300 ms）的頂級金融科技系統，深入論證為何單純依賴 AWS Bedrock 跨區域推論（CRI）絕非充分條件。列舉其具體行為缺陷。
+5. 一個發源於巴黎用戶端的請求，在 us-east-1 的某個節點上精準匹配到了完全相同的長前綴。你究竟該不該將該請求跨洋轉發過去？為架構團隊撰寫一份標準決策規範。
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| Cache-aware routing | "smart LB" | Route on prefix-hash match to KV-cache-holding replica |
+| KV-cache events | "cache pub-sub" | Replicas publish block add/evict; router indexes |
+| Prefix hash | "cache key" | Hash of first N tokens used as router lookup |
+| GORGO | "cross-region routing research" | arXiv 2602.11688; network latency as explicit term |
+| Cross-region inference | "Bedrock CRI" | AWS product; availability failover, not TTFT awareness |
+| DR manifest | "the backup list" | Every file needed to restore — not just weights |
+| Data residency | "GDPR boundary" | Legal constraint on which region sees user data |
+| RTT | "round-trip time" | Network latency; 75 ms US-EU, 220 ms US-APAC |
+| LLM-aware LB | "cache-hit LB" | Cache-aware router as a product category |
+
+## Further Reading｜延伸閱讀
+
+- [BentoML — Multi-cloud and cross-region inference](https://bentoml.com/llm/infrastructure-and-operations/multi-cloud-and-cross-region-inference) — 跨雲端與跨區域推論架構指南。
+- [arXiv — GORGO (2602.11688)](https://arxiv.org/html/2602.11688v1) — 顯式納入網路往返延遲項目的跨區域 KV 快取複用前沿論文。
+- [TianPan — Multi-Region LLM Serving Cache Locality](https://tianpan.co/blog/2026-04-17-multi-region-llm-serving-data-residency-routing) — 多區域大模型服務資料落地與快取局部性剖析。
+- [AWS Bedrock Cross-Region Inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html) — 官方高可用容錯移轉文件。
+- [vLLM Production Stack Router](https://github.com/vllm-project/production-stack) — 具備快取感知能力的 Rust 路由核心開源儲存庫。
