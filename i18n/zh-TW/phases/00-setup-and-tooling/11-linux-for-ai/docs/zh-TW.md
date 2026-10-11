@@ -22,11 +22,11 @@
 
 ## 檔案系統目錄結構
 
-Linux 把所有東西都組織在單一根目錄 `/` 之下。沒有 `C:\`，也沒有 `/Volumes`。你實際會用到的目錄：
+Linux 把所有東西都組織在單一 root 目錄 `/` 之下。沒有 `C:\`，也沒有 `/Volumes`。你實際會用到的目錄：
 
 ```mermaid
 graph TD
-    root["/"] --> home["home/your-username/<br/>你的檔案——clone 儲存庫、跑訓練"]
+    root["/"] --> home["home/your-username/<br/>你的檔案——複製儲存庫、跑訓練"]
     root --> tmp["tmp/<br/>暫存檔案，重新開機就清空"]
     root --> usr["usr/<br/>系統程式與函式庫"]
     root --> etc["etc/<br/>設定檔"]
@@ -276,8 +276,8 @@ WSL2 跑的是真正的 Linux 核心（kernel），本課所有內容都能在�
 | `~/.zshrc` | `~/.bashrc` | macOS 預設使用 zsh；多數 Linux 伺服器使用 bash。 |
 | `/opt/homebrew/` | `/usr/bin/`、`/usr/local/bin/` | 執行檔放的位置不同。 |
 | `sed -i '' 's/a/b/' file` | `sed -i 's/a/b/' file` | macOS 的 sed 需要在 `-i` 後加空字串；Linux 不用。 |
-| 不區分大小寫（case-sensitive）的檔案系統 | 區分大小寫（case-sensitive）的檔案系統 | 在 Linux 上，`Model.py` 和 `model.py` 是兩個不同的檔案。 |
-| 換行符號 `\n` | 換行符號 `\n` | 相同。但 Windows 使用 `\r\n`，會讓 bash 程式檔案壞掉。用 `dos2unix` 修復。 |
+| 不區分大小寫（case-insensitive）的檔案系統 | 區分大小寫（case-sensitive）的檔案系統 | 在 Linux 上，`Model.py` 和 `model.py` 是兩個不同的檔案。 |
+| 換行符號（line ending） `\n` | 換行符號 `\n` | 相同。但 Windows 使用 `\r\n`，會讓 bash 程式檔案壞掉。用 `dos2unix` 修復。 |
 
 ## 速查卡
 
