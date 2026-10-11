@@ -42,23 +42,23 @@ RLHF 不是單一一次訓練。它是一條由三個循序漸進階段組成的
 
 ```mermaid
 graph TD
-    subgraph Stage1["Stage 1: SFT"]
-        B["Base Model"] --> S["SFT Model"]
-        D["Instruction Data\n(27K examples)"] --> S
+    subgraph Stage1["階段 1：SFT"]
+        B["基礎模型"] --> S["SFT 模型"]
+        D["指令資料\n（27K 個範例）"] --> S
     end
 
-    subgraph Stage2["Stage 2: Reward Model"]
-        S --> |"Generate responses"| P["Preference Pairs\n(prompt, winner, loser)"]
-        H["Human Annotators"] --> P
-        P --> R["Reward Model\nR(prompt, response) → score"]
+    subgraph Stage2["階段 2：獎勵模型"]
+        S --> |"Generate responses"| P["偏好配對\n(prompt, winner, loser)"]
+        H["人工標註者"] --> P
+        P --> R["獎勵模型\nR(prompt, response) → score"]
     end
 
-    subgraph Stage3["Stage 3: PPO"]
-        S --> |"Initialize policy"| PI["Policy Model\n(being optimized)"]
-        S --> |"Freeze as reference"| REF["Reference Model\n(frozen SFT)"]
-        PI --> |"Generate"| RESP["Response"]
+    subgraph Stage3["階段 3：PPO"]
+        S --> |"Initialize policy"| PI["策略模型\n（最佳化中）"]
+        S --> |"Freeze as reference"| REF["參考模型\n（凍結的 SFT）"]
+        PI --> |"Generate"| RESP["回應"]
         RESP --> R
-        R --> |"Reward signal"| PPO["PPO Update"]
+        R --> |"Reward signal"| PPO["PPO 更新"]
         REF --> |"KL penalty"| PPO
         PPO --> |"Update"| PI
     end
@@ -114,14 +114,14 @@ KL 懲罰宣告了遊戲規則：你可以自我改進，但你不能變成一�
 
 ```mermaid
 graph LR
-    subgraph PPO["PPO Training Loop"]
+    subgraph PPO["PPO 訓練迴圈"]
         direction TB
-        PROMPT["Sample prompt\nfrom dataset"] --> GEN["Policy generates\nresponse"]
-        GEN --> SCORE["Reward model\nscores response"]
-        GEN --> KL["Compute KL divergence\nvs reference model"]
-        SCORE --> OBJ["Objective:\nreward - beta * KL"]
+        PROMPT["從資料集\n抽樣 prompt"] --> GEN["策略產生\n回應"]
+        GEN --> SCORE["獎勵模型\n為回應評分"]
+        GEN --> KL["計算 KL 散度\n與參考模型比較"]
+        SCORE --> OBJ["目標函數：\nreward - beta * KL"]
         KL --> OBJ
-        OBJ --> UPDATE["PPO gradient update\n(clipped surrogate loss)"]
+        OBJ --> UPDATE["PPO 梯度更新\n（裁切的替代損失）"]
         UPDATE --> |"repeat"| PROMPT
     end
 
