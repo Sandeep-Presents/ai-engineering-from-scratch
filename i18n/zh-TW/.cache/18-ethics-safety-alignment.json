@@ -10,5 +10,6 @@
   "phases/18-ethics-safety-alignment/09-alignment-faking/docs/en.md": "b9989ff23b856e861740aa1da121777c6c9af63ae362964e84c3795764c52d6a",
   "phases/18-ethics-safety-alignment/10-ai-control-subversion/docs/en.md": "49d10fb15bc96c1df66b03f3fb030443ee0ae30d7812cd1beb24cbf72f57626b",
   "phases/18-ethics-safety-alignment/11-scalable-oversight-weak-to-strong/docs/en.md": "d196b5586d8b302756393fb7a48288b465f5908633395b3164d8924cf46f7a8d",
-  "phases/18-ethics-safety-alignment/12-red-teaming-pair-automated-attacks/docs/en.md": "24dbc68c56b3c9903ecfd86f7237b014e57811bdf00ee62305650b87930ec7ba"
+  "phases/18-ethics-safety-alignment/12-red-teaming-pair-automated-attacks/docs/en.md": "24dbc68c56b3c9903ecfd86f7237b014e57811bdf00ee62305650b87930ec7ba",
+  "phases/18-ethics-safety-alignment/13-many-shot-jailbreaking/docs/en.md": "27a1efae78e594530ccd35f01fedacd8a1e4aeaec537bb40c419728f001bc261"
 }
