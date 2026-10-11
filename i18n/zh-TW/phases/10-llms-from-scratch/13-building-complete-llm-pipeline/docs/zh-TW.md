@@ -1,6 +1,6 @@
 # 打造完整的 LLM 管線
 
-> 第 1 課到第 12 課的每一樣東西，都只是單一管線中的一個階段。本課是將這些零散階段串聯為單一端到端執行的鷹架：tokenizer、預訓練、規模擴展、SFT、對齊、評估、量化、服務。你不會在筆記型電腦上訓練 70B 模型，但你將親手實作編排層、資訊清單（manifest）、評估閘門（eval gate）以及回滾計畫（rollback plan）——這正是 2026 年頂尖團隊用來決定模型能否發布交付的關鍵骨幹。這是總驗收專案。
+> 第 1 課到第 12 課的每一樣東西，都只是單一管線（pipeline）中的一個階段。本課是將這些零散階段串聯為單一端到端執行的鷹架：tokenizer、預訓練、規模擴展、SFT、對齊、評估、量化、服務。你不會在筆記型電腦上訓練 70B 模型，但你將親手實作編排層、資訊清單（manifest）、評估閘門（eval gate）以及回滾計畫（rollback plan）——這正是 2026 年頂尖團隊用來決定模型能否發布交付的關鍵骨幹。這是總驗收專案。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -32,19 +32,19 @@
 
 ```mermaid
 graph TD
-    S1["01 Tokenizer vocab"] --> S2["02 Trained tokenizer"]
-    S2 --> S3["03 Sharded dataset"]
-    S3 --> S4["04 Base model checkpoint"]
-    S4 --> S5["05 Scaled training recipe"]
+    S1["01 tokenizer 詞彙表"] --> S2["02 訓練完成的 tokenizer"]
+    S2 --> S3["03 分片資料集"]
+    S3 --> S4["04 基礎模型 checkpoint"]
+    S4 --> S5["05 擴展後的訓練配方"]
     S5 --> S6["06 SFT checkpoint"]
-    S6 --> S7["07 Reward model + PPO policy"]
-    S6 --> S8["08 DPO policy"]
-    S7 --> S9["09 CAI / GRPO refined policy"]
+    S6 --> S7["07 獎勵模型 + PPO 策略"]
+    S6 --> S8["08 DPO 策略"]
+    S7 --> S9["09 CAI / GRPO 精煉後的策略"]
     S8 --> S9
-    S9 --> S10["10 Eval report"]
-    S9 --> S11["11 Quantized weights"]
-    S11 --> S12["12 Inference server"]
-    S10 --> GATE["Ship gate"]
+    S9 --> S10["10 評估報告"]
+    S9 --> S11["11 量化後的權重"]
+    S11 --> S12["12 推論伺服器"]
+    S10 --> GATE["發布閘門"]
     S12 --> GATE
 
     style S1 fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -144,7 +144,7 @@ gates:
 
 **執行中追蹤。** 每個階段的耗時與成本都會記錄進清單。每階段完成後都會檢查剩餘預算。若某階段超支，下一階段的閘門會依照最新剩餘預算重新評估。你絕不會等到創投打電話催款時才發現錢花光了。
 
-Llama 3 據報的主要預訓練成本為 6,100 萬美元，而 DeepSeek-V3 據報僅花費約 560 萬美元。這巨大的差距主要歸功於硬體效率與混合專家架構——但具體成本之所以清晰可見，是因為兩個團隊都是按階段而非整批粗估來追蹤成本。
+Llama 3 據報花費 6,100 萬美元。DeepSeek-V3 據報主要預訓練作業花費約 560 萬美元。兩者成本比例主要來自硬體效率與混合專家架構；但具體成本之所以清晰可見，是因為兩個團隊都是按階段、而非以整次訓練作業為單位追蹤成本。
 
 ### 可重現性 vs 確定性
 
@@ -154,14 +154,14 @@ Llama 3 據報的主要預訓練成本為 6,100 萬美元，而 DeepSeek-V3 據�
 
 ```mermaid
 graph LR
-    M["Manifest v1.2.3"] --> O["Orchestrator"]
-    O --> S["Stages 01 → 12"]
-    S --> AS["Artifact Store\n(content-addressed)"]
-    S --> ET["Experiment Tracker\n(metrics, curves)"]
-    AS --> GATE["Eval Gate"]
+    M["資訊清單 v1.2.3"] --> O["編排器"]
+    O --> S["階段 01 → 12"]
+    S --> AS["成品儲存區\n（依內容定址）"]
+    S --> ET["實驗追蹤器\n（指標、曲線）"]
+    AS --> GATE["評估閘門"]
     ET --> GATE
-    GATE -->|pass| SHIP["Ship"]
-    GATE -->|fail| ROLL["Rollback plan"]
+    GATE -->|pass| SHIP["發布"]
+    GATE -->|fail| ROLL["回復計畫"]
 
     style M fill:#1a1a2e,stroke:#0f3460,color:#fff
     style GATE fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -184,7 +184,7 @@ graph LR
 絕大多數尖端團隊已趨同於相同的核心骨架：
 
 - **Tokenizer**：12.8 萬詞彙表的 BPE 搭配位元組回退，在小型且平衡的多語言切片上訓練。
-- **預訓練**：10 到 20 兆 token，主要是網路文字、程式碼與合成資料。採用 Muon 或 AdamW 最佳化器，FSDP2 或 DeepSpeed ZeRO-3，活化值檢查點，BF16 權重搭配 FP32 主權重。
+- **預訓練**：10 到 20 兆 token，主要是網路文字、程式碼與合成資料。採用 Muon 或 AdamW 最佳化器，FSDP2 或 DeepSpeed ZeRO-3，梯度檢查點（gradient checkpointing），BF16 權重搭配 FP32 主權重。
 - **SFT**：50 萬到 200 萬組指令配對，人類標註與合成資料混合，且與 eval 集進行嚴格去重複。
 - **對齊**：DPO 或 CAI + GRPO。僅在偏好訊號維度過於複雜時才採用 RLHF。
 - **評估**：MMLU-Pro、MATH、HumanEval+、GPQA、SWE-Bench Verified、LiveBench，加上大眾從未見過的私有保留測試集。
