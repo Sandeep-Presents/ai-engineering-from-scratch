@@ -94,9 +94,9 @@ graph TD
 ```mermaid
 sequenceDiagram
     participant DL as DataLoader
-    participant M as Model
-    participant L as Loss
-    participant O as Optimizer
+    participant M as 模型
+    participant L as 損失
+    participant O as 最佳化器
 
     loop Each Epoch
         DL->>M: batch of inputs
