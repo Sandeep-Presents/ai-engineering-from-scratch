@@ -1,6 +1,6 @@
 # 差分注意力（Differential Attention）（V2）
 
-> Softmax 注意力機制會向每個不相干的 token 分散微量的機率。在超過 10 萬個 token 的脈絡下，這些雜訊累積起來會徹底淹沒真實訊號。Differential Transformer（Ye 等人，ICLR 2025）透過將注意力計算為兩個 softmax 的差值，抵消共同的雜訊底限，解決了這個難題。DIFF V2（微軟，2026 年 1 月）則是生產級技術堆疊的重構版本：decode 延遲與基準 Transformer 持平、無需自訂核心，且完全相容於 FlashAttention。本課將端到端剖析 V1 到 V2 的演進，並提供可在標準 Python 中執行的差分運算實作。
+> Softmax 注意力機制會向每個不相干的 token 分散微量的機率。在超過 10 萬個 token 的脈絡下，這些雜訊累積起來會徹底淹沒真實訊號。Differential Transformer（Ye 等人，ICLR 2025）透過將注意力計算為兩個 softmax 的差值，抵消共同的噪底（noise floor），解決了這個難題。DIFF V2（微軟，2026 年 1 月）則是生產級技術堆疊的重構版本：decode 延遲與基準 Transformer 持平、無需自訂核心，且完全相容於 FlashAttention。本課將端到端剖析 V1 到 V2 的演進，並提供可在標準 Python 中執行的差分運算實作。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -9,14 +9,14 @@
 
 ## Learning Objectives｜學習目標
 
-- 精確陳述為何 softmax 注意力存在雜訊底限，以及為何該底限會隨著脈絡長度增長
+- 精確陳述為何 softmax 注意力存在噪底，以及為何該底限會隨著脈絡長度增長
 - 推導差分注意力（Differential Attention）公式，並解釋相減操作如何消除共同雜訊分量同時完整保留訊號
 - 梳理 V1 到 V2 的具體架構差異：速度如何提升、結構如何簡化、穩定性如何改善，以及為何每項改變對正式環境預訓練皆屬必要
 - 從零以純 Python 實作差分注意力（Differential Attention），並在合成的訊號加雜訊 query 上實證檢驗雜訊抵消特性
 
 ## The Problem｜問題
 
-標準 softmax 注意力具備一項數學特性，在超大規模長脈絡下會演變成難以承受的維運負擔。對於 query `q`，注意力權重為 `softmax(qK^T / sqrt(d))`。Softmax 永遠無法產出嚴格的零——每個不相干的 token 都會被分配到微小的正機率。這筆殘留機率就是雜訊，且會隨脈絡長度增加而累積。在 128k token 下，即使每個不相關的 token 僅分到 0.001% 的機率，127,999 個 token 累積起來也會貢獻約 12% 的總權重。模型被迫學會如何繞過一個隨脈絡膨脹的雜訊底限。
+標準 softmax 注意力具備一項數學特性，在超大規模長脈絡下會演變成難以承受的維運負擔。對於 query `q`，注意力權重為 `softmax(qK^T / sqrt(d))`。Softmax 永遠無法產出嚴格的零——每個不相干的 token 都會被分配到微小的正機率。這筆殘留機率就是雜訊，且會隨脈絡長度增加而累積。在 128k token 下，即使每個不相關的 token 僅分到 0.001% 的機率，127,999 個 token 累積起來也會貢獻約 12% 的總權重。模型被迫學會如何繞過一個隨脈絡膨脹的噪底。
 
 實證上，這表現為注意力頭的相互干擾：長脈絡 RAG 中的幻覺引用、10 萬 token 檢索任務上的「迷失在中間（lost-in-the-middle）」失效，以及超過 32k 後大海撈針基準測試上的微幅準確率衰退。Differential Transformer 論文（arXiv:2410.05258，ICLR 2025）測量了這項差距：DIFF Transformer 達到了更低的困惑度、更高的長脈絡準確率，且相較於同等規模的基準模型具有更少的幻覺。
 
