@@ -23,7 +23,7 @@
 
 伺服器對外發布工具描述元（Descriptor）。用戶端將該描述元轉換為模型可見的上下文脈絡與使用者互動介面。模型生成呼叫參數。網關或負載平衡器可能依據同步對映的 HTTP 標頭進行流量路由。伺服器實質執行工具。隨後，用戶端必須精確判定回傳的結果是否足夠安全合規，方能交還給模型繼續推論。
 
-整條呼叫鏈條中只要存在一道脆弱的邊界，全域信任體系便會瞬間瓦解。
+只要其中一道邊界薄弱，整條呼叫鏈就會受到破壞。
 
 試觀察五種典型的毀滅性失效場景：
 
@@ -35,14 +35,14 @@
 
 這些問題絕無法透過修改 prompt 來修復。它們需要堅若磐石的協定層與應用層雙向契約約束。
 
-## The Contract Pipeline｜契約處理管線
+## 契約處理管線
 
 將每一次工具呼叫視為五道依序把守的嚴格關卡：
 
 1. **探索（Discover）**：讀取具備確定性排序、支援分頁的工具清單。
 2. **准入（Admit）**：校驗每個工具描述元，並強制套用本地安全審核策略。
 3. **呼叫（Invoke）**：校驗模型生成的輸入參數，並建置傳輸層中繼資料。
-4. **執行（Execute）**：執行實體業務處理常式，並精準分類執行異常與協定錯誤。
+4. **執行（Execute）**：執行業務處理常式，並分類執行異常與協定錯誤。
 5. **消費（Consume）**：在將內容交付模型前，完整校驗內容區塊與結構化輸出。
 
 ```figure
@@ -51,7 +51,7 @@ mcp-contract-pipeline
 
 宿主系統全權掌控准入審查與消費驗收這兩大核心關卡。伺服器完全無法強迫用戶端盲目信任其提供的任何標註宣告、Schema 或執行產物。
 
-## JSON Schema Is a Runtime Boundary｜JSON Schema 作為執行環境防護邊界
+## JSON Schema 作為執行環境防護邊界
 
 在 MCP `2026-07-28` 規範修訂版中，`inputSchema` 與 `outputSchema` 採用 JSON Schema 標準。當省略 `$schema` 宣告時，系統預設採用 2020-12 規範方言。
 
@@ -126,7 +126,7 @@ mcp-contract-pipeline
 
 這絕非用以取代正式環境中功能完備的生產級校驗器。本課旨在傳授「校驗應當發生的具體位置」：服務發現後針對描述元校驗、執行前針對參數校驗，以及消費前針對結構化產物校驗。
 
-## Content Blocks Carry Different Costs｜各類內容區塊承載不同的架構代價
+## 各類內容區塊承載不同的架構代價
 
 `content` 陣列支援組合多種異質內容型別：
 
@@ -174,11 +174,11 @@ Mcp-Param-Region: eu-west
 - 該標註僅允許出現在 `inputSchema.properties` 的頂層直屬成員上；
 - 整數數值必須嚴格維持在 `-9007199254740991` 至 `9007199254740991` 的 JavaScript 安全整數範圍內。
 
-該位置規則屬於語法層級的強制安全防禦（Fail-closed）。必須完整遍歷整個 Schema 樹狀結構，而非僅檢查校驗器碰巧支援的頂層屬性。若標註出現在巢狀物件的 `properties`、`oneOf` 路徑、`items` 內部、由 `$ref` 引用的定義中，或任何輸出 Schema 內，必須堅決拒絕該描述元。解析參照（Resolving a reference）絕不代表該被參照節點自動成為頂層直屬屬性。
+該位置規則採語法方式判定，遇到不符合條件時即拒絕（fail-closed）。必須遍歷整個 Schema 樹狀結構，而非只檢查校驗器支援的屬性。若標註出現在巢狀物件的 `properties`、`oneOf` 分支、`items` 內、`$ref` 指向的定義中，或任何輸出 Schema 內，都必須拒絕該描述元。解析參照不會讓被參照的節點成為頂層直屬屬性。
 
 本課進一步引入了生產部署安全策略：果斷拒絕任何企圖同步對映 `password`、`secret`、`token`、`api_key` 或 `authorization` 等敏感名稱的描述元。官方規範強烈建議伺服器作者切勿同步對映敏感參數；用戶端應當將該項建議直接升級為強制的准入安全紅線。
 
-審計日誌中僅應記錄標頭名稱，嚴禁記錄其參數實體數值。範例程式碼僅會記錄 `Mcp-Param-Region`，而絕不將 `eu-west` 寫入審計事件中。
+審計日誌中僅記錄標頭名稱，不記錄參數值。範例程式碼只記錄 `Mcp-Param-Region`，不會將 `eu-west` 寫入審計事件。
 
 ### 建置 HTTP 標頭前必須嚴格編碼
 
@@ -204,9 +204,9 @@ Mcp-Param-Region: eu-west
 
 若出現任何不符，伺服器必須回傳 HTTP `400` 狀態碼，並附帶 JSON-RPC `-32020` 錯誤代號。原始的主體參數數值與編碼後的標頭資料皆嚴禁出現在審計記錄中；僅記錄識別出的標頭名稱與拒絕類別。
 
-`code/main.py` 直接演示了此邊界防禦。[第 09 課](../../09-mcp-transports/)進一步涵蓋了更廣泛的 Streamable HTTP 校驗順序（包含 HTTP 方法與協定版本一致性）。
+`code/main.py` 直接演示了此邊界檢查。[Phase 13 · 09](../../09-mcp-transports/)進一步說明更完整的 Streamable HTTP 校驗順序，包括 HTTP 方法與協定版本是否相符。
 
-## Pagination Cursors Are Opaque｜分頁游標屬於完全不透明的黑箱
+## 分頁游標屬於完全不透明的黑箱
 
 MCP 清單查詢操作全面採用游標分頁（Cursor Pagination）。伺服器全權決定分頁大小與游標內部格式。用戶端僅需做出單一決策：
 
@@ -236,9 +236,9 @@ if not result.get("nextCursor"):
 
 傳入非法的無效游標會觸發 JSON-RPC 無效參數錯誤（`-32602`）。
 
-## Completion Is an Authorization Surface｜自動補全是一道關鍵授權防線
+## 自動補全是一道關鍵授權防線
 
-`completion/complete` 端點專門為 Prompt 參數與資源範本參數提供即時輸入建議。它極利於打造互動式表單，但若缺乏保護，它極易成為攻擊者窺探受保護實體名稱的越權漏洞。
+`completion/complete` 端點專門為 Prompt 參數與資源範本參數提供輸入建議。它適用於互動式表單，但若缺乏保護，可能讓呼叫者越權取得受保護的名稱。
 
 補全請求明確指定目標參照與正在編輯的參數名稱：
 
@@ -273,7 +273,7 @@ if not result.get("nextCursor"):
 
 自動補全本質上是輔助輸入工具，絕不可成為繞過服務發現權限控制的後門。
 
-## Two Error Layers｜嚴格區分兩大錯誤層級
+## 嚴格區分兩大錯誤層級
 
 必須將底層協定錯誤與工具業務執行錯誤清晰分離。
 
@@ -318,7 +318,7 @@ if not result.get("nextCursor"):
 - 能正確跟隨空字串游標的不透明分頁迴圈；
 - 參數與輸出結果的嚴格雙向校驗；
 - 內容區塊結構校驗；
-- 僅記錄標頭名稱而不記錄實體數值的審計日誌。
+- 僅記錄標頭名稱而不記錄參數值的審計日誌。
 
 刻意設計的不安全描述元屬於教學測試資料，確鑿證明了單一工具被拒絕准入，絕不會影響其他合法工具的正常載入與執行。
 
@@ -334,7 +334,7 @@ python3 -m unittest discover tests -v
 
 演示程式會依序印出：獲准准入的工具清單、被成功攔截的危險描述元、兩次分頁請求的呼叫軌跡、結構化陣列內容、五種內容區塊型別、同步對映的標頭名稱、數值是否觸發 Base64 編碼、HTTP 標頭主體一致性驗證狀態，以及經身分過濾後的自動補全建議清單。
 
-## Interactive Lab｜互動實驗
+## 互動實驗
 
 開啟 `code/main.py` 並找到 `TOOLS` 定義：
 
@@ -355,7 +355,7 @@ python3 -m unittest discover tests -v
 
 本實驗的核心目的在於親眼見證每道防護關卡如何在所屬的系統邊界上精準攔截違規。
 
-## Practice Lab｜實戰實驗
+## 實戰實驗
 
 為契約實驗擴充一套 `search_evidence` 搜尋證據工具。
 
@@ -373,11 +373,11 @@ python3 -m unittest discover tests -v
 9. HTTP 測試支援不分大小寫的標頭名稱比對，但在遇到數值缺漏
    或不一致時回傳 HTTP `400` 與代號 `-32020`。
 
-## Shipped Artifact｜交付產物
+## 交付產物
 
 `outputs/skill-mcp-contract-reviewer.md` 是一套可重複利用的架構審查 skill。傳入工具描述元、回傳結果範例、分頁行為與自動補全策略，它能自動產出准入審查報告、結果校驗規劃、標頭策略分析與具體的測試失敗案例設計。
 
-## Verify It｜成果驗證
+## 成果驗證
 
 當以下條件全數滿足時，代表本課實作圓滿達標：
 
@@ -388,7 +388,7 @@ python3 -m unittest discover tests -v
 - 物件結果在該陣列 Schema 下被精準判定為校驗失敗。
 - 失敗結果絕不可省略或違反已公開宣稱的輸出 Schema。
 - 純文字、圖片、音訊、資源連結與內嵌資源區塊皆通過結構校驗。
-- 標頭審計日誌中僅包含標頭名稱，絕不洩漏實體參數數值。
+- 標頭審計日誌中僅包含標頭名稱，不會洩漏參數值。
 - 純可見 ASCII 維持明文；Unicode、控制字元、含空格、空值與
   類似哨兵的字串，透過 Base64 UTF-8 編碼精準完成往返還原。
 - 超出 JavaScript 安全範圍的整數被果斷拒絕。
@@ -399,7 +399,7 @@ python3 -m unittest discover tests -v
 - 分析師角色的自動補全請求絕不回傳 `production`。
 - 工具業務失敗使用 `isError: true`；格式錯誤的協定呼叫使用 JSON-RPC `error`。
 
-## Production Failure Modes｜正式環境失效模式
+## 正式環境失效模式
 
 | 失效情境 | 開發者觀察到的表象 | 正確架構處置準則 |
 |---|---|---|
@@ -416,7 +416,7 @@ python3 -m unittest discover tests -v
 | 工具標註被誤當作授權策略 | 破壞性操作繞過了人工確認直接執行 | 授權管理與審批卡點必須完全獨立於工具標註之外執行 |
 | 單一損壞工具導致服務發現癱瘓 | 整台 MCP 伺服器的所有工具全數無法使用 | 果斷拒絕損壞的描述元，獨立放行其他合規的合法工具 |
 
-## Capstone Connection｜總結專題關聯
+## 總結專題關聯
 
 Phase 13 總結專題需要一套能安全整併來自多台伺服器之工具的 API 閘道器。本課為該閘道器提供了最核心的准入審查引擎。
 
@@ -427,7 +427,7 @@ Phase 13 總結專題需要一套能安全整併來自多台伺服器之工具�
 - 經校驗的結構化輸出與容量受控的各類內容區塊；
 - 完整捍衛安全授權邊界的自動補全與路由中繼資料。
 
-切勿單憑單次成功的 `tools/call` 便宣稱系統相容。必須完整記錄描述元、分頁呼叫日誌、獲准工具集、被拒工具集，以及經過校驗的實體執行產物。
+切勿單憑單次成功的 `tools/call` 便宣稱系統相容。記錄描述元、分頁請求軌跡、獲准工具集、被拒工具集，以及一項經過校驗的執行結果。
 
 ## Key Terms｜關鍵術語
 
@@ -436,15 +436,15 @@ Phase 13 總結專題需要一套能安全整併來自多台伺服器之工具�
 | `inputSchema` | 定義工具可接收之參數結構的 JSON Schema 物件 |
 | `outputSchema` | 定義工具 `structuredContent` 回傳規格的選用性 JSON Schema |
 | `structuredContent` | 工具執行完成後所產出的任意合法 JSON 數值 |
-| Content block | 包含純文字、圖片、音訊、資源連結或內嵌資源的強型別內容區塊 |
+| 內容區塊（Content block） | 包含純文字、圖片、音訊、資源連結或內嵌資源的內容區塊 |
 | `x-mcp-header` | 將純量參數同步對映至 Streamable HTTP 傳輸標頭的 Schema 標註 |
-| Opaque cursor | 伺服器簽發的隨機分頁 Token，用戶端絕不應對其進行主觀解讀 |
-| Completion reference | 正在被自動補全參數的目標 Prompt 名稱或資源 URI/範本標識 |
-| Admission | 用戶端決定對外暴露或拒絕特定發現之工具描述元的安全准入決策 |
+| 不透明游標（Opaque cursor） | 伺服器簽發的分頁 Token，用戶端不應解讀其值 |
+| 補全參照（Completion reference） | 正在補全參數的 Prompt 名稱或資源 URI／範本 |
+| 准入（Admission） | 用戶端決定是否向外提供發現到的工具描述元 |
 
 ## Further Reading｜延伸閱讀
 
-- [MCP Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) ——工具定義、呼叫與錯誤處置官方規範
-- [MCP Completion](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/completion) ——參數自動建議與自動補全標準協定
-- [MCP Pagination](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/pagination) ——不透明游標分頁機制標準指引
-- [MCP Streamable HTTP Parameter Headers](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#custom-headers-from-tool-parameters) ——參數同步對映至自訂 HTTP 標頭規範
+- [MCP Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)
+- [MCP Completion](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/completion)
+- [MCP Pagination](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/pagination)
+- [MCP Streamable HTTP Parameter Headers](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http#custom-headers-from-tool-parameters)
