@@ -57,7 +57,7 @@ Meta 的 **MusicGen**（2023，MIT）和許多衍生：以文字或旋律 embedd
 
 ## 法律版圖（2025 到 2026）
 
-- **Warner Music 對 Suno 的和解。** 5 億美元。WMG 現在監督 Suno 上的 AI 相似度、音樂權利，以及使用者生成的曲目。UMG 和 Udio 有類似的和解。
+- **Warner Music 對 Suno 的和解。** 5 億美元。WMG 現在監督 Suno 上的 AI 模仿人物形象／聲音的權益、音樂權利，以及使用者生成的曲目。UMG 和 Udio 有類似的和解。
 - **歐盟 AI Act** 加 **加州 SB 942**：AI 生成的音樂必須揭露。
 - **Riffusion／MusicGen** 在 MIT 下沒有合規包袱，但也沒有可商用的人聲。
 
