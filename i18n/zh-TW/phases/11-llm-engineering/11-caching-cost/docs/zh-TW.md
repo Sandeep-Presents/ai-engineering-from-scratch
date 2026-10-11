@@ -27,7 +27,7 @@
 
 - 每日活躍使用者（DAU）：10,000 人
 - 每位使用者每天發起 10 次查詢
-- 每次查詢消耗 1,000 個輸入 token（系統提示 + 上下文 + 使用者訊息）
+- 每次查詢消耗 1,000 個輸入 token（system prompt + 上下文 + 使用者訊息）
 - 每次回應生成 500 個輸出 token
 
 **每日輸入成本：** 10,000 x 10 x 1,000 / 1,000,000 x $2.50 = **$250/day**
@@ -36,7 +36,7 @@
 
 這只是純 LLM API 的花費。再加上 embedding 向量化、向量資料庫（vector database）代管與雲端基礎設施，這款聊天機器人每個月約需 30,000 美元。
 
-最殘酷的部分在於：在這些查詢中，有 40% 到 60% 是近似重複的內容。使用者總是用微幅相異的文字詢問相同的問題。你的系統提示——在每一次請求中都相同——卻每一次都被原價反覆計費；RAG 檢索出的背景文件，也在不同使用者詢問同類話題時被不斷重複搬運與計費。
+最殘酷的部分在於：在這些查詢中，有 40% 到 60% 是近似重複的內容。使用者總是用微幅相異的文字詢問相同的問題。你的 system prompt——在每一次請求中都相同——卻每一次都被原價反覆計費；RAG 檢索出的背景文件，也在不同使用者詢問同類話題時被不斷重複搬運與計費。
 
 你正在為大量重複的計算支付全額費用。
 
@@ -48,17 +48,17 @@
 
 ```mermaid
 graph LR
-    A[User Query] --> B[System Prompt<br/>500-2000 tokens]
-    A --> C[Retrieved Context<br/>500-4000 tokens]
-    A --> D[User Message<br/>50-500 tokens]
-    B --> E[Input Cost<br/>$2.50/1M tokens]
+    A[使用者查詢] --> B[system prompt<br/>500-2000 tokens]
+    A --> C[檢索出的脈絡<br/>500-4000 tokens]
+    A --> D[使用者訊息<br/>50-500 tokens]
+    B --> E[輸入成本<br/>$2.50/1M tokens]
     C --> E
     D --> E
-    E --> F[Model Processing]
-    F --> G[Output Cost<br/>$10.00/1M tokens]
+    E --> F[模型處理]
+    F --> G[輸出成本<br/>$10.00/1M tokens]
 ```
 
-系統提示是無聲的財務殺手。一個包含 1,500 個 token 的系統提示在每一次請求中隨行發送，光是這個前綴每百萬次請求就消耗 3.75 美元。每天 10 萬次請求相當於每日 375 美元、每月 11,250 美元，全浪費在永遠不變的靜態文字上。
+system prompt 是無聲的財務殺手。一個包含 1,500 個 token 的 system prompt 在每一次請求中隨行發送，光是這個前綴每百萬次請求就消耗 3.75 美元。每天 10 萬次請求相當於每日 375 美元、每月 11,250 美元，全浪費在永遠不變的靜態文字上。
 
 ### 服務供應商端快取：內建折扣
 
@@ -70,7 +70,7 @@ graph LR
 | OpenAI | 自動前綴比對匹配 | 快取命中享 50% 折扣 | 1,024 tokens | 盡力而為保留至多 1 小時 |
 | Google Gemini | 明確的 CachedContent API | 約 75% 成本縮減（另收儲存費） | 4,096 (Flash) / 32,768 (Pro) | 使用者可自訂 TTL 存活期 |
 
-**Anthropic 的機制**是顯式的。你在 Prompt 中使用 `cache_control: {"type": "ephemeral"}` 宣告特定區塊。首次請求需支付 25% 的寫入溢價，隨後帶有相同前綴的請求皆能享有 90% 的折扣。一段 2,000 token 的系統提示平時需消耗 0.005 美元，快取命中時僅需 0.000625 美元；在 10 萬次請求規模下，每天能直接省下 437.50 美元。
+**Anthropic 的機制**是顯式的。你在 Prompt 中使用 `cache_control: {"type": "ephemeral"}` 宣告特定區塊。首次請求需支付 25% 的寫入溢價，隨後帶有相同前綴的請求皆能享有 90% 的折扣。一段 2,000 token 的 system prompt 平時需消耗 0.005 美元，快取命中時僅需 0.000625 美元；在 10 萬次請求規模下，每天能直接省下 437.50 美元。
 
 **OpenAI 的機制**是全自動的。任何與近期請求匹配的 Prompt 前綴皆能自動享有 50% 的折扣，無需在程式碼中加入任何標記。其權衡在於：折扣幅度較低、控制度較弱，但整合成本為零。
 
@@ -82,12 +82,12 @@ graph LR
 
 ```mermaid
 flowchart TD
-    A[User Query] --> B[Embed Query]
-    B --> C{Similar query<br/>in cache?}
-    C -->|sim > 0.95| D[Return Cached Response]
-    C -->|sim < 0.95| E[Call LLM API]
-    E --> F[Cache Response<br/>with Embedding]
-    F --> G[Return Response]
+    A[使用者查詢] --> B[為查詢產生 embedding]
+    B --> C{快取中有相似查詢嗎？}
+    C -->|sim > 0.95| D[傳回快取回應]
+    C -->|sim < 0.95| E[呼叫 LLM API]
+    E --> F[快取回應<br/>與 embedding]
+    F --> G[傳回回應]
     D --> G
 ```
 
@@ -98,7 +98,7 @@ Embedding 的運算成本極低。OpenAI 的 text-embedding-3-small 每百萬 to
 對於確定性（deterministic）的呼叫（temperature=0、相同模型、相同 prompt），精確快取更為直接且運算更快。直接將完整 prompt 雜湊後查詢快取，命中則立刻回傳。
 
 這在以下情境表現良好：
-- 系統提示 + 固定脈絡 + 字面相同的使用者提問
+- system prompt + 固定脈絡 + 字面相同的使用者提問
 - 帶有固定工具定義的函式呼叫
 - 同一份文件被反覆處理多次的批次分析工作流
 
@@ -124,7 +124,7 @@ Embedding 的運算成本極低。OpenAI 的 text-embedding-3-small 每百萬 to
 
 ```mermaid
 flowchart TD
-    A[User Query] --> B[Complexity Classifier]
+    A[使用者查詢] --> B[複雜度分類器]
     B -->|Simple: lookup, FAQ| C[GPT-4o-mini<br/>$0.15/$0.60 per 1M]
     B -->|Medium: analysis, summary| D[Claude Sonnet<br/>$3.00/$15.00 per 1M]
     B -->|Complex: reasoning, code| E[GPT-4o / Claude Opus<br/>$2.50/$10.00+]
@@ -779,7 +779,7 @@ if __name__ == "__main__":
 # print(f"Cache read tokens: {response.usage.cache_read_input_tokens}")
 ```
 
-首次呼叫寫入快取（需多付 25% 寫入溢價）。隨後帶有相同系統提示前綴的每一次呼叫，皆直接自快取讀取（享有 90% 折扣）。快取存活時間為 5 分鐘，且每次被命中時都會重新計時。
+首次呼叫寫入快取（需多付 25% 寫入溢價）。隨後帶有相同 system prompt 前綴的每一次呼叫，皆直接自快取讀取（享有 90% 折扣）。快取存活時間為 5 分鐘，且每次被命中時都會重新計時。
 
 ### OpenAI 自動快取
 
@@ -887,7 +887,7 @@ Batch API 為所有 token 提供固定 50% 的半價優惠。結果在 24 小時
 
 | 術語 | 常見說法 | 實際意義 |
 |------|----------------|----------------------|
-| Prompt 快取（Prompt caching） | 「快取系統提示」 | 服務供應商端的快取機制，重複的 Prompt 前綴可享有折扣（Anthropic 達 90%，OpenAI 達 50%）——OpenAI 免改碼，Anthropic 需顯式標記 |
+| Prompt 快取（Prompt caching） | 「快取 system prompt」 | 服務供應商端的快取機制，重複的 Prompt 前綴可享有折扣（Anthropic 達 90%，OpenAI 達 50%）——OpenAI 免改碼，Anthropic 需顯式標記 |
 | 語意快取（Semantic caching） | 「智慧意圖快取」 | 將使用者問題向量化，比對與過往查詢的語意相似度，超過閾值則直接回傳快取的解答——能捕捉字面不同但意圖相同的改寫句 |
 | 精確快取（Exact caching） | 「雜湊命中快取」 | 對完整 Prompt（模型 + 訊息陣列 + 溫度）進行 SHA-256 雜湊，僅在輸入相同時命中——僅適用於 temperature=0 的確定性呼叫（deterministic calls） |
 | token 桶（Token bucket） | 「速率限制器」 | 一種限流演算法，每個使用者擁有容量為 N 的水桶，每秒自動補充 R 個 token——允許短暫的突發流量，同時限制平均消耗速率 |
@@ -895,7 +895,7 @@ Batch API 為所有 token 提供固定 50% 的半價優惠。結果在 24 小時
 | 成本追蹤（Cost tracking） | 「計費計量」 | 詳實記錄每一次 API 呼叫的模型、token 數、延遲、實質費用與使用者 ID，掌握資金消耗分布 |
 | 熔斷器（Circuit breaker） | 「緊急斷路開關」 | 當累計花費逼近預算上限時，自動啟動系統降級保護（切換低成本模型、僅回傳快取結果）或全面阻斷新請求的防線機制 |
 | Batch API | 「批發批次折扣」 | OpenAI 針對非即時任務提供的非同步處理服務，享有 50% 折扣，送出至多 50,000 筆請求並於 24 小時內傳回結果 |
-| Prompt 壓縮（Prompt compression） | 「減少 token 數」 | 在保留原意的前提下重寫系統提示與上下文，減少 token 佔用——更短的 Prompt 既省錢，通常表現也更好 |
+| Prompt 壓縮（Prompt compression） | 「減少 token 數」 | 在保留原意的前提下重寫 system prompt 與上下文，減少 token 佔用——更短的 Prompt 既省錢，通常表現也更好 |
 | 快取命中率（Cache hit rate） | 「快取命中效益」 | 由快取直接提供服務而非呼叫外部 LLM 的請求百分比——正式環境聊天機器人通常落在 40% 到 60%，按比例降低成本 |
 
 ## Further Reading｜延伸閱讀
