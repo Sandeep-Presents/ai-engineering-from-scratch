@@ -1,6 +1,6 @@
 # ASCII 藝術與視覺越獄攻擊（ASCII Art and Visual Jailbreaks）
 
-> Jiang、Xu、Niu、Xiang、Ramasubramanian、Li 與 Poovendran，《ArtPrompt: ASCII Art-based Jailbreak Attacks against Aligned LLMs》（ACL 2024，arXiv:2402.11753）。將惡意請求中的敏感關鍵字進行安全遮罩，並將其替換為由 ASCII 字元拼湊繪製出的字體藝術畫，隨後將這份經過隱匿偽裝的 Prompt 發送給目標。實測證實 GPT-3.5、GPT-4、Gemini、Claude 與 Llama-2 等主流旗艦模型，皆普遍無法強健識別這些以字元畫形態呈現的敏感 Token。該攻擊能輕鬆繞過基於困惑度（Perplexity, PPL）的過濾器、Prompt 改寫防禦以及重新分詞（Retokenization）防線。相關前沿：ViTC 基準測試專門度量大模型對非語義視覺提示的識別能力；而 StructuralSleight 則進一步將該攻擊泛化為「罕見文本編碼結構（Uncommon Text-Encoded Structures, UTES）」（樹狀圖、拓撲圖、深層嵌套 JSON）編碼攻擊家族。
+> Jiang、Xu、Niu、Xiang、Ramasubramanian、Li 與 Poovendran，《ArtPrompt: ASCII Art-based Jailbreak Attacks against Aligned LLMs》（ACL 2024，arXiv:2402.11753）。將惡意請求中的敏感關鍵字進行安全遮罩，並將其替換為由 ASCII 字元拼湊繪製出的字體藝術畫，隨後將這份經過隱匿偽裝的 Prompt 發送給目標。實測顯示 GPT-3.5、GPT-4、Gemini、Claude 與 Llama-2 都無法穩健辨識以字元畫呈現的敏感 token。該攻擊可繞過基於困惑度（Perplexity, PPL）的過濾器、Prompt 改寫防禦以及重新分詞（Retokenization）防線。相關前沿：ViTC 基準測試專門度量大模型對非語義視覺提示的識別能力；而 StructuralSleight 則進一步將該攻擊泛化為「罕見文本編碼結構（Uncommon Text-Encoded Structures, UTES）」（樹狀圖、拓撲圖、深層嵌套 JSON）編碼攻擊家族。
 
 **Type:** Build
 **Languages:** Python (stdlib, ArtPrompt token-masking harness)
@@ -26,19 +26,19 @@
 
 第二步：偽裝 Prompt 生成（Cloaked Prompt Generation）。將辨識出的敏感詞替換為對應的 ASCII 藝術圖案（通常為 7x5 或 7x7 的標點與空格矩陣，精巧勾勒出字母的外觀輪廓）。目標大模型接收到的是由標點符號構成的網格字串，足夠聰明的前沿模型能憑藉空間推理將其拼讀還原為目標單詞；而前置的安全過濾網僅能看到一堆無害的標點符號。
 
-實測結論：GPT-4、Gemini、Claude、Llama-2 與 GPT-3.5 全面失守。在作者標記的基準測試子集上，攻擊成功率（ASR）突破 75%。
+實測結論：GPT-4、Gemini、Claude、Llama-2 與 GPT-3.5 都未能穩健識別；在基準測試子集上，攻擊成功率（ASR）超過 75%。
 
 ### 為何現有主流防禦機制全面潰敗
 
-- **PPL（困惑度過濾器）**。ASCII 藝術畫確實具備極高的困惑度——然而任何罕見的結構化程式碼、日誌或專業術語同樣具備極高困惑度。若將 PPL 攔截閾值設定得過於嚴苛，會在正式環境中誤殺大量合法的業務結構化資料。
+- **PPL（困惑度過濾器）**。ASCII 藝術的困惑度很高，但所有新穎輸入也如此。若選擇能阻擋 ArtPrompt 的閾值，也會阻擋合法的結構化輸入。
 - **改寫防禦（Paraphrase）**。理論上對 Prompt 進行語意改寫能破壞字元畫。但在實踐中，用於改寫的 LLM 往往會忠實保留或在輸出中重新還原這幅字元畫。
 - **重新分詞（Retokenization）**。以不同的 Tokenizer 字典對文字重新切分，絲毫無法阻止大模型在視覺神經層面拼讀字母輪廓。
 
-問題的本質在於：現有安全過濾器大多運作在 Token 級或純文本語義級；而 ArtPrompt 則降維打擊在視覺字形識別層。
+問題的本質在於：現有安全過濾器大多運作在 Token 級或純文本語義級；而 ArtPrompt 運作在視覺辨識層。
 
 ### ViTC 基準測試
 
-專門度量大模型對非語義視覺提示（Visual-text prompts）的解碼能力。衡量模型拼讀 ASCII 藝術畫、Wingdings 特殊符號以及其他非標準文字排版的能力。ArtPrompt 的攻擊殺傷力與模型的 ViTC 得分高度正相關：大模型的視覺拼讀能力越強，ArtPrompt 在其身上的越獄成功率就越高。這是一場經典的能力-安全雙刃劍權衡。
+專門度量大模型對非語義視覺提示（Visual-text prompts）的解碼能力。衡量模型拼讀 ASCII 藝術畫、Wingdings 特殊符號以及其他非標準文字排版的能力。ArtPrompt 的有效性與 ViTC 準確率相關：大模型的視覺拼讀能力越強，ArtPrompt 在其身上的越獄成功率就越高。這是一場經典的能力-安全雙刃劍權衡。
 
 ### StructuralSleight：編碼結構泛化
 
@@ -60,7 +60,7 @@ al-ascii-cloak
 
 ## Use It｜實際應用
 
-`code/main.py` 實作了一套微型 ArtPrompt 工具箱。你可以將惡意查詢中的特定敏感單詞替換為由 ASCII 字元繪製的字形藝術矩陣，驗證偽裝後的字串能否順利穿透關鍵字過濾器，；也可選擇使用簡易辨識器將偽裝字串解碼還原。
+`code/main.py` 實作了一套微型 ArtPrompt 工具箱。你可以將惡意查詢中的特定敏感單詞替換為由 ASCII 字元繪製的字形藝術矩陣，驗證偽裝後的字串能否順利穿透關鍵字過濾器；也可選擇使用簡易辨識器將偽裝字串解碼還原。
 
 ## Ship It｜交付成果
 
@@ -70,9 +70,9 @@ al-ascii-cloak
 
 1. 執行 `code/main.py`。驗證經過 ASCII 藝術偽裝的字串能否順利穿透簡單的敏感詞黑名單過濾器。記錄並呈報達成繞過所需的字元級修改量。
 2. 實作第二種編碼混淆策略：針對相同的目標單詞進行 Base64 編碼包裝。對比其與 ArtPrompt 在防禦繞過率與後續解碼還原難度上的差異。
-3. 仔細研讀 Jiang 等人（2024）原著論文第 4.3 節（五款主流大模型跑分結果）。為「Claude 在該基準上展現出的 ArtPrompt 抵禦韌性顯著高於 Gemini」這一現象提出一項合理的底層架構假說。
+3. 仔細研讀 Jiang 等人（2024）原著論文第 4.3 節（五款主流大模型跑分結果）。為「Claude 對 ArtPrompt 的抵抗力高於 Gemini」這一現象提出一項合理的底層架構假說。
 4. 設計一套前置防禦演算法：在請求送入大模型之前，即時偵測輸入文字中是否存在具備 ASCII 藝術畫排版特徵的字元矩陣區塊。量化測量該演算法在常規程式碼、Markdown 表格與數學矩陣公式上的偽陽性誤殺率。
-5. StructuralSleight 歸納了 10 種罕見文本結構。為其構思一套能統一應對這 10 種結構的通用防禦架構，並估算每個防禦請求所額外引入的雲端運算開銷。
+5. StructuralSleight 歸納了 10 種罕見文本結構。為其構思一套能統一應對這 10 種結構的通用防禦架構，並估算每個 prompt 的運算成本。
 
 ## Key Terms｜關鍵術語
 

@@ -1,6 +1,6 @@
 # 直接偏好最佳化（DPO）家族演進（The Direct Preference Optimization Family）
 
-> Rafailov 等人（2023）證明了帶有 KL 散度約束的 RLHF 最佳解，可以直接透過偏好資料以封閉解析形式（Closed form）精準推導，從而允許工程師徹底跳過顯式的獨立獎勵模型，直接對策略模型展開端到端最佳化。這項突破性洞察催生出了一整個龐大的對齊家族——IPO、KTO、SimPO、ORPO、BPO——各自專攻修復 DPO 原始架構的一項致命缺陷。到了 2026 年，直接對齊演算法（DAA）在前沿大模型後訓練（Post-training）中所承載的實際發布任務已全面超越傳統 PPO。然而第 18 課第 02 節揭示的過度最佳化曲線依然嚴酷適用：直接對齊演算法並未逃脫古德哈特定律的詛咒，它們僅僅是轉移了漏洞被鑽取的具體位置。
+> Rafailov 等人（2023）證明了帶有 KL 散度約束的 RLHF 最佳解，可以直接透過偏好資料以封閉解析形式（Closed form）精準推導，從而允許工程師徹底跳過顯式的獨立獎勵模型，直接對策略模型展開端到端最佳化。這項突破性洞察催生出了一整個龐大的對齊家族——IPO、KTO、SimPO、ORPO、BPO——各自專攻修復 DPO 原始架構的一項致命缺陷。到了 2026 年，直接對齊演算法（DAA）承載的前沿後訓練作業比 PPO 更多。然而第 18 課第 02 節揭示的過度最佳化曲線依然嚴酷適用：直接對齊演算法並未逃脫古德哈特定律的詛咒，它們僅僅是轉移了漏洞被鑽取的具體位置。
 
 **Type:** Learn
 **Languages:** Python (stdlib, six-variant preference-loss comparator)
@@ -73,7 +73,7 @@ L_IPO = (log(pi(y_w | x) / pi_ref(y_w | x)) - log(pi(y_l | x) / pi_ref(y_l | x))
 v(x, y) = sigma(beta * log(pi(y|x) / pi_ref(y|x)) - z_ref)
 ```
 
-並對收益與損失賦予不同的感知權重（損失厭惡 Loss aversion）。核心工程優勢：直接解放了未配對（Unpaired）的單條反饋資料，而這類資料在真實業務中數量遠超成對資料數個數量級。
+並對收益與損失賦予不同的感知權重（損失厭惡 Loss aversion）。核心工程優勢：直接解放了未配對（Unpaired）的單條反饋資料，而這類資料通常比成對資料更充足。
 
 ### SimPO（Meng 等人，2024）
 
@@ -102,7 +102,7 @@ L_OR = -log sigmoid(log(odds(y_w) / odds(y_l)))
 
 ### BPO（ICLR 2026 投稿，OpenReview id=b97EwMUWu7）
 
-精準鎖定並根治了「劣質選中回應（Degraded Chosen Responses）」問題：DPO 雖然保證了成對排序 `y_w > y_l`，但 `y_w` 自身的絕對機率經常在訓練中無辜暴跌。BPO 增加了一行優雅的數學修正，專門懲罰被選中答案在對數機率上的向下位移。在 Llama-3.1-8B-Instruct 的數學推理任務上，相較於原生 DPO 錄得了高達 +10.1% 的準確率飛躍。
+針對「劣質選中回應（Degraded Chosen Responses）」問題，DPO 保留了成對排序 `y_w > y_l`，但 `y_w` 的絕對對數機率可能下降。BPO 加入一行修正，懲罰選中回應的向下調整。論文報告，在 Llama-3.1-8B-Instruct 的數學推理任務上，相較 DPO 準確率提升 +10.1%。
 
 ### 普適規律：直接對齊演算法依然無法逃脫過度最佳化
 
@@ -126,7 +126,7 @@ dpo-margin
 
 ## Use It｜實際應用
 
-`code/main.py` 在一套樣本偏好強度各異的微型偏好資料集上，橫向演練了六種損失函數（DPO、IPO、KTO、SimPO、ORPO、BPO）。每種方法皆在完全相同的 500 對樣本上訓練微型 Softmax 策略模型。即時繪製各演算法最終的成對勝率、選中答案對數機率漂移曲線，以及隱式獎勵的分佈變異數。
+`code/main.py` 在一套樣本偏好強度各異的微型偏好資料集上，橫向演練了六種損失函數（DPO、IPO、KTO、SimPO、ORPO、BPO）。每種方法皆在完全相同的 500 對樣本上訓練微型 Softmax 策略模型。即時繪製各演算法最終的成對勝率、選中答案對數機率漂移曲線，以及隱式獎勵的分散程度。
 
 ## Ship It｜交付成果
 
