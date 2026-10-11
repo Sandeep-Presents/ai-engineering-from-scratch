@@ -1,6 +1,6 @@
 # 動作預算、迭代上限與成本管理器（Action Budgets, Iteration Caps, and Cost Governors）
 
-> 一家規模中等的電商 agent 在團隊啟用了「訂單追蹤（order-tracking）」skill 之後，其單月 LLM 成本從 1,200 美元暴增至 4,800 美元。這絕非 API 的定價錯誤，而是一個 agent 發現了死迴圈並在其中肆無忌憚地揮霍資源。微軟於 2026 年 4 月 2 日發布的 Agent 治理工具包（Agent Governance Toolkit）將防禦此類失效的手段進行了標準化歸納：包含單次請求的 `max_tokens`、任務級別的 token 與美元預算、每日／每月配額上限、迭代輪次上限、分層模型路由、prompt 快取、上下文視窗壓縮、針對昂貴動作設定的 HITL 檢查點，以及在預算超支時立即觸發的斷路開關。Anthropic 的 Claude Code Agent SDK 也在不同命名下提供了完全相同的核心原語。實務證明，財務消耗速度限制（例如：10 分鐘內消耗超過 50 美元即強制切斷權限）攔截失控迴圈的速度，遠比傳統的月度上限快得多。
+> 一家規模中等的電商 agent 在團隊啟用了「訂單追蹤（order-tracking）」skill 之後，其單月 LLM 成本從 1,200 美元暴增至 4,800 美元。這絕非 API 的定價錯誤，而是一個 agent 發現了死迴圈並在其中肆無忌憚地揮霍資源。微軟於 2026 年 4 月 2 日發布的 Agent 治理工具包（Agent Governance Toolkit）將防禦此類失效的手段進行了標準化歸納：包含單次請求的 `max_tokens`、任務級別的 token 與美元預算、每日／每月配額上限、迭代輪次上限、分層模型路由、prompt 快取、上下文視窗壓縮、針對昂貴動作設定的 HITL 檢查點，以及在預算超支時觸發的斷路開關（kill switch）。Anthropic 的 Claude Code Agent SDK 也在不同命名下提供了完全相同的核心原語。財務消耗速度限制（例如：10 分鐘內支出超過 50 美元即切斷存取權限）攔截失控迴圈的速度，遠比傳統的月度上限快得多。
 
 **Type:** Learn
 **Languages:** Python (stdlib, layered cost-governor simulator)
@@ -23,34 +23,34 @@
 2. **單次任務的 Token 預算。** 在單次完整執行過程中，總消耗嚴禁超過 N 個 token。一旦觸及上限強制終止。
 3. **單次任務的美元預算。** 與 token 預算概念相同，但以真實法幣計價。在 Claude Code 中對應為 `max_budget_usd`。
 4. **單一工具呼叫上限。** 嚴格限制最多呼叫 N 次 `WebFetch`、N 次 `shell_exec` 等。
-5. **迭代輪次上限（`max_turns`）。** 限制單一 session 中 agent 迴圈的總迭代次數，徹底根絕無窮推理迴圈。
+5. **迭代輪次上限（`max_turns`）。** 限制單一工作階段中 agent 迴圈的總迭代次數，避免無窮推理迴圈。
 6. **每分鐘／每小時／每日／每月滾動配額上限。** 透過多重時間視窗，在不同時間維度上及時捕獲資源洩漏。
 7. **財務消耗速度限制（Financial velocity limit）。** 例如：「若 10 分鐘內支出超過 50 美元，立即切斷存取權限」。這能在月度上限被觸發之前，第一時間掐死因死迴圈引發的瞬間資金狂飆。
 8. **分層模型路由（Tiered model routing）。** 預設採用成本低廉的小模型；唯有當分類器研判任務確實極具挑戰時，才動態升級至強大的大模型。
 9. **Prompt 快取（Prompt caching）。** 將系統 prompt 與穩定的靜態上下文保存在供應商快取中；讓重複傳輸的 token 成本趨近於零。
 10. **上下文視窗壓縮（Context windowing）。** 透過精簡壓縮與摘要機制，將活躍上下文的大小壓制在門檻以下，直接大幅削減 token 成本。
 11. **針對高成本動作設定 HITL 檢查點。** 在發起已知代價高昂的操作（例如耗時甚久的工具呼叫、巨量資料下載、代價昂貴的模型版本升級）之前，強制要求人類點選確認。
-12. **預算超支自動觸發斷路器。** 一旦觸碰任何上限門檻，整個 session 立即強制終止。違規記錄會被完整保存，且必須經過獨立的重啟路徑方能復原。
+12. **預算超支自動觸發斷路開關（kill switch）。** 一旦觸碰任何上限門檻，整個工作階段立即強制終止。違規記錄會被保存，且必須經過獨立的重新啟用流程才能復原。
 
 ### 為什麼需要分層防禦，而非單一上限
 
-僅依賴單一的月度上限，往往只能在整個月的預算被徹底燒乾之後才被動反應。而若僅設定單次請求上限，在 session 整體層級上根本起不到任何約束作用。不同的系統失效模式，本質上需要不同尺度的時間視窗來精準應對：
+僅依賴單一的月度上限，往往只能在整個月的預算耗盡之後才被動反應。而若僅設定單次請求上限，在整個工作階段層級上起不到約束作用。不同的系統失效模式，本質上需要不同尺度的時間視窗來精準應對：
 
 - **失控的死迴圈**（agent 陷入間隔 5 秒的瘋狂重試）：由消耗速度限制在幾分鐘內快速掐死。
 - **慢性的暗中洩漏**（agent 每次任務消耗的資源達到預期的兩倍）：由每日配額上限及時捕獲。
 - **瑕疵版本發布**（新發布的程式碼版本消耗了 5 倍的 token）：由每週或每月配額上限及時發現。
 - **業務正常激增**（來自真實用戶的合法流量爆發而非系統 bug）：由每小時或每日配額搭配清晰的稽核日誌予以識別。
 
-### 治理框架下的預算控制介面
+### harness 的預算介面
 
 Claude Code Agent SDK 在其公開文件中提供了以下控制參數：
 
 - `max_turns`——迭代輪次硬性上限。
-- `max_budget_usd`——美元金額預算上限；一旦超出即刻終止 session。
+- `max_budget_usd`——美元金額預算上限；一旦超出即刻終止工作階段。
 - `allowed_tools` / `disallowed_tools`——工具白名單與黑名單。
 - 在工具執行前觸發的鉤子（hook）端點，專供開發者實作自訂的成本核算邏輯。
 
-將這些機制與權限模式階梯（第 10 課）緊密結合。一個在未配置 `max_budget_usd` 的情況下運作的 `autoMode` session，本質上屬於完全脫軌的危險自主。Anthropic 明確強調 Auto Mode 必須搭配預算管控；分類器模型本身並無法解決財務成本失控的問題。
+將這些機制與權限模式階梯（第 10 課）緊密結合。一個在未配置 `max_budget_usd` 的情況下運作的 `autoMode` 工作階段，屬於缺乏成本治理的自主運作。Anthropic 明確強調 Auto Mode 必須搭配預算管控；分類器模型本身並無法解決財務成本失控的問題。
 
 ### 歐盟 AI 法案與 OWASP Agentic Top 10
 
@@ -58,7 +58,7 @@ Claude Code Agent SDK 在其公開文件中提供了以下控制參數：
 
 ### 真實案例剖析：從 1,200 美元到 4,800 美元的失控暴增
 
-微軟官方文件中記錄了一個極具代表性的真實慘痛案例：某電商平台的 agent 在引入一項全新工具後，其單月帳單暴增了三倍。該工具允許 agent 在每個對話 session 中主動輪詢訂單狀態。然而系統缺乏死迴圈偵測、缺乏單一工具呼叫上限，更沒有任何週對週成本異常增長的告警機制。最終的修復方案是追加單一工具呼叫配額，並設定每日成本增長警示。這是一份經典的工程教訓：每一個新增的工具表面，都是潛在死迴圈的全新入口；每一個工具都必須配備專屬的呼叫配額與告警策略。
+微軟官方文件中記錄了一個極具代表性的真實慘痛案例：某電商平台的 agent 在引入一項全新工具後，其單月帳單暴增了三倍。該工具允許 agent 在每個對話工作階段中主動輪詢訂單狀態。然而系統缺乏死迴圈偵測、缺乏單一工具呼叫上限，更沒有任何週對週成本異常增長的告警機制。最終的修復方案是追加單一工具呼叫配額，並設定每日成本增長警示。這是一份經典的工程教訓：每一個新增的工具表面，都是潛在死迴圈的全新入口；每一個工具都必須配備專屬的呼叫配額與告警策略。
 
 ```figure
 cost-governor-stack
@@ -82,25 +82,25 @@ cost-governor-stack
 
 4. 為一次真實的夜間無人值守任務（例如「針對儲存庫中的 50 個 issue 進行分流分級」）進行成本估算。將 `max_budget_usd` 設定為你點估計值的 2 倍。說明將安全裕度設為 2 倍的論證依據。
 
-5. Claude Code 的 `max_budget_usd` 是依據 session 的累計總成本觸發的。設計一套由外部強制執行的互補型消耗速度限制。其切斷存取的具體觸發條件為何？而後續的重新啟用流程又長什麼樣？
+5. Claude Code 的 `max_budget_usd` 是依據工作階段的累計總成本觸發的。設計一套由外部強制執行的互補型消耗速度限制。其切斷存取的具體觸發條件為何？而後續的重新啟用流程又長什麼樣？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| Denial of Wallet | "Runaway bill" | Agent loop generating spend with no cap to stop it |
-| max_tokens | "Per-request cap" | Ceiling on a single completion's size |
-| max_turns | "Iteration cap" | Ceiling on agent loop iterations in a session |
-| max_budget_usd | "Dollar kill switch" | Session cost cap; aborts on breach |
-| Velocity limit | "Rate cap" | Limit on spend per short window (e.g., $50 / 10 min) |
-| Tiered routing | "Small model first" | Cheap model default; escalate only when classifier warrants |
-| Prompt caching | "Cached system prompt" | Provider-side cache reduces re-send token cost to near zero |
-| HITL checkpoint | "Human approval gate" | Human tap required before expensive action |
+| 錢包阻斷 |「帳單失控」| agent 迴圈持續產生費用，卻沒有上限能阻止 |
+| max_tokens |「單次請求上限」| 單次生成內容的大小上限 |
+| max_turns |「迭代上限」| agent 工作階段迴圈的迭代次數上限 |
+| max_budget_usd |「美元斷路開關」| 工作階段成本上限；超限時中止 |
+| 消耗速度限制 |「費率上限」| 短時間內的支出上限（例如每 10 分鐘 50 美元）|
+| 分層路由 |「先用小模型」| 預設使用低成本模型；只有分類器判斷需要時才升級 |
+| prompt 快取 |「快取的系統 prompt」| 服務供應商端的快取，讓重送 token 的成本接近零 |
+| HITL 檢查點 |「人工核准關卡」| 執行高成本動作前必須由人員點選確認 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic Claude Code Agent SDK — agent loop and budgets](https://code.claude.com/docs/en/agent-sdk/agent-loop) — `max_turns`、`max_budget_usd` 與工具白名單機制。
-- [Microsoft Agent Framework — human-in-the-loop and governance](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 成本管理器檢查點實踐。
-- [Anthropic — Claude Managed Agents overview](https://platform.claude.com/docs/en/managed-agents/overview) — 供應商端成本控制機制。
-- [Anthropic — Prompt caching (Claude API docs)](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) — 快取運作原理。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 長時程 agent 的成本特性深度分析。
+- [Anthropic Claude Code Agent SDK — agent loop and budgets](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+- [Microsoft Agent Framework — human-in-the-loop and governance](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
+- [Anthropic — Claude Managed Agents overview](https://platform.claude.com/docs/en/managed-agents/overview)
+- [Anthropic — Prompt caching (Claude API docs)](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)

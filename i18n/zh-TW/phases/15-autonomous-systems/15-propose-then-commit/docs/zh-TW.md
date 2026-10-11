@@ -1,6 +1,6 @@
 # 人在迴圈中：先提議後確認寫入（Human-in-the-Loop: Propose-Then-Commit）
 
-> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑以及回滾方案，完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆實現了完全相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻認證的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
+> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆實現了完全相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻認證的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
 
 **Type:** Learn
 **Languages:** Python (stdlib, propose-then-commit state machine with idempotency)
@@ -9,9 +9,9 @@
 
 ## The Problem｜問題
 
-Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是拒絕。若這項決定是在一瞬間做出的，它極高機率根本沒有經過真正的審查。若這項決定是結構化的，雖然審查較為耗時，但結果高度可信。工程上的關鍵問題在於：如何將結構化審查設計為系統阻力最小的自然路徑？
+Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是拒絕。若這項決定是在一瞬間做出的，它很可能根本沒有經過真正的審查。若這項決定是結構化的，雖然審查較為耗時，但結果高度可信。工程上的關鍵問題在於：如何將結構化審查設計為系統阻力最小的自然路徑？
 
-2023 年代的 HITL 模式本質上是一個同步彈出視窗：「Agent 想要發送主旨為 Y 的信件給 X——是否核准？」使用者隨手點選核准。每個人都產生了系統很安全的幻覺。然而在實務中，這種互動介面極易淪為流於形式的橡皮圖章：使用者核准速度飛快、審核毫無實質把關能力，而當 agent 釀成大禍時，稽核紀錄往往充斥著使用者早已毫無印象的大量核准歷史。
+2023 年代的 HITL 模式本質上是一個同步彈出視窗：「Agent 想要發送內文為 Y 的信件給 X——是否核准？」使用者隨手點選核准。每個人都產生了系統很安全的幻覺。然而在實務中，這種互動介面極易淪為流於形式的橡皮圖章：使用者核准速度飛快、審核毫無實質把關能力，而當 agent 釀成大禍時，稽核紀錄往往充斥著使用者早已毫無印象的大量核准歷史。
 
 2026 年的主流架構——先提議後確認寫入——將 HITL 建立在持久化底座之上，強制附帶結構化中繼資料，並要求使用者給予明確具體的 commit 確認。所有代管型 agent SDK 皆提供了各自的實作：LangGraph 的 `interrupt()`、微軟 Agent Framework 的 `RequestInfoEvent`、Cloudflare 的 `waitForApproval()`。API 命名雖有不同，底層架構完全一致。
 
@@ -48,7 +48,7 @@ HITL 預設的陽春介面（僅提供單純的「核准」／「拒絕」按鈕
 - 「你是否已親自驗證此動作的潛在爆炸半徑在可承受範圍內？[ ]」
 - 「一旦此動作失敗，你是否已具備明確的回滾復原方案？[ ]」
 
-這絕非官僚主義的繁文縟節——這是一道強制的防呆推力。無法自信勾選清單的審查員，要麼主動尋求進一步澄清（問題升級），要麼選擇果斷拒絕（安全預設值）。Anthropic 的 agent 安全研究明確將清單驅動的 HITL 視為遏止橡皮圖章式盲目核准的關鍵防禦措施。
+這不是官僚主義的繁文縟節，而是一種強制機制。無法自信勾選清單的審查員，要麼主動尋求進一步澄清（問題升級），要麼選擇果斷拒絕（安全預設值）。Anthropic 的 agent 安全研究明確將清單驅動的 HITL 視為遏止橡皮圖章式盲目核准的關鍵防禦措施。
 
 ### 哪些動作屬於「具備實質後果」
 
@@ -64,7 +64,7 @@ HITL 預設的陽春介面（僅提供單純的「核准」／「拒絕」按鈕
 
 ### 歐盟 AI 法案第 14 條的法律要求
 
-歐盟《人工智慧法案》第 14 條明確規定，部署在歐盟的高風險 AI 系統必須配備「有效的人類監督」。法律條文中的「有效」絕非裝飾性詞彙。監管機構的具體指引明確排除了流於形式的橡皮圖章核准模式。在微軟 Agent 治理工具包的法規遵循文件中，附帶質詢應答機制的先提議後確認寫入模式，正是唯一能從容通過第 14 條嚴格法規檢驗的標準架構。
+歐盟《人工智慧法案》第 14 條明確規定，部署在歐盟的高風險 AI 系統必須配備「有效的人類監督」。法律條文中的「有效」絕非裝飾性詞彙。監管機構的具體指引明確排除了流於形式的橡皮圖章核准模式。在微軟 Agent 治理工具包的法規遵循文件中，附帶質詢應答機制的先提議後確認寫入模式，正是能從容通過第 14 條嚴格檢驗的架構模式。
 
 ```figure
 mx-propose-then-commit
@@ -86,27 +86,27 @@ mx-propose-then-commit
 
 3. 閱讀微軟 Agent Framework 的 `RequestInfoEvent` 官方文件。指出該 API 所包含但本玩具引擎所缺失的一個關鍵中繼資料欄位。將其補入程式碼中並說明它旨在防禦何種風險。
 
-4. 為一項特定動作（例如「向公開的 Twitter/X 帳號發布貼文」）設計一套質詢應答核對清單。審查員必須回答哪三個問題？為什麼挑選這三個？
+4. 為一項特定動作（例如「向公開的 Twitter 帳號發布貼文」）設計一套質詢應答核對清單。審查員必須回答哪三個問題？為什麼挑選這三個？
 
 5. 挑選一個同步彈出「核准？」對話框便已完全足夠（無需持久化儲存庫）的實際業務場景。說明背後的原因，並明確指出你在此情境下所甘願承擔的風險類別。
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| Propose-then-commit | "Two-phase approval" | Persisted proposal + positive commit + verify |
-| Idempotency key | "Retry-safe token" | Unique per proposal; second execution no-ops |
-| Data lineage | "Where it came from" | The specific source content that led to the proposal |
-| Blast radius | "Worst case" | Scope of effect if the action goes wrong |
-| Rubber-stamp | "Fast approval" | "Approve" clicked without genuine review |
-| Challenge-and-response | "Forcing checklist" | Reviewer must positively acknowledge specific questions |
-| RequestInfoEvent | "MS Agent Framework primitive" | Durable HITL request with structured metadata |
-| `interrupt()` / `waitForApproval()` | "Framework primitives" | LangGraph / Cloudflare equivalents of the same shape |
+| 先提議後確認寫入 |「兩階段核准」| 持久化提議、明確確認寫入，再驗證 |
+| 冪等性金鑰 |「可安全重試的 token」| 每個提議都有唯一金鑰；第二次執行不會產生動作 |
+| 資料血緣 |「資料從哪裡來」| 導致該提議的特定來源內容 |
+| 爆炸半徑 |「最糟情況」| 動作出錯時可能影響的範圍 |
+| 橡皮圖章式核准 |「快速核准」| 未經實質審查就點選「核准」|
+| 質詢應答 |「強制核對清單」| 審查者必須明確確認特定問題 |
+| RequestInfoEvent |「Microsoft Agent Framework 原語」| 含結構化中繼資料的持久化 HITL 請求 |
+| `interrupt()` / `waitForApproval()` |「框架原語」| LangGraph／Cloudflare 實作的同類模式 |
 
 ## Further Reading｜延伸閱讀
 
-- [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — `RequestInfoEvent` 與持久化核准機制。
-- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — `waitForApproval()` 與 Durable Objects 整合。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 將 HITL 作為緩解長時程風險的核心防禦。
-- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/) — 高風險系統的人類監督法定基準。
-- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution) — 圍繞人類監督建構的憲法級規範。
+- [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
+- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/)
+- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)

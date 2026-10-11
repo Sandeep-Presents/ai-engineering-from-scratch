@@ -1,6 +1,6 @@
 # 憲法 AI 與規則覆寫邊界（Constitutional AI and Rule Overrides）
 
-> Anthropic 於 2026 年 1 月 22 日發布的 Claude 憲法（Claude Constitution）長達 79 頁並以 CC0 公共領域協議開源。它標誌著對齊技術從「基於刻板規則」正式邁向「基於深層推理」，並確立了嚴格的四層優先級階層：(1) 安全與支援人類監督、(2) 倫理、(3) Anthropic 業務準則、(4) 有用性。系統行為被明確拆分為維運者與使用者皆絕對無法覆寫的硬編碼禁令（例如生物武器擴散、CSAM），以及維運者可在規定邊界內靈活調校的軟編碼預設值。2022 年的原始研究（Bai 等人）透過自我批判與對照憲法進行的 RLAIF 訓練出無害性。客觀存在的現實挑戰：基於推理的對齊極度依賴模型將抽象原則泛化至前所未見情境的能力。Anthropic 自身於 2023 年進行的公民參與實驗顯示，大眾投票產生的原則與企業訂定的原則存在約 50% 的顯著分歧；而 2026 年的正式版本並未納入那些大眾回饋。
+> Anthropic 於 2026 年 1 月 22 日發布的 Claude 憲法（Claude Constitution）長達 79 頁並以 CC0 公共領域協議開源。它標誌著對齊技術從「基於刻板規則」正式邁向「基於深層推理」，並確立了嚴格的四層優先級階層：(1) 安全與支援人類監督、(2) 倫理、(3) Anthropic 業務準則、(4) 有用性。系統行為被明確拆分為維運者與使用者皆絕對無法覆寫的硬編碼禁令（hardcoded prohibitions；例如生物武器能力助益（uplift）、CSAM），以及維運者可在規定邊界內靈活調校的軟編碼預設值（soft-coded defaults）。2022 年的原始研究（Bai 等人）透過自我批判與對照憲法進行的 RLAIF 訓練出無害性。客觀存在的現實挑戰：基於推理的對齊極度依賴模型將抽象原則泛化至前所未見情境的能力。Anthropic 自身於 2023 年進行的公民參與實驗顯示，大眾提出的原則與企業訂定的原則約有 50% 不同；而 2026 年的版本並未納入大眾提出的原則。
 
 **Type:** Learn
 **Languages:** Python (stdlib, four-tier priority resolver)
@@ -13,7 +13,7 @@
 
 基於規則的對齊（Rule-based alignment, RBA）：逐一列舉所有被禁止的事項。檢查速度極快、稽核極度直觀，但絕對無法與時俱進，且經常在未曾預見但語意接近的安全情境下產生過度拒絕。基於推理的對齊（Reason-based alignment，即 2026 年 Claude 憲法架構）：編碼核心原則，讓模型自主進行邏輯推理。能夠優雅泛化至未曾見過的新穎案例，但難以進行形式化稽核，其潛在失效模式也從「遺漏規則」轉變為「原則誤判」。
 
-2026 年的 Claude 憲法採取了一種明確的折衷中間立場。硬編碼禁令——那些在任何情境下皆絕不被允許的絕對惡意行為（生物武器擴散、CSAM）——嚴格採用規則對齊：無論維運者或終端使用者下達何種指令，永遠一票否決。其餘所有日常行為則置於四層優先級階層內進行基於推理的研判：安全與支援人類監督居首；倫理道德次之；Anthropic 宣告的準則居第三；有用性則位列末席。維運者可在軟編碼區間內自由調整預設行為，但絕對無法觸碰硬編碼禁令。
+2026 年的 Claude 憲法採取了一種明確的折衷中間立場。硬編碼禁令——那些在任何情境下皆絕不被允許的絕對惡意行為（生物武器能力助益、CSAM）——嚴格採用規則對齊：無論維運者或終端使用者下達何種指令，永遠一票否決。其餘所有日常行為則置於四層優先級階層內進行基於推理的研判：安全與支援人類監督居首；倫理道德次之；Anthropic 宣告的準則居第三；有用性則位列末席。維運者可在軟編碼區間內自由調整預設行為，但絕對無法觸碰硬編碼禁令。
 
 ## The Concept｜核心概念
 
@@ -29,7 +29,7 @@
 ### 硬編碼禁令 vs 軟編碼預設值
 
 **硬編碼（Hardcoded）：**
-- 生物武器與大規模毀滅性生化核武（CBRN）技術擴散
+- 生物武器及化學、生物、放射與核武（CBRN）相關能力助益
 - 兒童性剝削與虐待內容（CSAM）
 - 針對關鍵基礎設施發起網路攻擊
 - 當被使用者直接詢問時，故意隱瞞或欺騙自身身分
@@ -44,7 +44,7 @@
 
 維運者的調校只能在明確宣告的合法邊界內進行。維運者絕對無法透過重新命名或包裝語句來暗中消除硬編碼禁令。
 
-### 2022 年 CAI 訓練演變
+### 2022 年 CAI 訓練
 
 原始的憲法 AI（Bai 等人，2022 年）開創了無害性訓練的先河：
 
@@ -73,11 +73,11 @@ Anthropic 於 2023 年進行了一項廣受矚目的實驗，對比了由企業�
 
 ### 為什麼硬編碼禁令依然不可或缺
 
-單純依賴基於推理的對齊無法完全覆蓋災難性長尾。如果攻擊者成功誘使模型接受了某個精心設計的虛假前提（例如「我們是一家合法註冊的生化防禦研究機構」），模型往往會被牽著鼻子走，從而繞過原本依賴個案推理的防護原則。硬編碼禁令絕不向任何前提包裝妥協。它們正是第 14 課所探討的「憲法級硬性限制」在模型對齊層的具體體現。
+單純依賴基於推理的對齊無法完全覆蓋災難性長尾。如果攻擊者成功誘使模型接受了某個精心設計的虛假前提（例如「我們是一家持有執照的生物武器研究實驗室」），模型往往會被牽著鼻子走，從而繞過原本依賴個案推理的防護原則。硬編碼禁令絕不向任何前提包裝妥協。它們正是第 14 課所探討的「憲法級硬性限制」在模型對齊層的具體體現。
 
 ### 憲法在技術堆疊中的精準定位
 
-憲法絕非第 14 課中的外部斷路開關。它深植於模型權重層面：決定了模型的參數偏好何種回應。斷路開關與金絲雀 Token 則部署在執行環境層面：決定了底層環境允許放行何種實質動作。兩者缺一不可。若僅依賴執行環境攔截，卻擁有一個在模型權重層面毫無底線的模型，執行環境防線遲早會被擊潰；反之，若僅擁有良好對齊的模型，卻缺乏執行環境的硬性煞車，一旦模型發生幻覺便會釀成大禍。分層防禦各自守護著不同級別的攻擊面。
+憲法絕非第 14 課中的外部斷路開關。它深植於模型權重層面：決定了模型的參數偏好何種回應。斷路開關與金絲雀 Token 則部署在執行環境層面：決定了底層環境允許放行何種實質動作。兩者缺一不可。若僅依賴執行環境攔截，卻擁有一個在模型權重層面毫無底線的模型，執行環境防線遲早會被擊潰；反之，若執行環境過度限制，模型就會拒絕所有正確的動作，這同樣是執行環境的問題。分層防禦各自守護著不同級別的攻擊面。
 
 ```figure
 mx-priority-tiers
@@ -105,21 +105,21 @@ mx-priority-tiers
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| Constitutional AI | "Anthropic's alignment method" | Self-critique + RLAIF against a written constitution |
-| Reason-based alignment | "Principles, not rules" | Model reasons over principles to handle unseen cases |
-| Hardcoded prohibition | "Never do X" | Rule-based prohibition no operator or user can override |
-| Soft-coded default | "Operator-adjustable" | Behaviour within a declared bound, operator controls |
-| Four-tier hierarchy | "Priority order" | safety > ethics > guidelines > helpfulness |
-| RLAIF | "AI feedback RL" | RL where the reward comes from model-generated critiques |
-| Participatory constitution | "Public-sourced principles" | 2023 Anthropic experiment; ~50% divergence from corporate |
-| Principle drift | "Interpretation slip" | Slow change in how the model reads a fixed principle text |
+| Constitutional AI |「Anthropic 的對齊方法」| 根據書面憲法進行自我批判與 RLAIF |
+| 基於推理的對齊 |「原則，而非規則」| 模型依原則推理，以處理未見過的案例 |
+| 硬編碼禁令 |「絕不做 X」| 維運者或使用者都無法覆寫的規則型禁令 |
+| 軟編碼預設值 |「維運者可調整」| 維運者可在明定範圍內控制的行為 |
+| 四層優先級階層 |「優先順序」| 安全 > 倫理 > 準則 > 有用性 |
+| RLAIF |「AI 回饋強化學習」| 獎勵來自模型產生的批判意見的強化學習 |
+| 參與式憲法 |「公眾提出的原則」| Anthropic 於 2023 年進行的實驗；與企業原則約有 50% 差異 |
+| 原則漂移 |「詮釋偏移」| 模型對固定原則文本的解讀逐漸改變 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution) — 79 頁 CC0 授權官方憲法全文。
-- [Bai et al. — Constitutional AI: Harmlessness from AI Feedback](https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback) — 2022 年奠基論文。
-- [Anthropic — Collective Constitutional AI (2023)](https://www.anthropic.com/research/collective-constitutional-ai-aligning-a-language-model-with-public-input) — 公眾參與式實驗報告。
-- [Anthropic — Responsible Scaling Policy v3.0](https://anthropic.com/responsible-scaling-policy/rsp-v3-0) — 憲法在負責任擴展架構中的戰略地位。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 憲法在長時程部署中所承擔的核心防禦角色。
+- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)
+- [Bai et al. — Constitutional AI: Harmlessness from AI Feedback](https://www.anthropic.com/research/constitutional-ai-harmlessness-from-ai-feedback)
+- [Anthropic — Collective Constitutional AI (2023)](https://www.anthropic.com/research/collective-constitutional-ai-aligning-a-language-model-with-public-input)
+- [Anthropic — Responsible Scaling Policy v3.0](https://anthropic.com/responsible-scaling-policy/rsp-v3-0)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)

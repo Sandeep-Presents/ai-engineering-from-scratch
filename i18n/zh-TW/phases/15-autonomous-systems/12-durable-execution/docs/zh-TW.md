@@ -12,9 +12,9 @@
 設想一個需要連續執行四小時的 agent。它依序呼叫了三個工具、向使用者提出了兩次確認詢問，並發起了四十次 LLM 呼叫。運作到一半時，其所在的主機突然重新開機。此時會發生什麼事？
 
 - 在單純的 `while True` 迴圈中：一切狀態瞬間歸零。整個執行流程必須從頭重跑。那三個帶有實質外部副作用的工具呼叫會被重複執行。使用者會被迫重新確認他們早已核准過的事項。而那四十次昂貴的 LLM 呼叫也將被重新計費。
-- 在持久化執行架構中：執行流程會精確從最近一次的檢查點自動恢復。早已順利完成的各項活動絕不會重複執行；它們的產出結果會直接從持久化日誌中快速重播。使用者無需重複審核已核准事項，且已完成的 LLM 呼叫絕不會產生重複帳單。
+- 在持久化執行架構中：執行流程會精確從最近一次的檢查點自動恢復。早已順利完成的各項活動絕不會重複執行；它們的結果會直接從持久化日誌中重播。使用者無需重複審核已核准事項，且已完成的 LLM 呼叫絕不會產生重複帳單。
 
-這正是工作流程引擎（如 Temporal、Cadence、Uber Cherami）在過去十年間被廣泛驗證的成熟模式。當前的全新突破在於：LLM 呼叫本質上正是一種標準的活動——具備非確定性、耗費高昂成本且伴隨外部副作用——因而能與此架構模式完美契合。
+這正是工作流程引擎（如 Temporal、Cadence、Uber Cherami）在過去十年間被廣泛驗證的成熟模式。當前的全新突破在於：LLM 呼叫本質上正是一種標準的活動——具備非確定性、耗費高昂成本且伴隨外部副作用——因而能與此架構模式自然契合。
 
 貫穿本課的核心主題：長時程的可靠度會隨時間嚴重衰減（METR 觀察到顯著的「35 分鐘效能衰退」現象——成功率會隨時程拉長呈近似二次方的速度急遽暴跌）。持久化執行讓系統具備了超越其原生可靠度極限的持續運作能力；這意味著如果架構設計得當，它能讓系統在安全邊界內優雅失效，但若設計失誤，則會引發更加嚴重的災難性後果。
 
@@ -35,13 +35,13 @@ LLM 呼叫具備以下典型特質：
 - 高度非確定性（temperature > 0；即便設為 0，不同模型版本之間依然存在輸出漂移）。
 - 成本高昂（消耗真實美元與顯著的網路延遲）。
 - 隨時可能失敗（觸發 API 速率限制、網路逾時等）。
-- 伴隨外部副作用（若模型決定呼叫實體工具）。
+- 伴隨外部副作用（若模型決定呼叫工具）。
 
-這與分散式系統中的「活動」特徵完全吻合。將每一次 LLM 呼叫封裝為獨立活動，系統便能免費獲得指數型退避重試、跨當機自動建立檢查點，以及用於除錯的可重播完整軌跡。
+這正是「活動」的典型特徵。將每一次 LLM 呼叫封裝為獨立活動，系統便能免費獲得指數型退避重試、跨當機自動建立檢查點，以及用於除錯的可重播完整軌跡。
 
 ### 以 `thread_id` 為鍵的檢查點機制
 
-LangGraph、微軟 Agent Framework、Cloudflare Durable Objects 與 Claude Code Routines 不約而同地收斂至相同的 API 設計：使用 `thread_id`（或等效鍵值）標識特定 session；每一次狀態躍遷都會被持久化儲存至後端儲存庫（正式環境預設採用 PostgreSQL，本機開發採用 SQLite，快取層採用 Redis）；系統重啟時則依鍵載入最新的檢查點。
+LangGraph、微軟 Agent Framework、Cloudflare Durable Objects 與 Claude Code Routines 不約而同地收斂至相同的 API 設計：使用 `thread_id`（或等效鍵值）標識特定工作階段；每一次狀態躍遷都會被持久化儲存至後端儲存庫（正式環境預設採用 PostgreSQL，本機開發採用 SQLite，快取層採用 Redis）；系統重啟時則依鍵載入最新的檢查點。
 
 後端儲存庫的架構選型至關重要：
 
@@ -56,7 +56,7 @@ LangGraph、微軟 Agent Framework、Cloudflare Durable Objects 與 Claude Code 
 
 ### 35 分鐘效能退化規律
 
-METR 的實測研究表明：在受測的所有 agent 類別中，一旦連續自主運作超過約 35 分鐘，其整體可靠度就會呈現斷崖式衰退。任務時程每延長一倍，系統失敗率就會呈近似四倍的態勢暴增。持久化執行無法從本質上消除這項衰退規律；它所做的是讓系統得以運作超出其原生可靠度所能支撐的時間長度。標準的安全實踐，是將持久化執行與「在重新喚醒時強制要求人類重新審查（HITL）」以及「不管實際耗時多久皆嚴格限制總算力上限的預算斷路器（第 13 課）」相結合。
+METR 的實測研究表明：在受測的所有 agent 類別中，連續運作約 35 分鐘後，可靠度就會開始衰退。任務時程每延長一倍，系統失敗率就會呈近似四倍的態勢暴增。持久化執行無法從本質上消除這項衰退規律；它所做的是讓系統得以運作超出其原生可靠度所能支撐的時間長度。標準的安全實踐，是將持久化執行與「在重新喚醒時強制要求人類重新審查（HITL）」以及「不管實際耗時多久皆嚴格限制總算力上限的預算斷路器（第 13 課）」相結合。
 
 ### 何時持久化執行反而是錯誤的過度設計
 
@@ -86,31 +86,31 @@ memory-consolidation
 
 1. 執行 `code/main.py`。仔細比對粗暴重試與智慧重播在「活動執行次數」上的具體差異。調整崩潰發生的時機點，觀察重播計數如何隨之精準變化。
 
-2. 改寫該玩具引擎，使其明確支援以 `thread_id` 進行隔離。模擬兩個共享同一個引擎核心的並行 session，驗證其事件日誌絕不會發生碰撞交織。
+2. 改寫該玩具引擎，使其明確支援以 `thread_id` 進行隔離。模擬兩個共享同一個引擎核心的並行工作階段，驗證其事件日誌絕不會發生碰撞交織。
 
 3. 從玩具引擎中挑選一項活動。在工作流程決策中引入一個非確定性因素（例如讀取系統的即時時間戳記）。展示這會在重播時引發何種狀態分歧。說明真實的工業級引擎是如何防禦此問題的（透過註冊外部副作用、提供 `Workflow.now()` API 等）。
 
-4. 閱讀 LangChain 發布的《Runtime Behind Production Deep Agents》技術專案。列出該執行環境所持久化的每一項狀態，並具體指出各項狀態分別涵蓋了哪一類失效模式。
+4. 閱讀 LangChain 發布的《Runtime Behind Production Deep Agents》一文。列出該執行環境所持久化的每一項狀態，並具體指出各項狀態分別涵蓋了哪一類失效模式。
 
 5. 為一個長達 6 小時的自主程式碼編寫任務設計檢查點策略。你會在何處建立檢查點？崩潰後的喚醒復原流程長什麼樣？哪些關鍵步驟必須強制重新取得人類確認？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| Workflow | "Agent's script" | Deterministic orchestration code; replayable from event log |
-| Activity | "A step" | Non-deterministic unit (LLM call, tool call); logged before and after |
-| Event log | "The backing store" | Durable record of every state transition |
-| Replay | "Resume" | Re-run workflow; completed activities return logged results without re-execution |
-| Checkpoint | "Save point" | Persisted state keyed by thread_id; latest-wins on resume |
-| thread_id | "Session key" | Identifier that scopes durable state |
-| 35-minute degradation | "Reliability decay" | METR: success rate drops ~quadratically with horizon |
-| Non-determinism | "Drift on replay" | Wall clock, random, LLM output; must be registered as side effect |
+| 工作流程 |「agent 的腳本」| 確定性的編排程式碼；可根據事件日誌重播 |
+| 活動 |「一個步驟」| 非確定性工作單位（LLM 呼叫、工具呼叫）；執行前後都會記錄 |
+| 事件日誌 |「後端儲存」| 記錄每次狀態轉換的持久化紀錄 |
+| 重播 |「恢復執行」| 重新執行工作流程；已完成的活動會回傳日誌中的結果，不會重複執行 |
+| 檢查點 |「儲存點」| 以 thread_id 為鍵的持久化狀態；恢復時採用最新狀態 |
+| thread_id |「工作階段鍵」| 用來限定持久化狀態範圍的識別碼 |
+| 35 分鐘衰退 |「可靠度衰退」| METR：成功率會隨任務時程近似二次方下降 |
+| 非確定性 |「重播時的漂移」| 掛鐘時間、隨機性、LLM 輸出；必須註冊為副作用 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop) — 預算控制、對話輪次與喚醒語意。
-- [Microsoft — Agent Framework: human-in-the-loop and checkpointing](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — RequestInfoEvent 狀態結構設計。
-- [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — 正式環境執行環境的具體需求清單。
-- [OpenAI Agents SDK + Temporal integration (Trigger.dev announcement)](https://trigger.dev) — 將 LLM 呼叫視為標準活動的工程典範。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 針對 35 分鐘效能衰退規律的權威分析。
+- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+- [Microsoft — Agent Framework: human-in-the-loop and checkpointing](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
+- [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents)
+- [OpenAI Agents SDK + Temporal integration (Trigger.dev announcement)](https://trigger.dev)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)

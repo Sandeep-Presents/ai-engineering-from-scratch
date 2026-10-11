@@ -1,6 +1,6 @@
 # 斷路開關、熔斷機制與金絲雀 Token（Kill Switches, Circuit Breakers, and Canary Tokens）
 
-> 斷路開關（kill switch）是一個嚴密保存在 agent 編輯修改表面之外的布林值變數——例如一個 Redis 鍵值、一個功能旗標（feature flag）或一份具備數位簽章的設定檔——能夠一鍵徹底停用 agent。熔斷機制（circuit breaker）的控制粒度則更為細緻：它會在捕獲特定異常模式（例如連續發起五次完全相同的工具呼叫）時瞬間觸發跳脫，精準暫停該違規路徑並呈報人類介入。金絲雀 Token（canary token）繼承自古典資安欺敵技術：它是一個 agent 在正常情況下完全沒有任何合法理由去碰觸的假憑證或蜜罐誘餌記錄，一旦被存取便會立刻引爆告警。基於 eBPF 的資料路徑（例如 Cilium）甚至能在核心層級將被隔離檢疫的 Pod 對外流量動態重定向至鑑識蜜罐；Cilium 公開發布的基準測試顯示在高負載下其 P99 資料路徑延遲低於 1 毫秒（在你的叢集中觸發隔離的實際耗時，主要取決於政策更新分發至節點的速度，而非資料路徑本身）。若僅仰賴會隨移動基準動態調適的統計偵測器（EWMA、CUSUM），系統往往會默默接受緩慢滲透的目標漂移——因此必須將其與絕不妥協的硬性憲法邊界緊密疊加。
+> 斷路開關（kill switch）是一個嚴密保存在 agent 編輯修改表面之外的布林值變數——例如一個 Redis 鍵值、一個功能旗標（feature flag）或一份具備數位簽章的設定檔——能夠一鍵徹底停用 agent。熔斷機制（circuit breaker）的控制粒度則更為細緻：它會在捕獲特定異常模式（例如連續發起五次完全相同的工具呼叫）時瞬間觸發跳脫，精準暫停該違規路徑並升級交由人員處理。金絲雀 Token（canary token）繼承自古典資安欺敵技術：它是一個 agent 在正常情況下完全沒有任何合法理由去碰觸的假憑證或蜜罐（honeypot）誘餌記錄，一旦被存取便會立刻引爆告警。基於 eBPF 的資料路徑（例如 Cilium）甚至能在核心層級將被隔離檢疫的 Pod 對外流量動態重定向至鑑識蜜罐；Cilium 公開發布的基準測試顯示在高負載下其 P99 資料路徑延遲低於 1 毫秒（在你的叢集中觸發隔離的實際耗時，主要取決於政策更新分發至節點的速度，而非資料路徑本身）。若僅仰賴會隨移動基準動態調適的統計偵測器（EWMA、CUSUM），系統往往會默默接受緩慢滲透的目標漂移——因此必須將其與絕不妥協的硬性憲法邊界緊密疊加。
 
 **Type:** Learn
 **Languages:** Python (stdlib, three-detector simulator: kill switch, circuit breaker, canary)
@@ -28,7 +28,7 @@
 - **代管型服務中的功能旗標（Feature Flag）。** 例如 LaunchDarkly、Statsig、Unleash。政策更新能在數秒內同步傳播至全網。
 - **由 Agent 週期性輪詢的 Redis 鍵值。** 實作最為簡便；要求 agent 行程在每一輪對話前皆必須強制檢查。
 - **儲存在物件儲存空間中的已簽章設定檔。** agent 在啟動時強制驗證數位簽章；堅決拒絕載入任何未經授權的狀態。
-- **作業系統層級訊號或容器生命週期強殺。** 例如 Docker `kill`、Kubernetes `kubectl delete pod` 或 systemd 的 stop 命令。
+- **作業系統層級訊號或容器生命週期的強制終止。** 例如 Docker `kill`、Kubernetes `kubectl delete pod` 或 systemd 的 stop 命令。
 
 一個正確合規的斷路開關必須具備以下核心屬性：
 
@@ -61,7 +61,7 @@
 - 在環境變數中注入一個看似真實的假 `AWS_SECRET_ACCESS_KEY`，但實際上不具備任何雲端權限。任何試圖將其外洩的嘗試都會瞬間被歸因捕獲。
 - 在資料庫中插入一筆帶有特殊哨兵值的虛假記錄。對該記錄的任何讀取或更新動作都會立即觸發緊急告警。
 - 在工作目錄中放置一個假檔案。任何對該檔案的讀取或編輯皆視為高度可疑的越權行為。
-- 在 session 啟動時向上下文注入一條假記憶條目。若該條目出現在後續的對外輸出中，即可斷定記憶體已遭受外洩竊取。
+- 在工作階段啟動時向上下文注入一條假記憶條目。若該條目出現在後續的對外輸出中，即可判定 agent 的記憶內容已遭外洩。
 
 金絲雀的設計必須與真實業務工作流程深度綁定。若一個金絲雀誘餌存在被 agent 正常觸及的合理可能性，它只會淪為消耗團隊精力的大量無效雜訊。
 
@@ -73,7 +73,7 @@
 
 ### 透過 eBPF 資料路徑重定向實現隔離檢疫
 
-Cilium 基於 eBPF 的網路政策能夠在作業系統核心層級，將被隔離檢疫的 Pod 對外流量即時重寫至鑑識蜜罐中。Cilium 的公開基準測試指出，在 TCP_RR 測試下其 P99 資料路徑延遲低於 1 毫秒；在真實叢集中觸發檢疫隔離的實際耗時，主要取決於政策更新從控制平面傳播至各工作節點的傳播延遲（在預載入 Operator 的 Kubernetes 叢集中，通常在數百毫秒內完成；尾部延遲則取決於叢集規模與協調週期）。這能為防禦團隊帶來雙重戰略優勢：首先，agent 絕對無法接觸或洩漏任何真實資料；其次，agent 在蜜罐內部的一舉一動都能在受控環境下被完整觀測記錄。這與金絲雀 Token 處於不同技術層級，但遵循著完全相同的防禦哲學：在受限環境中，透過觀察對方的行為來迫使其暴露真實意圖。
+Cilium 基於 eBPF 的網路政策能夠在作業系統核心層級，將被隔離檢疫的 Pod 對外流量即時重寫至鑑識蜜罐中。Cilium 的公開基準測試指出，在 TCP_RR 測試下其 P99 資料路徑延遲低於 1 毫秒；在真實叢集中觸發檢疫隔離的實際耗時，主要取決於政策更新從控制平面傳播至各工作節點的傳播延遲（在預載入 Operator 的 Kubernetes 叢集中，通常在數百毫秒內完成；尾部延遲則取決於叢集規模與協調週期）。這能為防禦團隊帶來雙重戰略優勢：首先，agent 不會外洩任何真實資料；其次，agent 在蜜罐內部的一舉一動都能在受控環境下被完整觀測記錄。這與金絲雀 Token 處於不同技術層級，但遵循著完全相同的防禦哲學：在受限環境中，透過觀察對方的行為來迫使其暴露真實意圖。
 
 ### 任何偵測器都無法捕獲的極限盲點
 
@@ -86,7 +86,7 @@ circuit-breaker
 
 ## Use It｜實際應用
 
-`code/main.py` 模擬了一條穿透三大偵測器的簡短 agent 軌跡：一個儲存在外部字典中的斷路開關；一個在偵測到連續五次相同工具呼叫時跳脫的熔斷機制；以及一個在被讀取時引爆警報的金絲雀誘餌檔案。驅動程式會輸入一條包含正常動作、重複死迴圈、金絲雀探測以及觸發斷路開關中止執行的合成軌跡，生動展示各偵測器的協同運作。
+`code/main.py` 模擬了一條經過三種偵測器的簡短 agent 軌跡：一個儲存在外部字典中的斷路開關；一個在偵測到連續五次相同工具呼叫時跳脫的熔斷機制；以及一個在被讀取時引爆警報的金絲雀誘餌檔案。驅動程式會輸入一條包含正常動作、重複死迴圈、金絲雀探測以及觸發斷路開關中止執行的合成軌跡，生動展示各偵測器的協同運作。
 
 ## Ship It｜交付成果
 
@@ -106,21 +106,21 @@ circuit-breaker
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| Kill switch | "Off button" | Boolean outside the agent's edit surface; checked on every consequential action |
-| Circuit breaker | "Pattern pause" | Action-specific trip on repetition, failure rate, or rate-limit |
-| Canary token | "Honeytoken" | Bait the agent has no legitimate reason to touch; access fires an alert |
-| Honeypot | "Forensic sandbox" | Redirected traffic / workspace where a quarantined agent is observed |
-| EWMA | "Moving average" | Exponentially weighted; adapts to drift (feature + bug) |
-| CUSUM | "Cumulative sum" | Detects sustained shift from baseline |
-| Hard limit | "Constitutional rule" | Does not adapt; constant regardless of history |
-| Constitutional limit | "Always-true rule" | Tied to Lesson 17's constitution; cannot be edited by the agent |
+| 斷路開關 |「關閉按鈕」| 位於 agent 可編輯範圍之外的布林值；每次執行具實質後果的動作前都會檢查 |
+| 熔斷機制 |「模式暫停」| 依重複次數、失敗率或速率限制觸發的特定動作暫停機制 |
+| 金絲雀 Token |「蜜標」| agent 沒有正當理由接觸的誘餌；存取時會觸發警報 |
+| 蜜罐 |「鑑識沙箱」| 將流量導入或隔離工作區，以觀察受檢疫的 agent |
+| EWMA |「移動平均」| 指數加權；能適應漂移（既是特性也是缺點）|
+| CUSUM |「累積和」| 偵測相對於基準線的持續偏移 |
+| 硬性限制 |「憲法規則」| 不會隨歷史資料調整，維持固定 |
+| 憲法限制 |「恆定規則」| 與第 17 課的憲法相關；agent 無法修改 |
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 自主 agent 的斷路開關與熔斷機制架構規範。
-- [Microsoft Agent Framework — HITL and oversight](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 正式環境治理模式。
-- [OWASP LLM / Agentic Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) — 威脅偵測與即時回應標準。
-- [Cilium — Network policy and eBPF](https://docs.cilium.io/en/stable/security/network/) — Pod 層級出口重定向與鑑識蜜罐設計模式。
-- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution) — 作為「憲法級硬性邊界」的不可逾越禁令。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Microsoft Agent Framework — HITL and oversight](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
+- [OWASP LLM / Agentic Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+- [Cilium — Network policy and eBPF](https://docs.cilium.io/en/stable/security/network/)
+- [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)

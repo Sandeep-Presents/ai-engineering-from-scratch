@@ -1,6 +1,6 @@
 # 檢查點與回滾機制（Checkpoints and Rollback）
 
-> 圖狀態（graph-state）的每一次躍遷皆會被持久化保存。當某個 worker 當機崩潰時，其持有的租約（lease）會自然過期，並由另一個 worker 接手並精準從最近的檢查點（checkpoint）恢復執行。Cloudflare Durable Objects 能夠跨越數小時乃至數週維持持久狀態。先提議後確認寫入（第 15 課）為每個動作定義了專屬的回滾（rollback）方案。動作後驗證則確保了整個閉環的完整性。歐盟《人工智慧法案》第 14 條將「有效的人類監督」定為高風險系統的法定強制規範——在實務工程上，這意味著檢查點必須支援外部查詢、回滾方案必須經過實戰演練，且稽核軌跡必須在服務重新部署後依然完好無損。最致命的尖銳失效模式在於：若缺乏冪等性金鑰與前置條件檢查，短暫的瞬時故障重試極易導致早已核准的動作被重複執行兩次。動作後驗證正是精準捕獲該漏洞的關鍵閘門。
+> 圖狀態（graph-state）的每一次躍遷皆會被持久化保存。當某個 worker 當機崩潰時，其持有的租約（lease）會自然過期，並由另一個 worker 接手並精準從最近的檢查點（checkpoint）恢復執行。Cloudflare Durable Objects 能夠跨越數小時乃至數週維持持久狀態。先提議後確認寫入（第 15 課）為每個動作定義了專屬的回滾（rollback）方案。動作後驗證則確保了整個閉環的完整性。歐盟《人工智慧法案》第 14 條將「有效的人類監督」定為高風險系統的法定強制規範——在實務工程上，這意味著檢查點必須支援外部查詢、回滾方案必須經過實戰演練，且稽核軌跡必須在服務重新部署後依然完好無損。最致命的尖銳失效模式在於：若缺乏冪等性金鑰（idempotency key）與前置條件檢查，短暫的瞬時故障重試極易導致早已核准的動作被重複執行兩次。動作後驗證正是精準捕獲該漏洞的關鍵閘門。
 
 **Type:** Learn
 **Languages:** Python (stdlib, checkpoint and rollback state machine)
@@ -80,7 +80,7 @@
 4. 工作流程重新喚醒；讀取歷史狀態發現處於「已核准但尚未 commit」；遂再次觸發執行。
 5. 外部副作用被慘痛地執行了兩次。
 
-最佳緩解架構：在正式執行前，先將「在途意圖（in-flight）」持久化落盤；帶著冪等性金鑰發起執行；最後唯有在動作後驗證確認成功之後，才正式將狀態標記為「已 commit」。若動作執行完畢但狀態寫入失敗，復原路徑能透過驗證獲知真相；若狀態已持久化但動作失敗，系統能透過復原路徑有條不紊地僅補發精確的一次。
+最佳緩解架構：在正式執行前，先將「在途意圖（in-flight）」持久化落盤；帶著冪等性金鑰發起執行；最後唯有在動作後驗證確認成功之後，才正式將狀態標記為「已 commit」。若動作執行完畢但狀態寫入失敗，復原路徑能透過驗證確認狀態，必要時重新觸發；若狀態已持久化但動作失敗，系統能透過復原路徑只補發一次。
 
 ```figure
 checkpoint-replay
@@ -108,21 +108,21 @@ checkpoint-replay
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
+| 術語 | 常見說法 | 實際意義 |
 |---|---|---|
-| Checkpoint | "Save point" | Every graph-state transition persists to a durable store |
-| Lease | "Worker claim" | Short-lived claim that a worker is executing a run; expires on crash |
-| Precondition | "State gate" | Assertion that the state is still consistent with the approved action |
-| Post-action verify | "Re-read check" | Confirm the side effect actually happened in the target system |
-| In-band rollback | "Direct undo" | Reverse the side effect with the inverse operation |
-| Compensating transaction | "SAGA undo" | A new action that neutralizes the original |
-| Mark-as-done-first | "Status write order" | Persist the committed status before returning from commit |
-| Article 14 | "EU AI Act human oversight" | Operational: queryable checkpoints, rehearsed rollbacks, auditable trail |
+| 檢查點 |「儲存點」| 每次圖狀態轉換都會持久化至儲存體 |
+| 租約 |「工作節點的認領」| 工作節點執行工作時取得的短期認領；當機時會過期 |
+| 前置條件 |「狀態關卡」| 確認狀態仍與核准動作一致的斷言 |
+| 動作後驗證 |「重新讀取檢查」| 確認目標系統中的副作用確實發生 |
+| 帶內回滾 |「直接復原」| 以反向操作消除副作用 |
+| 補償交易 |「SAGA 復原」| 以新動作抵銷原動作 |
+| 先標記完成 |「狀態寫入順序」| 在 commit 返回前持久化已提交狀態 |
+| 第 14 條 |「EU AI Act 人類監督」| 實務要求：可查詢的檢查點、演練過的回滾、可稽核軌跡 |
 
 ## Further Reading｜延伸閱讀
 
-- [Microsoft Agent Framework — Checkpointing and HITL](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — 檢查點原語與租約復原機制。
-- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — 將 Durable Objects 作為分散式狀態底座。
-- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/) — 高風險系統的人類監督法規基準。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 長時程工作流程的可靠度分析框架。
-- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop) — Claude Code Routines 的工作流程架構設計。
+- [Microsoft Agent Framework — Checkpointing and HITL](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
+- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/)
+- [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/)
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
+- [Anthropic — Claude Code Agent SDK: agent loop](https://code.claude.com/docs/en/agent-sdk/agent-loop)
