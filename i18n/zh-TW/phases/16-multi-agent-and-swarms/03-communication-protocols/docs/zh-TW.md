@@ -18,9 +18,9 @@
 
 你將系統拆解為多個 agent。一個研究員、一個工程師、一個審查員。它們各自在專屬職責上表現卓越。然而現在，你必須讓它們能夠彼此真正展開對話。
 
-你的第一次嘗試顯而易見：四處傳遞純字串。研究員回傳一大段文字，工程師各憑本事自行解析。這在初期尚可勉強運作，直到工程師誤判了研究摘要、或者兩個 agent 在互相等待中陷入死結，抑或你需要由不同團隊打造的 agent 共同協作時。剎那間，「只傳純字串」的作法徹底瓦解。
+你的第一次嘗試顯而易見：四處傳遞純字串。研究員回傳一大段文字，工程師各憑本事自行解析。這在初期尚可勉強運作，直到工程師誤判了研究摘要、或者兩個 agent 在互相等待中陷入死結，抑或你需要由不同團隊打造的 agent 共同協作時。剎那間，「只傳純字串」的作法就此瓦解。
 
-這正是通訊協定所要解決的核心難題。若缺乏一套關於 agent 如何交換資訊的共享契約，多 agent 系統將會極度脆弱、毫無可稽核性，且絕對無法擴展至超越你自己親手編寫的少數幾個 agent 之外。
+這正是通訊協定所要解決的核心難題。若缺乏一套關於 agent 如何交換資訊的共享契約，多 agent 系統將會十分脆弱、缺乏可稽核性，且無法擴展至超越你自己親手編寫的少數幾個 agent 之外。
 
 AI 生態系對此給出了四種標準協定作為回應，各自攻克該難題的特定切片：
 
@@ -35,13 +35,13 @@ AI 生態系對此給出了四種標準協定作為回應，各自攻克該難�
 
 ### 協定全景架構
 
-將這四種協定想像為不同的架構層級，各自回答一個截然不同的核心問題：
+將這四種協定想像為不同的架構層級，各自回答一個不同的核心問題：
 ```mermaid
 flowchart TD
-  ANP["ANP — How do agents trust strangers?<br/>Decentralized identity (DID), E2EE, meta-protocol"]
-  A2A["A2A — How do agents collaborate on goals?<br/>Agent Cards, task lifecycle, streaming, negotiation"]
-  ACP["ACP — How do agents talk in auditable systems?<br/>Runs, trajectory metadata, session continuity"]
-  MCP["MCP — How does an agent use a tool?<br/>Tool discovery, execution, context sharing"]
+  ANP["ANP — 陌生 agent 如何建立信任？<br/>去中心化身分（DID）、E2EE、元協定"]
+  A2A["A2A — agent 如何協作達成目標？<br/>Agent Cards、任務生命週期、串流、協商"]
+  ACP["ACP — agent 如何在可稽核的系統中溝通？<br/>Run、軌跡中繼資料、工作階段連續性"]
+  MCP["MCP — agent 如何使用工具？<br/>工具探索、執行、上下文共享"]
 
   style ANP fill:#f3e8ff,stroke:#7c3aed
   style A2A fill:#dbeafe,stroke:#2563eb
@@ -55,13 +55,13 @@ flowchart TD
 MCP 已在 Phase 13 中進行過深度剖析。在此快速回顧：MCP 標準化了 LLM 連線至外部工具與資料來源的通訊方式。它是一套**用戶端-伺服器**協定，其中 agent（用戶端）負責發現並呼叫由伺服器所暴露的各項工具。
 ```mermaid
 sequenceDiagram
-    participant Agent as Agent (client)
-    participant MCP1 as MCP Server<br/>(database, API, files)
+    participant Agent as Agent（用戶端）
+    participant MCP1 as MCP 伺服器<br/>（資料庫、API、檔案）
 
-    Agent->>MCP1: list tools
-    MCP1-->>Agent: tool definitions
-    Agent->>MCP1: call tool X
-    MCP1-->>Agent: result
+    Agent->>MCP1: 列出工具
+    MCP1-->>Agent: 工具定義
+    Agent->>MCP1: 呼叫工具 X
+    MCP1-->>Agent: 結果
 ```
 MCP 本質上是 **Agent 到工具（agent-to-tool）** 的通訊。它無法協助 agent 之間展開彼此對話。
 
@@ -76,28 +76,28 @@ A2A 是一套專門用於 **Agent 點對點協同合作（peer-to-peer agent col
 #### A2A 的運作機制
 ```mermaid
 sequenceDiagram
-    participant Client as Client Agent
-    participant Remote as Remote Agent
+    participant Client as 用戶端 Agent
+    participant Remote as 遠端 Agent
 
     Client->>Remote: GET /.well-known/agent-card.json
-    Remote-->>Client: Agent Card (skills, modes, security)
+    Remote-->>Client: Agent Card（技能、模式、安全性）
 
     Client->>Remote: POST /message:send (returnImmediately)
-    Remote-->>Client: Task (TASK_STATE_SUBMITTED or TASK_STATE_WORKING)
+    Remote-->>Client: 任務（TASK_STATE_SUBMITTED 或 TASK_STATE_WORKING）
 
-    alt Polling
+    alt 輪詢
         Client->>Remote: GET /tasks/{id}
-        Remote-->>Client: Task status + artifacts
-    else Streaming
+        Remote-->>Client: 任務狀態與產出物
+    else 串流
         Client->>Remote: POST /message:stream
         Remote-->>Client: SSE: statusUpdate
         Remote-->>Client: SSE: artifactUpdate
-        Remote-->>Client: SSE: statusUpdate TASK_STATE_COMPLETED, stream closes
+        Remote-->>Client: SSE：statusUpdate TASK_STATE_COMPLETED，串流關閉
     end
 ```
 #### 真實的 Agent Card
 
-以下展示真實正式環境中的 A2A Agent Card 的具體樣貌。透過 `GET /.well-known/agent-card.json` 取得：
+以下展示真實世界中的 A2A Agent Card 的具體樣貌。透過 `GET /.well-known/agent-card.json` 取得：
 ```json
 {
   "name": "Research Agent",
@@ -156,7 +156,7 @@ sequenceDiagram
 值得特別關注的關鍵細節：
 - **Skills（技能）** 代表 agent 能夠執行的具體工作。每一項技能皆包含 ID、標籤（tags）以及支援的輸入／輸出 MIME 類型。用戶端 agent 正是依據這些中繼資料，來研判該遠端 agent 是否有能力處理自身的請求。
 - **supportedInterfaces** 列出了多種協定綁定途徑。單一 agent 能夠同時支援 JSON-RPC、REST 與 gRPC 介面。
-- **安全性（Security）** 深度整合於卡片結構中：`securitySchemes` 定義了各項認證方案，而 `securityRequirements` 則指明了具體的適用規則。用戶端在發起任何實質請求之前，便能明確獲知所需的安全憑證。
+- **安全性（Security）** 整合於卡片結構中：`securitySchemes` 定義了各項認證方案，而 `securityRequirements` 則指明了具體的適用規則。用戶端在發起任何實質請求之前，便能明確獲知所需的安全憑證。
 
 #### 任務生命週期（Task Lifecycle）
 
@@ -165,12 +165,12 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> SUBMITTED
     SUBMITTED --> WORKING
-    WORKING --> INPUT_REQUIRED: needs more info
-    INPUT_REQUIRED --> WORKING: client sends data
-    WORKING --> COMPLETED: success
-    WORKING --> FAILED: error
-    WORKING --> CANCELED: client cancels
-    SUBMITTED --> REJECTED: agent declines
+    WORKING --> INPUT_REQUIRED: 需要更多資訊
+    INPUT_REQUIRED --> WORKING: 用戶端送出資料
+    WORKING --> COMPLETED: 成功
+    WORKING --> FAILED: 錯誤
+    WORKING --> CANCELED: 用戶端取消
+    SUBMITTED --> REJECTED: agent 拒絕
 
     COMPLETED --> [*]
     FAILED --> [*]
@@ -178,23 +178,23 @@ stateDiagram-v2
     REJECTED --> [*]
 
     note right of COMPLETED
-        Terminal states are immutable.
-        Follow-ups create new tasks
-        within the same contextId.
+        終端狀態不可變。
+        後續追蹤會在同一個 contextId 內
+        建立新任務。
     end note
 ```
 全部 8 種狀態（規格中額外定義了作為哨兵值的 `UNSPECIFIED`，此處予以省略）：
 
-| State | Terminal? | Meaning |
+| 狀態 | 終端狀態？ | 意義 |
 |---|---|---|
-| `TASK_STATE_SUBMITTED` | No | Acknowledged, not yet processing |
-| `TASK_STATE_WORKING` | No | Actively being processed |
-| `TASK_STATE_INPUT_REQUIRED` | No | Agent needs more info from client |
-| `TASK_STATE_AUTH_REQUIRED` | No | Authentication needed |
-| `TASK_STATE_COMPLETED` | Yes | Finished successfully |
-| `TASK_STATE_FAILED` | Yes | Finished with error |
-| `TASK_STATE_CANCELED` | Yes | Canceled before completion |
-| `TASK_STATE_REJECTED` | Yes | Agent declined the task |
+| `TASK_STATE_SUBMITTED` | 否 | 已確認，尚未開始處理 |
+| `TASK_STATE_WORKING` | 否 | 正在處理中 |
+| `TASK_STATE_INPUT_REQUIRED` | 否 | agent 需要用戶端提供更多資訊 |
+| `TASK_STATE_AUTH_REQUIRED` | 否 | 需要驗證 |
+| `TASK_STATE_COMPLETED` | 是 | 成功完成 |
+| `TASK_STATE_FAILED` | 是 | 因錯誤結束 |
+| `TASK_STATE_CANCELED` | 是 | 完成前已取消 |
+| `TASK_STATE_REJECTED` | 是 | agent 拒絕了任務 |
 
 一旦任務邁入終端終止狀態（terminal state），該狀態即具備不可變性。後續嚴禁追加任何新訊息。後續追蹤事項必須在同一個 `contextId` 內建立全新任務。
 
@@ -272,31 +272,31 @@ data: {"statusUpdate":{"taskId":"task-123","contextId":"ctx-123","status":{"stat
 
 **發起方：** IBM / BeeAI
 **規格版本：** 0.2.0（OpenAPI 3.1.1）
-**當前狀態：** 正式併入 Linux 基金會旗下的 A2A 計畫
-**核心難題：** Agent 該如何在具備完整可稽核性、會話連續性與軌跡追蹤的前提下展開通訊？
+**當前狀態：** 正在併入 Linux 基金會旗下的 A2A 計畫
+**核心難題：** Agent 該如何在具備完整可稽核性、工作階段連續性與軌跡追蹤的前提下展開通訊？
 
 ACP 是一套專為**企業級環境**量身打造的通訊協定。不同於許多二手摘要的錯誤宣稱，ACP **並未**採用 JSON-LD。它是一套透過 OpenAPI 規格所定義的標準 REST/JSON API。其最具特色的核心亮點在於 **TrajectoryMetadata**：agent 回傳的每一項回應皆可攜帶一份詳盡的日誌，完整記錄產出該結果所經歷的所有推理步驟與工具呼叫。
 ```mermaid
 sequenceDiagram
-    participant Client
+    participant Client as 用戶端
     participant ACP as ACP Agent
-    participant Audit as Audit Log
+    participant Audit as 稽核日誌
 
     Client->>ACP: POST /runs (mode: sync)
-    ACP->>ACP: Process request...
-    ACP->>Audit: Log trajectory:<br/>reasoning + tool calls
-    ACP-->>Client: Response + TrajectoryMetadata
-    Note over Audit: Every step recorded:<br/>tool_name, tool_input,<br/>tool_output, reasoning
+    ACP->>ACP: 處理請求…
+    ACP->>Audit: 記錄軌跡：<br/>推理與工具呼叫
+    ACP-->>Client: 回應與 TrajectoryMetadata
+    Note over Audit: 每個步驟皆被記錄：<br/>tool_name、tool_input、<br/>tool_output、reasoning
 ```
 #### ACP 中的 Agent 發現機制
 
 ACP 定義了四種探索發現途徑：
 ```mermaid
 graph LR
-    A[Agent Discovery] --> B["Runtime<br/>GET /agents"]
-    A --> C["Open<br/>.well-known/agent.yml"]
-    A --> D["Registry<br/>Centralized catalog"]
-    A --> E["Embedded<br/>Container labels"]
+    A[Agent 發現] --> B["執行階段<br/>GET /agents"]
+    A --> C["開放<br/>.well-known/agent.yml"]
+    A --> D["註冊表<br/>集中式目錄"]
+    A --> E["內嵌<br/>容器標籤"]
 
     style B fill:#dbeafe,stroke:#2563eb
     style C fill:#d1fae5,stroke:#059669
@@ -329,20 +329,20 @@ graph LR
 
 ACP 採用「Run（執行次）」而非「Task」。一個 Run 代表一次 agent 的執行過程，並具備三種運作模式：
 
-| Mode | Behavior |
+| 模式 | 行為 |
 |---|---|
-| `sync` | Blocking. Response contains the complete result. |
-| `async` | Returns 202 immediately. Poll `GET /runs/{id}` for status. |
-| `stream` | SSE stream. Events fire as the agent works. |
+| `sync` | 阻塞式。回應包含完整結果。 |
+| `async` | 立即回傳 202。輪詢 `GET /runs/{id}` 取得狀態。 |
+| `stream` | SSE 串流。agent 工作時即時送出事件。 |
 ```mermaid
 stateDiagram-v2
     [*] --> created
     created --> in_progress
-    in_progress --> completed: success
-    in_progress --> failed: error
-    in_progress --> awaiting: needs input
-    awaiting --> in_progress: client resumes
-    in_progress --> cancelling: cancel request
+    in_progress --> completed: 成功
+    in_progress --> failed: 錯誤
+    in_progress --> awaiting: 需要輸入
+    awaiting --> in_progress: 用戶端恢復執行
+    in_progress --> cancelling: 取消請求
     cancelling --> cancelled
 
     completed --> [*]
@@ -388,23 +388,23 @@ ACP 亦原生支援用於標註資料來源出處的 **CitationMetadata**：
 **儲存庫：** [github.com/agent-network-protocol/AgentNetworkProtocol](https://github.com/agent-network-protocol/AgentNetworkProtocol)
 **核心難題：** 來自不同組織架構的跨機構 Agent，在缺乏中央權威機構的前提下該如何建立互信？
 
-ANP 是一套專注於**去中心化身分（Decentralized Identity）**的通訊協定。它藉由 W3C 去中心化識別碼（DID）與端對端加密（E2EE）來建立無條件的信任底座。不同於 A2A 需要透過已知特定端點來發現 agent，ANP 允許各 agent 以密碼學方式向外界證明自身身分。
+ANP 是一套專注於**去中心化身分（Decentralized Identity）**的通訊協定。它藉由 W3C 去中心化識別碼（DID）與端對端加密（E2EE）來建立信任的基礎。不同於 A2A 需要透過已知特定端點來發現 agent，ANP 允許各 agent 以密碼學方式向外界證明自身身分。
 
 ANP 包含三個清晰的架構層次：
 ```mermaid
 graph TB
-    subgraph Layer3["Layer 3: Application Protocol"]
-        AD[Agent Description Documents]
-        DISC[Discovery endpoints]
+    subgraph Layer3["第 3 層：應用協定"]
+        AD[Agent 描述文件]
+        DISC[探索端點]
     end
-    subgraph Layer2["Layer 2: Meta-Protocol"]
-        NEG[AI-powered protocol negotiation]
-        CODE[Dynamic code generation]
+    subgraph Layer2["第 2 層：元協定"]
+        NEG[AI 驅動的協定協商]
+        CODE[動態程式碼生成]
     end
-    subgraph Layer1["Layer 1: Identity & Secure Communication"]
+    subgraph Layer1["第 1 層：身分與安全通訊"]
         DID["did:wba (W3C DID)"]
         HPKE[HPKE E2EE - RFC 9180]
-        SIG[Signature verification]
+        SIG[簽章驗證]
     end
 
     Layer3 --> Layer2
@@ -464,9 +464,9 @@ ANP 採用名為 `did:wba`（Web-Based Agent）的自訂 DID 方法。DID 字串
 ```
 值得特別注意的關鍵亮點：
 - 強制實施**金鑰分離（Key separation）**。簽章金鑰（secp256k1）與加密金鑰（X25519）各自獨立，職責分明。
-- **`humanAuthorization`** 是 ANP 獨步業界的特色機制。被列入此處的金鑰在被使用前，強制要求取得人類的顯式授權確認（生物識別、密碼或硬體安全模組 HSM）。資金轉帳等高風險操作皆必須強制行經此路徑。
+- **`humanAuthorization`** 是 ANP 獨有的特色機制。被列入此處的金鑰在被使用前，強制要求取得人類的顯式授權確認（生物識別、密碼或硬體安全模組 HSM）。資金轉帳等高風險操作皆必須強制行經此路徑。
 - **`keyAgreement`** 金鑰專門用於 HPKE 端對端加密（RFC 9180）。
-- **service** 區塊則直接反向連結至 Agent 描述文件。
+- **service** 區塊則直接連結至 Agent 描述文件。
 
 #### ANP 的信任建立機制
 
@@ -474,18 +474,18 @@ ANP **並未**依賴繁複的信任網路（web-of-trust）或聲譽背書圖譜
 ```mermaid
 sequenceDiagram
     participant A as Agent A
-    participant Domain as Agent A's Domain
+    participant Domain as Agent A 的網域
     participant B as Agent B
 
-    A->>B: HTTP request + DID + signature
-    B->>Domain: Fetch DID document (HTTPS)
-    Domain-->>B: DID document + public key
-    B->>B: Verify signature with public key
-    B-->>A: Issue access token
-    A->>B: Subsequent requests use token
-    Note over A,B: Trust = TLS domain verification<br/>+ DID signature verification<br/>+ Principle of least trust
+    A->>B: HTTP 請求 + DID + 簽章
+    B->>Domain: 抓取 DID 文件（HTTPS）
+    Domain-->>B: DID 文件 + 公鑰
+    B->>B: 以公鑰驗證簽章
+    B-->>A: 核發存取權杖
+    A->>B: 後續請求使用權杖
+    Note over A,B: 信任 = TLS 網域驗證<br/>+ DID 簽章驗證<br/>+ 最小信任原則
 ```
-其信任源自於三大嚴謹支柱：
+其信任源自於三大支柱：
 1. **網域名稱層級的 TLS 憑證** 驗證了 DID 文件的託管主機真偽
 2. **DID 密碼學數位簽章** 嚴密驗證了 agent 本身的身分真實性
 3. **最小信任原則** 確保僅授予完成當下任務所需的最低權限
@@ -494,7 +494,7 @@ sequenceDiagram
 
 #### 元協定動態協商（Meta-Protocol Negotiation）
 
-這是 ANP 最具突破性的原創特性。當兩個來自完全不同技術生態的陌生 agent 狹路相逢時，它們不需要任何預先約定好的資料格式。它們能夠直接使用自然語言展開動態協商：
+這是 ANP 最具原創性的特性。當兩個來自完全不同技術生態的陌生 agent 狹路相逢時，它們不需要任何預先約定好的資料格式。它們能夠直接使用自然語言展開動態協商：
 ```json
 {
   "action": "protocolNegotiation",
@@ -511,45 +511,45 @@ sequenceDiagram
     participant B as Agent B
 
     A->>B: protocolNegotiation (candidateProtocols)
-    B->>A: protocolNegotiation (counter-proposal)
-    A->>B: protocolNegotiation (accepted)
-    Note over A,B: Agents dynamically generate code<br/>to handle the agreed format.<br/>Max 10 rounds, then timeout.
+    B->>A: protocolNegotiation（反提案）
+    A->>B: protocolNegotiation（已接受）
+    Note over A,B: Agent 動態生成程式碼<br/>以處理約定的格式。<br/>最多 10 輪，之後逾時。
 ```
-兩個 agent 進行來回交涉（最多 10 輪），直到雙方針對通訊格式達成一致共識，隨後在各自端點動態生成處理該格式的執行程式碼。協商狀態包含：`negotiating`、`rejected`、`accepted`、`timeout`。
+兩個 agent 進行來回交涉（最多 10 輪），直到雙方針對通訊格式達成一致共識，隨後動態生成處理該格式的執行程式碼。協商狀態包含：`negotiating`、`rejected`、`accepted`、`timeout`。
 
-這意味著兩個先前從未謀面的陌生 agent，能夠在無需任何人預先編寫共享 Schema 的前提下，自主探索出彼此皆能理解的通訊途徑。
+這意味著兩個先前從未謀面的陌生 agent，能夠在無需任何人預先編寫共享結構描述的前提下，自主探索出彼此皆能理解的通訊途徑。
 
 ### 橫向綜合對比（修正版）
 
 | | MCP | A2A | ACP | ANP |
 |---|---|---|---|---|
-| **Created by** | Anthropic | Google / Linux Foundation | IBM / BeeAI | Community |
-| **Spec format** | JSON-RPC | JSON-RPC / REST / gRPC | OpenAPI 3.1 (REST) | JSON-RPC |
-| **Primary use** | Agent to Tool | Agent to Agent | Agent to Agent | Agent to Agent |
-| **Discovery** | Tool listing | `/.well-known/agent-card.json` | `GET /agents`, `/.well-known/agent.yml` | `/.well-known/agent-descriptions`, DID service endpoints |
-| **Identity** | Implicit (local) | Security schemes (OAuth, mTLS) | Server-level | W3C DID (`did:wba`) with E2EE |
-| **Audit trail** | N/A | Basic (task history) | TrajectoryMetadata (tool calls, reasoning) | Not formally specified |
-| **State machine** | N/A | 9 task states | 7 run states | N/A |
-| **Streaming** | N/A | SSE | SSE | Transport-agnostic |
-| **Unique feature** | Tool schemas | Agent Cards + Skills | Trajectory audit trail | Meta-protocol negotiation |
-| **Best for** | Tools & data | Dynamic collaboration | Regulated industries | Cross-org trust |
-| **Status** | Stable | Stable (v1.0) | Merging into A2A | Active development |
+| **建立者** | Anthropic | Google / Linux Foundation | IBM / BeeAI | 社群 |
+| **規格格式** | JSON-RPC | JSON-RPC / REST / gRPC | OpenAPI 3.1（REST） | JSON-RPC |
+| **主要用途** | Agent 對工具 | Agent 對 Agent | Agent 對 Agent | Agent 對 Agent |
+| **探索機制** | 工具清單 | `/.well-known/agent-card.json` | `GET /agents`、`/.well-known/agent.yml` | `/.well-known/agent-descriptions`、DID 服務端點 |
+| **身分識別** | 隱含（本機） | 安全機制（OAuth、mTLS） | 伺服器層級 | 搭配 E2EE 的 W3C DID（`did:wba`） |
+| **稽核軌跡** | N/A | 基本（任務歷史） | TrajectoryMetadata（工具呼叫、推理） | 未正式規範 |
+| **狀態機** | N/A | 9 種任務狀態 | 7 種 Run 狀態 | N/A |
+| **串流** | N/A | SSE | SSE | 與傳輸層無關 |
+| **獨特功能** | 工具結構描述 | Agent Cards 與技能 | 軌跡稽核紀錄 | 元協定協商 |
+| **最適用於** | 工具與資料 | 動態協同 | 受監管產業 | 跨組織信任 |
+| **狀態** | 穩定 | 穩定（v1.0） | 正在併入 A2A | 積極開發中 |
 
 ### 各協定如何協同運作
 
 這些協定絕非互斥。在真實的企業級系統中，通常會複合搭配使用：
 ```mermaid
 graph TB
-    subgraph org["Your Organization"]
-        RA[Research Agent] <-->|A2A| CA[Coding Agent]
-        RA -->|MCP| SS[Search Server]
-        CA -->|MCP| GS[GitHub Server]
-        AUDIT["All agent responses carry<br/>ACP TrajectoryMetadata"]
+    subgraph org["你的組織"]
+        RA[研究 Agent] <-->|A2A| CA[程式 Agent]
+        RA -->|MCP| SS[搜尋伺服器]
+        CA -->|MCP| GS[GitHub 伺服器]
+        AUDIT["所有 agent 回應皆附帶<br/>ACP TrajectoryMetadata"]
     end
 
-    subgraph ext["External (DID verified via ANP)"]
-        EA[External Agent]
-        PA[Partner Agent]
+    subgraph ext["外部（經 ANP 驗證 DID）"]
+        EA[外部 Agent]
+        PA[合作夥伴 Agent]
     end
 
     RA <-->|ANP + A2A| EA
@@ -559,7 +559,7 @@ graph TB
     style ext fill:#fef2f2,stroke:#991b1b
     style AUDIT fill:#fef3c7,stroke:#d97706
 ```
-- **MCP** 負責將每個 agent 深度連接至其各自所需的工具鏈
+- **MCP** 負責將每個 agent 深度連接至其各自所需的工具
 - **A2A** 負責承載組織內部與跨機構 agent 之間的動態協同與任務委派
 - **ACP** 將所有生成的回應妥善封裝於軌跡中繼資料中，以滿足嚴格的稽核合規
 - **ANP** 針對你無法直接掌控的外部跨機構 agent 提供強有力的密碼學身分驗證
@@ -681,7 +681,7 @@ class AgentRegistry {
   }
 }
 ```
-這套架構遠比單純的「名稱對應能力」雜湊表更為豐富。你可以依據技能標籤、輸入 MIME 類型或 agent 名稱進行全方位動態探索，與真實 A2A 規格提供的能力完全一致。
+這套架構遠比單純的「名稱對應能力」雜湊表更為豐富。你可以依據技能標籤、輸入 MIME 類型或 agent 名稱動態探索，與真實 A2A 規格提供的能力一致。
 
 ### 步驟三：A2A 任務生命週期
 
@@ -961,7 +961,7 @@ class AuditableRunner {
   }
 }
 ```
-每一次 agent 的執行都會產出一份完整的稽核條目：包含接收了什麼輸入、回傳了什麼輸出，以及夾在兩者之間的工具呼叫與推理步驟完整軌跡。你可以依據特定 agent、特定 session 或單一執行次進行多維度查詢。
+每一次 agent 的執行都會產出一份完整的稽核條目：包含接收了什麼輸入、回傳了什麼輸出，以及夾在兩者之間的工具呼叫與推理步驟完整軌跡。你可以依據特定 agent、特定工作階段或單一執行次來查詢。
 
 ### 步驟五：ANP 風格的身分驗證
 
@@ -1082,20 +1082,20 @@ function signPayload(identity: AgentIdentity, payload: string): string {
     .toString("hex");
 }
 ```
-這完美鏡射了真實的 ANP 身分模型：agent 擁有包含獨立身分認證金鑰、金鑰協議金鑰以及人類授權金鑰的 DID 文件。`IdentityRegistry` 在本機模擬了 DID 解析流程（在正式環境中，這將表現為針對 agent 網域發起的 HTTPS 請求）。
+這鏡射了真實的 ANP 身分模型：agent 擁有包含獨立身分認證金鑰、金鑰協議金鑰以及人類授權金鑰的 DID 文件。`IdentityRegistry` 在本機模擬了 DID 解析流程（在正式環境中，這將表現為針對 agent 網域發起的 HTTP 請求）。
 
 ### 步驟六：協定閘道器（Protocol Gateway）
 
 將四大協定貫通整合成單一無縫系統：
 ```mermaid
 graph LR
-    REQ[Incoming Request] --> ANP_V{ANP: Verify DID}
-    ANP_V -->|Valid| A2A_D{A2A: Discover Agent}
-    ANP_V -->|Invalid| REJECT[Reject]
-    A2A_D -->|Found| ACP_A[ACP: Audit Run]
-    A2A_D -->|Not Found| REJECT
-    ACP_A --> A2A_T[A2A: Create Task]
-    A2A_T --> RESULT[Task + Audit Entry]
+    REQ[傳入請求] --> ANP_V{ANP：驗證 DID}
+    ANP_V -->|有效| A2A_D{A2A：探索 Agent}
+    ANP_V -->|無效| REJECT[拒絕]
+    A2A_D -->|找到| ACP_A[ACP：稽核執行]
+    A2A_D -->|找不到| REJECT
+    ACP_A --> A2A_T[A2A：建立任務]
+    A2A_T --> RESULT[任務 + 稽核條目]
 
     style ANP_V fill:#d1fae5,stroke:#059669
     style A2A_D fill:#dbeafe,stroke:#2563eb
@@ -1393,15 +1393,15 @@ protocolDemo().catch((err) => {
   process.exitCode = 1;
 });
 ```
-## What Goes Wrong｜常見問題
+## 常見問題
 
-通訊協定完美解決了正常路徑（happy path）。以下梳理在正式環境中必然面臨的真實挑戰：
+通訊協定能順利處理正常路徑（happy path）。以下梳理在正式環境中必然面臨的真實挑戰：
 
-**Schema 漂移（Schema drift）。** Agent A 發布了一份宣稱輸出為 `application/json` 的 Agent Card。然而不同版本之間的 JSON Schema 悄悄發生了變更。Agent B 依然按照舊格式進行解析，最終得到一堆垃圾資料。解法：為你的各項技能與輸出 Schema 嚴格標註版本號。這正是 A2A 規格在 Agent Card 上原生支援 `version` 欄位的核心初衷。
+**結構描述漂移（Schema drift）。** Agent A 發布了一份宣稱輸出為 `application/json` 的 Agent Card。然而不同版本之間的 JSON Schema 悄悄發生了變更。Agent B 依然按照舊格式進行解析，最終得到一堆垃圾資料。解法：為你的各項技能與輸出結構描述嚴格標註版本號。這正是 A2A 規格在 Agent Card 上原生支援 `version` 欄位的核心初衷。
 
 **狀態機違規（State machine violations）。** 某個 agent 處理常式產出了一個 `TASK_STATE_COMPLETED` 狀態更新，隨後卻又試圖產出更多工件。然而任務一旦終止即不可變更。你的程式碼要麼會無聲遺棄這些更新，要麼會直接拋出異常。解法：在產出任何事件前強制檢查是否已達終端狀態。上述 `TaskManager` 透過在終端狀態後執行 `break` 強制約束了這項邏輯。
 
-**信任解析失敗（Trust resolution failures）。** Agent A 試圖驗證 Agent B 的 DID，然而 Agent B 的網域暫時故障中斷。DID 文件無法順利抓取。此時你該選擇容錯放行（fail open，接受未經驗證的 agent）還是嚴格阻擋（fail closed，堅決拒絕一切請求）？ANP 基於最小信任原則，強烈建議堅守嚴格阻擋策略。
+**信任解析失敗（Trust resolution failures）。** Agent A 試圖驗證 Agent B 的 DID，然而 Agent B 的網域暫時故障中斷。DID 文件無法順利抓取。此時你該選擇容錯放行（fail open，接受未經驗證的 agent）還是嚴格阻擋（fail closed，拒絕一切請求）？ANP 基於最小信任原則，建議採用嚴格阻擋策略。
 
 **軌跡膨脹（Trajectory bloat）。** ACP 的軌跡記錄極具威力，但也代價昂貴。一個複雜的 agent 若在單次執行中呼叫了 200 次工具，將產生極為龐大的稽核紀錄。解法：支援可配置詳細等級的軌跡記錄。針對合規需求記錄工具名稱與 I/O，針對非監管業務則可略過細節推理步驟。
 
@@ -1411,28 +1411,28 @@ protocolDemo().catch((err) => {
 
 ### 真實工業級實作
 
-**A2A** 是當前最為成熟的方案。Google 的[官方規範](https://github.com/google/A2A)已在 Linux 基金會下完全開源。提供完善的 Python 與 TypeScript SDK。若你的 agent 需要動態發現與任務協同，請以此為首選起點。
+**A2A** 是當前最為成熟的方案。Google 的[官方規範](https://github.com/google/A2A)已在 Linux 基金會下開源。提供完善的 Python 與 TypeScript SDK。若你的 agent 需要動態發現與任務協同，請以此為首選起點。
 
-**ACP** 正在全面融入 A2A 生態。IBM 的 [BeeAI 專案](https://github.com/i-am-bee/acp)最初將 ACP 打造為以 REST 為優先的通訊替代方案，如今其精髓所在——軌跡中繼資料（TrajectoryMetadata）概念——正被 A2A 生態系全面吸收。即便你採用 A2A 作為傳輸層，依然強烈建議導入 ACP 的設計模式（軌跡記錄、Run 生命週期）。
+**ACP** 正在併入 A2A 生態。IBM 的 [BeeAI 專案](https://github.com/i-am-bee/acp)最初將 ACP 打造為以 REST 為優先的通訊替代方案，如今其精髓所在——軌跡中繼資料（TrajectoryMetadata）概念——正被 A2A 生態系吸收。即便你採用 A2A 作為傳輸層，依然強烈建議導入 ACP 的設計模式（軌跡記錄、Run 生命週期）。
 
 **ANP** 是最具實驗探索性的前沿協定。其[社群儲存庫](https://github.com/agent-network-protocol/AgentNetworkProtocol)提供了 Python SDK（AgentConnect）。其元協定動態協商理念極富開創性。在跨越組織邊界的 agent 部署場景中極具關注價值。
 
-**MCP** 已在 Phase 13 中完整傳授。若你需要讓 agent 能夠呼叫各類工具，MCP 是當前毫無爭議的業界標準。
+**MCP** 已在 Phase 13 中完整傳授。若你需要讓 agent 能夠呼叫各類工具，MCP 是當前的業界標準。
 
 ### 如何挑選合適的通訊協定
 ```mermaid
 graph TD
-    START{Do agents need<br/>to use tools?}
-    START -->|Yes| MCP_R[Use MCP]
-    START -->|No| TALK{Do agents need to<br/>talk to each other?}
-    TALK -->|No| NONE[You don't need<br/>a protocol]
-    TALK -->|Yes| AUDIT{Need audit trails<br/>for compliance?}
-    AUDIT -->|Yes| ACP_R[A2A + ACP<br/>trajectory patterns]
-    AUDIT -->|No| ORG{All agents<br/>within your org?}
-    ORG -->|Yes| A2A_R[A2A<br/>Agent Cards + Tasks]
-    ORG -->|No| INFRA{Shared<br/>infrastructure?}
-    INFRA -->|Yes| BROKER[A2A + message broker]
-    INFRA -->|No| ANP_R[ANP + A2A<br/>DID verification]
+    START{agent 需要使用工具嗎？}
+    START -->|是| MCP_R[使用 MCP]
+    START -->|否| TALK{agent 之間需要彼此溝通嗎？}
+    TALK -->|否| NONE[你不需要<br/>任何協定]
+    TALK -->|是| AUDIT{需要合規用的稽核軌跡嗎？}
+    AUDIT -->|是| ACP_R[A2A + ACP<br/>軌跡模式]
+    AUDIT -->|否| ORG{所有 agent 都在你的組織內嗎？}
+    ORG -->|是| A2A_R[A2A<br/>Agent Cards + 任務]
+    ORG -->|否| INFRA{共用<br/>基礎設施？}
+    INFRA -->|是| BROKER[A2A + 訊息代理]
+    INFRA -->|否| ANP_R[ANP + A2A<br/>DID 驗證]
 
     style MCP_R fill:#d1fae5,stroke:#059669
     style A2A_R fill:#dbeafe,stroke:#2563eb
@@ -1442,13 +1442,13 @@ graph TD
 ```
 ## Ship It｜交付成果
 
-本課交付了以下實體成果：
+本課交付了以下具體成果：
 - `code/main.ts` —— 完整實作了四大通訊協定模式的工業級展示程式碼
 - `outputs/prompt-protocol-selector.md` —— 專門協助你為自身業務系統挑選最適通訊協定的決策 prompt
 
 ## Exercises｜練習
 
-1. **多跳任務委派（Multi-hop task delegation）。** 擴充 `TaskManager`，使 agent 處理常機能夠將子任務進一步委派給其他 agent。研究員接收到任務後，將「搜尋」與「摘要」兩個子任務分別委派給兩個專家 agent，等待兩者皆順利完成後，再將雙方成果整合成自身的工件。
+1. **多跳任務委派（Multi-hop task delegation）。** 擴充 `TaskManager`，使 agent 處理常式能夠將子任務進一步委派給其他 agent。研究員接收到任務後，將「搜尋」與「摘要」兩個子任務分別委派給兩個專家 agent，等待兩者皆順利完成後，再將雙方成果整合成自身的工件。
 
 2. **串流稽核軌跡（Streaming audit trail）。** 改造 `AuditableRunner` 使其支援串流模式。與其等待完整結果出爐，不如在軌跡條目逐一生成時即時產出 `AuditEntry` 更新。利用能夠產出稽核快照的非同步生成器加以實現。
 
@@ -1456,28 +1456,28 @@ graph TD
 
 4. **動態協定協商（Protocol negotiation）。** 實現 ANP 的元協定理念。讓兩個 agent 透過交換 `protocolNegotiation` 訊息提議各自支援的格式（例如「我能講 JSON-RPC」對決「我偏好 REST」）。在最多 3 輪交涉內，雙方達成格式共識或宣告逾時。達成共識的格式將直接決定後續呼叫哪一個 `TaskManager` 或 `AuditableRunner`。
 
-5. **受限速的服務發現（Rate-limited discovery）。** 建構一個 `RateLimitedRegistry` 包裝層，以具備 TTL 的方式快取 Agent Card 查詢結果，並嚴格限制每個 agent 每秒能發起的發現請求上限。模擬 100 個 agent 在啟動時同時互相探索的驚群效應，並量化測量快取與限速所帶來的顯著改善成效。
+5. **受限速的服務發現（Rate-limited discovery）。** 建構一個 `RateLimitedRegistry` 包裝層，以可配置的 TTL 快取 Agent Card 查詢結果，並嚴格限制每個 agent 每秒能發起的發現請求上限。模擬 100 個 agent 在啟動時同時互相探索的驚群效應，並量化測量快取與限速所帶來的顯著改善成效。
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|----------------------|
-| MCP | "The protocol for AI tools" | A client-server protocol for agents to discover and use tools. Agent-to-tool, not agent-to-agent. |
-| A2A | "Google's agent protocol" | A peer-to-peer protocol for agent collaboration under the Linux Foundation. Discovery via Agent Cards, 9-state task lifecycle, streaming via SSE. Supports JSON-RPC, REST, and gRPC bindings. |
-| ACP | "Enterprise agent messaging" | IBM/BeeAI's REST API for agent runs with TrajectoryMetadata: every response carries the full chain of reasoning and tool calls. Merging into A2A. |
-| ANP | "Decentralized agent identity" | A community protocol using `did:wba` (DID) for cryptographic identity, HPKE for E2EE, and AI-powered meta-protocol negotiation for agents that have never seen each other. |
-| Agent Card | "An agent's business card" | A JSON document at `/.well-known/agent-card.json` describing skills, supported MIME types, security schemes, and protocol bindings. |
-| DID | "Decentralized ID" | W3C standard for cryptographically verifiable identities hosted on the agent's own domain. ANP uses `did:wba` method. |
-| TrajectoryMetadata | "The audit receipt" | ACP's mechanism for attaching reasoning steps, tool calls, and their inputs/outputs to every agent response. |
-| Meta-protocol | "Agents negotiating how to talk" | ANP's approach where agents use natural language to dynamically agree on data formats, then generate code to handle them. |
-| Task | "A unit of work" | A2A's stateful object tracking work from submission through completion. Immutable once terminal. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| MCP | 「AI 工具的協定」 | 供 agent 探索並使用工具的用戶端-伺服器協定。是 agent 對工具，而非 agent 對 agent。 |
+| A2A | 「Google 的 agent 協定」 | 在 Linux 基金會下，供 agent 協同合作的點對點協定。透過 Agent Cards 探索，具 9 種狀態的任務生命週期，並以 SSE 串流。支援 JSON-RPC、REST 與 gRPC 綁定。 |
+| ACP | 「企業級 agent 訊息傳遞」 | IBM／BeeAI 的 REST API，用於 agent 的 Run，附帶 TrajectoryMetadata：每則回應都帶有完整的推理與工具呼叫鏈。正在併入 A2A。 |
+| ANP | 「去中心化 agent 身分」 | 社群協定，以 `did:wba`（DID）提供密碼學身分，以 HPKE 提供 E2EE，並以 AI 驅動的元協定協商，供從未見過彼此的 agent 使用。 |
+| Agent Card | 「agent 的名片」 | 位於 `/.well-known/agent-card.json` 的 JSON 文件，描述技能、支援的 MIME 類型、安全機制與協定綁定。 |
+| DID | 「去中心化 ID」 | W3C 標準，用於可由密碼學驗證的身分，託管於 agent 自身的網域。ANP 使用 `did:wba` 方法。 |
+| TrajectoryMetadata | 「稽核收據」 | ACP 的機制，將推理步驟、工具呼叫及其輸入輸出附加到每則 agent 回應。 |
+| Meta-protocol | 「agent 協商如何溝通」 | ANP 的做法：agent 以自然語言動態協商資料格式，再生成程式碼來處理。 |
+| Task | 「一個工作單元」 | A2A 中具狀態的物件，追蹤從提交到完成的工作。一旦進入終端狀態即不可變。 |
 
 ## Further Reading｜延伸閱讀
 
 - [Google A2A specification](https://github.com/google/A2A) -- 官方規格與 SDK（v1.0.1，Linux 基金會託管）
 - [IBM/BeeAI ACP specification](https://github.com/i-am-bee/acp) -- 專門針對 agent 執行與軌跡中繼資料定義的 OpenAPI 3.1 規格
 - [Agent Network Protocol](https://github.com/agent-network-protocol/AgentNetworkProtocol) -- 基於 DID 的去中心化身分、E2EE 與元協定動態協商
-- [Model Context Protocol docs](https://modelcontextprotocol.io/) -- Anthropic 主導的 MCP 規格（詳見 Phase 13）
+- [Model Context Protocol docs](https://modelcontextprotocol.io/) -- Anthropic 的 MCP 規格（詳見 Phase 13）
 - [W3C Decentralized Identifiers](https://www.w3.org/TR/did-core/) -- 支撐 ANP 底層架構的身分認證標準
 - [RFC 9180 (HPKE)](https://www.rfc-editor.org/rfc/rfc9180) -- ANP 用於實現端對端加密（E2EE）的核心加密演算法標準
-- [FIPA Agent Communication Language](http://www.fipa.org/specs/fipa00061/SC00061G.html) -- 當代所有 agent 通訊協定的經典學術鼻祖
+- [FIPA Agent Communication Language](http://www.fipa.org/specs/fipa00061/SC00061G.html) -- 當代 agent 通訊協定的經典學術前身

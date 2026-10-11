@@ -16,25 +16,25 @@
 
 ## The Problem｜問題
 
-直接呼叫原始大模型 API 僅能完成單次網路往返。然而，一套成熟的生產級 agent 必然需要實體工具執行能力、MCP 伺服器連線、生命週期掛鉤、子 agent 動態衍生、工作階段持久化，以及全鏈路分散式追蹤傳播。Claude Agent SDK 將這套成熟的系統骨架直接打包為可引用的軟體函式庫——將 Claude Code 原生採用的同款強大harness，完整開放給開發者打造自訂 agent。
+直接呼叫原始大型語言模型（LLM）API 僅能完成單次網路往返。然而，一套成熟的生產級 agent 需要工具執行能力、MCP 伺服器連線、生命週期掛鉤、子 agent 動態衍生、工作階段持久化，以及全鏈路分散式追蹤傳播。Claude Agent SDK 將這套成熟的系統骨架直接打包為可引用的軟體函式庫——將 Claude Code 原生採用的同款harness，開放給開發者打造自訂 agent。
 
 ## The Concept｜核心概念
 
 ### 用戶端 SDK vs Agent SDK
 
 - **用戶端 SDK（`anthropic`）**：暴露底層原始的 Messages API。工程師必須親手編寫控制迴圈、管理工具執行與維護全域狀態。
-- **Agent SDK（`claude-agent-sdk`）**：原生內建工具實體執行、MCP 連線管理、生命週期鉤子、子 agent 衍生與工作階段儲存庫。將 Claude Code 的核心迴圈直接封裝為高階函式庫。
+- **Agent SDK（`claude-agent-sdk`）**：原生內建工具執行、MCP 連線管理、生命週期鉤子、子 agent 衍生與工作階段儲存庫。將 Claude Code 的核心迴圈直接封裝為高階函式庫。
 
 ### 原生內建工具集
 
-該 SDK 開箱即用提供了 10 多種標準工具：檔案讀寫、Shell 命令列、Grep 搜尋、Glob 檔案配對、網頁抓取等。自訂工具則可透過標準的工具 Schema 介面無縫註冊。
+該 SDK 開箱即用提供了 10 多種標準工具：檔案讀寫、Shell 命令列、Grep 搜尋、Glob 檔案配對、網頁抓取等。自訂工具則可透過標準的工具結構描述（schema）介面註冊。
 
 ### 子 Agent（Subagents）
 
-Anthropic 官方文件定義的兩大核心使命：
+Anthropic 官方文件定義的兩大核心用途：
 
 1. **平行化運算（Parallelization）**：並發處理彼此獨立的工作任務。例如「在 20 個獨立模組中分別找尋對應的測試檔案」可直接分派為 20 個平行子 agent 任務。
-2. **脈絡隔離（Context isolation）**：子 agent 擁有各自完全獨立的上下文視窗；僅有最終產出結果會回傳給主協調者（Orchestrator）。這能誓死捍衛主協調者的上下文 Token 預算免於崩潰。
+2. **脈絡隔離（Context isolation）**：子 agent 擁有各自獨立的上下文視窗；僅有最終產出結果會回傳給主協調者（Orchestrator）。這能讓主協調者的上下文 Token 預算得以保留。
 
 Python SDK 近期新增了 `list_subagents()` 與 `get_subagent_messages()` 介面，支援直接審查子 agent 的完整執行對話紀錄。
 
@@ -48,7 +48,7 @@ Python SDK 近期新增了 `list_subagents()` 與 `get_subagent_messages()` 介�
 - `delete(session_id)`：刪除工作階段，並自動級聯清理關聯的子 agent 記錄；
 - `list_subkeys(session_id)`：檢索該工作階段衍生的所有子 agent 鍵值。
 
-命令列旗標 `--session-mirror` 能在串流推播時將完整對話即時同步轉存至外部檔案中，極利於本機即時除錯。
+命令列旗標 `--session-mirror` 能在串流推播時將對話即時同步轉存至外部檔案中，便於本機即時除錯。
 
 ### 生命週期鉤子（Hooks）
 
@@ -61,21 +61,21 @@ Python SDK 近期新增了 `list_subagents()` 與 `get_subagent_messages()` 介�
 - `Stop`：Agent 退出時的最終清理常式；
 - `Notification`：旁路帶外通知與告警。
 
-各種專業工作流程正是透過這些鉤子，優雅地注入跨領域的系統切面行為。
+pro-workflow（Phase 14 課程參考）及類似系統正是透過這些鉤子，注入跨領域的系統切面行為。
 
 ### W3C 分散式追蹤脈絡（W3C Trace Context）
 
-呼叫端當前活躍的 OTel Spans，會透過標準 W3C 分散式追蹤標頭自動傳播至底層 CLI 子行程中。整套跨行程的呼叫鏈在後端觀測平台中會被無縫匯總呈現為單一完整 Trace。
+呼叫端當前活躍的 OTel Spans，會透過標準 W3C 分散式追蹤標頭自動傳播至底層 CLI 子行程中。整套跨行程的呼叫鏈會在後端觀測平台中匯總為單一 Trace。
 
 ### Claude 全託管 Agent（Claude Managed Agents）
 
-雲端全託管替代方案（Beta 標頭 `managed-agents-2026-04-01`）。專門處理長時段執行的非同步複雜工作，原生內建 Prompt 快取與自動脈絡壓縮。以讓渡部分精細掌控權為代價，換取免維運的強大雲端基礎設施。
+雲端全託管替代方案（Beta 標頭 `managed-agents-2026-04-01`）。專門處理長時段執行的非同步工作，原生內建 Prompt 快取與自動脈絡壓縮。以讓渡部分精細掌控權為代價，換取免維運的雲端基礎設施。
 
 ### 典型架構失效模式
 
-- **子 Agent 濫發（Subagent over-spawn）**：為 100 個極其瑣碎的小任務衍生 100 個獨立子 agent。通訊與啟動開銷徹底吞噬效能。解法：實施批次合併處理。
-- **鉤子失控蔓延（Hook creep）**：每個團隊皆在系統中肆意追加鉤子，導致啟動時間劇烈膨脹。解法：每季對全域鉤子進行嚴格審查與整併。
-- **工作階段容量膨脹**：歷史工作階段無節制堆積，儲存容量激增。解法：結合 `list_sessions` 與過期淘汰機制定期清理。
+- **子 Agent 濫發（Subagent over-spawn）**：為 100 個瑣碎的小任務衍生 100 個獨立子 agent。通訊與啟動開銷主導了整體效能。解法：實施批次合併處理。
+- **鉤子失控蔓延（Hook creep）**：每個團隊都會追加鉤子，導致啟動時間膨脹。解法：每季審查全域鉤子並整併。
+- **工作階段容量膨脹**：歷史工作階段持續堆積，儲存容量持續增長。解法：結合 `list_sessions` 與過期淘汰機制定期清理。
 
 ```figure
 ae-subagent-isolation
@@ -97,7 +97,7 @@ ae-subagent-isolation
 python3 code/main.py
 ```
 
-日誌會清晰展示：子 agent 的脈絡隔離（主協調者的上下文大小嚴格維持在可控邊界內）、鉤子的即時執行，以及工作階段的完整持久化。
+日誌會展示：子 agent 的脈絡隔離（主協調者的上下文大小維持在可控邊界內）、鉤子的即時執行，以及工作階段的持久化。
 
 ## Use It｜實際應用
 
@@ -116,7 +116,7 @@ python3 code/main.py
 2. 實作 `PreToolUse` 鉤子，為 `write_file` 呼叫加入頻率限制（單一工作階段每分鐘最多 5 次）。追蹤其攔截行為。
 3. 運用 `list_subkeys` 繪製出樹狀結構的子 agent 衍生圖。當層級深度巢狀時，架構呈現出何種形態？
 4. 將此教學實作移植為使用真實的 `claude-agent-sdk` Python 套件。工具註冊介面產生了何種改變？
-5. 研讀 Claude Managed Agents 官方文件。分析在何種具體業務邊界下，團隊應當自私有部署切換至全託管方案？
+5. 研讀 Claude Managed Agents 官方文件。分析在何種情況下，團隊應從自行部署切換至全託管方案？
 
 ## Key Terms｜關鍵術語
 
@@ -129,7 +129,7 @@ python3 code/main.py
 | W3C trace context | 「跨行程分散式追蹤」 | 父層 Span 透過標準標頭透明傳播至 CLI 子行程中的追蹤機制 |
 | Managed Agents | 「雲端代管harness」 | 由 Anthropic 官方託管維運、專門處理長時間非同步運算的雲端服務 |
 | `--session-mirror` | 「對話即時轉存」 | 將工作階段對話在串流推播時即時寫入外部本機檔案的命令列旗標 |
-| MCP server | 「外部工具表面」 | 掛載於 agent 之下、對外提供工具與資源存取能力的外部微服務 |
+| MCP server | 「外部工具表面」 | 掛載於 agent 之下、對外提供工具與資源存取能力的外部服務 |
 
 ## Further Reading｜延伸閱讀
 

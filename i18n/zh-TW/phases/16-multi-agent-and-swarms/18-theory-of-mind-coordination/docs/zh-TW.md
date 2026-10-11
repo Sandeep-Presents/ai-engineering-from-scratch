@@ -1,6 +1,6 @@
 # 心智理論與湧現式協同（Theory of Mind and Emergent Coordination）
 
-> Li 等人（arXiv:2310.10701）證明，在合作型文字博弈遊戲中，LLM Agent 展現出了**自發湧現的高階心智理論（Theory of Mind, ToM）**——即能夠推理「另一個 Agent 對第三個 Agent 的信念持有何種信念」——但由於上下文管理的瓶頸與幻覺累積，在長時程規劃中表現脆弱。Riedl（arXiv:2510.05174）在群體規模下精準量化了高階綜效（Higher-order synergy），發現**唯有**在顯式提示心智理論的條件下，系統才會自發湧現出基於身分綁定的角色分化與目標導向的互補分工；中低能力模型展現的僅是統計上的偽湧現。換言之：協同的自發湧現強烈依賴特定 prompt 的誘導與底層模型能力，絕非免費的午餐。本課將親手實作一個具備心智理論感知能力的最小可行 Agent、在具備與不具備 ToM prompt 的兩種條件下運作合作任務，並對照 Riedl 2025 的標準協定精準測量協同增量。
+> Li 等人（arXiv:2310.10701）顯示，在合作型文字博弈中，LLM Agent 會**自發湧現高階心智理論（Theory of Mind, ToM）**——即推理「另一個 Agent 認為第三個 Agent 相信什麼」——但由於上下文管理與幻覺（hallucination）累積，它們在長時程規劃上會失敗。Riedl（arXiv:2510.05174）在群體規模上測量了高階綜效（higher-order synergy），發現**只有**在 ToM prompt 條件下，才會產生身分綁定的角色分化與目標導向的互補；較低能力的 LLM 只顯示出偽湧現。也就是說，協同湧現取決於 prompt 條件與模型，並非免費。本課將實作一個最小的 ToM 感知 Agent，在有無 ToM prompt 的兩種條件下執行合作任務，並依 Riedl 2025 的協定量測協同增量。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -9,55 +9,55 @@
 
 ## Problem｜問題
 
-多 Agent 系統之間的自主協同表面上看似極具魔法：Agent 之間自發分工、提前預判彼此的動作、避免資源競爭與重複浪費。然而在現實中，這種所謂的「自發湧現」往往只是 prompt 工程營造出來的表象——純粹是因為某人在 prompt 中直接下達了「請協同合作」的指令。一旦抽離該 prompt，協同效應隨即蕩然無存。
+多 Agent 系統的協同常常看起來很神奇：Agent 自發分工、預判彼此的動作、避免重複。但這種「湧現」通常只是 prompt 工程的結果——有人在 prompt 裡寫了「請協同合作」。拿掉這段 prompt，協同也就消失了。
 
-Riedl 在 2025 年給出了更為嚴苛的實證結論：在嚴格受控的實驗條件下，唯有當 Agent 被顯式引導去推理**其他同儕的大腦心智狀態（ToM）**時，真正的深度協同才會真正湧現。若缺乏 ToM prompt，即便是當前最強大的頂尖模型，其展現出的所謂協同模式在統計控制下也無法通過顯著性檢定。這在正式環境中具有生死攸關的意義：無數團隊對外宣傳的「多 Agent 自發協同」功能，在工程本質上往往是脆弱且高度依賴特定措辭的表面包裝。
+Riedl 在 2025 年得出了更嚴格的結論：在受控實驗中，只有當 Agent 被明確要求推理**其他 Agent 的心智狀態（ToM）**時，協同才會出現。若沒有 ToM prompt，即使是強模型展現的協同模式，在統計控制下也無法通過顯著性檢定。這對正式環境很重要：許多團隊宣傳的「多 Agent 自發協同」功能，本質上可能是脆弱、且高度依賴措辭的表面包裝。
 
-本課將心智理論視為一項具體的軟體架構能力（推理關於信念的信念），親手建構一個具備心智感知架構的 Agent，並在嚴格的統計對照下，精準區分何謂真正的實質協同、何謂純粹的 prompt 辭藻修飾。
+本課把 ToM 視為一種具體能力（推理關於信念的信念），建立最小的 ToM 感知 Agent，並衡量真正的協同與 prompt 包裝的差別。
 
 ## Concept｜核心概念
 
-### 心智理論（ToM）的深層內涵
+### ToM 的意義
 
-發展心理學中的經典階梯：一個 3 歲幼童會天真地認為全世界內心所見皆與自己完全相同。到了 5 歲，幼童開始理解其他人可能持有與自己不同的主觀信念。到了 7 歲，兒童便具備了推理「信念背後的信念」的遞歸能力（例如「她以為我認為球在杯子底下」）。這分別對應著零階、一階與二階心智理論。
+發展心理學的說法：3 歲的孩子認為每個人的內心都和自己一樣。5 歲的孩子理解別人可能有不同的信念。7 歲的孩子能推理信念的信念（「她以為我認為球在杯子下面」）。這分別是零階、一階與二階 ToM。
 
-在 LLM Agent 領域，心智理論的階數精準映射至以下架構維度：
+對 LLM Agent 而言，ToM 的階數對應以下結構：
 
-- **零階心智（Zeroth-order）**：完全缺乏對其他實體的內部建模。Agent 僅純粹依據自身的客觀物理觀察進行反應。
-- **一階心智（First-order）**：Agent 在內部建立了一張針對其他每個同儕主觀信念的狀態表。「Alice 相信事實 X。」
-- **二階心智（Second-order）**：Agent 具備遞歸信念的內部建模能力。「Alice 相信 Bob 認為事實是 X。」
+- **零階（Zeroth-order）**：不建模其他人。Agent 只依據自己的觀察行動。
+- **一階（First-order）**：Agent 為每位其他 Agent 建立信念模型。「Alice 相信 X。」
+- **二階（Second-order）**：Agent 會建模遞迴信念。「Alice 相信 Bob 認為 X。」
 
-Li 等人於 2023 年的研究發現：在合作型博弈遊戲中，LLM Agent 能夠自發展現出一階與二階心智理論，但該能力會隨著時間時程拉長以及非同步通訊的雜訊干擾而急遽衰退。
+Li 等人（2023）發現：在合作博弈中，LLM Agent 會自發出現一階與二階 ToM，但隨著時程拉長與通訊不可靠，能力會下降。
 
-### 莎莉-安測試（Sally-Anne Test）簡析
+### 莎莉-安測試（簡述）
 
-1985 年提出的經典錯誤信念測試：莎莉將彈珠放進籃子 A，隨後離開房間。安妮趁機將彈珠偷偷移至箱子 B。當莎莉回到房間時，她會去哪裡尋找彈珠？具備一階心智理論的兒童會指出籃子 A（因為莎莉的主觀信念與客觀物理現實存在落差）。而缺乏該能力的幼童則會回答箱子 B。
+1985 年的錯誤信念測試：莎莉把彈珠放進籃子 A 後離開。安妮把它移到籃子 B。莎莉回來時會去哪裡找？有一階 ToM 的孩子會說籃子 A（莎莉的信念與現實不同）。沒有的孩子會說籃子 B。
 
-GPT-4 世代的尖端 LLM 在面對直截了當的莎莉-安測試時能輕鬆通過。然而一旦敘述文字變長、物理場景經歷多次複雜變換，抑或提問改採間接隱晦的方式呈現時，模型便會頻繁崩潰。這正是 2026 年工業級 LLM 在心智理論維度上的真實客觀水準。
+GPT-4 世代的 LLM 在直接提問的莎莉-安式測試中能通過。但當敘述變長、場景多次變化，或問題以間接方式提出時，就會失敗。這就是 2026 年正式環境 LLM 在 ToM 上的實際狀況。
 
-### Riedl 的協同度量化實驗
+### Riedl 的協同測量
 
-Riedl（arXiv:2510.05174）設計了一項群體規模的嚴謹實驗：N 個 Agent、共同的合作目標、不同的 prompt 實驗組對照。評估三大核心指標：
+Riedl（arXiv:2510.05174）建立了群體規模的測試：N 個 Agent、一個合作目標，以及不同的 prompt 條件。測量以下三項：
 
-1. **身分綁定的角色分化（Identity-linked differentiation）。** 隨著時間演進，各 Agent 是否自發形成了長期穩定的專業角色分工？
-2. **目標導向的互補分工（Goal-directed complementarity）。** 各 Agent 執行的動作是否呈現出精準的互補性（各自認領不同的獨立子任務），而非無謂的動作衝突與重複？
-3. **高階綜效（Higher-order synergy）。** 嚴格的統計指標，用以證明整個群體達成的成就，在數學上絕對無法由任何局部子集的簡單加總所替代。
+1. **身分綁定的角色分化（Identity-linked differentiation）。** Agent 是否會隨時間形成穩定的角色區分？
+2. **目標導向的互補（Goal-directed complementarity）。** Agent 的動作是否互補（處理不同子任務），而非重複？
+3. **高階綜效（Higher-order synergy）。** 一項統計量，用來判斷整體是否達到任何子集都無法達到的成果。
 
-實證結果震撼人心：**唯有在明確注入 ToM prompt 的實驗條件下**，這三項指標才能全面超越隨機基準線。在缺乏 ToM prompt 時，中等規模模型的各項指標完全徘徊在隨機猜測邊緣。頂尖大模型在無顯式提示下雖能展現極微弱的自發特徵，但其幅度顯著遠低於顯式提示組。
+結果：只有在 ToM prompt 條件下，三項指標才全部高於基準。若沒有 ToM prompt，中等能力模型的指標接近隨機。大型模型在沒有顯式 ToM prompt 時也會出現一些協同，但效果比有 prompt 時小。
 
-### 虛假的「協同假象（Coordination Illusion）」
+### 協同假象（Coordination illusion）
 
-在缺乏嚴格統計控制的前提下，各類展示中看似精妙的「自發協同」，往往只是以下三種幻覺的產物：
+在沒有統計控制時，示範中的「湧現協同」通常來自以下情況：
 
-- 在 prompt 中粗暴寫入的指令假象（例如在系統 prompt 中明文指示「請緊密分工合作」）。
-- 人類觀察者的心理投射偏誤（我們總會一廂情願地在隨機雜訊中看出我們期待看到的協同規律）。
-- 事後針對偶然成功的特定對局進行挑選式宣傳（Cherry-picking）。
+- 把協同寫進 prompt 的工程（例如 prompt 中寫著「一起合作」）。
+- 觀察者偏誤（我們會看到自己預期的模式）。
+- 事後挑選成功的執行結果。
 
-任何在正式環境中宣稱實現了「湧現式自發協同」但無法提出客觀統計顯著性指標的系統，皆應當被直接視為公關宣傳話術。在對外發布前，務必先以實證結果說話。
+正式環境中，若宣稱「湧現協同」卻沒有可量測的訊號，應視為行銷話術。在宣稱之前先量測。
 
-### 具備心智理論感知能力的最小可行 Agent
+### 最小的 ToM 感知 Agent
 
-底層架構狀態結構：
+底層狀態結構：
 
 ```
 agent state:
@@ -75,33 +75,33 @@ action selection:
   - pick action that maximizes joint outcome under those predictions
 ```
 
-其中 `other_models` 屬性正是心智理論的核心狀態載體。一階 ToM 僅維護單一維度。二階 ToM 則在此基礎上擴充為 `other_models[i][other_models_of_j]`——即「我認為 Agent i 認定 Agent j 所持有的信念為何」。
+`other_models` 屬性就是 ToM 狀態。一階 ToM 只保留一層。二階則加入 `other_models[i][other_models_of_j]`，也就是「我認為 Agent i 認為 Agent j 相信什麼」。
 
-### 為什麼長時程會破壞心智理論
+### 為什麼長時程會損害 ToM
 
-Li 等人的實證研究揭示了深刻的系統瓶頸：有限的上下文視窗會導致 Agent 迅速忘記「哪一項信念具體屬於哪一位同儕」。而模型的幻覺則會向同儕模型中胡亂注入虛假的主觀信念。這兩者會迅速引發「我以為他以為 X」的連鎖判斷失真，並隨著時間推移呈指數級放大。
+Li 等人記錄：上下文限制會讓 Agent 忘記哪個信念屬於哪個同儕。幻覺則會把虛假信念加進其他 Agent 的模型。兩者都會造成「我以為他以為 X」這類錯誤，並隨時間累積。
 
-文獻記載的工業級實務緩解手段：
+論文及 2024 至 2026 年後續研究中記載的緩解方式：
 
-- **在 Prompt 中顯式約束結構化的 ToM 狀態。** 採用強型別的結構化格式：`{agent_id: belief_list}`。強制檢索機制維護身分與信念之間的嚴格綁定。
-- **縮短單步推理鏈條。** 降低每一輪對話中心智狀態的更新頻率，以遏止複合性幻覺的蔓延。
-- **引入外部專屬 ToM 儲存庫。** 將心理狀態模型持久化保存在 LLM 上下文之外，在每一輪中僅按需精準注入最核心的局部切片。
+- **在 prompt 中明確列出 ToM 狀態。** 使用結構化格式：`{agent_id: belief_list}`，讓檢索保留身分與信念的對應。
+- **縮短推理鏈。** 每輪減少 ToM 更新，可降低複合性幻覺。
+- **外部 ToM 儲存。** 把模型放在 LLM 上下文之外，每輪只注入相關部分。
 
-### 心智理論在正式環境中的崩潰盲點
+### ToM 在正式環境中的失效情境
 
-- **對抗博弈情境。** 具備優異心智理論的 Agent 往往更容易遭受惡意操縱（攻擊者能輕易推算你對他的推算，進而實施反向心理利用）。
-- **異質混合團隊。** 面對採用截然不同架構的模型同儕時，針對某一特定模型校準的心智模型往往完全無法泛化。
-- **強烈依賴真實標籤的任務。** 心智理論的核心在於揣摩「主觀信念」；若一項任務的成敗完全取決於「客觀科學事實」，過度的心智揣摩只會淪為分散注意力的無謂內耗。
+- **對抗情境。** ToM 較強的 Agent 反而更容易被操縱（對手可以建模你對他的建模，再加以利用）。
+- **異質團隊。** 模型不同時，對某個對手有效的 ToM 模型不一定能推廣。
+- **依賴真實標籤（ground truth）的任務。** ToM 關心的是信念；若正確性取決於事實，ToM 可能只會分散注意力。
 
-### 真正能夠被客觀測量的實質協同
+### 可實際測量的協同
 
-證明一個團隊的協同源自真實能力而非 prompt 表面修飾的三大實證信號：
+三個實務信號可用來判斷團隊的協同是真實能力，而非 prompt 包裝：
 
-1. **跨時程的動作互補性（Complementarity over time）。** 在多輪執行過程中，各 Agent 的實質動作是否穩定覆蓋互不重疊的獨立子任務？
-2. **行為預判能力（Anticipation）。** Agent A 在第 T+1 輪採取的動作，是否精確建立在對 Agent B 在第 T+2 輪即將採取動作的準確預判之上？
-3. **即時主動修正（Correction）。** 當 Agent A 在第 T 輪誤判了 Agent B 的意圖時，A 能否在第 T+2 輪前自發修正該認知偏差？
+1. **跨時間的互補性（Complementarity over time）。** 在多輪任務中，Agent 的動作是否涵蓋互不重疊的子任務？
+2. **預判（Anticipation）。** Agent A 在 T+1 輪的動作，是否依賴對 B 在 T+2 輪動作的預測，而且預測正確？
+3. **修正（Correction）。** 若 A 在 T 輪誤判了 B 的信念，A 能否在 T+2 輪前修正？
 
-這些維度皆能在受日誌記錄的多 Agent 系統中被嚴密量化。它們構成了「真實協同」這項敘事背後唯一起作用的實質骨架。
+這些在有日誌的多 Agent 系統中都可以測量。它們是「協同」敘事的實質版本。
 
 ```figure
 sw-theory-of-mind
@@ -109,12 +109,12 @@ sw-theory-of-mind
 
 ## Build It｜動手實作
 
-`code/main.py` 完整實作了以下核心模組：
+`code/main.py` 實作了以下模組：
 
-- `ToMAgent`——負責精準追蹤自身信念，並為其他同儕各自維護獨立的信念模型。
-- 一項協同合作任務：三位 Agent 必須從三個箱子中分別收集三枚代幣；每個箱子最多只能容納一枚代幣。各 Agent 之間嚴禁直接交談通訊；它們必須純粹透過觀察彼此的物理動作來推斷對方的真實意圖。
-- 兩種對照實驗設定：`zeroth_order`（缺乏心智理論的零階盲目 Agent）與 `first_order`（具備一階信念建模能力的 ToM Agent）。
-- 橫跨 200 次隨機試驗的量化統計：任務完成率、資源競爭重複率（兩位 Agent 同時爭搶同一個箱子），以及平均完工步數。
+- `ToMAgent`——追蹤自身信念，並為每個其他 Agent 維護信念模型。
+- 一個合作任務：三個 Agent 必須從三個箱子各收集一個 token；每個箱子最多放一個。Agent 不能通訊，只能從彼此的動作推斷意圖。
+- 兩種設定：`zeroth_order`（無 ToM）與 `first_order`（一層信念模型的 ToM）。
+- 在 200 次隨機試驗上量測完成率、重複率（兩個 Agent 瞄準同一個箱子），以及平均完成輪數。
 
 執行指令：
 
@@ -122,46 +122,46 @@ sw-theory-of-mind
 python3 code/main.py
 ```
 
-預期終端輸出：零階 Agent 的資源爭搶重複率高達約 35%，且在 10 步之內僅能勉強完成約 60% 的試驗。而配備了一階 ToM 的 Agent 資源重複率急遽驟降至約 5%，完工率高達約 95%。這 30 個百分點以上的巨大落差，正是可被客觀量化的實質協同增益。
+預期輸出：零階 Agent 的重複努力率約 35%，10 輪內完成約 60% 的試驗。一階 ToM Agent 的重複率約 5%，完成率約 95%。差距即為可量測的協同效果。
 
 ## Use It｜實際應用
 
-`outputs/skill-tom-auditor.md` 是一項專業 skill，能客觀審查任何多 Agent 系統所宣稱的「自發湧現協同」：嚴密檢驗是否存在 prompt 表面包裝、對照控制組執行顯著性檢定，並測量實質的動作互補度指標。
+`outputs/skill-tom-auditor.md` 是一個 skill，用來審查多 Agent 系統聲稱的「湧現協同」：檢查 prompt 包裝、對照組的統計顯著性，以及量測到的互補性。
 
 ## Ship It｜交付成果
 
-對外宣稱具備自主協同能力前的必備驗收清單：
+協同宣稱檢查清單：
 
-- **必須配置對照組（Control condition）。** 必須在系統中提供一個移除了協同誘導 prompt 的純淨對照組。兩者必須同時施測。
-- **嚴格執行統計顯著性檢定。** 實驗組與對照組的指標差異，是否在你的業務資料上達到 `p < 0.05` 的嚴格顯著性？
-- **量化互補度指標。** 測量跨時程的動作互斥度，而非僅僅展示最終任務是否碰巧成功。
-- **詳盡記錄協同失靈案例。** 當 Agent 發生協同衝突時，其內部的心智信念模型究竟呈現出何種扭曲樣貌？
-- **坦誠揭露模型能力下限。** 若該協同效應在輕量級小模型上完全崩潰消失，請在技術規格中明確予以坦誠揭露。
+- **對照組。** 移除協同 prompt 的系統版本。兩者都要量測。
+- **統計檢定。** 系統與對照組在你的指標上，差異是否在 `p < 0.05` 下顯著？
+- **互補性指標。** 跨時間測量動作的互斥程度，而不只看最終是否成功。
+- **失敗案例紀錄。** Agent 協調失敗時，ToM 狀態看起來如何？
+- **揭露模型能力門檻。** 若效果在較小模型上消失，應明確說明。
 
 ## Exercises｜練習
 
-1. 執行 `code/main.py`。確認一階 ToM 是否成功將資源爭搶率降低了約 7 倍。當你將規模擴大至 5 位 Agent 與 5 個箱子時，該優勢差距是否依然穩定存在？
-2. 實現二階心智理論（讓 Agent A 能夠建模 B 認為 C 在想什麼）。二階 ToM 相較於一階 ToM 是否帶來了進一步的實質提升？它在哪一類特定任務上才能展現優勢？
-3. 在 ToM 狀態中人為**注入幻覺**：在每一輪隨機翻轉一條信念。觀察這會對一階 ToM 的整體任務效能造成何種程度的破壞？
-4. 閱讀 Li 等人的論文（arXiv:2310.10701）。嘗試復現其「長時程效能衰退」的實證結論：當虛擬執行輪次從 10 輪拉長至 30 輪時，一階 ToM 的判斷準確性發生了何種位移？
-5. 閱讀 Riedl 2025 年論文（arXiv:2510.05174）。在你的模擬日誌上實作其高階綜效統計演算法。檢驗在缺乏 ToM prompt 的條件下，該統計效應是否確實徹底消失？
+1. 執行 `code/main.py`。確認一階 ToM 是否把重複率降低約 7 倍。擴大到 5 個 Agent 與 5 個箱子時，差距是否仍然存在？
+2. 實作二階 ToM（Agent A 建模 B 對 C 的看法）。它是否比一階更好？在哪些任務上有幫助？
+3. 在 ToM 狀態中注入**幻覺**：每輪隨機翻轉一條信念。這會讓一階 ToM 的表現下降多少？
+4. 閱讀 Li 等人的論文（arXiv:2310.10701）。重現「長時程退化」結果：輪數從 10 增加到 30，你的一階 ToM 表現如何變化？
+5. 閱讀 Riedl 2025（arXiv:2510.05174）。在你的模擬日誌上實作高階綜效統計量。若沒有 ToM prompt，效應還在嗎？
 
 ## Key Terms｜關鍵術語
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
-| Theory of Mind | "Understanding others' minds" | The capacity to model another agent's beliefs. Graded by order (0, 1, 2+). |
-| Sally-Anne test | "The false-belief test" | 1985 developmental psychology; LLMs pass plain versions, fail complex ones. |
-| First-order ToM | "A believes X" | Modeling one other's beliefs about facts. |
-| Second-order ToM | "A believes B believes X" | Recursive modeling one level deeper. |
-| Identity-linked differentiation | "Stable roles over time" | Riedl's metric: roles persist, not random. |
-| Goal-directed complementarity | "Disjoint actions" | Agents target different subtasks, not the same one. |
-| Higher-order synergy | "Group exceeds any subset" | Riedl's statistical measure for real coordination. |
-| Coordination illusion | "It looks coordinated" | Prompt-dressed appearance of coordination without measurable signal. |
+| 術語 | 常見說法 | 實際意義 |
+|------|----------|----------|
+| 心智理論（ToM） | 理解他人心智 | 建模另一個 Agent 信念的能力，依階數區分（0、1、2 以上）。 |
+| 莎莉-安測試 | 錯誤信念測試 | 1985 年的發展心理學測驗；LLM 能通過直接版本，但無法通過複雜版本。 |
+| 一階 ToM | 「A 相信 X」 | 建模某一個他者對事實的信念。 |
+| 二階 ToM | 「A 相信 B 相信 X」 | 再往下一層的遞迴建模。 |
+| 身分綁定的角色分化 | 隨時間穩定的角色 | Riedl 的指標：角色會持續存在，而非隨機。 |
+| 目標導向的互補 | 互不重疊的動作 | Agent 處理不同子任務，而非同一項。 |
+| 高階綜效 | 群體超越任何子集 | Riedl 用來判斷真實協同的統計量。 |
+| 協同假象 | 看起來協同 | 由 prompt 包裝出的協同外觀，但沒有可量測的訊號。 |
 
 ## Further Reading｜延伸閱讀
 
-- [Li et al. — Theory of Mind for Multi-Agent Collaboration via Large Language Models](https://arxiv.org/abs/2310.10701) — 合作博弈中的湧現式心智理論及其長時程失效模式。
-- [Riedl — Emergent Coordination in Multi-Agent Language Models](https://arxiv.org/abs/2510.05174) — 群體規模量化評測；證明 ToM prompt 是協同湧現的承重條件。
-- [Premack & Woodruff — Does the chimpanzee have a theory of mind?](https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/does-the-chimpanzee-have-a-theory-of-mind/1E96B02CD9850E69AF20F81FA7EB3595) — 1978 年心智理論概念的開山鼻祖文獻。
-- [Baron-Cohen, Leslie, Frith — Does the autistic child have a theory of mind?](https://doi.org/10.1016/0010-0277(85)90022-8) — 1985 年莎莉-安測試奠基論文。
+- [Li et al. — Theory of Mind for Multi-Agent Collaboration via Large Language Models](https://arxiv.org/abs/2310.10701) — 合作博弈中的湧現 ToM；長時程失效模式
+- [Riedl — Emergent Coordination in Multi-Agent Language Models](https://arxiv.org/abs/2510.05174) — 群體規模測量；ToM prompt 是承重條件
+- [Premack & Woodruff — Does the chimpanzee have a theory of mind?](https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/does-the-chimpanzee-have-a-theory-of-mind/1E96B02CD9850E69AF20F81FA7EB3595) — ToM 概念的 1978 年起源
+- [Baron-Cohen, Leslie, Frith — Does the autistic child have a theory of mind?](https://doi.org/10.1016/0010-0277(85)90022-8) — 1985 年的莎莉-安論文
