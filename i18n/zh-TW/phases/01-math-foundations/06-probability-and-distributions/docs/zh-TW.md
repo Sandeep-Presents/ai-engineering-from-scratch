@@ -244,9 +244,9 @@ Same result, no overflow.
 
 log-softmax 把 softmax 和 log 合在一起，保住數值穩定。PyTorch 內部就用它來算交叉熵損失。
 
-### 取樣
+### 抽樣（sampling）
 
-取樣（sampling）是從分布中抽取隨機值。在 ML 中：
+抽樣是從分布中抽取隨機值。在 ML 中：
 - dropout 隨機取樣要清零哪些神經元
 - 資料增強取樣隨機變換
 - 語言模型從預測分布中取樣下一個 token
