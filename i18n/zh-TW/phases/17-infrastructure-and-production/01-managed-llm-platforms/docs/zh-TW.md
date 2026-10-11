@@ -28,9 +28,9 @@
 
 **AWS Bedrock**——開放市集模式。容納 Claude（Anthropic）、Llama（Meta）、Titan（AWS 第一方自研）、Stability（影像生成）、Cohere（向量 Embedding）、Mistral，以及龐大的多模態子型錄。提供單一統一 API、統一的 IAM 權限介面以及開箱即用的 CloudWatch 指標匯出。Bedrock 的戰略押注在於：企業客戶對「選擇的自由度與彈性」之渴望，遠勝於對單一特定模型的依賴。
 
-**Azure OpenAI**——獨家深度結盟。你能在微軟的全球資料中心內部，享有 GPT-4 / 4o / 5 / o 系列、DALL·E、Whisper，以及官方 OpenAI 模型的私有 fine-tuning。在標準的「Azure OpenAI 服務」型錄中完全不包含非 OpenAI 模型——第三方開源模型被拆分至獨立產品 Azure AI Foundry。Azure 的戰略押注在於：OpenAI 始終代表著最尖端的前沿能力，而大型企業需要在此特定關係上獲得最嚴苛的企業級合規與專屬容量控制。
+**Azure OpenAI**——獨家深度結盟。你能在微軟的全球資料中心內部，享有 GPT-4 / 4o / 5 / o 系列、DALL·E、Whisper，以及 OpenAI 模型的 fine-tuning。在標準的「Azure OpenAI 服務」型錄中完全不包含非 OpenAI 模型——這些模型列於獨立產品 Azure AI Foundry。Azure 的戰略押注在於：OpenAI 始終代表著最尖端的前沿能力，而大型企業需要在此特定關係上獲得企業級控制。
 
-**Vertex AI**——Gemini 絕對優先，其餘皆屬配角。以 Gemini 1.5 / 2.0 / 2.5 Flash 與 Pro 為核心支柱，輔以 Model Garden 第三方模型花園。Vertex 的戰略押注在於原生的多模態與百萬級 Token 超長上下文——1M 至 2M Token 的 Gemini 上下文視窗是其無可替代的護城河。
+**Vertex AI**——Gemini 絕對優先，其餘皆屬配角。以 Gemini 1.5 / 2.0 / 2.5 Flash 與 Pro 為核心支柱，輔以 Model Garden 第三方模型花園。Vertex 的戰略押注在於原生的多模態與百萬級 Token 超長上下文——1M Token 的 Gemini 上下文視窗是其差異化優勢。
 
 ### 規模化下的延遲落差（Latency gap at scale）
 
@@ -50,7 +50,7 @@ Vertex 的預置容量則按特定 Gemini SKU 進行販售；定價因模型與�
 
 **Bedrock Application Inference Profiles** 是當前市場上設計最為優雅整潔的成本歸因機制。你可以為特定 Profile 打上 `team`、`product`、`feature` 等標籤；所有模型呼叫皆經由該 Profile 進行路由；CloudWatch 即可直接按 Profile 獨立切分帳單與成本，無需耗費精力撰寫後處理資料管線。這項機制自 2025 年上線以來，依然是各大超大廠中最精細的原生解決方案。
 
-**Vertex** 的歸因機制採用「每個團隊獨立 GCP 專案 + 到處打標籤」哲學。你將每個研發團隊建模為獨立的 GCP 專案，為所有關聯資源打上 Label，並透過 BigQuery Billing Export 匯出帳單，搭配 Looker Studio 進行多維度彙整。雖然前期建置較為繁瑣，但 BigQuery 能讓財務工程師透過任意 SQL 對成本明細資料展開無限深度的自由探勘。
+**Vertex** 的歸因機制採用「每個團隊獨立 GCP 專案 + 到處打標籤」哲學。你將每個研發團隊建模為獨立的 GCP 專案，為所有關聯資源打上 Label，並透過 BigQuery Billing Export 匯出帳單，搭配 DataStudio 進行多維度彙整。雖然前期建置較為繁瑣，但 BigQuery 能讓財務工程師透過任意 SQL 對成本明細資料展開無限深度的自由探勘。
 
 **Azure** 則依賴訂閱帳戶（Subscription）與資源群組（Resource Group）的作用域層級搭配 Tag，並將 PTU 預留視為獨立的一等公民成本物件。由於 Tag 繼承自資源群組而非單次 HTTP 請求，若要做到請求級別的精細歸因，必須另外配置 Application Insights 自定義指標，或是在前端 Gateway 層為請求標註 Header。
 
@@ -60,7 +60,7 @@ Vertex 的預置容量則按特定 Gemini SKU 進行販售；定價因模型與�
 
 在單一模型獨步天下的舊時代，將籌碼全押在單一超大廠上無可厚非。然而到了 2026 年，技術前沿每個月都在劇烈洗牌——某個季度 Claude 3.7 技壓群雄，下個季度 Gemini 2.5 逆襲奪冠，再下個季度 GPT-5 又重回王座。若將系統死鎖在單一平台上，等同於主動將自己隔絕在三分之二的全球尖端智力之外。
 
-成熟團隊目前普遍落實的架構模式：任何產品關鍵鏈路上的 LLM 呼叫，必須嚴格維持**至少雙供應商（Two-provider minimum）**。Bedrock 搭配 Azure OpenAI 是目前業界最常見的黃金組合——由前者供應 Claude，後者供應 GPT，前端部署同一套 Gateway 實現智慧容錯移轉。由於 Gateway 能依據即時健康度動態最佳化路由，總成本增幅微乎其微；而在遭遇雲端服務中斷時（例如 Azure OpenAI 2025 年 1 月重大當機事件，或是 AWS us-east-1 偶發事故），此架構所展現出的系統高可用性是決定性的。
+成熟團隊目前普遍落實的架構模式：任何產品關鍵鏈路上的 LLM 呼叫，必須嚴格維持**至少雙供應商（Two-provider minimum）**。Bedrock 搭配 Azure OpenAI 是目前業界最常見的黃金組合——由前者供應 Claude，後者供應 GPT，前端部署同一套 Gateway 實現容錯移轉。由於 Gateway 路由最佳，總成本增幅微乎其微；而在遭遇雲端服務中斷時（例如 Azure OpenAI 2025 年 1 月事件，或是 AWS us-east-1 事故），此架構所展現出的系統高可用性是決定性的。
 
 ### 資料落地、BAA 與強監管產業（Data residency, BAAs, and regulated industries）
 

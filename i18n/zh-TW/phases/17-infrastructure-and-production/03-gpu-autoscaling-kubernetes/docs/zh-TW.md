@@ -1,6 +1,6 @@
 # Kubernetes 上的 GPU 自動擴縮——Karpenter、KAI 排程器、Gang 排程（GPU Autoscaling on Kubernetes — Karpenter, KAI Scheduler, Gang Scheduling）
 
-> 自動擴縮包含三層架構，絕非單一層級所能涵蓋。Karpenter 負責動態佈建節點（耗時 1 分鐘以內，比傳統 Cluster Autoscaler 快 40%）。KAI 排程器（KAI Scheduler）負責 Gang 原子排程、硬體拓撲感知與多階層佇列——能徹底杜絕「8 張 GPU 僅就緒 7 張」的致命部分分配陷阱（其餘 7 個節點無限期空轉燃燒經費，苦等最後 1 張缺漏的 GPU）。應用程式層級的自動擴縮器（如 NVIDIA Dynamo Planner、llm-d Workload Variant Autoscaler）則依據推論專屬的業務特徵訊號進行擴縮——排隊深度、KV 快取利用率——而非盲目依賴 CPU 或 DCGM 佔空比。傳統 HPA 最經典的致命誤區在於：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比度量，100% 可能代表正在處理 10 個並行請求，也可能代表 100 個；且 vLLM 預設預先分配 GPU 顯示記憶體作為 KV 快取，導致記憶體用量永遠高掛 90%，根本無法觸發縮容。本課教你如何深度串聯這三大層級，並避開 Karpenter 預設的 `WhenEmptyOrUnderutilized` 政策在推論中途暴力終止運作中 GPU 任務的慘痛災難。
+> 自動擴縮包含三層架構，絕非單一層級所能涵蓋。Karpenter 負責動態佈建節點（耗時 1 分鐘以內，比傳統 Cluster Autoscaler 快 40%）。KAI 排程器（KAI Scheduler）負責 Gang 原子排程、硬體拓撲感知與多階層佇列——能徹底杜絕「8 張 GPU 僅就緒 7 張」的致命部分分配陷阱（其餘 7 個節點無限期空轉燃燒經費，苦等最後 1 張缺漏的 GPU）。應用程式層級的自動擴縮器（如 NVIDIA Dynamo Planner、llm-d Workload Variant Autoscaler）則依據推論專屬的業務特徵訊號進行擴縮——排隊深度、KV 快取利用率——而非盲目依賴 CPU 或 DCGM 佔空比。傳統 HPA 最經典的致命誤區在於：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比度量，100% 可能代表正在處理 10 個並行請求，也可能代表 100 個；且 vLLM 預設預先分配 GPU 記憶體作為 KV 快取，導致記憶體使用量不會觸發縮容。本課教你如何深度串聯這三大層級，並避開 Karpenter 預設的 `WhenEmptyOrUnderutilized` 政策在推論中途暴力終止運作中 GPU 任務的慘痛災難。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy queue-depth autoscaler simulator)
@@ -30,7 +30,7 @@
 
 Karpenter 持續監聽處於 Pending 狀態的 Pod，並能在約 45 至 60 秒內極速完成實體節點的動態開闢（相比之下，傳統 Cluster Autoscaler 在 GPU 節點上通常耗時 90 至 120 秒）。它根據 `NodePool` 的約束條件動態挑選最適執行個體規格——若你的 Pod 需要 8 張 H100 且叢集中當前無匹配節點，Karpenter 會直接精準佈建對應機器，而非機械化地擴充既有的固定節點群組。
 
-**節點整併陷阱（The consolidation trap）**：Karpenter 預設的 `consolidationPolicy: WhenEmptyOrUnderutilized` 對於 GPU 節點池而言極度危險。它會主動終止正在運作的 GPU 節點，以嘗試將 Pod 移轉至更便宜、規格更精確的機型上。對於大模型推論而言，這意味著它會強行殺死正在吐字運作的真實使用者請求，並在新節點上耗時數分鐘重新載入 70B 模型。你承受的是長達數分鐘的容量真空與海量的請求失敗。
+**節點整併陷阱（The consolidation trap）**：Karpenter 預設的 `consolidationPolicy: WhenEmptyOrUnderutilized` 對於 GPU 節點池而言極度危險。它會主動終止正在運作的 GPU 節點，以嘗試將 Pod 移轉至更便宜、規格更精確的機型上。對於大模型推論而言，這意味著它會驅逐執行中的請求，並在新節點上耗時數分鐘重新載入 70B 模型。你承受的是數分鐘的容量損失與請求失敗。
 
 專為 GPU 推論節點池設計的安全標準配置：
 
@@ -48,17 +48,17 @@ KAI Scheduler（早期專案代號為 Karp，後正式定名）專門補足預�
 
 **Gang 原子排程（Gang scheduling）**——要麼全量調度、要麼全部延遲（All-or-nothing）。針對需要 8 張 GPU 的分散式推論 Pod，要麼 8 張同時就緒並同步啟動，要麼一個都不啟動。若無此機制，必然觸發「部分分配陷阱」：8 個 Pod 中有 7 個搶先啟動，隨後陷入無窮盡的等待，空耗寶貴算力。
 
-**硬體拓撲感知（Topology awareness）**——精確洞悉哪些 GPU 共享極速 NVLink、哪些 GPU 位處同一個機架、哪些節點之間具備 InfiniBand 直連。據此精準指派 Pod。例如 DeepSeek-V3 67B 模型的張量平行（Tensor Parallelism）運算必須死鎖在同一個 NVLink 網域內；KAI Scheduler 能從底層嚴格保障這項拓撲約束。
+**硬體拓撲感知（Topology awareness）**——精確洞悉哪些 GPU 共享極速 NVLink、哪些 GPU 位處同一個機架、哪些節點之間具備 InfiniBand 直連。據此精準指派 Pod。例如 DeepSeek-V3 67B 模型的張量平行（Tensor Parallelism）運算必須留在同一個 NVLink 網域內；KAI Scheduler 能從底層嚴格保障這項拓撲約束。
 
 **階層化優先權佇列（Hierarchical queues）**——多個業務團隊依據優先權配額共享同一個實體 GPU 資源池。只有在明確的優先權規則允許下，團隊 A 的正式環境尖峰流量才能搶佔團隊 B 的離線訓練任務。
 
-KAI 通常作為輔助排程器與原生 kube-scheduler 並行部署；你只需在 Workload 的 Annotation 中指定使用它即可。Ray 與 vLLM 工業級技術堆疊皆提供原生無縫整合。
+KAI 通常作為輔助排程器與原生 kube-scheduler 並行部署；你只需在 Workload 的 Annotation 中指定使用它即可。Ray 與 vLLM production stack 也有整合。
 
 ### 第 3 層——應用程式層級特徵訊號（Application-level signals）
 
 **傳統 HPA 監控指標的致命盲區**：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比（Duty-cycle）度量——它度量的是在特定採樣間隔內 GPU 是否正在執行指令。100% 的利用率可能意味著當前有 10 個並行請求，也可能意味著有 100 個；在這兩種情況下 GPU 皆處於滿載運算狀態。依據佔空比進行擴縮容，無異於盲人摸象。
 
-更棘手的是，vLLM 等現代推論引擎預設會預先分配絕大部分 GPU 顯示記憶體作為 KV 快取（通常透過 `--gpu-memory-utilization` 參數鎖定至 90% 以上）。因此即便僅有 1 個請求流入，記憶體佔用率依然高掛在 90% 附近。基於記憶體使用率的傳統 HPA 永遠無法觸發自動縮容。
+更棘手的是，vLLM 等現代推論引擎預設會預先分配絕大部分 GPU 記憶體作為 KV 快取（通常透過 `--gpu-memory-utilization` 參數鎖定至 90% 以上）。因此即便僅有 1 個請求流入，記憶體佔用率依然高掛在 90% 附近。基於記憶體使用率的傳統 HPA 永遠無法觸發自動縮容。
 
 **2026 年工業級黃金替代訊號**：
 
@@ -85,7 +85,7 @@ NVIDIA Dynamo Planner 與 llm-d Workload Variant Autoscaler 直接監聽並消�
 
 ### 冷啟動延遲在此同樣關鍵（Cold start matters here too）
 
-冷啟動抑制機制（第 17 課第 10 節）決定了節點佈建耗時是否會直接傳導為使用者肉眼可見的卡頓。Karpenter 耗費 45 至 60 秒開闢節點，加上拉取並載入 20GB 模型權重，再加上推論引擎的初始化，意味著從零啟動一個全新請求將耗時 2 至 5 分鐘。在對 SLO 極度敏感的核心鏈路上，必須永久維持具備溫熱待命能力的最小資源池（`min_workers=1`），或在應用層實踐 Modal 風格的快速檢查點還原。
+冷啟動抑制機制（第 17 課第 10 節）決定了節點佈建耗時是否會直接傳導為使用者肉眼可見的卡頓。Karpenter 耗費 45 至 60 秒開闢節點，加上拉取並載入 20GB 模型權重，再加上推論引擎的初始化，意味著從零啟動一個全新請求將耗時 2 至 5 分鐘。在對 SLO 極度敏感的核心鏈路上，可保留 warm pool（`min_workers=1`），或在應用層使用 Modal 風格的 checkpointing。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
@@ -112,7 +112,7 @@ autoscaling
 2. 為一個在 H100 SXM5 上託管 Llama 3.3 70B FP8 模型的推論叢集設計一份 Karpenter NodePool 配置。精準給出 `capacity-type`、`disruption.consolidationPolicy`、`consolidateAfter` 數值，以及防止非 GPU 任務佔用該節點的專屬 Taint 污點宣告。
 3. 團隊通報當前部署的任務卡在 Pending 狀態，原因是「叢集中明明有 GPU 閒置，但 Pod 始終無法被調度」。分析故障根因——這究竟是 Karpenter、kube-scheduler 還是 KAI Scheduler 的問題？哪幾項關鍵指標能提供最終證實？
 4. 為 Prefill 與 Decode 拆解後的兩組 Pod 分別挑選最適的自動擴縮度量訊號，並從系統架構層面給出充分論證。
-5. 針對一套日均在 P99 TTFT > 10s 閾值下發生 60 次請求丟棄事件的 7x24 小時正式環境推論系統，估算由於採用了 `WhenEmptyOrUnderutilized` 錯誤整併政策而導致的隱性財務與客訴損失。
+5. 針對一套日均在 P99 TTFT > 10s 閾值下發生 60 次請求丟棄事件的 7x24 小時正式環境推論系統，估算由於採用了 `WhenEmptyOrUnderutilized` 錯誤整併政策而導致的成本。
 
 ## Key Terms｜關鍵術語
 

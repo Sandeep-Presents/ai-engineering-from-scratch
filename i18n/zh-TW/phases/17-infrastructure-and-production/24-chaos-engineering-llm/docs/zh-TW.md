@@ -26,7 +26,7 @@
 
 在未湊齊以下五大拼圖之前，切忌在正式環境擅自執行任何混沌實驗：
 
-1. **SLI/SLO**——擁有清晰量化的服務等級指標與目標上限。
+1. **SLI/SLO**——擁有清晰量化的服務等級指標與目標。
 2. **可觀測性體系**——Trace 追蹤、Metric 指標、Log 日誌全鏈路打通，並在儀表板上即時視覺化。
 3. **秒級自動化回滾**——第 17 課第 20 節所確立的基於動態策略開關的秒級自癒能力。
 4. **結構化 Runbook**——第 17 課第 23 節所確立的標準化維運處方手冊。
@@ -56,9 +56,9 @@
 
 1. **顯示記憶體超載與搶佔衝擊（Memory overload）**——透過以極高並行併發超長上下文 Prompt，強制觸發推論引擎的 KV 快取搶佔風暴。觀測目標：服務是否能優雅降級限流，還是會直接觸發 CUDA OOM 崩潰閃退？
 
-2. **跨節點網路斷連（Network failure）**——主動切斷推論 Gateway 與底層供應商之間的網路連線。觀測目標：自動容錯移轉是否能在 SLA 承諾時限內秒級啟動？（第 17 課第 19 節）
+2. **跨節點網路斷連（Network failure）**——主動切斷推論 Gateway 與底層供應商之間的網路連線。觀測目標：自動容錯移轉是否能在 SLA 內啟動？（第 17 課第 19 節）
 
-3. **供應商全面癱瘓模擬（Provider outage simulation）**——模擬 OpenAI API 100% 回傳 HTTP 429 限流報錯。觀測目標：智慧路由是否能將全量流量平穩無感分流至 Anthropic 備援線路？（第 17 課第 16 與 19 節）
+3. **供應商全面癱瘓模擬（Provider outage simulation）**——模擬 OpenAI API 100% 回傳 HTTP 429 限流報錯。觀測目標：路由是否會容錯移轉至 Anthropic？（第 17 課第 16 與 19 節）
 
 4. **惡意畸形 Prompt 炸彈（Malformed prompt）**——向服務端注入專門導致 Tokenizer 卡死的特殊邊界字元（極深層嵌套的 Unicode、異常 UTF-8 字碼點）。觀測目標：單一惡意請求是否會死鎖並拖垮整個推論 Worker 行程？
 
@@ -74,7 +74,7 @@
 
 - **Harness Chaos Engineering**——商用旗艦；具備 AI 智慧推薦實驗場景、爆炸半徑自動收縮保護，並原生支援 MCP 工具鏈整合。
 - **LitmusChaos**——CNCF 畢業級專案；基於 Kubernetes 宣告式 Workflow 運作。
-- **Chaos Mesh**——CNCF 孵化專案；深度擁抱 Kubernetes 原生 CRD 架構。
+- **Chaos Mesh**——CNCF sandbox 專案；Kubernetes 原生 CRD 風格。
 - **Gremlin**——老牌商用混沌工程平台；支援全平台混合雲部署。
 - **AWS FIS** / **Azure Chaos Studio**——各大超大規模雲端供應商內建的原生託管混沌服務。
 

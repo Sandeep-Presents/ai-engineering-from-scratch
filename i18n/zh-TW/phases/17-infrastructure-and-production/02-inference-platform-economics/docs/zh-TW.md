@@ -1,6 +1,6 @@
 # 推論平台經濟學——Fireworks、Together、Baseten、Modal、Replicate、Anyscale（Inference Platform Economics — Fireworks, Together, Baseten, Modal, Replicate, Anyscale）
 
-> 2026 年的 AI 推論市場早已不再是純粹的 GPU 機時租賃。市場全面分化為三大陣營：專屬客製化晶片（Groq、Cerebras、SambaNova）、GPU 算力平台（Baseten、Together、Fireworks、Modal）以及 API 優先型市集（Replicate、DeepInfra）。Fireworks 於 2026 年 5 月 1 日起將每 GPU 租金上調 1 美元/小時，且在日均處理超過 10 兆 Token 的強勁流量下估值達到 40 億美元，宣告以吞吐量為核心的商業模式大獲成功。Baseten 則於 2026 年 1 月以 50 億美元估值完成 3 億美元 E 輪融資。競爭定位的法則極其純粹：Fireworks 專攻極致延遲最佳化，Together 專攻模型型錄廣度，Baseten 專攻企業級交付成熟度，Modal 專攻 Python 原生開發體驗，Replicate 專攻多模態覆蓋，而 Anyscale 專攻分散式 Python 運算。本課為你提供一份足以直接交給創辦人的立體選型決策矩陣。
+> 2026 年的 AI 推論市場早已不再是純粹的 GPU 機時租賃。市場全面分化為三大陣營：專屬客製化晶片（Groq、Cerebras、SambaNova）、GPU 算力平台（Baseten、Together、Fireworks、Modal）以及 API 優先型市集（Replicate、DeepInfra）。Fireworks 於 2026 年 5 月 1 日起將每 GPU 租金上調 1 美元/小時，且日均處理超過 10 兆 Token、估值達到 40 億美元，顯示以用量為核心的模式可行。Baseten 則於 2026 年 1 月以 50 億美元估值完成 3 億美元 E 輪融資。競爭定位的法則極其純粹：Fireworks 專攻極致延遲最佳化，Together 專攻模型型錄廣度，Baseten 專攻企業級交付成熟度，Modal 專攻 Python 原生開發體驗，Replicate 專攻多模態覆蓋，而 Anyscale 專攻分散式 Python 運算。本課為你提供一份足以直接交給創辦人的立體選型決策矩陣。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy per-call economics comparator)
@@ -57,13 +57,13 @@
 
 - 以純 Python 實踐基礎架構即程式碼（IaC）。僅需透過 `@modal.function(gpu="A100")` 裝飾器修飾常規函式，即可透過單一指令完成全球部署。
 - 精確到秒的微粒度計費。搭配預熱機制冷啟動耗時僅需 2 至 4 秒；輕量級模型甚至小於 1 秒。
-- 2025 年以 11 億美元估值完成 8,700 萬美元 B 輪融資。在各類獨立開發者調查中，開發者體驗（DX）滿意度長年位居榜首。
+- 2025 年以 11 億美元估值完成 8,700 萬美元 B 輪融資。在各類獨立開發者調查中，開發者體驗（DX）評分最高。
 
 ### Replicate——多模態廣度王者（Replicate — multimodal breadth）
 
-- 採按次預測（Pay-per-prediction）計費。是影像、影片生成與音訊處理模型的事實標準託管市集。
+- 採按次預測（Pay-per-prediction）計費。是影像、影片生成與音訊處理模型的常用平台。
 - 擁有無比繁榮的第三方生態系擴充功能與整合（Zapier、Vercel、CMS 擴充套件）。
-- 雖然在純文字 LLM 的每 Token 單價上缺乏競爭優勢，但在多模態異質模型的覆蓋豐富度上一騎絕塵。
+- 雖然在純文字 LLM 的每 Token 單價上缺乏競爭優勢，但在多模態模型種類上有優勢。
 
 ### Anyscale——Ray 原生分散式推論（Anyscale — Ray-native）
 
@@ -96,7 +96,7 @@ cost-per-token
 
 ## Use It｜實際應用
 
-`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出內容為 $/day and effective $/M tokens（每日成本與有效每百萬 Token 費率）。 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
+`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出 $/day and effective $/M tokens（每日成本及每百萬 Token 有效成本）。 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
 
 ## Ship It｜交付成果
 

@@ -1,6 +1,6 @@
 # 正式環境推論服務堆疊——KV 卸載與快取感知路由（Production Serving Stack — KV Offloading and Cache-Aware Routing）
 
-> 一套工業級的正式環境推論服務堆疊，能將智慧路由器、多個推論引擎與全鏈路可觀測性緊密咬合進單一 Kubernetes 部署體系——並將 KV 快取視為一種能夠隨時跨出 GPU 顯示記憶體邊界的共享資源。KV 快取卸載（KV Offloading）技術將 KV 快取從昂貴的 GPU 顯示記憶體中即時析出，並在跨請求與跨推論引擎之間重複利用（優先溢流至主機 CPU DRAM，隨後落盤至本機磁碟或 Ceph 分散式儲存）。vLLM 官方推出的 production-stack 是該架構的權威參考實作；LMCache 則是其中的核心卸載中樞。vLLM 0.11.0 推出的 KV Offloading Connector（2026 年 1 月）藉由 Connector API（v0.9.0+）使該機制徹底實現非同步化與隨插即用。卸載路徑在常規情況下被優雅隱藏於請求鏈路背後，但快取未命中與提升搬移仍可能微幅影響端到端延遲。即便在缺乏長前綴共享的業務中，LMCache 依然價值連城——當某張 GPU 遭遇突發 GPU 顯示記憶體耗盡時，被搶佔（Preempted）的在途請求可直接從 CPU 主記憶體中極速還原，而無需在 GPU 上狼狽重新運算完整的 Prefill。在跨 4 台 a3-highgpu-4g 實體機、共 16 張 H100（80GB HBM）上的官方評測證實：當 KV 快取總體積超越 GPU 實體顯示記憶體上限時，原生 CPU 卸載與 LMCache 皆能實質巨幅提升吞吐量；而在 KV 佔用極微小時，所有配置表現與基準線完全一致，僅引入微小的額外開銷。
+> 一套工業級的正式環境推論服務堆疊，能將智慧路由器、多個推論引擎與全鏈路可觀測性緊密咬合進單一 Kubernetes 部署體系——並將 KV 快取視為一種能夠隨時跨出 GPU 顯示記憶體邊界的共享資源。KV 快取卸載（KV Offloading）技術將 KV 快取從昂貴的 GPU 顯示記憶體中即時析出，並在跨請求與跨推論引擎之間重複利用（優先溢流至主機 CPU DRAM，隨後落盤至本機磁碟或 Ceph 分散式儲存）。vLLM 的 production-stack 是該架構的參考部署；LMCache 則是其中的核心卸載中樞。vLLM 0.11.0 推出的 KV Offloading Connector（2026 年 1 月）藉由 Connector API（v0.9.0+）使該機制徹底實現非同步化與隨插即用。卸載路徑在常規情況下被優雅隱藏於請求鏈路背後，但快取未命中與提升搬移仍可能微幅影響端到端延遲。即便在缺乏長前綴共享的業務中，LMCache 依然價值連城——當某張 GPU 遭遇突發 GPU 顯示記憶體耗盡時，被搶佔（Preempted）的在途請求可直接從 CPU 主記憶體中極速還原，而無需在 GPU 上狼狽重新運算完整的 Prefill。在跨 4 台 a3-highgpu-4g 實體機、共 16 張 H100（80GB HBM）上的已發表評測顯示：當 KV 快取總體積超越 GPU 實體顯示記憶體上限時，原生 CPU 卸載與 LMCache 皆能實質巨幅提升吞吐量；而在 KV 佔用極微小時，所有配置表現與基準線完全一致，僅引入微小的額外開銷。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy KV-spill simulator)
@@ -18,7 +18,7 @@
 
 你的 vLLM 推論服務監控顯示：每當線上並行量稍微攀升，GPU 的 HBM 顯示記憶體便直接被打滿至 100%，群集頻繁爆發請求搶佔（Preemption）事件。大量進行中的在途請求被迫慘遭驅逐、重新排隊；排程器在一分鐘內對完全相同的 2k Token 輸入 Prompt 連續執行了 4 次昂貴的重複 Prefill。寶貴的 GPU 運算力全被無情耗損在毫無意義的重複運算中；系統的真實有效吞吐量（Goodput）被遠遠打壓在理論值之下。
 
-單純採購更多 GPU 會讓硬體帳單線性失控。而為既有 GPU 物理擴充更多 HBM 顯示記憶體更是不可能。然而主機端的 CPU DRAM 卻極其廉價——單個 CPU 插槽即可輕鬆插滿 512 GB 以上的主記憶體；雖然其存取頻寬相較於 HBM 低了數個數量級，但作為暫時放置「溫熱」KV 快取的溢流池卻再合適不過。
+單純採購更多 GPU 會讓硬體帳單線性失控。而為既有 GPU 物理擴充更多 HBM 顯示記憶體更是不可能。然而主機端的 CPU DRAM 卻極其廉價——單個 CPU 插槽即可輕鬆插滿 512 GB 以上的主記憶體；雖然其存取延遲比 HBM 高出數個數量級，但作為暫時放置「溫熱」KV 快取的溢流池卻再合適不過。
 
 LMCache 正是負責將 KV 快取動態提取並溢流至 CPU DRAM 的中樞，使被搶佔的請求能以極低代價極速復活，並讓多個推論引擎之間無縫共享公共前綴，徹底終結重複 Prefill 的悲劇。
 
@@ -26,7 +26,7 @@ LMCache 正是負責將 KV 快取動態提取並溢流至 CPU DRAM 的中樞，�
 
 ### vLLM 正式環境技術堆疊（vLLM production-stack）
 
-開源專案 `github.com/vllm-project/production-stack` 是官方出品的 Kubernetes 參考實作：
+開源專案 `github.com/vllm-project/production-stack` 是 Kubernetes 參考部署：
 
 - **智慧路由器（Router）**——具備 KV 快取感知能力（第 17 課第 11 節），即時消費快取變更事件。
 - **推論引擎 Worker（Engines）**——底層 vLLM 工作節點。按單卡或張量/流水線平行組獨立劃分。
@@ -38,15 +38,15 @@ LMCache 正是負責將 KV 快取動態提取並溢流至 CPU DRAM 的中樞，�
 
 ### KV 卸載連接器 API（The KV Offloading Connector API, v0.9.0+）
 
-vLLM 自 0.9.0 版本起正式引入了隨插即用 Connector API，用以解耦底層各類異質 KV 快取後端。推論引擎負責將 Block 區塊非同步推送給 Connector；Connector 負責將其安全持久化（主記憶體 RAM、本機 NVMe 磁碟、S3 物件儲存或 LMCache 伺服器）。當後續請求命中時，Connector 極速將其回填至 GPU 顯示記憶體。
+vLLM 自 0.9.0 版本起引入 Connector API，以支援可插拔的 KV 快取後端。推論引擎將區塊卸載至 Connector；Connector 會將其儲存在 RAM、磁碟、物件儲存或 LMCache 中。請求需要區塊時，Connector 會將其載回。
 
-vLLM 0.11.0（2026 年 1 月）進一步引入了全非同步卸載路徑——卸載操作在背景無感執行，在常規情境下推論引擎的吐字管線完全無需阻塞等待。然而端到端延遲與整體吞吐量依然深度取決於業務負載曲線、KV 快取命中率與全域系統壓力；vLLM 官方備忘錄特別警示：在快取命中率極低時，自定義核心的卸載可能反向拖慢吞吐量，且非同步排程與推測解碼（Speculative Decoding）在當前版本中存在已知的協同邊界問題。
+vLLM 0.11.0（2026 年 1 月）進一步加入非同步卸載路徑——卸載操作可在背景進行，在常見情況下推論引擎不會因此阻塞。然而端到端延遲與整體吞吐量依然深度取決於業務負載曲線、KV 快取命中率與全域系統壓力；vLLM 官方備忘錄特別警示：在快取命中率極低時，自定義核心的卸載可能反向拖慢吞吐量，且非同步排程與推測解碼（Speculative Decoding）在當前版本中存在已知的協同邊界問題。
 
 ### 原生 CPU 卸載 vs LMCache 群集快取（Native CPU offload vs LMCache）
 
 **原生 vLLM CPU 卸載**：單引擎本機隔離。直接將 KV Block 溢流至當前節點的主機 RAM 中。實作極其簡單迅速，零額外跨機網路跳轉。缺點是無法跨多個推論引擎節點共享。
 
-**LMCache 專屬連接器**：全群集規模共享。將 KV Block 統一儲存在獨立的 LMCache 快取伺服器網格中（支援 CPU DRAM + Ceph/S3 階梯式儲存）。所有推論引擎皆可透明存取其中的任何區塊。官方已公布在 16 張 H100 上的完整評測報告。
+**LMCache 專屬連接器**：全群集規模共享。將 KV Block 統一儲存在獨立的 LMCache 快取伺服器網格中（支援 CPU DRAM + Ceph/S3 階梯式儲存）。所有推論引擎皆可透明存取其中的任何區塊。已發表的評測涵蓋 16 張 H100。
 
 選型標準：若僅僅是單個獨立推論節點面臨暫態 HBM 顯示記憶體告警，選原生 CPU 卸載即可。若存在多個推論節點且跨請求共享大量公共前綴（如多租戶 RAG、具備統一 System Prompt 的問答管線），果斷選用 LMCache。
 
@@ -73,13 +73,13 @@ vLLM 0.11.0（2026 年 1 月）進一步引入了全非同步卸載路徑——�
 
 ### 與拆解式推論架構的深度聯動（Integration with disaggregated serving）
 
-第 17 課第 17 節的 Prefill/Decode 物理拆解與 LMCache 能夠產生完美的乘數效應：從 Prefill 資源池傳遞至 Decode 資源池的 KV 快取若未被立即消費，會自動降級沈澱至 LMCache 中；後續的相似查詢直接從 LMCache 秒級拉取。第 17 課第 11 節的快取感知路由器，能同時依據本地顯示記憶體或 LMCache 共享快取的命中分佈，做出最完美的調度決策。
+第 17 課第 17 節的 Prefill/Decode 物理拆解與 LMCache 能夠產生乘數效應：從 Prefill 資源池傳遞至 Decode 資源池、但未使用的 KV 快取會存入 LMCache；後續查詢可從 LMCache 取得。第 17 課第 11 節的快取感知路由器，能同時依據本地顯示記憶體或 LMCache 共享快取的命中分佈，做出最完美的調度決策。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
 - vLLM 0.9.0：正式釋出隨插即用 Connector API。
 - vLLM 0.11.0（2026 年 1 月）：引入全非同步卸載路徑；端到端延遲影響取決於負載分佈、快取命中率與排隊壓力。
-- 16x H100 官方基準測試：當 KV 快取總需求超越 HBM 顯示記憶體容量時，LMCache 開始展現統治級效能。
+- 16x H100 評測：當 KV 快取總需求超越 HBM 容量時，LMCache 有助益。
 - 顯示記憶體負載偏低情境下啟用 LMCache：平白引入約 3% 至 5% 的純系統開銷。
 
 ```figure
@@ -92,7 +92,7 @@ zero-sharding
 
 ## Ship It｜交付成果
 
-本課交付標準實戰產物 `outputs/skill-vllm-stack-decider.md`。輸入具體業務流量特徵曲線與現有 vLLM 群集規模，該 Skill 將自動為你推導出究竟該選用原生本機 CPU 卸載、LMCache 群集快取，還是保持裸機狀態。
+本課交付標準實戰產物 `outputs/skill-vllm-stack-decider.md`。輸入具體業務流量特徵曲線與現有 vLLM 群集規模，該 Skill 將自動為你推導出究竟該選用原生本機 CPU 卸載、LMCache 群集快取，還是兩者皆不採用。
 
 ## Exercises｜練習
 

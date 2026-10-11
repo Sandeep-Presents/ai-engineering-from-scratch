@@ -1,6 +1,6 @@
 # 自建推論服務選型——硬體與規模的終極適配（Self-Hosted Serving Selection — Matching Engine to Hardware and Scale）
 
-> 推論引擎的選型是底層硬體、並行規模與軟體生態的三維函數——絕非單純閱讀性能排行榜所能決定。2026 年自建推論領域由四大主力引擎統治：llama.cpp、Ollama、vLLM 與 SGLang，而昔日明星 TGI 則落入維護模式。**llama.cpp** 在純 CPU 運算上速度最快——具備最廣泛的模型型錄支援，提供對量化精度與多執行緒的完全控制權。**Ollama** 是個人筆電上一鍵安裝的開發神器，但比原生 llama.cpp 慢約 15% 至 30%（源於 Go + CGo + HTTP 序列化開銷），在類正式環境的高並行負載下吞吐量存在高達 3 倍的鴻溝。**TGI 於 2025 年 12 月 11 日正式轉入維護模式**——未來僅提供錯誤修復，原始吞吐量比 vLLM 慢約 10%，但歷史上擁有頂級的可觀測性與 Hugging Face 原生生態整合。維護模式使其成為高風險的長遠賭注——新專案應當果斷轉向 vLLM 或 SGLang。**vLLM** 是通用正式環境的事實標準——v0.15.1（2026 年 2 月）全面支援 PyTorch 2.10、RTX Blackwell SM120 架構與 H200 極致調優。**SGLang** 則是多輪對話 Agent 與前綴密集型任務的專精之王——在全產業超過 40 萬張正式環境 GPU 上大規模運作（xAI、LinkedIn、Cursor、Oracle、GCP、Azure、AWS）。硬體硬約束：純 CPU 優先 → 首選 llama.cpp；AMD 異質運算 → vLLM 是獲得最強支援的坦途（TRT-LLM 深度綁定 NVIDIA）。2026 年標準流水線範式：開發端 = Ollama，預發測試 Staging = llama.cpp，正式環境 Prod = vLLM 或 SGLang。各引擎吃不同的權重格式——llama.cpp 家族吃 GGUF，GPU 引擎吃 Hugging Face safetensors——在各階段之間通常需要進行格式轉換。
+> 推論引擎的選型是底層硬體、並行規模與軟體生態的三維函數——絕非單純閱讀效能排行榜所能決定。2026 年自建推論領域由四大主力引擎統治：llama.cpp、Ollama、vLLM 與 SGLang，而昔日明星 TGI 則落入維護模式。**llama.cpp** 在純 CPU 運算上速度最快——具備最廣泛的模型型錄支援，提供對量化精度與多執行緒的完全控制權。**Ollama** 是個人筆電上一鍵安裝的開發神器，但比原生 llama.cpp 慢約 15% 至 30%（源於 Go + CGo + HTTP 序列化開銷），在類正式環境的高並行負載下吞吐量存在高達 3 倍的鴻溝。**TGI 於 2025 年 12 月 11 日正式轉入維護模式**——未來僅提供錯誤修復，原始吞吐量比 vLLM 慢約 10%，但歷史上擁有頂級的可觀測性與 Hugging Face 原生生態整合。維護模式使其成為高風險的長遠賭注——新專案應當果斷轉向 vLLM 或 SGLang。**vLLM** 是通用正式環境的事實標準——v0.15.1（2026 年 2 月）全面支援 PyTorch 2.10、RTX Blackwell SM120 架構與 H200 極致調優。**SGLang** 則是多輪對話 Agent 與前綴密集型任務的專精之王——在全產業超過 40 萬張正式環境 GPU 上大規模運作（xAI、LinkedIn、Cursor、Oracle、GCP、Azure、AWS）。硬體硬約束：純 CPU 優先 → 首選 llama.cpp；AMD 異質運算 → vLLM 是獲得最強支援的坦途（TRT-LLM 深度綁定 NVIDIA）。2026 年標準流水線範式：開發端 = Ollama，預發測試 Staging = llama.cpp，正式環境 Prod = vLLM 或 SGLang。各引擎吃不同的權重格式——llama.cpp 家族吃 GGUF，GPU 引擎吃 Hugging Face safetensors——在各階段之間通常需要進行格式轉換。
 
 **Type:** Learn
 **Languages:** Python (stdlib, engine-decision tree walker)
@@ -27,7 +27,7 @@
 | 推論引擎 | 核心甜蜜點 | 關鍵維運備註 |
 |--------|----------|-------|
 | **llama.cpp** | 純 CPU / 邊緣端 / 極簡依賴 / 最廣泛模型型錄 | 純 CPU 速度之王，提供底層極致調校 |
-| **Ollama** | 開發者本機筆電、單人測試、一鍵安裝 | 性能比 llama.cpp 慢 15-30%；正式環境並行吞吐落後 3 倍 |
+| **Ollama** | 開發者本機筆電、單人測試、一鍵安裝 | 效能比 llama.cpp 慢 15-30%；正式環境並行吞吐落後 3 倍 |
 | **TGI** | Hugging Face 生態深度綁定、強監管產業 | **已於 2025 年 12 月 11 日正式轉入維護模式** |
 | **vLLM** | 通用企業級正式環境、100+ 並行使用者 | 業界通用預設標準；2026 年 2 月釋出 v0.15.1 |
 | **SGLang** | 多步驟 Agent、前綴密集型 RAG 業務 | 超過 40 萬張實體 GPU 在正式環境大規模驗證 |
@@ -36,7 +36,7 @@
 
 **純 CPU 優先** → 堅決選用 llama.cpp。Ollama 雖然也能跑但速度明顯滯後。其餘任何開源推論引擎在純 CPU 環境下皆毫無競爭力。
 
-**AMD GPU 叢集** → vLLM 是目前開源社群支援最完善、調校最深度的黃金平坦大道（深度調適 AMD ROCm 架構）。SGLang 亦支援 AMD。而 TRT-LLM 由於深度綁定 NVIDIA，在此被一票否決出局。
+**AMD GPU 叢集** → vLLM 是目前支援度最高的路徑（支援 AMD ROCm）。SGLang 亦支援 AMD。而 TRT-LLM 由於深度綁定 NVIDIA，在此被一票否決出局。
 
 **NVIDIA Hopper 架構（H100 / H200）** → vLLM、SGLang 與 TRT-LLM 皆屬頂級梯隊。三者皆能充分釋放第四代 Tensor Core 的強悍潛力。
 
@@ -58,7 +58,7 @@
 
 **常規開放式對話 / 簡短問答** → vLLM 憑藉其最全面的通用調校穩操勝券。
 
-**多輪對話 Agent 智慧代理（頻繁工具呼叫、動態規劃、記憶檢索）** → SGLang 的 RadixAttention 基數樹快取（第 17 課第 06 節）展現出絕對統治力。
+**多輪對話 Agent 智慧代理（頻繁工具呼叫、動態規劃、記憶檢索）** → SGLang 的 RadixAttention 基數樹快取（第 17 課第 06 節）表現突出。
 
 **前綴高度重複的巨型 RAG 檢索** → 毫無懸念首選 SGLang。
 
@@ -68,9 +68,9 @@
 
 ### TGI 維護模式陷阱（The TGI maintenance trap）
 
-Hugging Face 官方於 2025 年 12 月 11 日正式宣告 TGI 轉入維護模式——未來將僅接受極端重大錯誤修復，實質停止功能演進。在歷史上，TGI 曾擁有頂級的可觀測性指標與無可挑剔的 Hugging Face 生態深度咬合，原始吞吐量僅略微落後於 vLLM。
+Hugging Face 官方於 2025 年 12 月 11 日正式宣告 TGI 轉入維護模式——未來僅提供錯誤修正，實質停止功能演進。在歷史上，TGI 曾擁有頂級的可觀測性指標與無可挑剔的 Hugging Face 生態深度咬合，原始吞吐量僅略微落後於 vLLM。
 
-但在 2026 年啟動新專案時：應當堅決避開 TGI。既有的遺留 TGI 叢集固然可繼續平穩服役，但長遠來看必須著手規劃遷移。SGLang 與 vLLM 是眼下唯一安全的長遠技術資產。
+但在 2026 年啟動新專案時：應當堅決避開 TGI。既有的遺留 TGI 叢集固然可繼續平穩服役，但長遠來看必須著手規劃遷移。SGLang 與 vLLM 是較安全的預設選項。
 
 ### 漸進式流水線模式（The pipeline pattern）
 
@@ -89,7 +89,7 @@ Ollama 在個人開發測試階段體驗堪稱完美。但它絕非為多租戶�
 - TGI 轉入維護模式官方時間：2025 年 12 月 11 日。
 - vLLM v0.15.1 里程碑：2026 年 2 月釋出；原生支援 PyTorch 2.10 與 Blackwell SM120 架構。
 - SGLang 全球正式環境部署規模：超過 40 萬張實體 GPU。
-- Ollama 與原生 llama.cpp 性能差距：慢 15% 至 30%；在正式環境高壓下吞吐量存在高達 3 倍落差。
+- Ollama 與原生 llama.cpp 效能差距：慢 15% 至 30%；在正式環境高壓下吞吐量存在高達 3 倍落差。
 
 ```figure
 data-parallel
@@ -106,7 +106,7 @@ data-parallel
 ## Exercises｜練習
 
 1. 執行 `code/main.py`。依據你所在團隊的真實硬體資產、並行規模與業務型態輸入參數。推導出的引擎選型是否與你的架構直覺完全吻合？
-2. 某企業的機房資產包含 12 張 NVIDIA H100 與 8 張 AMD MI300X 晶片。挑選出一款能統一運作於該異質運算叢集上的推論引擎。深入闡述為何 TRT-LLM 在此被一票否決？
+2. 你的基礎架構有 12 張 H100 和 8 張 AMD MI300X。應選哪個引擎？為什麼 TRT-LLM 不適用？
 3. 團隊內部有工程師提議在新專案中繼續沿用 TGI，理由是「我們過去最熟悉它」。撰寫一份標準的技術架構評審意見書，論證為何必須啟動向 vLLM 或 SGLang 的全面技術遷移。
 4. 梳理從「Ollama 開發環境」向「vLLM 正式環境」邁進時的全流程架構變更清單：涵蓋權重格式量化、引擎啟動配置以及分散式可觀測性埋點。
 5. 針對 P99 輸入前綴達到 8k Token、且跨租戶之間存在高頻重複命中特徵的企業級 RAG 檢索產品，挑選最適推論引擎，並結合第 17 課第 11 節與第 18 節的技術給出複合架構藍圖。

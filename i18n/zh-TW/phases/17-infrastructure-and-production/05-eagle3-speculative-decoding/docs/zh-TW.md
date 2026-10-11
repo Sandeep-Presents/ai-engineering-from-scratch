@@ -45,7 +45,7 @@ alpha 會隨著業務領域的分佈產生劇烈波動。在 ShareGPT 風格的�
 
 ### 2026 年正式環境落地 SOP（The 2026 production recipe）
 
-1. 首先將純粹的目標模型裸機發布上線。在目標並行度下，精確記錄基準 TTFT 首字延遲、ITL 吐字間隔與整體吞吐量。
+1. 首先以未啟用推測解碼的目標模型上線。在目標並行度下，精確記錄基準 TTFT 首字延遲、ITL 吐字間隔與整體吞吐量。
 2. 透過 vLLM 的 `speculative_config` 配置啟用 EAGLE-3 草稿能力。重新執行相同的基準測試。
 3. 嚴密監控並記錄接受率 alpha。vLLM V1 排程器將此暴露為 `spec_decode_metrics.accepted_tokens_per_request` 指標。將其除以配置的草稿長度 K 即可得出即時 alpha。
 4. 若在真實正式環境流量分佈下 alpha < 0.55，果斷停用推測解碼，或安排資源訓練領域專屬的 EAGLE-3 草稿頭部。
@@ -80,7 +80,7 @@ mx-speculative-tree
 
 ## Ship It｜交付成果
 
-本課交付標準實戰產物 `outputs/skill-eagle3-rollout.md`。輸入目標模型規格、業務流量特徵分佈與目標並行度，該 Skill 將自動產出標準的分階段 EAGLE-3 部署計畫書——建立基準壓測、注入相容配置、實時度量 alpha、設定 alpha >= 0.55 上線門檻，並全天候守護 P99 ITL 指標。
+本課交付標準實戰產物 `outputs/skill-eagle3-rollout.md`。輸入目標模型規格、業務流量特徵分佈與目標並行度，該 Skill 將自動產出標準的分階段 EAGLE-3 部署計畫書——建立基準壓測、啟用設定、實時度量 alpha、設定 alpha >= 0.55 上線門檻，並觀察 P99 ITL 指標。
 
 ## Exercises｜練習
 
@@ -88,7 +88,7 @@ mx-speculative-tree
 2. 假設正式環境流量由 70% 通用對話與 30% 程式碼生成構成。基於 ShareGPT 預訓練的 EAGLE-3 在對話任務上達到 alpha 0.7，但在程式碼任務上僅有 alpha 0.4。計算加權混合後的綜合 alpha，並判定此時啟用推測解碼是否具備正向收益。
 3. 研讀 vLLM 官方 `speculative_config` 技術文件。列出其支援的三大模式（獨立草稿模型、EAGLE、N-gram），並對照你的 vLLM 版本確認各模式與其他推論功能的相容性邊界。
 4. 你觀察到啟用 EAGLE-3 後，平均 ITL 下降了 25%，但 P99 ITL 卻反而惡化了 15%。給出清晰的故障診斷並提出具體的架構緩解手段。
-5. 精確計算針對 Llama 3.3 70B 模型部署 EAGLE-3 草稿頭部所引入的額外記憶體開銷。將其與直接載入 Llama 3.2 1B 作為傳統獨立草稿模型進行顯示記憶體佔用橫向對比。
+5. 精確計算針對 Llama 3.3 70B 模型部署 EAGLE-3 草稿頭部所引入的額外記憶體開銷。將其與直接載入 Llama 3.2 1B 作為傳統獨立草稿模型進行記憶體用量橫向對比。
 
 ## Key Terms｜關鍵術語
 

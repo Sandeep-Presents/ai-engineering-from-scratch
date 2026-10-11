@@ -1,6 +1,6 @@
 # 邊緣端推論——Apple 神經網路引擎、Qualcomm Hexagon、WebGPU/WebLLM、Jetson（Edge Inference — Apple Neural Engine, Qualcomm Hexagon, WebGPU/WebLLM, Jetson）
 
-> 邊緣端推論的核心物理約制是記憶體頻寬，絕非單純的算力（TOPS）。行動端 DRAM 頻寬通常僅有 50 至 90 GB/s；而資料中心的 HBM3 頻寬早已跨越 2 至 3 TB/s——足足存在 30 至 50 倍的巨大鴻溝。自回歸解碼是典型的記憶體頻寬受限操作，因此這項頻寬落差具有決定性影響。2026 年邊緣端技術版圖呈現四強鼎立：Apple M4/A18 神經網路引擎（ANE）峰值達 38 TOPS，享有零拷貝的統一記憶體架構（無需在 CPU 與 NPU 之間搬移權重）。Qualcomm Snapdragon X Elite / 8 Gen 4 的 Hexagon NPU 達到 45 TOPS。WebGPU + WebLLM 在 M3 Max 上運作 Llama 3.1 8B（Q4）能達到約 41 tok/s（達到原生性能的 70% 至 80%），在 GitHub 上有 1.76 萬顆星、提供 OpenAI 相容 API 並覆蓋約 70% 至 75% 的行動瀏覽器。NVIDIA Jetson 家族中，Orin Nano Super（8GB）可順暢運作 Llama 3.2 3B 與 Phi-3；AGX Orin 透過 vLLM 運作 gpt-oss-20b 達到約 40 tok/s；次世代 Jetson T4000（JetPack 7.1）性能更是 AGX Orin 的 2 倍。TensorRT Edge-LLM 全面支援 EAGLE-3、NVFP4 與分塊 Prefill——並於 CES 2026 上由 Bosch、ThunderSoft 與聯發科聯袂展出。
+> 邊緣端推論的核心物理約制是記憶體頻寬，絕非單純的算力（TOPS）。行動端 DRAM 頻寬通常僅有 50 至 90 GB/s；而資料中心的 HBM3 頻寬早已跨越 2 至 3 TB/s——足足存在 30 至 50 倍的巨大鴻溝。自回歸解碼是典型的記憶體頻寬受限操作，因此這項頻寬落差具有決定性影響。2026 年邊緣端技術版圖分成四個方向：Apple M4/A18 神經網路引擎（ANE）峰值達 38 TOPS，享有零拷貝的統一記憶體架構（無需在 CPU 與 NPU 之間搬移權重）。Qualcomm Snapdragon X Elite / 8 Gen 4 的 Hexagon NPU 達到 45 TOPS。WebGPU + WebLLM 在 M3 Max 上運作 Llama 3.1 8B（Q4）能達到約 41 tok/s（達到原生效能的 70% 至 80%），在 GitHub 上有 1.76 萬顆星、提供 OpenAI 相容 API 並覆蓋約 70% 至 75% 的行動瀏覽器。NVIDIA Jetson 家族中，Orin Nano Super（8GB）可運作 Llama 3.2 3B 與 Phi-3；AGX Orin 透過 vLLM 運作 gpt-oss-20b 達到約 40 tok/s；次世代 Jetson T4000（JetPack 7.1）效能更是 AGX Orin 的 2 倍。TensorRT Edge-LLM 全面支援 EAGLE-3、NVFP4 與分塊 Prefill——並於 CES 2026 上由 Bosch、ThunderSoft 與聯發科聯袂展出。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy bandwidth-bound decode simulator)
@@ -9,16 +9,16 @@
 
 ## Learning Objectives｜學習目標
 
-- 深刻解釋為何行動端 LLM 推論受限於記憶體頻寬，以及為何單純堆砌 TOPS 運算力在此退居次要地位。
-- 梳理四大邊緣端目標平台（Apple ANE、Qualcomm Hexagon、WebGPU/WebLLM、NVIDIA Jetson），並將各自精準映射至最優業務場景。
+- 解釋為何行動端 LLM 推論受限於記憶體頻寬，以及為何運算能力在此居於次要地位。
+- 梳理四大邊緣端目標平台（Apple ANE、Qualcomm Hexagon、WebGPU/WebLLM、NVIDIA Jetson），並將各自對應至使用情境。
 - 指出 2026 年 WebGPU 在行動端的瀏覽器覆蓋邊界（Firefox Android 仍在追趕、Safari iOS 26 正式支援）。
 - 為不同硬體平台精準匹配量化格式（ANE 採 Core ML INT4 + FP16、Hexagon 採 QNN INT8/INT4、瀏覽器採 WebGPU Q4、Jetson Thor 採 NVFP4）。
 
 ## The Problem｜問題
 
-某客戶要求打造一款在裝置本機離線運作的個人助理：語音優先、隱私預設本地閉環、完全支援無網路飛行模式。在配備 M3 Max 的 MacBook Pro 上，Llama 3.1 8B Q4 模型的吐字速度約為 55 tok/s——體驗極其流暢。然而在 iPhone 16 Pro 上，相同模型退化至 3 tok/s——慘不忍睹。在搭載 Snapdragon 8 Gen 3 的中高階 Android 手機上，實測約 7 tok/s。而在 Chrome Android v121+ 的行動瀏覽器中透過 WebGPU 執行，速度落在 4 至 8 tok/s 之間。
+某客戶要求打造一款在裝置上運作的聊天機器人：語音優先、預設保護隱私、可離線使用。在配備 M3 Max 的 MacBook Pro 上，Llama 3.1 8B Q4 模型的吐字速度約為 55 tok/s——體驗極其流暢。然而在 iPhone 16 Pro 上，相同模型退化至 3 tok/s——表現不佳。在搭載 Snapdragon 8 Gen 3 的中高階 Android 手機上，實測約 7 tok/s。而在 Chrome Android v121+ 的行動瀏覽器中透過 WebGPU 執行，速度落在 4 至 8 tok/s 之間。
 
-如此劇烈的吞吐量差異絕非單純的軟體移植不良。它是物理記憶體頻寬差距 × 模型量化格式 × NPU 是否開放使用者空間直接存取的三重綜合體現。2026 年的邊緣端推論是由四種截然不同的物理約束構成的四個獨立工程挑戰。
+如此劇烈的吞吐量差異絕非單純的軟體移植不良。它是物理記憶體頻寬差距 × 模型量化格式 × NPU 是否開放使用者空間直接存取的三重綜合體現。2026 年的邊緣端推論是由四種不同的問題構成。
 
 ## The Concept｜核心概念
 
@@ -31,8 +31,8 @@
 ### Apple 神經網路引擎（M4 / A18 ANE）
 
 - 提供高達 38 TOPS 的算力。採用晶片級統一記憶體架構（CPU、GPU 與 ANE 共享同一個實體記憶體池）——徹底消除了昂貴的記憶體跨單元搬移開銷。
-- 軟體存取途徑：透過 Core ML 與編譯後的 `.mlmodel` 格式進行調用，或在 PyTorch 中透過 Metal Performance Shaders（MPS）存取。
-- llama.cpp 的 Metal 後端底層調用的是 Metal GPU，而非直接驅動 ANE；若要釋放 ANE 的全部能效，必須走專門的 Core ML 轉換管線。
+- 軟體存取途徑：透過 Core ML 使用編譯後的 `.mlmodel` 模型，或在 PyTorch 中透過 Metal Performance Shaders（MPS）使用。
+- llama.cpp 的 Metal 後端底層調用的是 Metal GPU，而非直接驅動 ANE；若要使用 ANE，需轉換為 Core ML。
 - 2026 年 iOS 應用的最佳實踐路徑：Core ML 搭配 INT4 權重 + FP16 活化值。
 
 ### Qualcomm Hexagon（Snapdragon X Elite / 8 Gen 4）
@@ -55,7 +55,7 @@
 
 ### NVIDIA Jetson 家族（NVIDIA Jetson family）
 
-- Orin Nano Super（8GB）：能順暢運作 Llama 3.2 3B 與 Phi-3，並維持優秀的吐字速率。
+- Orin Nano Super（8GB）：可容納 Llama 3.2 3B 與 Phi-3。
 - AGX Orin：透過 vLLM 運作 gpt-oss-20b 等中型模型，穩定維持在約 40 tok/s。
 - Thor / T4000（搭載 JetPack 7.1）：效能達到 AGX Orin 的 2 倍，且硬體原生支援 EAGLE-3 與 NVFP4。
 - TensorRT Edge-LLM（2026 年發布）：將雲端資料中心的頂級特化技術（EAGLE-3 推測解碼、NVFP4 權重壓縮、分塊 Prefill）完整下沉移植至邊緣端內嵌式晶片。
@@ -72,7 +72,7 @@
 
 ### 邊緣端的超長上下文陷阱（The long-context trap on edge）
 
-Llama 3.1 宣稱的 128k 超長上下文是一項專屬資料中心的旗艦特性。在總記憶體僅有 8 GB 的手機上：4 GB 模型權重 + 32k 上下文所需的 2 GB KV 快取 + 作業系統與前台 UI 開銷 = 瞬間觸發 OOM 崩潰閃退。邊緣端正式環境必須嚴格將上下文長度截斷在 4k 至 8k 區間，除非強制引入極激進的 KV 快取量化（如 Q4 KV）。
+Llama 3.1 宣稱的 128k 超長上下文是一項專屬資料中心的旗艦特性。在總記憶體僅有 8 GB 的手機上：4 GB 模型權重 + 32k 上下文所需的 2 GB KV 快取 + 作業系統與前台 UI 開銷 = 瞬間觸發 OOM 崩潰閃退。邊緣端部署通常將上下文維持在 4K-8K，除非接受積極的 KV 量化（Q4 KV）。
 
 ### 語音是邊緣端最具爆發力的殺手級應用（Voice is the killer app）
 
@@ -82,7 +82,7 @@ Llama 3.1 宣稱的 128k 超長上下文是一項專屬資料中心的旗艦特�
 
 - Apple M4 / A18 ANE 算力：38 TOPS。
 - Qualcomm Hexagon（Snapdragon X Elite）：45 TOPS。
-- WebLLM 在 M3 Max 上的實測性能：Llama 3.1 8B Q4 達到約 41 tok/s。
+- WebLLM 在 M3 Max 上的實測效能：Llama 3.1 8B Q4 達到約 41 tok/s。
 - Jetson AGX Orin 運作 gpt-oss-20b：約 40 tok/s。
 - 資料中心與邊緣端實體記憶體頻寬落差：高達 30 至 50 倍。
 - 行動端 WebGPU 覆蓋率：約 70% 至 75%（Firefox Android 仍在追趕）。
@@ -104,8 +104,8 @@ edge-bandwidth-pipe
 1. 執行 `code/main.py`。針對配備 Snapdragon 8 Gen 3（記憶體頻寬約 77 GB/s）的 Android 旗艦機，計算其運作 7B Q4 模型的理論解碼極限吞吐量。將其與業界實測觀察到的 6 至 8 tok/s 進行對比——評估目前執行環境的底層硬體利用效率如何？
 2. Android 上的 WebGPU 要求 Chrome v121+。為老舊行動瀏覽器設計一套具備自動降級能力的備援容錯架構——透過完全相同的 OpenAI 相容 API 實現雲端伺服器靜默轉發。
 3. 你的 iOS App 要求必須支援 4k 上下文的串流輸出。哪一種模型規格與量化格式的組合，能確保系統在 iPhone 16 上運作時活躍記憶體始終壓低在 4 GB 安全線以內？
-4. Jetson AGX Orin 能夠順暢運作 gpt-oss-20b，而入門級的 Jetson Nano 僅能勉強塞入 3B 模型。若你的物聯網產品線同時涵蓋高低階兩款硬體，你該如何在軟體層面統一維護推論服務技術堆疊？
-5. 深入辯論「WebLLM 在 2026 年是否已具備正式環境商用條件」。從瀏覽器覆蓋率、運算性能穩定性以及 Firefox Android 生態缺口的維度給出全面評析。
+4. Jetson AGX Orin 能夠順暢運作 gpt-oss-20b，而入門級的 Jetson Nano 僅能容納 3B 模型。若你的物聯網產品線同時涵蓋高低階兩款硬體，你該如何在軟體層面統一維護推論服務技術堆疊？
+5. 深入辯論「WebLLM 在 2026 年是否已具備正式環境商用條件」。從瀏覽器覆蓋率、運算效能穩定性以及 Firefox Android 生態缺口的維度給出全面評析。
 
 ## Key Terms｜關鍵術語
 

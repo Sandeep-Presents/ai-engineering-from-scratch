@@ -1,6 +1,6 @@
 # 安全工程——金鑰管理、API 金鑰輪換、稽核日誌與防護欄（Security — Secrets, API Key Rotation, Audit Logs, Guardrails）
 
-> 透過集中化保險庫（HashiCorp Vault、AWS Secrets Manager、Azure Key Vault）徹底消滅金鑰擴散（Secret sprawl）。嚴禁將機密憑證散落在設定檔、Git 版本控制系統中的環境變數檔，或是試算表之中。全面採用動態 IAM 角色取代傳統靜態金鑰；CI/CD 管線強制透過 OIDC 進行無金鑰身分鑑別。AI Gateway 閘道架構是 2026 年的正式環境標準解法：微服務應用 → 智慧閘道 → 底層模型供應商，閘道在執行時期直接從 Vault 保險庫動態提取最新憑證。只需在保險庫中完成一次金鑰輪換，全線應用程式便會在數分鐘內自動無感生效——無需重新編譯容器、無需重新部署，更無需在 Slack 群組中焦急呼喊「誰拿到了新金鑰」。強制金鑰輪換週期不得超過 90 天；在每一次 commit 時透過 TruffleHog / GitGuardian / Gitleaks 進行強制掃描。落實零信任架構：MFA 多因素驗證、SSO 單一登入、RBAC/ABAC 細粒度授權、短時效 Token 以及終端裝置合規態勢校驗。敏感資訊脫敏（PII scrubbing）利用實體辨識技術在請求轉發前即時遮罩 PHI/PII；一致性 Token 化（Consistent tokenization，如 Mesh 方案）將敏感數值映射至穩定的佔位符，使 LLM 能完美保留程式碼語法與業務關聯語意。網路出站限制：推論服務必須長駐於專屬 VPC/VNet 子網內部，嚴格僅將 `api.openai.com`、`api.anthropic.com` 等白名單網域放行，徹底封殺一切非授權出站連線。2026 年標誌性資安事件：Vercel 供應鏈遭受攻擊，攻擊者透過被外洩的 CI/CD 憑證盜取了跨數千家企業客戶的正式環境環境變數。
+> 透過集中化保險庫（HashiCorp Vault、AWS Secrets Manager、Azure Key Vault）徹底消滅金鑰擴散（Secret sprawl）。嚴禁將機密憑證散落在設定檔、Git 版本控制系統中的環境變數檔，或是試算表之中。全面採用動態 IAM 角色取代傳統靜態金鑰；CI/CD 管線強制透過 OIDC 進行無金鑰身分鑑別。AI Gateway 閘道架構是 2026 年的正式環境標準解法：微服務應用 → 智慧閘道 → 底層模型供應商，閘道在執行時期直接從 Vault 保險庫動態提取最新憑證。只需在保險庫中完成一次金鑰輪換，全線應用程式便會在數分鐘內自動無感生效——無需重新編譯容器、無需重新部署，更無需在 Slack 群組中焦急呼喊「誰拿到了新金鑰」。強制金鑰輪換週期不得超過 90 天；在每一次 commit 時透過 TruffleHog / GitGuardian / Gitleaks 進行強制掃描。落實零信任架構：MFA 多因素驗證、SSO 單一登入、RBAC/ABAC 細粒度授權、短時效 Token 以及終端裝置合規態勢校驗。敏感資訊脫敏（PII scrubbing）利用實體辨識技術在請求轉發前即時遮罩 PHI/PII；一致性 Token 化（Consistent tokenization，如 Mesh 方案）將敏感數值映射至穩定的佔位符，使 LLM 能完美保留程式碼語法與業務關聯語意。網路出站限制：推論服務必須長駐於專屬 VPC/VNet 子網內部，嚴格僅將 `api.openai.com`、`api.anthropic.com` 等白名單網域放行，徹底封殺一切非授權出站連線。2026 年標誌性資安事件：Vercel 供應鏈遭受攻擊，攻擊者透過被外洩的 CI/CD 憑證盜取了數千個客戶部署的環境變數。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy PII-scrubber + audit-log writer)
@@ -18,7 +18,7 @@
 
 一名實習生不小心將包含生產金鑰的 `.env` 檔案 commit 進了 Git。雖然他火速執行了刪除操作，但金鑰早已永遠烙印在 Git 的歷史 commit 節點中——GitGuardian 監控警報狂響，而你們團隊的應急流程卻停留在最原始的石器時代：「在 Slack 群組瘋狂通知全員、手動修改 40 多個設定檔、將所有微服務全量重新編譯發布」。整整 8 個小時過去，線上有一半的服務已經生效，另一半依然在焦急等待維護窗口。
 
-在另一個維度，使用者的輸入 Prompt 中包含了「我的社會安全碼是 123-45-6789」。這段文字被直接發送給了 OpenAI。雖然貴公司簽署了 BAA，但內部資安紅線嚴格要求必須在資料流出前地端完成 PII 遮罩。然而你們的系統完全沒有做。
+在另一個維度，使用者的輸入 Prompt 中包含了「我的社會安全碼是 123-45-6789」。這段文字被直接發送給了 OpenAI。雖然貴公司簽署了 BAA，但內部政策要求在轉送前遮罩 PII。然而你們的系統完全沒有做。
 
 更嚴重的是，你的 EKS 叢集中的大模型 Pod 預設允許存取公網上的任何主機。惡意攻擊者透過向受控網域發起 DNS 查詢，悄悄將機密資料穿透外洩。網路層毫無攔截。
 
@@ -30,7 +30,7 @@
 
 **Vault 保險庫**：HashiCorp Vault、AWS Secrets Manager、Azure Key Vault、GCP Secret Manager。建立唯一的單一真實信任源。
 
-**IAM 角色**：應用程式或 AI 閘道透過其自身的 IAM 實體身分向保險庫進行鑑別，絕不使用靜態長期金鑰。保險庫僅簽發短時效的暫態 Token。
+**IAM 角色**：應用程式或閘道透過其 IAM 身分進行驗證，而非使用靜態金鑰。Vault 會在 token 有效期間回傳 secret。
 
 **AI 閘道模式**：AI 閘道在接收到外部請求的瞬間，在執行時期動態從 Vault 提取 `OPENAI_API_KEY`。當在保險庫中完成金鑰輪換後，下一個抵達的請求自動享用新金鑰。全系統零部署、零中斷。
 
@@ -83,25 +83,25 @@
 為每一次大模型呼叫生成具備不可篡改特性的結構化日誌：
 - 精確時間戳記。
 - 調用使用者與所屬租戶。
-- Prompt 雜湊值（基於隱私考量，日誌中僅儲存 SHA-256 雜湊，而非原始明文）。
+- Prompt 雜湊值（基於隱私考量，不記錄原始 Prompt）。
 - 實際調用的模型名稱與具體版本號。
 - 輸入與輸出 Token 消耗統計。
 - 該次呼叫的實質財務費用。
 - 模型回應的雜湊值。
 - 是否觸發了任何安全防護欄警報。
 
-依據法規要求嚴格存檔（SOC 2 要求保留至少 1 年，HIPAA 要求保留至少 6 年）。
+依據法規要求保留（SOC 2 1 年，HIPAA 6 年）。
 
 ### 2026 年 Vercel 供應鏈資安事件警示（The 2026 Vercel incident）
 
-這是一起震驚業界的典型供應鏈攻擊：攻擊者透過攻破第三方 CI/CD 憑證，成功跨越權限邊界外洩了數千家企業客戶正式環境中的環境變數。慘痛教訓：CI/CD 憑證等同於正式環境 Root 權限。金鑰必須嚴格收攏於 Vault 中；最小權限原則；保持高頻激進輪換。
+供應鏈攻擊：遭入侵的 CI/CD 憑證使數千個客戶部署的環境變數外洩。教訓：CI/CD 憑證應視同正式環境憑證。存放於 Vault。限制權限範圍。積極輪換。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
 - 金鑰強制定時輪換週期：不得超過 90 天。
 - Commit 級即時掃描工具：TruffleHog / GitGuardian / Gitleaks。
-- Vercel 2026 資安慘案：CI/CD 憑證失守導致數千家客戶的正式環境變數全數外洩。
-- 稽核日誌合法留存期：SOC 2 至少 1 年，HIPAA 至少 6 年。
+- Vercel 2026：CI/CD 憑證遭入侵，數千個客戶部署的環境變數外洩。
+- 稽核日誌合法留存期：SOC 2 1 年，HIPAA 6 年。
 
 ```figure
 i4-vault-rotation
