@@ -4,5 +4,6 @@
   "phases/17-infrastructure-and-production/03-gpu-autoscaling-kubernetes/docs/en.md": "6ac8b3437ee96f664c02173f7ebba8d43c61027861e7b27b5cd4e128be466241",
   "phases/17-infrastructure-and-production/04-vllm-serving-internals/docs/en.md": "ac55f16811358007b01b6a338df61bb4572f6e8d89a7e2af65387c6504508856",
   "phases/17-infrastructure-and-production/05-eagle3-speculative-decoding/docs/en.md": "07f749b5a5c8b7c26f0e401cac986f18d57ed2a67225717987123969bc42aa7c",
-  "phases/17-infrastructure-and-production/06-sglang-radixattention/docs/en.md": "af59a1a2a5e715f773cfb4eae88654c80efa1a8d5b569b8d2c4f885e3114daca"
+  "phases/17-infrastructure-and-production/06-sglang-radixattention/docs/en.md": "af59a1a2a5e715f773cfb4eae88654c80efa1a8d5b569b8d2c4f885e3114daca",
+  "phases/17-infrastructure-and-production/07-tensorrt-llm-blackwell/docs/en.md": "680c63c00fffe57852cb42cb24d17afdfa66084a5f4427aef99a91f5f3cc9942"
 }
