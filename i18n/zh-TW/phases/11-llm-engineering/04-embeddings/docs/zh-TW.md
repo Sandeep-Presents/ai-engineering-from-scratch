@@ -17,7 +17,7 @@
 
 ## The Problem｜問題
 
-你手上有 10,000 張客服工單。一位客戶寫道：「my payment didn't go through」（我的付款沒成功）。你需要找出過去類似的工單。關鍵字搜尋能找到包含「payment」與「didn't go through」的工單，卻會徹底漏掉「transaction failed」（交易失敗）、「charge was declined」（扣款遭拒）以及「billing error」（帳務錯誤）。這些工單以截然不同的詞彙描述了描述相同問題。
+你手上有 10,000 張客服工單。一位客戶寫道：「my payment didn't go through」（我的付款沒成功）。你需要找出過去類似的工單。關鍵字搜尋能找到包含「payment」與「didn't go through」的工單，卻會徹底漏掉「transaction failed」（交易失敗）、「charge was declined」（扣款遭拒）以及「billing error」（帳務錯誤）。這些工單以截然不同的詞彙描述相同問題。
 
 這就是詞彙不匹配問題（vocabulary mismatch problem）。人類語言有數十種表達相同概念的方式。關鍵字搜尋將每個單字視為孤立且缺乏語意內涵的符號，它無法知曉「declined」與「didn't go through」指向同一種狀況。
 
@@ -57,23 +57,23 @@ word embedding 僅代表單一 token。正式環境系統則需要對整個句�
 
 **對比學習（Contrastive learning）**：顯式訓練模型將語意相似的成對樣本拉近，將相異的成對樣本推開。Sentence-BERT（Reimers & Gurevych, 2019）採用此途徑，並奠定了現代 embedding 模型的基石。給定「How do I reset my password?」與「I need to change my password」，模型學會賦予它們近乎一致的向量。
 
-**指令調校 Embedding（Instruction-tuned embeddings）**：最新的主流途徑。如 E5 與 GTE 等模型接受任務前綴（「search_query:」、「search_document:」），指導模型該產出何種類型的 embedding。這使得讓單一模型支援多種下游任務。
+**指令調校 Embedding（Instruction-tuned embeddings）**：最新的主流途徑。如 E5 與 GTE 等模型接受任務前綴（「search_query:」、「search_document:」），指導模型該產出何種類型的 embedding。這使單一模型能支援多種下游任務。
 
 ```mermaid
 graph LR
     subgraph "2013: Word2Vec"
-        W1["king"] --> V1["[0.2, -0.1, ...]"]
-        W2["queen"] --> V2["[0.3, -0.2, ...]"]
+        W1["國王"] --> V1["[0.2, -0.1, ...]"]
+        W2["皇后"] --> V2["[0.3, -0.2, ...]"]
     end
 
     subgraph "2019: Sentence-BERT"
-        S1["How do I reset my password?"] --> E1["[0.04, 0.12, ...]"]
-        S2["I need to change my password"] --> E2["[0.05, 0.11, ...]"]
+        S1["如何重設我的密碼？"] --> E1["[0.04, 0.12, ...]"]
+        S2["我需要變更密碼"] --> E2["[0.05, 0.11, ...]"]
     end
 
-    subgraph "2024: Instruction-Tuned"
-        I1["search_query: password reset"] --> T1["[0.08, 0.09, ...]"]
-        I2["search_document: To reset your password, click..."] --> T2["[0.07, 0.10, ...]"]
+    subgraph "2024：指令調校"
+        I1["search_query: 密碼重設"] --> T1["[0.08, 0.09, ...]"]
+        I2["search_document: 若要重設密碼，請點選……"] --> T2["[0.07, 0.10, ...]"]
     end
 ```
 
@@ -92,7 +92,7 @@ graph LR
 | Qwen3-Embedding | 阿里巴巴 | 4096（Matryoshka） | 66.9 | 32K | 開源權重 |
 | Nomic-embed-v2 | Nomic | 768（Matryoshka） | 63.1 | 8192 | 開源權重 |
 
-MTEB（海量文字 Embedding 基準測試，Massive Text Embedding Benchmark）v2 涵蓋了跨檢索、分類、群集（clustering）、重新排序與摘要的 100 多項評測任務。分數越高越好。至 2026 年，開源權重模型（Qwen3-Embedding、BGE-M3）在多數維度上已追平甚至超越封閉式代管模型。Gemini Embedding 2 在純檢索在該指標領先；Voyage/Cohere 在金融、法律與程式碼等特定垂直領域拔得頭籌。在正式導入前，務必先在你自己的真實查詢資料集上進行基準評測。
+MTEB（海量文字 Embedding 基準測試，Massive Text Embedding Benchmark）v2 涵蓋了跨檢索、分類、群集（clustering）、重新排序與摘要的 100 多項評測任務。分數越高越好。至 2026 年，開源權重模型（Qwen3-Embedding、BGE-M3）在多數維度上已追平甚至超越封閉式代管模型。Gemini Embedding 2 在純檢索指標上領先；Voyage/Cohere 在金融、法律與程式碼等特定垂直領域拔得頭籌。在正式導入前，務必先在你自己的真實查詢資料集上進行基準評測。
 
 ### 相似度度量指標
 
@@ -140,13 +140,13 @@ HNSW 犧牲了極微小的精度損失（召回率（recall）通常落在 95% �
 
 ```mermaid
 graph TD
-    subgraph "HNSW Layers"
-        L2["Layer 2 (sparse)"] -->|"long jumps"| L1["Layer 1 (medium)"]
-        L1 -->|"shorter jumps"| L0["Layer 0 (dense, all vectors)"]
+    subgraph "HNSW 層"
+        L2["第 2 層（稀疏）"] -->|"long jumps"| L1["第 1 層（中等密度）"]
+        L1 -->|"shorter jumps"| L0["第 0 層（密集，包含所有向量）"]
     end
 
-    Q["Query vector"] -->|"enter at top"| L2
-    L0 -->|"nearest neighbors"| R["Top-k results"]
+    Q["查詢向量"] -->|"enter at top"| L2
+    L0 -->|"nearest neighbors"| R["top-k 結果"]
 ```
 
 正式環境可選方案：
@@ -191,10 +191,10 @@ graph TD
 
 ```mermaid
 graph LR
-    Q["Query"] --> BE["Bi-Encoder: embed query"]
-    BE --> VS["Vector search: top 100"]
-    VS --> CE["Cross-Encoder: rerank"]
-    CE --> R["Top 10 results"]
+    Q["查詢"] --> BE["Bi-Encoder：為查詢產生 embedding"]
+    BE --> VS["向量搜尋：top 100"]
+    VS --> CE["Cross-Encoder：重新排序"]
+    CE --> R["top 10 個結果"]
 ```
 
 主流重新排序模型：Cohere Rerank 3.5（每 1000 次查詢收費 2 美元）、BGE-reranker-v2（免費開源）、Jina Reranker v2（免費開源）。
