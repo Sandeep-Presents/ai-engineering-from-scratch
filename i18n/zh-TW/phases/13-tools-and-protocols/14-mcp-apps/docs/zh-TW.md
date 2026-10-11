@@ -40,7 +40,7 @@ Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它�
 
 1. MCP 核心協定負責傳輸 `server/discover`、`tools/list`、`tools/call`、`resources/list` 與 `resources/read`。
 2. MCP Apps 擴充功能負責宣告 UI 視圖，並規範 iframe 與宿主之間的通訊橋樑。
-3. 瀏覽器沙盒規則強制約束該 UI 所能存取的實體邊界。
+3. 瀏覽器沙盒規則強制約束該 UI 所能存取的範圍。
 
 該擴充功能的官方識別碼為 `io.modelcontextprotocol/ui`。通訊雙方皆需顯式宣告支援。用戶端在發起的每一次請求中，皆於能力物件內部宣告對該擴充功能的相容支援：
 
@@ -94,7 +94,7 @@ Apps 橋接層內部雖然依然存在名為 `ui/initialize` 的方法，但它�
 }
 ```
 
-伺服器必須強制支援服務發現。但用戶端並非必須在每次操作前強行呼叫服務發現，因為每個實體動作本身就已攜帶了完整的自包含能力宣告。
+伺服器必須強制支援服務發現。但用戶端並非必須在每次操作前強行呼叫服務發現，因為每個動作本身就已攜帶了完整的自包含能力宣告。
 
 ### 在工具宣告中綁定 UI 資源
 
@@ -156,7 +156,7 @@ Mcp-Name: ui://notes/timeline.html
 
 HTTP 標頭數值必須與 JSON-RPC Request Body 內容完全相符。任何衝突矛盾皆屬於協定錯誤 `-32020`。
 
-回傳結果包含實體 HTML 資源與相應的快取控制建議：
+回傳結果包含HTML 資源與相應的快取控制建議：
 
 ```json
 {
@@ -214,7 +214,7 @@ JSON-RPC 單向通知不帶 `id`，伺服器絕不可為其回傳 JSON-RPC 回�
 - 除非有明確可見的功能需求，否則絕不索求攝影機、麥克風或地理位置權限。
 - 將 `postMessage` 嚴密鎖定於精確的通訊對等來源，堅決拒絕來自任何其他 Origin 的事件。
 - 將工具引數、工具成果、資源文本與橋接訊息，一律視為不可信的外部輸入。
-- 使用者授權確認的控制權必須牢牢留在宿主環境手中。iframe 絕不能自我核准自身的實體破壞性動作。
+- 使用者授權確認的控制權必須牢牢留在宿主環境手中。iframe 絕不能自我核准自身的破壞性操作。
 
 絕不要從網路教學中盲目複製固定的 `sandbox` 屬性。宿主必須依據 App 的 Origin 模型與自身的安全隔離架構，量身配置最適標記。
 
@@ -239,7 +239,7 @@ Apps 橋接層本質上是運作於 `postMessage` 之上的 JSON-RPC 方言。�
 - 在 iframe 內部完好維持鍵盤導航順序、可見焦點指示器、無障礙名稱、螢幕閱讀器狀態、充足的色彩對比度、縮放比例與減弱動畫偏好。
 - 在視窗重設尺寸或重新彩現後，嚴格重新測試宿主控制項與視圖控制項之間的焦點切換流暢度。
 
-在 App 處於開啟狀態期間，權限隨時可能因使用者切換帳號、安全策略變更、伺服器被隔離審查或宿主收窄授權而遭到動態撤銷。必須在「實施動作的當下」即時覆核能力與授權，而非僅在 `ui/initialize` 時檢查一次。一旦權限遭到撤銷，應當立刻拒絕正在等待執行的特權呼叫、中斷不再符合策略的網路活動、清除已彩現的敏感狀態資料，並在 UI 資源本身不再被准入時直接卸載重置或平滑降級為純文字展示。視圖必須將宿主的拒絕執行視為常規的業務結果，絕不能死皮賴臉地反覆重試直至宿主崩潰。
+在 App 處於開啟狀態期間，權限隨時可能因使用者切換帳號、安全策略變更、伺服器被隔離審查或宿主收窄授權而遭到動態撤銷。必須在「實施動作的當下」即時覆核能力與授權，而非僅在 `ui/initialize` 時檢查一次。一旦權限遭到撤銷，應當立刻拒絕正在等待執行的特權呼叫、中斷不再符合策略的網路活動、清除已彩現的敏感狀態資料，並在 UI 資源本身不再被准入時直接卸載重置或平滑降級為純文字展示。視圖必須將宿主的拒絕執行視為常規的業務結果，不能反覆重試，直到宿主讓步為止。
 
 ### 純文字降級回退是協定契約的一部分
 
@@ -248,7 +248,7 @@ Apps 橋接層本質上是運作於 `postMessage` 之上的 JSON-RPC 方言。�
 - 在 `tools/list` 中回傳不帶 `_meta.ui` 的同名工具；
 - 為 `tools/call` 保留高價值且可讀性強的純文字回傳結果；
 - 當此類宿主試圖存取 `resources/read` 讀取 UI 資源時，回傳缺少能力的合法錯誤；
-- 在判定工具是否執行成功時，絕不可假設存在實體 iframe 視圖。
+- 在判定工具是否執行成功時，絕不可假設存在 iframe 視圖。
 
 ```figure
 t3-ui-sandbox
@@ -256,7 +256,7 @@ t3-ui-sandbox
 
 ## Build It｜動手實作
 
-`code/main.py` 在完全不依賴任何外部重型 SDK 的前提下，實作了小巧精悍的協定模型。它嚴格校驗當前請求信封與 Streamable HTTP 路由標頭、透過 `server/discover` 宣告 Apps 支援、列舉工具與資源清單、執行實體工具，並對外提供自包含的 HTML 視圖資源。
+`code/main.py` 在完全不依賴任何外部重型 SDK 的前提下，實作了小巧精悍的協定模型。它嚴格校驗當前請求信封與 Streamable HTTP 路由標頭、透過 `server/discover` 宣告 Apps 支援、列舉工具與資源清單、執行工具，並對外提供自包含的 HTML 視圖資源。
 
 該實作模型接收已解析完成的 Body 內文與路由標頭。它並非全功能的完整 HTTP 伺服器，因此不對 `Content-Type` 與 `Accept` 進行底層字串解析。請參考第 09 課取得嚴格要求 `Content-Type: application/json` 以及包含 `application/json` 與 `text/event-stream` 之 `Accept` 標頭數值的完整 Streamable HTTP 轉接層實作。
 
@@ -268,11 +268,11 @@ python3 code/main.py
 python3 -m unittest discover code/tests -v
 ```
 
-在輸出日誌中重點檢驗五大不變量：
+請檢查輸出中的四項內容：
 
 1. 每一次方法呼叫皆完全自包含且互相獨立。
 2. 每個請求皆在 `_meta` 中完整攜帶能力宣告。
-3. 在讀取任何實體資源前，`resources/list` 能回傳穩定的描述符。
+3. 在讀取任何資源前，`resources/list` 能回傳穩定的描述符。
 4. 每個成功回應皆標明 `resultType` 並附帶伺服器識別中繼資料。
 5. 全流程完全不存在任何核心協定工作階段識別碼。
 
@@ -312,7 +312,7 @@ python3 -m unittest discover code/tests -v
 
 ## Further Reading｜延伸閱讀
 
-- [MCP 2026-07-28 base protocol](https://modelcontextprotocol.io/specification/2026-07-28/basic) ——最新基礎協定標準手冊
-- [MCP Apps overview](https://modelcontextprotocol.io/extensions/apps/overview) ——MCP Apps 架構官方綜述
-- [MCP Apps build guide](https://modelcontextprotocol.io/extensions/apps/build) ——建置互動式 UI 應用程式實戰指南
-- [Official extension support matrix](https://modelcontextprotocol.io/extensions/client-matrix) ——各大主流用戶端對擴充功能支援度清單
+- [MCP 2026-07-28 base protocol](https://modelcontextprotocol.io/specification/2026-07-28/basic)
+- [MCP Apps overview](https://modelcontextprotocol.io/extensions/apps/overview)
+- [MCP Apps build guide](https://modelcontextprotocol.io/extensions/apps/build)
+- [Official extension support matrix](https://modelcontextprotocol.io/extensions/client-matrix)

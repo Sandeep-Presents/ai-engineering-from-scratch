@@ -1,6 +1,6 @@
 # MCP 傳輸層：stdio 與無狀態 Streamable HTTP（MCP Transports: stdio and Stateless Streamable HTTP）
 
-> 傳輸層僅負責承載傳遞 MCP 訊息，它絕不負責提供缺漏的協定狀態。在 `2026-07-28` 規範中，本地的 stdio 與遠端的 Streamable HTTP 兩者皆百分之百承載著自包含上下文的獨立請求。
+> 傳輸層僅負責承載傳遞 MCP 訊息，它絕不負責提供缺漏的協定狀態。在 `2026-07-28` 規範中，本地的 stdio 與遠端的 Streamable HTTP 兩者皆承載著自包含上下文的獨立請求。
 
 **Type:** Learn
 **Languages:** Python
@@ -17,9 +17,9 @@
 
 ## The Problem｜問題
 
-早期版本的 Streamable HTTP 將協定層級的能力協商，與實體傳輸連線以及協定工作階段（Session）強行綁定在一起。伺服器端會自行簽發 `Mcp-Session-Id`、開放獨立的 GET 事件串流、接收 DELETE 請求以銷毀工作階段，並透過 `Last-Event-ID` 支援 SSE 斷點續傳。
+早期版本的 Streamable HTTP 將協定層級的能力協商，與傳輸連線以及協定工作階段（Session）綁定在一起。伺服器端會自行簽發 `Mcp-Session-Id`、開放獨立的 GET 事件串流、接收 DELETE 請求以銷毀工作階段，並透過 `Last-Event-ID` 支援 SSE 斷點續傳。
 
-MCP `2026-07-28` 規範已將上述機制從現代網路通訊中徹底移除。現在，每一個進來的獨立請求皆能被任意轉發至任何健康的後端背景工作程式（Worker），因為該請求所需的協定版本與用戶端能力宣告，皆百分之百封裝在 Request Body 內文中。HTTP 標頭雖會同步映射部分欄位以利負載平衡與路由策略，但伺服器在執行前必須嚴格校驗標頭與內文是否完全吻合。
+MCP `2026-07-28` 規範已將上述機制從現代網路通訊中移除。現在，每一個進來的獨立請求皆能被任意轉發至任何健康的後端背景工作程式（Worker），因為該請求所需的協定版本與用戶端能力宣告，皆封裝在 Request Body 內文中。HTTP 標頭雖會同步映射部分欄位以利負載平衡與路由策略，但伺服器在執行前必須嚴格校驗標頭與內文是否完全吻合。
 
 這使得系統更易於水平擴展，且在架構分析上更為清晰透明。這同時意味著：若一套教材依然將 2025 年代的工作階段式傳輸當作最新規範講授，它所傳遞的本質上是錯誤的安全邊界與失效復原模型。
 
@@ -58,7 +58,7 @@ Accept: application/json, text/event-stream
 
 ### 僅限 POST（POST-only）的嚴格定義
 
-現代 Streamable HTTP 規範徹底廢棄了獨立的 GET 串流端點與 DELETE 連線銷毀端點：
+現代 Streamable HTTP 沒有獨立的 GET 串流端點，也沒有 DELETE 工作階段端點：
 
 - 呼叫 `GET /mcp` 必須一律回傳狀態碼 `405 Method Not Allowed`。
 - 呼叫 `DELETE /mcp` 必須一律回傳狀態碼 `405 Method Not Allowed`。
@@ -71,7 +71,7 @@ Accept: application/json, text/event-stream
 
 伺服器必須對進來的連線嚴格校驗 `Origin` 標頭，以全面防禦 DNS 重綁定（DNS Rebinding）攻擊。若標頭存在且未明確列入白名單中，必須一律回傳 `403 Forbidden`。非瀏覽器環境的用戶端可以省略 `Origin` 標頭，這完全符合官方傳輸層規範。
 
-本地執行的伺服器應明確綁定至 `127.0.0.1` 本機迴路位址，嚴禁綁定至所有網路介面（0.0.0.0）。對外開放的網路服務依然必須對每一個請求實施真實的身份驗證與授權。Origin 校驗僅是防禦手段，絕不能取代真實鑑權。
+本地執行的伺服器應明確綁定至 `127.0.0.1` 本機迴路位址，嚴禁綁定至所有網路介面（0.0.0.0）。對外開放的網路服務依然必須對每個請求實施身分驗證與授權。Origin 校驗僅是防禦手段，不能取代身分驗證。
 
 在白名單匹配時，必須實施完全相等的字串比對。類似 `origin.startswith("https://trusted.example")` 的前綴比對是極具漏洞的危險做法，它會輕易放行攻擊者偽造的後綴網域。
 
@@ -155,17 +155,17 @@ stream closes
 
 廢除協定工作階段，絕不意味著禁止業務工作流維護狀態。伺服器可以生成不透明的業務狀態識別碼（Handle），並作為常規工具呼叫成果回傳給用戶端。用戶端在後續的呼叫中，將該識別碼作為顯式引數傳回。
 
-將狀態識別碼與通過驗證的主體進行身分綁定、使用不可被猜測的隨機數、配置合理過期時間，並在每一次呼叫時實施鑑權審查。這讓狀態在業務應用層清晰透明地流轉，而非暗藏於底層網路的節點親和性（Affinity）黑箱中。
+將狀態識別碼與通過驗證的主體進行身分綁定、使用不可被猜測的隨機數、配置合理過期時間，並在每次呼叫時實施授權檢查。這讓狀態在業務應用層清晰透明地流轉，而非暗藏於底層網路的節點親和性（Affinity）黑箱中。
 
-隱式節點記憶在水平擴展中引發的典型系統崩潰流程：
+隱式節點記憶在水平擴展中引發的系統失效流程：
 
 1. 請求 A 抵達節點 1，並在該行程的記憶體內部建立了一份草稿。
-2. 回應未回傳任何草稿識別碼，因為該實作傲慢地假設實體 TCP 連線本身就能標識該草稿。
+2. 回應未回傳任何草稿識別碼，因為該實作假設連線本身就能識別草稿。
 3. 請求 B 作為一次全新的 HTTP POST，被負載平衡器分發至節點 2。
-4. 節點 2 雖然接收到了合法的協定中繼資料，卻完全無法找到該草稿，導致工作流直接崩潰或誤讀了錯誤的本機物件。
-5. 開發者往往試圖透過黏性路由（Sticky Routing）治標不治本，直到遇到節點重啟、滾動發布或容災切換時再度徹底故障。
+4. 節點 2 雖然收到有效的協定中繼資料，卻無法識別或載入草稿，因此工作流程失敗或讀取錯誤的本機物件。
+5. 開發者往往試圖透過黏性路由（Sticky Routing）治標不治本，直到節點重啟、滾動發布、重新排程或容災切換將下一個請求導向其他節點。
 
-標準的工程架構劃分為兩大部分：協定上下文留在每一個獨立請求中；持久化的業務狀態儲存於後端共享資料庫中，並由伺服器派發的不透明識別碼進行定址。下一次呼叫攜帶該識別碼，任何一個節點皆能載入同一筆資料，且鑑權邏輯會驗證當前請求主體是否具備存取權限。節點記憶體可作為快取加速，但絕不能是保障系統正確性的唯一依賴。
+標準的工程架構劃分為兩大部分：協定上下文留在每一個獨立請求中；持久化的業務狀態儲存於後端共享資料庫中，並由伺服器派發的不透明識別碼進行定址。下一次呼叫攜帶該識別碼，任何一個節點皆能載入同一筆資料，並由授權邏輯將該筆紀錄綁定至已驗證的主體與租戶。節點記憶體可作為快取加速，但絕不能是保障系統正確性的唯一依賴。
 
 依據生命週期挑選合適的狀態保存形式：請求區域變數服務於單次呼叫；短期的多輪往返可使用具備完整性防篡改保護的 `requestState`；而長期草稿或耗時工作，則必須仰賴顯式識別碼加上共享持久化儲存、過期銷毀、並發控制與冪等保護。所有這些物件，皆絕非 MCP 協定層級的工作階段。
 
@@ -205,7 +205,7 @@ python3 -m unittest discover tests -v
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-mcp-transport-migrator.md`。它能徹底移除現代程式碼中殘留的協定工作階段邏輯、補齊標頭與內文交叉校驗、將舊有的獨立 GET 串流重構為標準的 `subscriptions/listen`，並將所有傳統向下相容橋樑進行清晰的物理隔離。
+本課產出 `outputs/skill-mcp-transport-migrator.md`。它能移除現代程式碼中殘留的協定工作階段邏輯、補齊標頭與內文交叉校驗、將舊有的獨立 GET 串流重構為標準的 `subscriptions/listen`，並將所有傳統向下相容橋樑清楚分隔。
 
 ## Exercises｜練習
 
@@ -230,8 +230,8 @@ python3 -m unittest discover tests -v
 
 ## Further Reading｜延伸閱讀
 
-- [MCP Transport Overview](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports) ——MCP 傳輸架構官方綜述
-- [MCP stdio Transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio) ——標準輸入輸出傳輸層官方規格書
-- [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http) ——無狀態 Streamable HTTP 規範手冊
-- [MCP Subscriptions](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions) ——長連線事件訂閱模式官方規格
-- [MCP 2026-07-28 Changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog) ——傳輸層重大變更與工作階段廢止公告
+- [MCP Transport Overview](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports)
+- [MCP stdio Transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio)
+- [MCP Streamable HTTP](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http)
+- [MCP Subscriptions](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions)
+- [MCP 2026-07-28 Changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog)

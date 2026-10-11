@@ -37,7 +37,7 @@ MCP 閘道器（Gateway）坐落於用戶端與多台後端 MCP 伺服器之間�
 
 針對接收到的每一個請求：
 
-1. 從傳輸層授權憑證中認證發起主體；
+1. 從傳輸層授權資訊中驗證發起者身分；
 2. 嚴格校驗 `MCP-Protocol-Version`、`Mcp-Method`、`Mcp-Name` 以及 `params._meta`；
 3. 針對當前主體、目標資源、呼叫方法、工具名稱與引數實施授權鑑權；
 4. 套用描述符特徵鎖定、註冊表准入策略、速率限制與資料分類策略；
@@ -51,9 +51,9 @@ MCP 閘道器（Gateway）坐落於用戶端與多台後端 MCP 伺服器之間�
 
 准入治理（Admission）僅負責裁決「哪一個後端版本允許接入閘道器」。它絕不代表對具體線上呼叫的授權。針對每一個進來的請求，閘道器必須依據已認證主體、簽發者與目標資源、租戶邊界、匹配的方法與名稱、標準化引數、准入描述符雜湊鎖定、當前節點健康狀態、能力交集、資料安全等級、速率計量狀態以及動作綁定審核，即時重新計算安全決策。
 
-這項先後順序至關重要：即使某個註冊表紀錄依然處於啟用狀態，某使用者的角色權限可能已被即時撤銷；即使某個描述符雜湊完全吻合，傳入的目標引數可能已惡意跨越了租戶邊界；即使後端伺服器通過了准入審查，突發的應變策略可能正在隔離所有具實體副作用的變更操作。因此，即時執行期策略始終是發出允許或拒絕的最高裁決者，而註冊表與描述符特徵僅是其評估輸入之一。
+這項先後順序至關重要：即使某個註冊表紀錄依然處於啟用狀態，某使用者的角色權限可能已被即時撤銷；即使某個描述符雜湊完全吻合，傳入的目標引數可能已惡意跨越了租戶邊界；即使後端伺服器通過了准入審查，突發的應變策略可能正在隔離狀態變更類呼叫。因此，即時執行期策略始終是發出允許或拒絕的最高裁決者，而註冊表與描述符特徵僅是其評估輸入之一。
 
-絕不要將允許決策快取在底層 TCP 連線或已被廢止的工作階段標識下。若策略評估引擎暫時不可用，必須依據操作類別執行明確宣告的失敗策略。保守的安全預設為：對所有狀態變更與敏感讀取實施安全中斷（Fail Closed）；唯有在威脅模型明確允許的前提下，少數預先核准的公開唯讀路徑方可短暫使用快取的已知策略。詳實記錄做出裁決的具體策略版本與失敗路徑，並在對外回傳前再次校驗後端結果。
+絕不要將允許決策快取在底層 TCP 連線或已被廢止的工作階段標識下。若策略評估引擎暫時不可用，必須依據操作類別執行明確宣告的失敗策略。保守的安全預設為：對所有狀態變更與敏感讀取實施安全中斷（Fail Closed）；唯有在風險模型明確允許的前提下，少數預先核准的公開唯讀路徑方可短暫使用快取的已知策略。詳實記錄做出裁決的具體策略版本與失敗路徑，並在對外回傳前再次校驗後端結果。
 
 ### 單一 POST 入口端點
 
@@ -70,7 +70,7 @@ Accept: application/json, text/event-stream
 
 閘道器可為該次 POST 回傳標準 JSON 或請求範疇的 SSE 串流。對於現代請求，GET 與 DELETE 入口堅決回傳 405。傳入的 `Mcp-Session-Id` 與 `Last-Event-ID` 絕不賦予任何權限、連線親和性或重播行為。
 
-HTTP 標頭數值必須與 Request Body 內容嚴格吻合。在查詢後端路由之前，一旦發現矛盾必須立刻拋出 `-32020` 拒絕執行。這使得負載平衡器、API 閘道器與限流器無需完整解析龐大的 Body，即可安全實施初步路由，同時在數學上確保端到端完整性。
+HTTP 標頭數值必須與請求本文內容相符。在查詢後端路由之前，一旦發現矛盾便回傳 `-32020` 錯誤。這使得負載平衡器、API 閘道器與限流器無需完整解析本文，即可安全實施初步路由，同時維持端到端完整性。
 
 嚴格依循鋼鐵順序展開校驗：校驗 JSON-RPC 與中繼資料型別 → 比對標頭數值與 Body 內容 → 判定協定版本是否受支援。標頭衝突回傳 HTTP 400 搭配 `-32020`；標頭與內文一致同意了不支援的版本，回傳 HTTP 400 搭配 `-32022` 以及 `data` 嚴格為 `{"supported":["2026-07-28"],"requested":"<actual>"}` 的錯誤物件；未知方法回傳 HTTP 404 搭配 `-32601`。
 
@@ -100,9 +100,9 @@ HTTP 標頭數值必須與 Request Body 內容嚴格吻合。在查詢後端路�
 }
 ```
 
-僅對外宣告閘道器自身能夠在端到端保證履行的能力交集（Capability Intersection）。後端支援的某項特性，並不代表閘道器對外暴露是安全的；而若某項閘道器特性在後端缺乏路徑支撐，對外虛假宣傳亦毫無意義。
+僅對外宣告閘道器自身能夠在端到端保證履行的能力交集（Capability Intersection）。後端支援的某項特性，並不代表閘道器對外暴露是安全的；而若某項閘道器特性在後端缺乏支援路徑，對外宣告也毫無意義。
 
-`serverInfo` 僅供前端展示與除錯之用，絕不可作為替代註冊表或發布者信任的憑證。
+`serverInfo` 是自行宣告的展示與診斷資料，不可用來取代註冊表或發布者信任證明。
 
 ### 逐請求的用戶端能力宣告
 
@@ -119,7 +119,7 @@ HTTP 標頭數值必須與 Request Body 內容嚴格吻合。在查詢後端路�
 }
 ```
 
-切勿盲目將外層用戶端的能力宣告原樣複製轉發給後端。對於後端伺服器而言，閘道器本身就是其直接用戶端。僅宣告閘道器自身能夠正確代理調度的協定特性。
+切勿盲目將外層用戶端的能力宣告原樣複製轉發給後端。對於後端伺服器而言，閘道器本身就是其直接用戶端。僅宣告閘道器自身能夠正確協調的協定特性。
 
 ### 確定性命名空間合併
 
@@ -132,7 +132,7 @@ issues.list
 issues.open
 ```
 
-在閘道器內部維護「公共名稱 → 後端實例與原始工具名」的確定性映射表。面對重名衝突，絕不允許隨機選取首個或末個條目。公共名稱本身就是使用者授權審查與合規審計契約的一部分，變更公共名稱屬於破壞性重大變更。
+在閘道器內部維護「公共名稱 → 後端實例與原始工具名」的確定性映射表。面對重名衝突，絕不可選取首個或末個條目。公共名稱本身就是使用者授權審查與合規審計契約的一部分，變更公共名稱屬於破壞性重大變更。
 
 `tools/list` 輸出必須具備絕對的確定性排序。當可見工具清單隨使用者身分而不同時，標註為 `cacheScope: private`。配置合理的 `ttlMs` 存活時間，既能減輕對後端的探測負擔，又能防止使用者私有清單跨授權邊界外洩。
 
@@ -140,7 +140,7 @@ issues.open
 
 ### 鎖定已核准的工具描述符
 
-在准入治理階段，將審查核准的完整描述符進行標準化序列化，並將其 SHA-256 特徵摘要鎖定於對應的公共修飾名稱之下。在後續的清單列舉與實體呼叫時，即時比對線上描述符是否與鎖定摘要吻合。
+在准入治理階段，將審查核准的完整描述符進行標準化序列化，並將其摘要（digest）鎖定於對應的公共名稱之下。在後續的清單列舉與實體呼叫時，即時比對線上描述符是否與鎖定摘要吻合。
 
 一旦發現特徵不符：
 
@@ -205,7 +205,7 @@ issues.open
 
 ### 憑證代理與隔離
 
-閘道器負責對外認證呼叫端，並在內部以獨立憑證向各後端伺服器發起鑑權。後端伺服器的機密憑證絕不對外洩漏給用戶端。
+閘道器負責對外驗證呼叫端的身分，並在內部以獨立憑證向各後端伺服器驗證身分。後端伺服器的機密憑證絕不對外洩漏給用戶端。
 
 保持明確清晰的兩層綁定關係：
 
@@ -280,9 +280,9 @@ backend issuer + resource -> backend registration and token
 }
 ```
 
-閘道器隨後僅轉發已獲確認的變更類型。該串流上的每一條通知，其 `params._meta` 中皆必須原樣攜帶相同的 `io.modelcontextprotocol/subscriptionId`。不存在自動重播或自動重連機制。一旦連線中斷，用戶端必須指派新請求 ID 重新發起監聽，並主動拉取所依賴的清單。伺服器主動發起的優雅關閉，會回傳帶有相同訂閱 ID 的終態 complete 結果。
+閘道器隨後僅轉發已獲確認的變更類型。該串流上的每一條通知，其 `params._meta` 中皆必須原樣攜帶相同的 `io.modelcontextprotocol/subscriptionId`。不存在自動重播或自動重連機制。重新連線時，用戶端會重新開啟訂閱，並主動拉取所依賴的清單。伺服器主動發起的優雅關閉，會回傳帶有相同訂閱 ID 的終態 complete 結果。
 
-現代路徑徹底取代了舊版的 `resources/subscribe`、`resources/unsubscribe` 以及主動推送的獨立 GET 串流。
+現代路徑取代了舊版的 `resources/subscribe`、`resources/unsubscribe` 以及主動推送的獨立 GET 串流。僅在具版本門控的舊版路徑中保留這些方法。
 
 ### 穿透閘道器的 MRTR 互動
 
@@ -296,9 +296,9 @@ Tasks 是一項由 `io.modelcontextprotocol/tasks` 唯一標識的官方標準�
 
 用戶端在逐請求能力中宣告擴充支援，而閘道器唯有在自身能夠端到端完整維持任務生命週期的前提下，方可在服務發現中對外宣傳該能力。針對受支援的 `tools/call`，完全由後端服務自主決定回傳常規成果還是回傳 `resultType: task`。任務成果直接包含 `taskId`、`status`、時間戳記、`ttlMs` 以及選填的 `pollIntervalMs`。在向外發送該結果之前，底層必須已確保該任務已處於持久化可讀取狀態。
 
-閘道器為該不透明的任務識別碼記錄已認證主體與後端路由。後續發起的 `tasks/get`、`tasks/update` 與 `tasks/cancel` 呼叫皆將 `params.taskId` 作為 `Mcp-Name` 標頭輸出，為沿途的中繼節點提供路由鍵值。`tasks/get` 回傳標註有 `resultType: complete` 的任務快照，並在終態時內聯終態成果或協定錯誤。`tasks/update` 為未決的輸入金鑰送出 `inputResponses` 並回傳空的確認。`tasks/cancel` 是協同式取消意圖的宣告，回傳確認訊息，絕不保證後端立即終止。
+閘道器為該不透明的任務識別碼記錄已認證主體與後端路由。後續發起的 `tasks/get`、`tasks/update` 與 `tasks/cancel` 呼叫皆將 `params.taskId` 作為 `Mcp-Name` 標頭輸出，為沿途的中繼節點提供路由鍵值。`tasks/get` 回傳標註有 `resultType: complete` 的任務快照，並在終態時內聯終態成果或協定錯誤。`tasks/update` 會送出依鍵值索引、用來回應待處理任務輸入的 `inputResponses`，並回傳空的完成確認。`tasks/cancel` 是協同式取消意圖的宣告，回傳確認訊息，絕不保證後端立即終止。
 
-嚴禁實作全新或自訂的 `tasks/list` 或 `tasks/result` 方法。需要輸入的任務會透過 `tasks/get` 暴露完整的嵌附請求；用戶端透過 `tasks/update` 送出解答，而非盲目重試原始工具呼叫。用戶端依照建議間隔進行輪詢；任務建立始終由伺服器主導。
+不要實作新的 `tasks/list` 或 `tasks/result` 方法。需要輸入的任務會透過 `tasks/get` 暴露完整的嵌附請求；用戶端透過 `tasks/update` 送出解答，而非重試原始工具呼叫。它們屬於較舊的實驗性模型。用戶端依照建議間隔進行輪詢；任務建立始終由伺服器主導。
 
 持久化的任務路由狀態是依任務識別碼索引的業務應用資料，絕非協定工作階段。
 
@@ -319,7 +319,7 @@ t3-gateway-funnel
 
 `code/main.py` 在行程內部實作了一款協定閘道器與兩台後端伺服器。每一次向後端發起的呼叫，皆是一次全新的獨立現代請求。閘道器完整提供了服務發現、基於使用者身分過濾的確定性 `tools/list`、帶命名空間的路由轉發、註冊表 `server.json` 結合外部准入狀態審查、描述符特徵鎖定、RBAC 權限控制、依主體計量的速率限制、全鏈路審計日誌，以及 `subscriptions/listen` SSE 確認模擬。
 
-該模型運作於已完成 Body 與標頭解析的環境下。它不負責底層 `Content-Type` 與 `Accept` 的字串解析。若需完整的傳輸層轉接器，請介接第 09 課中嚴格要求 `Content-Type: application/json` 以及包含 `application/json` 與 `text/event-stream` 之 `Accept` 標頭的標準 Streamable HTTP 轉接層。
+該模型接收已解析的請求本文與路由標頭，以及已認證的 bearer 身分。它不負責解析 `Content-Type` 或完整的 `Accept` 契約。若需完整的傳輸層轉接器，請介接第 09 課中嚴格要求 `Content-Type: application/json` 以及包含 `application/json` 與 `text/event-stream` 之 `Accept` 標頭的標準 Streamable HTTP 轉接層。
 
 執行展示與單元測試：
 
@@ -359,9 +359,9 @@ python3 -m unittest discover code/tests -v
 | 術語 | 實際意義 |
 |------|---------|
 | MCP gateway | MCP 閘道器；坐落於用戶端與多個後端伺服器之間的安全策略與路由代理中心 |
-| Admission record | 准入紀錄；綜合發布證據與本地審核決策、正式放行某後端接入閘道器的憑據 |
+| Admission record | 准入紀錄；結合發布證據與策略決策，允許某後端接入閘道器 |
 | Qualified tool name | 具備命名空間修飾的公共穩定路由名稱，例如 `notes.search` |
-| Descriptor pin | 描述符特徵鎖定；在服務發現與轉發呼叫時嚴格核驗的完整描述符 SHA-256 摘要 |
+| Descriptor pin | 描述符鎖定；在服務發現與轉發時核驗已核准描述符的摘要（digest） |
 | Private cache scope | 私有快取作用域；限定該快取成果僅允許在單一授權安全上下文內部復用 |
 | Request-scoped SSE | 請求範疇的 SSE 串流；依附於單一 POST 請求生命週期的事件回應串流 |
 | `subscriptions/listen` | 由用戶端發起的長回應 SSE 串流，用於監聽已明確訂閱的長期變更事件 |
@@ -370,7 +370,7 @@ python3 -m unittest discover code/tests -v
 
 ## Further Reading｜延伸閱讀
 
-- [Streamable HTTP transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http) ——無狀態 HTTP 傳輸層規格書
-- [Server discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover) ——動態服務發現與版本協商官方手冊
-- [Official Registry server.json requirements](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/official-registry-requirements.md) ——官方註冊表宣告文件規範
-- [MCP Tasks extension](https://tasks.extensions.modelcontextprotocol.io/specification/draft/tasks) ——官方 Tasks 擴充功能最新草案規範
+- [Streamable HTTP transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http)
+- [Server discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover)
+- [Official Registry server.json requirements](https://github.com/modelcontextprotocol/registry/blob/main/docs/reference/server-json/official-registry-requirements.md)
+- [MCP Tasks extension](https://tasks.extensions.modelcontextprotocol.io/specification/draft/tasks)

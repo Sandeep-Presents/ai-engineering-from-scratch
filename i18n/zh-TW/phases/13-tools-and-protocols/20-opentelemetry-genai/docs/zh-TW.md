@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-這是一起發生在 2026 年 2 月的真實除錯案例：使用者回報「我的 agent 有時需要 30 秒才回應，但有時只要 3 秒」。系統完全缺乏分散式追蹤鏈。應用日誌中雖然記錄了 LLM 呼叫，卻完全找不到工具轉發、MCP 伺服器往返網路延遲或子 agent 的執行軌跡。工程師只能憑空猜測。經過漫長的排查，最終才發現：其中一台 MCP 伺服器偶爾會在冷啟動時發生長時間卡頓。
+2026 年 2 月的一次除錯中，使用者回報「我的 agent 有時需要 30 秒才回應，但有時只要 3 秒」。系統完全缺乏分散式追蹤。應用日誌中雖然記錄了 LLM 呼叫，卻找不到工具派送、MCP 伺服器往返或子 agent 的執行軌跡。工程師只能猜測。最後發現，其中一台 MCP 伺服器偶爾會在冷啟動時卡住。
 
 若沒有端到端的分散式追蹤（End-to-End Tracing），你根本無法定位這類問題。OTel GenAI 正是為此而生。
 
@@ -65,7 +65,7 @@ agent.invoke_agent  (top, INTERNAL span)
 
 ### 選擇性內容擷取（Opt-in Content Capture）
 
-在預設情況下，spans 僅會記錄效能指標與時間延遲數值——絕不會記錄 prompt 或 completion 的原始對話文字。龐大的訊息酬載與個人敏感資訊（PII）預設一律排除。需透過設定環境變數 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` 以及專屬的內容擷取旗標方可啟用文字記錄。在正式環境開啟前必須經過嚴格的資安合規審查。
+在預設情況下，spans 僅會記錄效能指標與時間延遲數值——絕不會記錄 prompt 或 completion 的原始對話文字。龐大的訊息酬載與個人敏感資訊（PII）預設一律排除。需透過設定環境變數 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` 以及專屬的內容擷取旗標方可啟用文字記錄。在正式環境啟用前應仔細檢視。
 
 ### Span 事件（Events on Spans）
 
@@ -91,7 +91,7 @@ OTel spans 可直接匯出至：
 
 ### 跨 MCP 追蹤脈絡傳播
 
-當 MCP 用戶端呼叫伺服器時，必須將 W3C 的 traceparent 標頭注入請求中。Streamable HTTP 傳輸層原生支援標準 HTTP 標頭。而在 stdio 傳輸模式下，由於缺乏原生 HTTP 標頭支援，規範的 2026 發展藍圖規劃在 JSON-RPC 呼叫中新增 `_meta.traceparent` 欄位。
+當 MCP 用戶端呼叫伺服器時，必須將 W3C 的 traceparent 標頭注入請求中。Streamable HTTP 傳輸層原生支援標準 HTTP 標頭。而在 stdio 傳輸模式下，由於缺乏原生 HTTP 標頭支援，規範的 2026 發展藍圖提到會在 JSON-RPC 呼叫中新增 `_meta.traceparent` 欄位。
 
 在該規格正式定案前：最佳實務是在每個請求的 `_meta` 字典中手動注入 traceparent。伺服器隨後在本地日誌中印出該 trace ID 進行關聯。
 
@@ -115,7 +115,7 @@ t3-span-waterfall
 
 ## Use It｜實際應用
 
-`code/main.py` 模擬了一個完整的 agent 流程：呼叫一次 LLM、轉發兩個工具，並發起一次 MCP 遠端往返，隨後將 OTel 格式的 spans 以標準 OTLP-JSON 形式印出至標準輸出。無需啟動外部匯出器——本課重點在於掌握 span 結構與屬性設定。你可以直接將輸出文字貼入相容 OTLP 的視覺化檢視工具中，亦可直接閱讀。
+`code/main.py` 模擬了一個完整的 agent 流程：呼叫一次 LLM、派送兩個工具呼叫，並發起一次 MCP 遠端往返，隨後將 OTel 格式的 spans 以近似 OTLP-JSON 的格式印出至標準輸出。無需啟動外部匯出器——本課重點在於掌握 span 結構與屬性設定。你可以直接將輸出文字貼入相容 OTLP 的視覺化檢視工具中，亦可直接閱讀。
 
 核心觀察重點：
 
@@ -153,7 +153,7 @@ t3-span-waterfall
 | OTLP | 「OpenTelemetry 傳輸協定」 | 面向各大匯出器後端的標準線路傳輸格式 |
 | Opt-in content | 「選擇性內容擷取」 | 對話原始內容預設不記錄，需顯式傳入環境變數開啟 |
 | traceparent | 「W3C 追蹤標頭」 | 負責跨分散式服務邊界傳播 trace 脈絡的標準標頭 |
-| Exporter | 「專屬後端發送器」 | 負責將本地 spans 傳輸至 Jaeger、Datadog 等後端的元件 |
+| Exporter | 「後端匯出器」 | 負責將本地 spans 傳送至 Jaeger、Datadog 等後端的元件 |
 
 ## Further Reading｜延伸閱讀
 

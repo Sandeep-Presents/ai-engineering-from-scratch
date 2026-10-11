@@ -30,7 +30,7 @@
 - **Anthropic**：在 `tool_use` 輸入端強制實施嚴格 Schema 約束；雖然沒有顯式的 `stop_reason: "refusal"` 停止原因，但若模型自發放棄呼叫，會輸出帶有純文字說明的 `end_turn`。
 - **Gemini**：在請求最外層配置 `responseSchema`；2026 年的 Gemini 已針對指定型別全面支援 token 等級的語法限制。
 - **Pydantic AI**：`output_type=InvoiceModel` 直接輸出強型別至 `InvoiceModel` 的 `RunResult` 物件。
-- **Zod（TypeScript）**：執行期型別解析器，與 OpenAI 官方 Node SDK 的 `beta.chat.completions.parse` 深度綁定。
+- **Zod（TypeScript）**：執行期解析器，用 Zod schema 驗證服務供應商輸出；可搭配 OpenAI 的 `beta.chat.completions.parse` 使用。
 
 不變的核心哲學：宣告一次 Schema，全流程端到端強制約束。
 
@@ -46,7 +46,7 @@
 - `enum`：限定允許的閉合枚舉值集合。
 - `minimum` / `maximum`（數值上下限）、`minLength` / `maxLength` / `pattern`（字串長度與正則表達式）。
 - `items`：套用於陣列中每個元素的子 Schema 定義。
-- `additionalProperties`：設為 `false` 可嚴格禁止模型輸出未宣告的額外欄位。
+- `additionalProperties`：設為 `false` 可禁止模型輸出額外欄位（預設值依模式而異）。
 
 OpenAI 嚴格模式（Strict Mode）額外施加了三條硬性鐵律：properties 中定義的每一個欄位皆必須顯式列入 `required` 清單中；全域所有物件層級皆必須顯式宣告 `additionalProperties: false`；嚴禁包含未解析的 `$ref`。一旦違反上述任一規則，API 會在請求發起時直接拋出 400 錯誤。
 
@@ -79,7 +79,7 @@ Zod（`z.object({customer: z.string(), ...})`）是 TypeScript 生態的對等�
 2. **結合 JSON 解析器的 Logit 動態遮蓋**：讓串流 JSON 解析器與大模型解碼器保持同步步進，在每一步動態計算當前允許出現的合法 token 候選集合。
 3. **基於校驗器的投機解碼**：由輕量級草稿模型並行預測候選 token，由嚴格校驗器直接強制把關。
 
-商業大模型服務供應商在雲端後台正是採用了上述機制之一。在 2026 年的技術條件下，對於簡短的結構化輸出，約束解碼的生成速度甚至快於無約束的自由文字生成。
+商業服務供應商在雲端後台正是採用了上述機制之一。在 2026 年的技術條件下，對於簡短的結構化輸出，約束解碼的生成速度甚至快於無約束的自由文字生成；對於較長的輸出，兩者速度大致相同。
 
 ### 三大核心失效模式
 
@@ -89,7 +89,7 @@ Zod（`z.object({customer: z.string(), ...})`）是 TypeScript 生態的對等�
 
 ### 智慧重試策略
 
-在未支援嚴格約束解碼的環境中（如部分自建模型或舊版 API），工業級的容錯補救管線如下：
+在非嚴格模式下（Anthropic tool use、非嚴格 OpenAI、舊版 Gemini），復原流程如下：
 
 ```
 generate -> parse -> validate -> if fail, inject error and retry, max 3x
@@ -107,7 +107,7 @@ constrained-decoding
 
 ## Use It｜實際應用
 
-`code/main.py` 以純 Python 標準函式庫實作了一套最小化的 JSON Schema 2020-12 校驗器（支援 types、required、enum、min/max、pattern、items、additionalProperties）。它封裝了一個 `Invoice` 商業發票 Schema，並模擬傳入三組測試輸出，完整演示了語法錯誤、Schema 違規與主動拒絕執行的三種路徑。在正式生產中，只需將假輸出替換為真正的模型 API 回應即可。
+`code/main.py` 以純 Python 標準函式庫實作了一套最小化的 JSON Schema 2020-12 校驗器（支援 types、required、enum、min/max、pattern、items、additionalProperties）。它封裝了一個 `Invoice` 商業發票 Schema，並模擬傳入三組測試輸出，完整演示了語法錯誤、Schema 違規與主動拒絕執行的三種路徑。在正式環境中，只需將假輸出替換為實際的模型 API 回應即可。
 
 核心閱讀重點：
 
@@ -127,7 +127,7 @@ constrained-decoding
 
 3. 將相同的 Invoice Schema 以 Pydantic 的 BaseModel 重新實作，並比對 `model_json_schema()` 輸出的 JSON 與你手寫的 Schema。指出 Pydantic 預設自動生成、但手寫版本中通常會主動省略的某一個額外欄位。
 
-4. 測量模型真實拒絕率。構造十組本質上絕對無法被擷取的極端輸入文字（一首抒情歌詞、一段幾何數學證明、一封空白郵件），在嚴格模式下傳入真實大模型 API。統計模型輸出 refusal 與強行虛構幻覺的次數對比。
+4. 測量模型真實拒絕率。構造十組本質上絕對無法被擷取的極端輸入文字（一首抒情歌詞、一段幾何數學證明、一封空白郵件），在嚴格模式下傳入真實大模型 API。統計模型輸出 refusal 與強行虛構幻覺的次數對比。這些結果是評估拒絕感知重試（refusal-aware retries）的真實標籤（ground truth）。
 
 5. 從頭到尾精讀 OpenAI 官方結構化輸出指南。找出在標準 JSON Schema 中完全合法、但在 OpenAI 嚴格模式中被明文明確禁止的某一項特定語法。設計一份在業務上本來非本質依賴該禁止語法的 Schema，並將其重構為完全符合嚴格模式相容標準的優雅規範。
 
@@ -148,8 +148,8 @@ constrained-decoding
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs) ——嚴格模式、拒絕機制與 Schema 約束鐵律官方指南
-- [OpenAI — Introducing structured outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/) ——2024 年 8 月發布的約束解碼底層數學原理詳解
-- [Pydantic AI — Output](https://ai.pydantic.dev/output/) ——能自動序列化至各服務供應商的強型別 output_type 綁定手冊
-- [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) ——官方標準規範指南
-- [Microsoft — Structured outputs in Azure OpenAI](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs) ——企業級雲端部署與嚴格模式避坑指南
+- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs)
+- [OpenAI — Introducing structured outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/)
+- [Pydantic AI — Output](https://ai.pydantic.dev/output/)
+- [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes)
+- [Microsoft — Structured outputs in Azure OpenAI](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs)

@@ -24,7 +24,7 @@
 
 **Google Gemini API**：傳入 `tools: [{functionDeclarations: [{name, description, parameters}]}]`（深層巢狀於 `functionDeclarations` 清單中）。模型回應包裝於 `candidates[0].content.parts: [{functionCall: {name, args, id}}]` 中，在 Gemini 3 以上版本中此 `id` 具備全域唯一性以支援並行呼叫關聯。你必須回傳 `{functionResponse: {name, id, response}}` 物件。
 
-底層是完全相同的四步迴圈；外表卻是截然不同的欄位名稱、相異的巢狀深度、字串 vs 物件的處理慣例、以及相異的關聯追蹤機制。一個在 OpenAI 上跑通的天氣 Agent，若想移植至 Anthropic 與 Gemini，團隊往往必須為單純的格式適配耗費數天工時。
+底層是完全相同的四步迴圈；外表卻是截然不同的欄位名稱、相異的巢狀深度、字串 vs 物件的處理慣例、以及相異的關聯追蹤機制。一個在 OpenAI 上跑通的天氣 Agent，若想移植至 Anthropic 與 Gemini，團隊光是處理格式，就得花兩天移植到 Anthropic，再花一天移植到 Gemini。
 
 本課將建構一套標準轉譯器，將這三種異質格式統一抽象為單一標準工具宣告，並在邊緣端實現動態路由適配。Phase 13 · 17 將進一步將此模式升級為工業級 LLM 閘道器。
 
@@ -36,7 +36,7 @@
 
 1. **工具清單（Tool list）**：每個工具的名稱、說明指南以及輸入參數的 JSON Schema。
 2. **工具選擇策略（Tool choice）**：強制指定某工具、全面禁用工具、或交由模型自主決策。
-3. **呼叫發起（Call emission）**：包含目標工具名稱與實體引數的結構化輸出。
+3. **呼叫發起（Call emission）**：包含目標工具名稱與引數的結構化輸出。
 4. **呼叫關聯 ID（Call id）**：將後續回傳的執行成果，精確綁定至對應的發起呼叫上（多工具並行時至關重要）。
 5. **成果注入（Result injection）**：以專屬的訊息角色或區塊，將執行成果注入上下文回傳給模型。
 
@@ -76,7 +76,7 @@
 
 ### 多工具並行呼叫
 
-OpenAI 預設開啟 `parallel_tool_calls: true`，會在單一 assistant 訊息中同時發起多個呼叫。你必須並行執行所有工具，並以批次形式回傳多條帶有相應 `tool_call_id` 的 tool 角色訊息。Anthropic 早期僅支援單呼叫；自 Claude 3.5 起預設開啟 `disable_parallel_tool_use: false` 以支援多並行。Gemini 2 雖然允許並行，但未提供穩定的追蹤 ID；Gemini 3 則全面導入標準 UUID，確保異步回傳的結果能精準對齊。
+OpenAI 預設開啟 `parallel_tool_calls: true`，會在單一 assistant 訊息中同時發起多個呼叫。你必須並行執行所有工具，並以批次形式回傳多條帶有相應 `tool_call_id` 的 tool 角色訊息。Anthropic 早期僅支援單呼叫；自 Claude 3.5 起預設開啟 `disable_parallel_tool_use: false` 以支援多並行。Gemini 2 雖然允許並行，但未提供穩定的追蹤 ID；Gemini 3 則全面導入標準 UUID，確保非同步回傳的結果能精準對齊。
 
 ### 串流傳輸模式
 
@@ -110,7 +110,7 @@ Tool(
 )
 ```
 
-透過三個小巧的純函式，即可將其無損轉換為三大廠商的專屬宣告格式。教學程式碼 `code/main.py` 正是展示了這套模式，並模擬將各家廠商的回應格式逆向解析還原為統一的標準呼叫物件。完全無需發起真實網路連線——本課的核心主旨是精通其幾何結構，而非網路通訊。
+透過三個小巧的純函式，即可將其無損轉換為三大廠商的專屬宣告格式。教學程式碼 `code/main.py` 正是展示了這套模式，並模擬將各家廠商的回應格式逆向解析還原為統一的標準呼叫物件。無需連線網路——本課教的是資料結構（shapes），不是 HTTP 通訊。
 
 在成熟的生產框架中，此轉譯邏輯通常被封裝於 `AbstractToolset`（Pydantic AI）、`UniversalToolNode`（LangGraph）或 `BaseTool`（LlamaIndex）之中。Phase 13 · 17 更將以此為基石，打造相容於 OpenAI 介面規範的通用轉譯閘道器。
 
@@ -161,8 +161,8 @@ function-call-args
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling) ——包含嚴格模式與並行呼叫在內的 OpenAI 官方標準手冊
-- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) ——Claude 體系的 `tool_use` 與 `tool_result` 區塊語義規範
-- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling) ——Gemini 並行呼叫、唯一 ID 與 OpenAPI 子集官方手冊
-- [Vertex AI — Function calling reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling) ——Gemini 在企業級 Google Cloud 上的介面參考
-- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs) ——嚴格模式語法受限解碼的底層實現細節
+- [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling)
+- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview)
+- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Vertex AI — Function calling reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling)
+- [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs)

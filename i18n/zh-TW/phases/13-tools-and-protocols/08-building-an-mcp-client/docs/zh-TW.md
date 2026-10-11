@@ -18,7 +18,7 @@
 
 ## The Problem｜問題
 
-一個真實的 Agent 宿主環境通常需要同時與多個 MCP 伺服器保持通訊。它必須負責探測各伺服器的能力、合併多方工具目錄、解決重名衝突、精準路由轉發請求，並在實體傳輸中斷時優雅恢復。
+一個真實的 Agent 宿主環境通常需要同時與多個 MCP 伺服器保持通訊。它必須負責探測各伺服器的能力、合併多方工具目錄、解決重名衝突、精準路由轉發請求，並在傳輸中斷時妥善恢復。
 
 `2026-07-28` 規範讓系統的穩定執行狀態大幅簡化，因為每一個請求皆為自包含的獨立個體。然而，啟動階段的向下相容性決策卻變得極為微妙。用戶端在啟動時可能遭遇：
 
@@ -35,12 +35,12 @@
 
 用戶端為每個伺服器行程或遠端端點維護一條本機對等端點記錄（Peer Record）：
 
-- 實體傳輸層控制 handle 或發送函式參照；
+- 傳輸層控制 handle 或發送函式參照；
 - 選定的協定時代與具體版本；
 - 最近一次探測發現的伺服器能力清單；
 - 最近一次取得的確定性工具清單；
 - 正在等待回傳的請求 ID 關聯表；
-- 實體傳輸層健康監控狀態。
+- 傳輸層健康監控狀態。
 
 請注意：這純屬用戶端自身的本機簿記機制，絕非協定層級的連線工作階段狀態。在現代 MCP 規範下，伺服器在接收每一次請求時，依然各自獨立讀取當前的版本與能力宣告。
 
@@ -119,7 +119,7 @@ client.add_server("archive", archive_transport, allow_legacy=True)
 2. 確認協商出的舊版本落在配置的合法相容集合內。
 3. 記錄通過校驗的能力宣告與伺服器識別資訊。
 4. 只有在全數檢查通過後，方可發送 `notifications/initialized`。
-5. 在該實體傳輸生命週期內，全面採用舊版請求封裝格式。
+5. 在該傳輸生命週期內，採用舊版請求封裝格式。
 
 這條路徑的存在僅是為了與已知的既有舊服務實現互通。它絕非新伺服器或新請求的標準設計。一旦底層傳輸重啟或連線端點變更，必須立刻拋棄時代快取並重新展開完整協商。
 
@@ -136,8 +136,8 @@ client.add_server("archive", archive_transport, allow_legacy=True)
 當兩個獨立的伺服器皆對外公開了名為 `search` 的工具時，必須執行預先宣告的衝突解決策略：
 
 1. **衝突時加前綴（Prefix on collision）**：保留首個註冊的標準名稱，將後續衝突項命名為 `<server>/<tool>`。
-2. **衝突時拒絕載入（Reject on collision）**：直接拒絕載入重複工具，並在日誌中拋出清晰的組態錯誤。
-3. **無聲覆蓋（Silent overwrite）**：**嚴格禁用**。這會掩蓋模型選取的動作究竟被發送給哪一台實體伺服器的真相。
+2. **衝突時拒絕載入（Reject on collision）**：直接拒絕載入重複工具，並顯示清晰的組態錯誤。
+3. **無聲覆蓋（Silent overwrite）**：**嚴格禁用**。這會掩蓋模型選取的動作究竟被發送給哪一台伺服器。
 
 用戶端在內部同時儲存標準名稱與本機名稱。模型看見的是對外暴露的標準名稱；而向目標伺服器發送的 `tools/call` 則使用該伺服器當初自行宣告的本機名稱。
 
@@ -163,7 +163,7 @@ canonical tool name
 
 ### 嚴禁伺服器主動發起逆向請求
 
-現代伺服器絕不允許自發發起獨立的 JSON-RPC 請求來要求大模型取樣、進行人機問答引導或存取本機目錄。它們會回傳 `input_required`，由用戶端在本地滿足對應的輸入請求後，使用全新的請求 ID 重新發起最初的呼叫。
+現代伺服器絕不允許自發發起獨立的 JSON-RPC 請求來要求模型取樣、進行人機問答引導或存取本機目錄。它們會回傳 `input_required`，由用戶端在本地滿足對應的輸入請求後，使用全新的請求 ID 重新發起最初的呼叫。
 
 在處理輸入請求期間，切勿卡死對等端點的回應讀取線程。妥善維護關聯 ID，並為重試操作派發全新的 JSON-RPC 請求識別碼。
 
@@ -189,7 +189,7 @@ python3 -m unittest discover tests -v
 - 連線逾時、連線中斷、空白回應與未知錯誤在未經白名單授權時，絕不擅自觸發 `initialize`；
 - 白名單端點唯有在收到合法且支援的 `initialize` 正向結果後，才被允許確立為傳統時代；
 - 畸形或不支援的舊版回應會讓端點維持在不可用狀態；
-- 成功選定的協定時代會在該實體傳輸生命週期內被妥善快取。
+- 成功選定的協定時代會在該傳輸生命週期內被快取。
 
 ## Ship It｜交付成果
 
@@ -201,13 +201,13 @@ python3 -m unittest discover tests -v
 2. 將一個虛擬舊版伺服器列入白名單，但故意讓其受限的 `initialize` 探測發生逾時。證明該端點會始終保持在 `unknown` 與不可用狀態。
 3. 針對兩個相異的授權邊界分別建構宣告為 `cacheScope: "private"` 的工具清單。驗證用戶端絕不會將某一個邊界內快取的私有結果挪用至另一個邊界中。
 4. 將命名空間碰撞解決策略修改為「直接拒絕（Reject）」，並使程式在啟動時拋出同時指名兩台衝突伺服器名稱的明確錯誤。
-5. 實作一個有限狀態的 `subscriptions/listen` 模擬器。當事件串流中斷時，使用全新的請求 ID 重新發起監聽，並主動重新整理相應的工具註冊表。
+5. 實作一個可自行結束的 `subscriptions/listen` 模擬器。當事件串流中斷時，使用全新的請求 ID 重新發起監聽，並主動重新整理相應的工具註冊表。
 
 ## Key Terms｜關鍵術語
 
 | 術語 | 實際意義 |
 |------|---------|
-| Peer | 對等端點；用戶端針對單一實體伺服器傳輸連線及其探測資料維護的本機記錄 |
+| Peer | 對等端點；用戶端針對單一伺服器傳輸連線及其探測資料維護的本機記錄 |
 | Protocol era | 協定時代；劃分為「現代單請求自包含中繼資料」與「傳統連線級初始化語義」 |
 | Discovery probe | 服務發現探測；在 stdio 上發起的首個 `server/discover` 請求，用以判定協定時代 |
 | Recognized modern error | 已知的現代協定錯誤代號；確鑿證明伺服器具備現代語義，嚴禁執行傳統降級 |
@@ -215,13 +215,13 @@ python3 -m unittest discover tests -v
 | Positive legacy evidence | 傳統正向證據；針對受支援舊版本所收到的合法、ID 吻合的 `initialize` 成功回應 |
 | Merged namespace | 合併命名空間；跨越所有活躍伺服器端點所對外暴露的標準工具名稱集合 |
 | Collision policy | 衝突解決策略；面對不同伺服器宣告重名工具時採取的「加前綴」或「拒絕載入」規範 |
-| Era cache | 時代快取；為單一實體傳輸端點持久暫存的現代或傳統協定運作模式 |
+| Era cache | 時代快取；為單一傳輸端點暫存的現代或傳統協定運作模式 |
 | Transport recovery | 傳輸恢復機制；重新建立連線、重新探測服務、重新拉取清單，並使用新 ID 重試 |
 
 ## Further Reading｜延伸閱讀
 
-- [MCP Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/) ——MCP 官方最新無狀態協定規範
-- [MCP Server Discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover) ——動態服務發現與版本協商官方規格書
-- [MCP stdio Transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio) ——標準輸入輸出傳輸層規範
-- [MCP Versioning](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning) ——協定版本管理與向下相容原則指南
-- [MCP Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) ——工具定義與執行生命週期手冊
+- [MCP Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/)
+- [MCP Server Discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover)
+- [MCP stdio Transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio)
+- [MCP Versioning](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning)
+- [MCP Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)

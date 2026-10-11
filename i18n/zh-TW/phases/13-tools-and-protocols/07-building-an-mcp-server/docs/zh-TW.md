@@ -44,7 +44,7 @@ forget request-scoped metadata
 - 每條訊息皆以標準換行符號結尾，且每一次輸出回應後必須立刻強制排空緩衝區（Flush）。
 - 當 stdin 讀取到 EOF 結尾標記時，行程必須果斷乾脆地終止退出。
 
-行程本身的存活週期純粹是實體傳輸層的生命週期，它絕不代表存在任何現代 MCP 協定層級的工作階段。
+行程本身的存活週期純粹是傳輸層的生命週期，它絕不代表存在任何現代 MCP 協定層級的工作階段。
 
 ### 請求中繼資料校驗
 
@@ -108,7 +108,7 @@ forget request-scoped metadata
 - `idempotentHint`
 - `openWorldHint`
 
-宿主環境可利用這些提示向使用者呈現確認對話框或調整 UI；但伺服器自身依然必須實施嚴格真實的實體權限鑑權。
+宿主環境可利用這些提示向使用者呈現確認對話框或調整 UI；但伺服器自身依然必須實施嚴格的授權檢查。
 
 ### 資源（Resources）
 
@@ -155,7 +155,7 @@ t3-dispatch-loop
 
 ## Use It｜實際應用
 
-執行 Python 伺服器的有限狀態展示與自動化單元測試：
+執行 Python 伺服器可自行結束的示範與單元測試：
 
 ```bash
 cd code
@@ -163,13 +163,13 @@ python3 main.py --demo
 python3 -m unittest discover tests -v
 ```
 
-利用 TypeScript 執行期執行對等的 TypeScript 移植版本：
+利用 TypeScript 使用 TypeScript runner 執行對等的 TypeScript 移植版本：
 
 ```bash
 npx tsx main.ts --demo
 ```
 
-展示常式將依序發送 `server/discover` 探測、列舉各項原語清單、發起實體工具呼叫，並觸發不支援版本時的標準錯誤處理。在日誌中確認：每一個現代請求皆重複攜帶中繼資料，且每一個成功回應皆完整包含伺服器識別資訊。
+展示常式將依序發送 `server/discover` 探測、列舉各項原語清單、發起工具呼叫，並觸發不支援版本時的標準錯誤處理。在日誌中確認：每一個現代請求皆重複攜帶中繼資料，且每一個成功回應皆完整包含伺服器識別資訊。
 
 ## Ship It｜交付成果
 
@@ -179,7 +179,7 @@ npx tsx main.ts --demo
 
 1. 從某個請求中刻意移除能力宣告字典。驗證伺服器絕不會私自挪用前一個請求中宣告過的能力。
 2. 逆轉程式碼中 `TOOLS`、`PROMPTS` 以及筆記資料的原始宣告順序。驗證所有清單查詢結果依然保持絕對穩定的確定性排序輸出。
-3. 新增一個具備破壞性的 `notes_delete` 刪除工具，並在執行器內部實施強制授權校驗。保持 `destructiveHint` 僅作為純前端提示之用。
+3. 新增一個具備破壞性的 `notes_delete` 刪除工具，並在執行器內部實施強制授權校驗。僅將 `destructiveHint` 當作 UX 提示使用。
 4. 實作 `resources/templates/list` 端點，並正確配置 `ttlMs`、`cacheScope` 以及確定性排序輸出。
 5. 針對 `2025-11-25` 規範建構一個完全隔離的傳統適配層。編寫測試案例，證明現代請求絕不會誤入該傳統處理常式。
 
@@ -198,9 +198,9 @@ npx tsx main.ts --demo
 
 ## Further Reading｜延伸閱讀
 
-- [MCP Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/) ——MCP 官方最新無狀態協定規範
-- [MCP Server Discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover) ——動態服務發現官方規範手冊
-- [MCP Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) ——工具定義與執行生命週期手冊
-- [MCP Resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources) ——資源探測與讀取官方規格
-- [MCP Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts) ——Prompt 範本定義與彩現指南
-- [MCP stdio Transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio) ——標準輸入輸出傳輸層規範
+- [MCP Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/)
+- [MCP Server Discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover)
+- [MCP Tools](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)
+- [MCP Resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources)
+- [MCP Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts)
+- [MCP stdio Transport](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio)

@@ -1,6 +1,6 @@
 # MCP 基礎核心：無狀態請求與 JSON-RPC（MCP Fundamentals: Stateless Requests and JSON-RPC）
 
-> 現代 MCP（Model Context Protocol）既無初始交握（Handshake），亦無協定層級的連線工作階段（Protocol Session）。每一個單一請求本身，都必須攜帶足夠豐富的中繼資料（Metadata），使其能夠被獨立理解、鑑權、路由並在出錯時安全重試。
+> 現代 MCP（Model Context Protocol）既無初始交握（Handshake），亦無協定層級的連線工作階段（Protocol Session）。每一個單一請求本身，都必須攜帶足夠豐富的中繼資料（Metadata），使其能夠被獨立理解、授權、路由並在出錯時安全重試。
 
 **Type:** Learn
 **Languages:** Python
@@ -17,11 +17,11 @@
 
 ## The Problem｜問題
 
-在現代微服務與無伺服器架構中，同一個行程或 HTTP 背景工作程式（Worker），隨時可能連續接收來自不同用戶端、具備相異能力宣告的相繼請求。若伺服器錯誤地記住了前一個請求宣告的狀態或權限，便可能對後續請求誤用錯誤的權限等級，或回傳錯誤的資料結構。
+同一個行程或 HTTP 背景工作程式（Worker），隨時可能連續接收來自不同用戶端、具備相異能力宣告的請求。若伺服器錯誤地記住了前一個請求宣告的狀態或權限，便可能對後續請求誤用錯誤的權限等級，或回傳錯誤的資料結構。
 
-MCP `2026-07-28` 徹底根除了這項架構隱患。協定的核心原則是「絕對無狀態（Stateless）」。伺服器在決策如何處理當前請求時，必須完全且唯一地依賴「當前請求本身所攜帶的上下文資訊」，嚴禁依賴任何既有的連線歷史記憶。
+MCP `2026-07-28` 消除了這項歧義。協定核心是無狀態（Stateless）：伺服器必須根據當前請求本身決定如何處理，不得依賴連線歷史。
 
-這徹底重構了傳統的心智模型。舊有的協定時序是：建立連線 → 執行交握對齊 → 展開實體操作。現代 MCP 的架構則大幅簡化為清晰的四步驟：
+這改變了傳統的心智模型。舊有的協定時序是：建立連線 → 執行交握對齊 → 執行操作。現代 MCP 的架構則大幅簡化為清晰的四步驟：
 
 1. 用戶端發送自我說明的獨立請求。
 2. 伺服器校驗該請求攜帶的協定版本與能力宣告。
@@ -36,11 +36,11 @@ MCP `2026-07-28` 徹底根除了這項架構隱患。協定的核心原則是「
 
 MCP 伺服器對外公開三大核心原語：
 
-1. **工具（Tools）**：由大模型自主決策呼叫的實體動作，透過 `tools/list` 探測發現，透過 `tools/call` 發起執行。
+1. **工具（Tools）**：由模型決策是否呼叫的動作，透過 `tools/list` 探測發現，透過 `tools/call` 發起執行。
 2. **資源（Resources）**：以 URI 唯一定位的唯讀資料資產，透過 `resources/list` 探測發現，透過 `resources/read` 檢索讀取。
 3. **Prompt 範本（Prompts）**：可重複使用的結構化提示範本，透過 `prompts/list` 探測發現，透過 `prompts/get` 進行實例化彩現。
 
-請注意：根目錄宣告（Roots）、取樣（Sampling）與日誌記錄（Logging）在 `2026-07-28` 規範中雖為相容性而暫時保留，但已被正式標記為即將廢棄。新系統在架構設計時，應將根目錄作為顯式的工具或資源引數傳入、直接呼叫模型服務供應商的原生 API 進行文字取樣，並透過 stderr 或 OpenTelemetry 實施全鏈路日誌追蹤。至於引導式互動（Elicitation），則全面轉向多輪往返請求（Multi Round-Trip Requests）機制：由伺服器回傳輸入請求，並由用戶端重試最初的操作。現代伺服器絕不可自主發起獨立的逆向 JSON-RPC 請求。
+請注意：根目錄宣告（Roots、Sampling 與 Logging 在 `2026-07-28` 規範中為相容性而保留，但已棄用。新系統在架構設計時，應將根目錄作為顯式的工具或資源引數傳入、直接呼叫模型服務供應商的原生 API 進行文字取樣，並透過 stderr 或 OpenTelemetry 記錄日誌。引導式互動（Elicitation）仍可透過多輪往返請求（Multi Round-Trip Requests）進行：由伺服器回傳輸入請求，並由用戶端重試最初的操作。現代伺服器絕不可自主發起獨立的逆向 JSON-RPC 請求。
 
 ### JSON-RPC 封裝信封
 
@@ -74,7 +74,7 @@ MCP 嚴格遵循標準的 JSON-RPC 2.0 規範：
 }
 ```
 
-其中協定版本字串與用戶端能力字典為絕對必填項。用戶端身份識別（clientInfo）則為強烈建議填寫項，它僅作為展示除錯與審計排查之用，絕不可作為替代安全憑證的依據。
+其中協定版本字串與用戶端能力字典為絕對必填項。用戶端身份識別（clientInfo）建議填寫。這是用戶端自行回報、供顯示與除錯使用的資料，不是安全憑證。
 
 伺服器嚴禁從稍早接收過的歷史請求、stdio 行程、底層 HTTP 連線、或僅憑傳輸層標頭（Headers）來私自推斷這些核心參數。
 
@@ -101,7 +101,7 @@ MCP 嚴格遵循標準的 JSON-RPC 2.0 規範：
 }
 ```
 
-`tools/list`、`resources/list`、`prompts/list`、`resources/templates/list`、`resources/read` 以及 `server/discover` 皆屬於可被快取的冪等操作，其回應中必須包含 `ttlMs`（存活毫秒數）與 `cacheScope`（快取作用域）。保守的預設安全設定為 `ttlMs: 0` 搭配 `cacheScope: "private"`。清單中的各項條目應保持確定性的排序，確保等價的回應能夠產出絕對穩定的快取鍵值與模型上下文。
+`tools/list`、`resources/list`、`prompts/list`、`resources/templates/list`、`resources/read` 以及 `server/discover` 的結果皆可快取，且必須包含 `ttlMs`（存活毫秒數）與 `cacheScope`（快取作用域）。保守的預設安全設定為 `ttlMs: 0` 搭配 `cacheScope: "private"`。清單中的各項條目應保持確定性的排序，確保等價回應能產生穩定的快取鍵值與模型上下文。
 
 ### 無需交握的動態服務發現
 
@@ -136,11 +136,11 @@ MCP 嚴格遵循標準的 JSON-RPC 2.0 規範：
 4. 在 HTTP 邊界層，比對 HTTP 標頭宣告的版本、方法與名稱是否與 Request Body 中的內容完全一致。若出現矛盾衝突，即使其中一方使用了不支援的版本，亦必須一律拋出 `-32020`。
 5. 在確認標頭與內容完全吻合後，若該協定版本不被本伺服器支援，拋出 `-32022`。
 6. 檢查用戶端是否具備該方法所需的必備能力宣告，隨後依據 `method` 進行內部路由，並嚴格校驗各方法特定的引數結構。
-7. 在實體業務處理常式正式執行前，實施精準的認證與授權防護。
+7. 在具體操作的處理常式執行前，實施身分驗證與授權。
 8. 回傳包含伺服器識別資訊的完整成果物件。
 9. 徹底遺忘該請求所屬的協定層級中繼資料，不留任何連線記憶。
 
-嚴格遵守上述順序，能杜絕多個元件對同一個呼叫產生語義理解歧義（例如閘道器誤對 `Mcp-Name: notes.read` 進行了授權，而底層服務卻實際執行了 `params.name: notes.delete`）。它同時確保了畸形輸入、標頭混淆、版本協商、能力不足、權限鑑權與業務錯誤在日誌中具備涇渭分明的審計證據。
+嚴格遵守上述順序，能杜絕多個元件對同一個呼叫產生語義理解歧義（例如，閘道器不得授權 `Mcp-Name: notes.read`，但來源伺服器卻執行 `params.name: notes.delete`）。它同時確保了畸形輸入、標頭混淆、版本協商、能力不足、授權錯誤與業務錯誤在日誌中具備涇渭分明的審計證據。
 
 關閉 stdin 或結束 HTTP 回應僅代表傳輸層活動的終止。它絕不代表協定工作階段的銷毀，因為現代 MCP 根本不存在工作階段。
 
@@ -150,9 +150,9 @@ MCP 嚴格遵循標準的 JSON-RPC 2.0 規範：
 
 務必將這兩個歷史時代在架構上嚴格隔離：現代請求藉由每個請求自帶的必備中繼資料進行精準辨識；而傳統連線則僅能透過有文獻記載的降級回退路徑按需觸發。面對 `2026-07-28` 伺服器時，絕不可預設發送過時的 `initialize` 請求。
 
-因此，「無狀態」在不同時代具備不同的具體含義：在 `2026-07-28` 中，它是不可動搖的協定不變量——每個常規請求皆可被獨立解讀，且絕不存在任何 MCP 協定層級的工作階段；而在 `2025-11-25` 以前的版本中，初始化與能力協商屬於實體連線，相容適配層可局部保留該連線狀態。一個優雅的雙時代相容架構，絕非一個將所有邏輯混雜的寬容狀態機，而是在無狀態的現代核心旁，掛載一個嚴格隔離的舊版適配層，並在解析器啟動前做出明確的時代路由決策。
+因此，「無狀態」在不同時代具備不同的具體含義：在 `2026-07-28` 中，它是不可動搖的協定不變量——每個常規請求皆可被獨立解讀，且絕不存在任何 MCP 協定層級的工作階段；而在 `2025-11-25` 以前的版本中，初始化與能力協商屬於連線，相容適配層可保留該舊版連線狀態。一個優雅的雙時代相容架構，絕非一個將所有邏輯混雜的寬容狀態機，而是在無狀態的現代核心旁，掛載一個嚴格隔離的舊版適配層，並在解析器啟動前做出明確的時代路由決策。
 
-這兩種含義皆完全不排斥業務層面的持久化狀態。一個真實的業務工作流、長程任務或草稿，完全可以作為不透明的識別碼（Handle）儲存於共享資料庫中。用戶端在請求中將該識別碼作為普通輸入參數傳遞，由每個伺服器複本獨立實施認證與鑑權。協定上下文絕不可被偷偷寫入該資料庫，去充當被協定正式廢棄的工作階段的劣質替代品。
+這兩種含義都不排斥業務層面的持久化狀態。工作流程、任務或草稿可以透過不透明識別碼（Handle）存放在共享資料庫中。用戶端在請求中將該識別碼作為一般輸入參數傳遞，由每個伺服器複本獨立實施身分驗證與授權。協定上下文絕不可被偷偷寫入該資料庫，去充當被協定正式廢棄的工作階段的劣質替代品。
 
 ```figure
 mcp-tool-call
@@ -182,7 +182,7 @@ python3 -m unittest discover code/tests -v
 1. 將某個請求中的協定版本刻意修改為 `2027-01-01`。確認伺服器拋出的錯誤代號嚴格為 `-32022`，且錯誤資料中完整宣告了本伺服器實際支援的合法版本。
 2. 從第二個請求中刻意移除 `io.modelcontextprotocol/clientCapabilities`。確認伺服器絕不會私自復用第一個請求中宣告過的能力。
 3. 將記憶體中的工具註冊表清單進行逆序排列。確認 `tools/list` 依然嚴格回傳完全一致的確定性排序輸出。
-4. 將回應中的 `cacheScope` 由 `public` 修改為 `private`。深入分析這兩種設定在不同授權情境下，對下游各層級快取復用的具體影響。
+4. 將回應中的 `cacheScope` 由 `public` 修改為 `private`。深入分析這兩種設定在不同授權情境下，對下游各層級快取重用的影響。
 5. 撰寫一組選填 `clientInfo` 省略測試。驗證請求依然能夠順暢通過校驗，證明用戶端識別資訊純屬建議性質，絕非硬性阻擋門檻。
 
 ## Key Terms｜關鍵術語
@@ -195,12 +195,12 @@ python3 -m unittest discover code/tests -v
 | `resultType` | 標註於每個現代成功回應最外層的鑑別欄位（正常終態為 "complete"） |
 | Cacheable result | 包含必備 `ttlMs` 存活時間與 `cacheScope` 快取作用域提示的可快取結果 |
 | Protocol era | 協定歷史時代；劃分為「現代單請求自包含中繼資料」與「傳統連線級初始化交握」 |
-| Transport lifetime | 傳輸層實體生命週期；僅代表行程、TCP 連線或串流持續時間，非協定工作階段 |
+| Transport lifetime | 傳輸層生命週期；僅代表行程、TCP 連線或串流持續時間，不是協定工作階段 |
 | `-32022` | 不支援的協定版本標準錯誤代號；回傳酬載包含請求版本與實際支援版本清單 |
 
 ## Further Reading｜延伸閱讀
 
-- [MCP Architecture](https://modelcontextprotocol.io/specification/2026-07-28/architecture) ——現代 MCP 官方無狀態架構設計手冊
-- [MCP Base Protocol](https://modelcontextprotocol.io/specification/2026-07-28/basic) ——JSON-RPC 2.0 基礎協定與中繼資料規格手冊
-- [MCP Server Discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover) ——動態服務發現與版本協商官方規格書
-- [MCP 2026-07-28 Changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog) ——全面移除交握與工作階段的歷史架構變更日誌
+- [MCP Architecture](https://modelcontextprotocol.io/specification/2026-07-28/architecture)
+- [MCP Base Protocol](https://modelcontextprotocol.io/specification/2026-07-28/basic)
+- [MCP Server Discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover)
+- [MCP 2026-07-28 Changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog)

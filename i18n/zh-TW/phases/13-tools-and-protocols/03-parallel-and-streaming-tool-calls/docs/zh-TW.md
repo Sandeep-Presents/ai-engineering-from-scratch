@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 解釋為何各大平台皆支援 `parallel_tool_calls: true`，並明確指出在何種業務約束下必須主動將其停用。
+- 解釋 `parallel_tool_calls: true` 存在的原因，以及何時應停用（此為 OpenAI 參數；Anthropic 對應 `disable_parallel_tool_use`）。
 - 在多工具並行扇出期間，將網路封包中交錯到達的串流引數碎片，精準關聯至各自對應的工具呼叫 ID。
 - 安全重組局部的 `arguments` 字串為完整合法的 JSON，杜絕「過早解析（Parse-early）」引發的例外崩潰。
 - 執行三座城市天氣查詢的實測基準，直觀量化串列循序 vs 並行發起的實際延遲差距。
@@ -29,7 +29,7 @@ host -> run executor, reply with result
 LLM -> final text answer
 ```
 
-整整三次 LLM 來回往返，且每次皆需額外疊加執行器的實體網路延遲。端到端總耗時大約是理想狀態下的 4 倍。
+整整三次 LLM 來回往返，且每次皆需額外疊加執行器延遲。端到端總耗時大約是理想狀態下的 4 倍。
 
 而在並行呼叫機制下：
 
@@ -40,7 +40,7 @@ host -> run all three executors concurrently, reply with three results
 LLM -> final text answer
 ```
 
-僅需一次 LLM 往返。執行器的總耗時取決於三者中的最大值（Max），而非三者總和（Sum）。在 OpenAI、Anthropic 與 Gemini 上的實測結果表明，在扇出型工作負載下，端到端牆上時鐘耗時（Wall-clock Time）可大幅縮減 60% 至 70%。
+僅需一次 LLM 往返。執行器的總耗時取決於三者中的最大值（Max），而非三者總和（Sum）。在 OpenAI、Anthropic 與 Gemini 上的實測結果表明，在扇出型工作負載下，端到端掛鐘時間（Wall-clock Time）可大幅縮減 60% 至 70%。
 
 其代價是關聯機制的複雜性。當三個呼叫在執行器端由於耗時不同而發生「亂序完成」時，回傳的結果必須嚴格帶有相應的 `tool_call_id`，模型方能將答案正確對號入座。而在串流傳輸模式下，你更必須在記憶體中妥善暫存並拼裝局部的引數碎片，確保在整段 JSON 完全接收前絕不冒進解析。Gemini 3 專門導入全域唯一 UUID，正是為了解決過去同一輪中兩次呼叫同名函式時無法區分的歷史缺陷。
 
@@ -66,7 +66,7 @@ LLM -> final text answer
 
 宿主環境通常在獨立的執行緒、非同步協程（Coroutine）或遠端背景工作行程（Worker）中並行驅動各個呼叫的執行器。最簡單的封裝是使用執行緒池（Thread Pool）；正式環境則普遍採用基於 asyncio 的 `asyncio.gather` 或結構化並行機制。各任務完成的先後順序往往不可預期——而 ID 正是重新串接因果關係的唯一錨點。
 
-常見的工程 Bug：強制按照呼叫清單的原始先後順序回傳結果，而非按照實際完成的先後順序。雖然多數模型能依據 `tool_call_id` 自動重組，但一旦某個呼叫遭遇異常遺失或重試，人為強加的順序會大幅增加除錯難度。推薦一律以帶有明確 ID 的實際完成順序回傳結果。
+常見的工程 Bug：強制按照呼叫清單的原始先後順序回傳結果，而非按照實際完成的先後順序。雖然多數模型能依據 `tool_call_id` 自動重組，但如果某個結果遺失或重複，亂序提交會讓除錯更困難。推薦一律以帶有明確 ID 的實際完成順序回傳結果。
 
 ### 串流工具呼叫的接收與累積
 
@@ -75,7 +75,7 @@ LLM -> final text answer
 各廠商的串流細節：
 
 - **OpenAI**：每個碎片為 `choices[0].delta.tool_calls[i].function.arguments`（局部字串片段）。碎片中標註有 `index`（在當前呼叫清單中的位置）。你必須依 index 進行累加，在 `id` 首次出現時記錄它，並在收到 `finish_reason = "tool_calls"` 結束標記時才正式解析 JSON。
-- **Anthropic**：事件流標準為先收到 `message_start`，隨後為每個區塊觸發帶有類型 `tool_use` 的 `content_block_start`（包含 id 與名稱）。隨後由 `content_block_delta` 事件持續攜帶 `input_json_delta` 碎片，最後由 `content_block_stop` 宣告區塊封頂。
+- **Anthropic**：事件流標準為先收到 `message_start`，隨後為每個區塊觸發帶有類型 `tool_use` 的 `content_block_start`（包含 id、名稱與空的 input）。隨後由 `content_block_delta` 事件持續攜帶 `input_json_delta` 碎片，最後由 `content_block_stop` 宣告區塊封頂。
 - **Gemini**：自 Gemini 3 起引入 `streamFunctionCallArguments` 事件，每個碎片皆自帶 `functionCallId`，確保多個並行呼叫的引數碎片即使交錯到達也能精準還原。在 Gemini 3 之前，串流模式只能單次輸出一個完整呼叫。
 
 ### 局部不完整 JSON 與提前解析陷阱
@@ -102,13 +102,13 @@ call_C: median API, returns third
 
 ### 效能實測：串列 vs 並行
 
-教學程式碼 `code/main.py` 模擬了耗時分別為 400、600 與 800 毫秒的三個執行器。串列循序執行總耗時高達 1800 毫秒；而並行執行總耗時僅為 max(400, 600, 800) = 800 毫秒。效能提升是階躍性的，工具數量越多，省下的時間越驚人。
+教學程式碼 `code/main.py` 模擬了耗時分別為 400、600 與 800 毫秒的三個執行器。串列執行總耗時為 1800 毫秒；並行執行總耗時為 max(400, 600, 800) = 800 毫秒。差值為固定量而非比例，因此省下的時間會隨工具數量增加。
 
-正式環境的現實警訊：並行呼叫會瞬間對下游 API 造成陡增的並發壓力。若一口氣向一個有速率限制的下游服務發起 10 路並行扇出，極可能引發大量的 429 錯誤。Phase 13 · 17 將專門探討閘道器層級的背壓（Backpressure）與流控機制。
+正式環境的注意事項：並行呼叫會增加下游 API 的負載。向有速率限制的服務發起 10 路並行扇出可能會失敗。Phase 13 · 17 將探討閘道器層級的背壓（Backpressure）；重試語意規劃於後續階段介紹。
 
-### 串流扇出下的極限實時時鐘耗時
+### 串流扇出下的掛鐘時間
 
-若大模型本體以串流模式輸出，更極致的工程最佳化是：一旦某一個呼叫的引數宣告完全閉合，便不必等待其他呼叫收尾，立刻在後台搶先啟動該呼叫的實體執行器。這是 OpenAI 官方文件推薦的極限效能設計。本課的教學程式碼便實作了這項技術：只要模擬串流產出了某個呼叫的完整引數，宿主便立刻並行發起該呼叫。
+若大型語言模型本體以串流模式輸出，更極致的工程最佳化是：一旦某一個呼叫的引數宣告完全閉合，便不必等待其他呼叫收尾，立刻在後台搶先啟動該呼叫的執行器。這是 OpenAI 文件記載的最佳化做法，但並非所有 SDK 都提供。本課的教學程式碼便實作了這項技術：只要模擬串流產出了某個呼叫的完整引數，宿主便立刻並行發起該呼叫。
 
 ```figure
 tp-parallel-fanout
@@ -116,7 +116,7 @@ tp-parallel-fanout
 
 ## Use It｜實際應用
 
-`code/main.py` 包含兩大核心部分。前半部分利用 `concurrent.futures.ThreadPoolExecutor` 對比三個模擬天氣呼叫在「串列」與「並行」下的端到端耗時差距。後半部分則模擬了一條真實的串流回應——三個並行呼叫的 `arguments` 引數碎片交錯混雜抵達，利用 `StreamAccumulator` 類別依據 ID 進行即時分離累加與安全重組。無依賴外部大模型、無網路請求，純粹以標準函式庫精準展示重組拼裝機制。
+`code/main.py` 包含兩大核心部分。前半部分利用 `concurrent.futures.ThreadPoolExecutor` 對比三個模擬天氣呼叫在「串列」與「並行」下的端到端耗時差距。後半部分則模擬一條串流回應——三個並行呼叫的 `arguments` 引數碎片交錯混雜抵達，利用 `StreamAccumulator` 類別依據 ID 進行即時分離累加與安全重組。不使用外部 LLM，也不發出網路請求，純粹以標準函式庫精準展示重組拼裝機制。
 
 核心閱讀重點：
 
@@ -132,9 +132,9 @@ tp-parallel-fanout
 
 1. 執行 `code/main.py` 並自由調整各模擬工具的耗時數值。驗證並行與串列的理論耗時比例是否高度吻合 `max/sum`（在真實執行中，受限於執行緒調度、序列化開銷與執行環境負擔，數值會略微偏離理想值）。在何種極端的延遲分布下，並行呼叫帶來的收益會變得微不足道？
 
-2. 擴充累加器以處理「串流中途遭遇取消」的異常情境：丟棄對應 ID 的緩衝區並拋出 `cancelled` 事件。深入比對 Anthropic 的 `content_block_stop` 語義與 OpenAI 遇到 `finish_reason: "length"` 時的具體邊界行為。
+2. 擴充累加器以處理「串流中途遭遇取消」的異常情境：丟棄對應 ID 的緩衝區並拋出 `cancelled` 事件。深入比對 Anthropic 的 `content_block_stop` 語義與 OpenAI 遇到 `finish_reason: "length"` 時的具體邊界行為。哪一家服務供應商明確記載此情境？
 
-3. 將教學程式碼中的執行緒池改寫為基於 `asyncio.gather` 的非同步實作。對比兩者的性能差異，並解釋為何只有在執行器涉及真正的非同步 I/O 時，async 才能展現出相較於多執行緒的微幅優勢。
+3. 將教學程式碼中的執行緒池改寫為基於 `asyncio.gather` 的非同步實作。對比兩者的性能差異，並解釋 async 為何能帶來小幅效能提升（因為上下文切換成本較低），但只有在執行器涉及真正的 I/O 時才如此。
 
 4. 挑選兩款絕不能並行發起的工具（例如先執行 `create_file` 再執行 `write_file`）。在工具註冊表中加入 `ordering_dependency` 相依性圖譜定義，並在並行扇出調度器中加入相依性防護閘門。這正是後續 Agent 工程學中依賴感知排程的最小核心原型。
 
@@ -144,7 +144,7 @@ tp-parallel-fanout
 
 | 術語 | 常見俗稱 | 實際意義 |
 |------|----------------|------------------------|
-| Parallel tool calls | 「單輪多工具並行」 | 大模型在單一輪次的 assistant 訊息中同時發起多個獨立的工具呼叫 |
+| Parallel tool calls | 「單輪多工具並行」 | 模型在單一輪次的 assistant 訊息中同時發起多個獨立的工具呼叫 |
 | `parallel_tool_calls` | 「OpenAI 並行旗標」 | 控制模型在當前請求中是否允許同時輸出多個呼叫的布林開關 |
 | `disable_parallel_tool_use` | 「Anthropic 逆向旗標」 | Anthropic 採用的反向排除旗標；預設為允許並行，設為 true 則強制串列 |
 | Tool call id | 「呼叫關聯憑據」 | 賦予每個工具呼叫的唯一 ID，回傳結果訊息必須原樣附帶此 ID 方能關聯 |
@@ -157,8 +157,8 @@ tp-parallel-fanout
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI — Parallel function calling](https://platform.openai.com/docs/guides/function-calling#parallel-function-calling) ——OpenAI 並行呼叫標準指南與開關參數規範
-- [Anthropic — Parallel tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use) ——`disable_parallel_tool_use` 旗標與多結果批次注入機制
-- [Google — Gemini function calling parallel section](https://ai.google.dev/gemini-api/docs/function-calling) ——Gemini 3 基於 UUID 的並行呼叫官方手冊
-- [OpenAI — Streaming responses with tools](https://platform.openai.com/docs/api-reference/responses-streaming) ——針對串流工具呼叫的增量碎片重組官方實作指南
-- [Anthropic — Streaming messages](https://docs.anthropic.com/en/api/messages-streaming) ——`content_block_delta` 與 `input_json_delta` 串流事件流生命週期手冊
+- [OpenAI — Parallel function calling](https://platform.openai.com/docs/guides/function-calling#parallel-function-calling)
+- [Anthropic — Parallel tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use)
+- [Google — Gemini function calling parallel section](https://ai.google.dev/gemini-api/docs/function-calling)
+- [OpenAI — Streaming responses with tools](https://platform.openai.com/docs/api-reference/responses-streaming)
+- [Anthropic — Streaming messages](https://docs.anthropic.com/en/api/messages-streaming)

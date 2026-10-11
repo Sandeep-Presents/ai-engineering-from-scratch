@@ -28,7 +28,7 @@ A2A 正是「讓跨框架的各類 agent 彼此交談」的通用通訊協定。
 
 ## The Concept｜核心概念
 
-### Agent Card
+### Agent 名片（Agent Card）
 
 每個符合 A2A 規範的 agent 皆會在根目錄的 `/.well-known/agent-card.json` 發布一張專屬名片：
 
@@ -66,7 +66,7 @@ A2A 正是「讓跨框架的各類 agent 彼此交談」的通用通訊協定。
 
 服務發現基於標準 URL：先拉取該名片，在 `supportedInterfaces` 清單中選取第一個你的用戶端所支援的 `protocolBinding` 介面，隨後列舉其具備的 skills。輸入與輸出模式皆採用標準 MIME 媒體類型（Media Types）。
 
-### Signed Agent Cards
+### 已簽署的 Agent Card
 
 一張 Agent Card 可攜帶 `signatures` 陣列。清單中的每個項目皆是依據 RFC 8785 標準將排除 `signatures` 欄位後的名片本體進行規範化 JSON 運算後產出的 JWS（RFC 7515）數位簽章。消費者端以相同演算法進行規範化並校驗簽名。此機制能徹底防止 agent 冒名頂替。
 
@@ -90,7 +90,7 @@ TASK_STATE_WORKING
 
 - `text`：純文字內容。
 - `raw`：原始檔案位元組，在 JSON 中以 Base64 編碼表示，通常附帶 `filename` 與 `mediaType`。
-- `url`：指向實體檔案內容的超連結。
+- `url`：指向檔案內容的連結。
 - `data`：結構化 JSON 酬載（作為提供給被呼叫 agent 的結構化輸入）。
 
 範例：
@@ -107,7 +107,7 @@ TASK_STATE_WORKING
 }
 ```
 
-### Artifacts
+### 產物（Artifact）
 
 輸出結果被封裝為 Artifacts（產物），而非雜亂的裸字串。一個 Artifact 是一個具備名稱與明確型別的輸出結構：
 
@@ -161,7 +161,7 @@ A2A-Version: 1.0
 - **2025-06-23**：專案正式捐贈給 Linux 基金會。
 - **2025-08**：整併 IBM 的 ACP 協定。
 - **2025-09**：推出 AP2 支付擴充功能（Agent Payments）。
-- **2026-04**：正式發布 v1.0，獲得 150 多家機構聯署支援。
+- **2026-04**：正式發布 v1.0，獲得 150 多家機構支持。
 
 ### A2A 與 MCP 的定位比較
 
@@ -171,7 +171,7 @@ A2A-Version: 1.0
 | 透明度 | 工具呼叫完全透明 | 內部推論過程完全不透明 |
 | 典型呼叫端 | Agent 執行環境 | 另一個獨立的 Agent |
 | 狀態抽象 | 工具呼叫執行結果 | 具備完整生命週期的 Task |
-| 身分授權 | OAuth 2.1（Phase 13 · 16） | Agent Card 的 `securitySchemes` 與 `securityRequirements` |
+| 授權 | OAuth 2.1（Phase 13 · 16） | Agent Card 的 `securitySchemes` 與 `securityRequirements` |
 | 傳輸層 | Stdio / Streamable HTTP | JSON-RPC / gRPC / HTTP+JSON |
 
 當你需要呼叫某個具體工具時，使用 MCP。當你需要將一整項完整任務委派給另一個 agent 時，使用 A2A。在許多現代生產系統中，兩者常並行共存：agent 於底層使用 MCP 呼叫專屬工具，於上層使用 A2A 與其他外部 agent 進行跨組織協同。
@@ -226,7 +226,7 @@ a2a-task-lifecycle
 ## Further Reading｜延伸閱讀
 
 - [a2a-protocol.org](https://a2a-protocol.org/latest/) ——A2A 官方權威規範文件
-- [a2aproject/A2A — GitHub](https://github.com/a2aproject/A2A) ——官方參考實作與 SDK 程式庫
+- [a2aproject/A2A — GitHub](https://github.com/a2aproject/A2A) ——官方參考實作與 SDK 函式庫
 - [A2A v1.0.1 release](https://github.com/a2aproject/A2A/tree/v1.0.1) ——本課遵循的 `docs/specification.md` 與規範性 `specification/a2a.proto` 標籤版本
 - [Linux Foundation — A2A launch press release](https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents) ——2025 年 6 月治理權移交 Linux 基金會新聞公告
 - [Google Cloud — A2A protocol upgrade](https://cloud.google.com/blog/products/ai-machine-learning/agent2agent-protocol-is-getting-an-upgrade) ——發展藍圖與生態系合作夥伴動向

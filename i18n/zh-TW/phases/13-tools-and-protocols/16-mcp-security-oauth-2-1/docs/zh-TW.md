@@ -26,7 +26,7 @@
 - 使用者最初審核並同意了哪些具體的操作權限範圍（Scope）？
 - 當前發起的這一次獨立請求，是否依然嚴格吻合當初的授權範圍？
 
-2026-07-28 授權規範對用戶端註冊登錄與簽發者處理實施了全方位加固：優先選用用戶端 ID 中繼資料文件（CIMD）、廢除傳統 DCR、在 DCR 相容路徑中強制要求 `application_type`、依據 RFC 9207 嚴格校驗回應中的簽發者 `iss`，並嚴格禁止跨簽發者非法復用憑證。
+2026-07-28 授權規範對用戶端註冊登錄與簽發者處理實施了全方位加固：優先選用用戶端 ID 中繼資料文件（CIMD）、將動態用戶端註冊（DCR）列為棄用、在 DCR 相容路徑中強制要求 `application_type`、依據 RFC 9207 嚴格校驗回應中的簽發者 `iss`，並嚴格禁止跨簽發者非法復用憑證。
 
 這些安全規則與無狀態核心完美互補，絕不意味著需要恢復過時的交握或 `Mcp-Session-Id`。
 
@@ -138,7 +138,7 @@ issuer_credentials[issuer] = pre_registered_or_dcr_client
 tokens[(issuer, resource)] = access_token
 ```
 
-若受保護資源的探索結果從 `https://auth-one.example` 變更為 `https://auth-two.example`，必須徹底重新評估信任鏈。**絕對不可**將簽發給第一個授權伺服器的 Client Secret、DCR Client ID、註冊存取權杖、Refresh Token 或 Access Token 擅自發送給第二個授權伺服器！
+若受保護資源的探索結果從 `https://auth-one.example` 變更為 `https://auth-two.example`，必須重新評估信任鏈。**不可**將簽發給第一個授權伺服器的 Client Secret、DCR Client ID、註冊存取權杖、Refresh Token 或 Access Token 發送給第二個授權伺服器。預先註冊與 DCR 用戶端都必須使用由新簽發者簽發的憑證。
 
 CIMD 用戶端標識則截然不同，因為它是一個自託管的公開 HTTPS 網址，而非由某一特定授權伺服器所派發的專屬私密憑證。同一個 CIMD 網址具備高度的可攜帶性：全新的受信任簽發者可以直接抓取並校驗同一份文件，完全無需重複發起 DCR 註冊。然而，後續產出的授權回應與 Access Token，依然必須嚴格按新簽發者分區隔離儲存。
 

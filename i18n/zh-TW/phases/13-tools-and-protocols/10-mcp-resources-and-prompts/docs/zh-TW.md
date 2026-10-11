@@ -17,7 +17,7 @@
 - 開啟 `subscriptions/listen` POST 長回應串流，並透過訂閱 ID 精確關聯所有推送的事件。
 - 嚴格將資源本體內容與 Prompt 範本視為不可信的外部資料，做好安全隔離防禦。
 
-## Start With the Consumer｜從呼叫者意圖出發
+## 從呼叫者意圖出發
 
 在設計 MCP 系統時，最容易犯下的工程錯誤就是直接從後端實作程式碼出發：因為熟悉函式，就將資料庫查詢寫成工具；因為剛好存在檔案中，就把可重複使用的業務工作流寫成資源；因為宿主能夠注入prompt，就將 Prompt 變成了隱藏的黑箱安全策略。
 
@@ -25,7 +25,7 @@
 
 | 原語名稱 | 核心意圖 | 挑選與觸發的主體 | 典型的產出成果 |
 |---|---|---|---|
-| 工具（Tool） | 執行實體業務操作 | 大模型或自動化應用程式 | 結構化的操作結果 |
+| 工具（Tool） | 執行業務操作 | 模型或自動化應用程式 | 結構化的操作結果 |
 | 資源（Resource） | 依 URI 讀取具體內容 | 宿主環境、應用程式或使用者 | 純文字或二進位資料內容 |
 | Prompt 範本 | 啟動可重複使用的訊息工作流程 | 使用者透過宿主 UI 手動選取 | 一條或多條預先編排的對話訊息 |
 
@@ -33,7 +33,7 @@
 
 絕不要僅僅為了讓 API 介面「看起來琳瑯滿目」，就將同一項操作同時暴露為工具、資源與 Prompt。每一個額外的暴露端點，都需要額外承擔服務發現、授權鑑權、快取管理、錯誤處理、自動化測試以及文件維護的長期工程負債。
 
-## The 2026-07-28 Stateless Envelope｜2026-07-28 無狀態協定信封
+## 2026-07-28 無狀態協定信封
 
 本課針對 MCP 協定最新修訂版 `2026-07-28` 規範展開建置。在此規範設定下，完全不存在任何初始化交握（Handshake）或協定層級的連線工作階段（Protocol Session）。每一個獨立發起的請求，皆必須在保留的 `_meta` 欄位中攜帶自身的協定版本與用戶端能力宣告。
 
@@ -70,11 +70,11 @@
 }
 ```
 
-一個常規的成功回應，其最外層必須宣告 `"resultType": "complete"`。回應的 `_meta` 透過 `io.modelcontextprotocol/serverInfo` 標註提供服務的實作身分。該資訊僅作為診斷與除錯排查之用，絕不可作為替代安全認證的憑證。若請求攜帶了不支援的協定版本，伺服器必須回傳 `-32022` 錯誤，並同時包含請求版本與支援版本清單。
+一個常規的成功回應，其最外層必須宣告 `"resultType": "complete"`。回應的 `_meta` 透過 `io.modelcontextprotocol/serverInfo` 標註提供服務的實作身分。該資訊僅供診斷與除錯使用，不是安全憑證。若請求攜帶了不支援的協定版本，伺服器必須回傳 `-32022` 錯誤，並同時包含請求版本與支援版本清單。
 
-無狀態契約從根本上重塑了你的系統設計思維：清單查詢結果絕不能依賴同一條實體連線上的歷史呼叫記憶。使用者的權限憑證是隨每一次請求即時傳入的輸入引數，可據此動態過濾可見集合；但實體連線歷史絕不可作為判斷依據。
+無狀態契約從根本上重塑了你的系統設計思維：清單查詢結果絕不能依賴同一條連線上的歷史呼叫記憶。使用者的權限憑證是隨每一次請求即時傳入的輸入引數，可據此動態過濾可見集合；但連線歷史絕不可作為判斷依據。
 
-## Resources Are Stable URI Contracts｜資源是穩定的 URI 契約
+## 資源是穩定的 URI 契約
 
 資源是由 URI 唯一定位的資料內容。在著手撰寫處理函式之前，務必先精準設計其 URI 命名規範。
 
@@ -84,7 +84,7 @@
 - 具備明確綁定至伺服器業務網域的命名空間。
 - 完全獨立於作業系統行程 ID 或底層網路連線。
 - 在存取底層持久化儲存之前，必須實施嚴格的語法格式校驗。
-- 在每一次讀取時，皆必須重新實施權限鑑權。
+- 每次讀取時皆必須重新檢查授權。
 
 使用 `notes://note-1` 明顯優於模糊的 `note-1`，因為其命名空間界限分明。一個檔案伺服器可以使用 `file://` URI，但在解析符號連結（Symlink）與相對路徑之後，依然必須嚴格檢驗其是否超出配置的安全目錄邊界。
 
@@ -140,7 +140,7 @@
 
 資源文本中極可能潛藏提示注入攻擊（Prompt Injection）、機密資訊、誤導性指令或惡意畸形標記。宿主環境必須忠實保留資料來源出處，並始終將資源內容嚴格視為不可執行的純資料。伺服器端則應嚴格限制內容大小、標註精確的 MIME 媒體型別、過濾呼叫者無權存取的敏感欄位，並避免夾帶無關的旁路紀錄。
 
-## Prompts Are User-Controlled Templates｜Prompt 是使用者控制的範本
+## Prompt 是使用者控制的範本
 
 MCP 的 Prompt 專為「使用者顯式主動選取」而量身設計。宿主環境可將其彩現為斜線指令（Slash Commands）、選單操作項或工作流快捷按鈕。協定本身並不強加任何單一 UI 展現形式。
 
@@ -168,11 +168,11 @@ MCP 的 Prompt 專為「使用者顯式主動選取」而量身設計。宿主�
 }
 ```
 
-`prompts/get` 負責將使用者傳入的引數解析並彩現為具體的對話訊息清單。它絕不能覆蓋或替換宿主自身的系統指令（System Instructions）。宿主全權決定回傳的訊息該如何編排進大模型的上下文視窗中，並始終讓自身的內部信任策略享有最高優先權。
+`prompts/get` 負責將使用者傳入的引數解析並彩現為具體的對話訊息清單。它絕不能覆蓋或替換宿主自身的系統指令（System Instructions）。宿主決定回傳的訊息該如何編排進模型的上下文視窗中，並始終讓自身的內部信任策略享有最高優先權。
 
 必須在伺服器邊界處對 Prompt 引數進行嚴格校驗。Prompt 中引用的資源 URI，必須通過與直接執行資源讀取完全相同的授權檢查。絕不能讓 Prompt 淪為繞過資源存取權限控制的旁路後門。
 
-## Cache Hints Are Part of Correctness｜快取提示是系統正確性的一部分
+## 快取提示是系統正確性的一部分
 
 `ttlMs` 告知用戶端該成果在多少毫秒內可被安全復用。`cacheScope` 則定義了該快取成果允許被誰共享。
 
@@ -185,9 +185,9 @@ MCP 的 Prompt 專為「使用者顯式主動選取」而量身設計。宿主�
 
 MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數值。對於包含高敏感機密或變動極其頻繁的結果，應回傳 `cacheScope: "private"` 搭配 `ttlMs: 0`，隨後由宿主快取策略執行嚴格的禁止儲存（No-store）規則。`no-store` 本身並非 MCP 協定層級的合法 `cacheScope` 枚舉值。
 
-快取提示絕不能替代實體權限鑑權。快取鍵值（Cache Key）必須完整包含所有會改變資料可見性的請求維度——包含租戶 ID、使用者身分、授權範圍、語言區域以及分頁游標。若共享快取層無法安全表達這些維度，請一律設定為 `private` 搭配 0 存活時間，並在宿主層強制啟用不落地策略。
+快取提示絕不能替代授權檢查。快取鍵值（Cache Key）必須完整包含所有會改變資料可見性的請求維度——包含租戶 ID、使用者身分、授權範圍、語言區域以及分頁游標。若共享快取層無法安全表達這些維度，請一律設定為 `private` 搭配 0 存活時間，並在宿主層強制啟用不落地策略。
 
-## Subscriptions Use a Client-Opened Response Stream｜訂閱機制採用用戶端發起的長回應串流
+## 訂閱機制採用用戶端發起的長回應串流
 
 現代事件訂閱機制徹底取代了舊有的 `resources/subscribe` RPC 呼叫以及歷史上的 HTTP GET 事件端點。
 
@@ -218,7 +218,7 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 }
 ```
 
-該請求的 ID 即代表本次連線的訂閱 ID（Subscription ID）。在推送任何被訂閱的實體事件之前，伺服器必須先發送 `notifications/subscriptions/acknowledged` 確認通知。其內部回傳的過濾規則，僅包含伺服器實際核准接受的子集。
+該請求的 ID 即代表本次連線的訂閱 ID（Subscription ID）。在推送任何訂閱事件之前，伺服器必須先發送 `notifications/subscriptions/acknowledged` 確認通知。其內部回傳的過濾規則，僅包含伺服器實際核准接受的子集。
 
 ```json
 {
@@ -238,7 +238,7 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 }
 ```
 
-後續在該串流上推送的每一個實體事件，其中繼資料中皆必須原樣攜帶相同的訂閱 ID。
+後續在該串流上推送的每個事件，其中繼資料中皆必須原樣攜帶相同的訂閱 ID。
 
 ```json
 {
@@ -253,7 +253,7 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 }
 ```
 
-通知訊息僅代表「目標資源發生了變更」。用戶端必須重新透過 `resources/read` 主動發起讀取，並在當前權限下接受完整鑑權。用戶端絕不能預設通知事件本身就包含更新後的最新文件。
+通知訊息僅代表「目標資源發生了變更」。用戶端必須重新透過 `resources/read` 主動發起讀取，並在目前授權下重新檢查權限。用戶端絕不能預設通知事件本身就包含更新後的最新文件。
 
 多個獨立的訂閱可以共享同一個 stdio 傳輸通道。訂閱 ID 讓用戶端能夠在前端安全地解多工分流。在 HTTP 環境下，關閉回應串流即直接等同於取消訂閱。若伺服器優雅地正常結束串流，必須回傳一個與原始請求 ID 精確關聯的終態 `resultType: "complete"` 回應。
 
@@ -263,13 +263,13 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 t3-primitive-sort
 ```
 
-## Interactive Lab｜互動實驗室
+## 互動實驗室
 
 利用架構圖為專案管理追蹤系統的五項核心能力進行精準歸類：查看 Issue 詳情、建立新 Issue、Sprint 審查範本、專案規範方針、以及關閉 Issue。隨後決策哪些清單允許被公開快取、哪些讀取必須保持私有，以及哪些資源值得配置即時更新通知。
 
-在進行每一次架構分類時，請大聲指出其「決策主體」是誰：若是大模型自主發起的動作，宣告為工具；若是宿主環境讀取以 URI 定址的內容，宣告為資源；若是使用者手動啟動一套預製的對話流程，宣告為 Prompt。
+在進行每一次架構分類時，請大聲指出其「決策主體」是誰：若是模型自主發起的動作，宣告為工具；若是宿主環境讀取以 URI 定址的內容，宣告為資源；若是使用者手動啟動一套預製的對話流程，宣告為 Prompt。
 
-## Practice Lab｜動手實踐實驗室
+## 動手實踐實驗室
 
 在儲存庫根目錄下執行模擬器常式：
 
@@ -285,18 +285,18 @@ python3 -m unittest discover tests -v
 2. 確認兩個清單查詢結果皆具備確定性排序，且皆使用 `resultType: "complete"`。
 3. 確認清單與讀取結果皆精確攜帶了合規的快取控制建議。
 4. 將讀取 URI 刻意改為 `notes://missing`，親眼觀察標準錯誤碼 `-32602` 的拋出。
-5. 確認訂閱確認通知（Acknowledged）嚴格發生在實體資源變更事件之前。
+5. 確認訂閱確認通知（Acknowledged）發生在資源變更事件之前。
 6. 確認推送的事件與優雅關閉訊息，皆正確攜帶了相應的訂閱 ID `5`。
 
-Python 模擬程式碼並未建立真實的實體 HTTP 連線，它精準呈現的是 SDK 必須在請求範疇長回應串流中安放的合法訊息結構。在正式環境中，請務必採用官方 SDK 處理底層傳輸與封裝。
+Python 模擬程式碼並未建立實際 HTTP 連線，它精準呈現的是 SDK 必須在請求範疇長回應串流中安放的合法訊息結構。在正式環境中，請務必採用官方 SDK 處理底層傳輸與封裝。
 
-## Shipped Artifact｜交付成品
+## 交付成品
 
 本課產出 `outputs/skill-primitive-splitter.md`。這是一份專用於 MCP 原語架構選型的專業設計審查工具。它能自動檢驗確定性服務發現、快取作用域宣告、無效 URI 邊界處理以及現代長連線訂閱過濾規則。
 
 本課同時交付 `assets/primitive-split.svg`，作為線下研讀原語劃分與訂閱邊界的靜態架構手冊。
 
-## Verify It｜驗證成果
+## 驗證成果
 
 ```bash
 cd phases/13-tools-and-protocols/10-mcp-resources-and-prompts/code
@@ -306,11 +306,11 @@ python3 -m unittest discover tests -v
 
 預期結果：主程式印出結構化 JSON 日誌，且單元測試指令回報至少 12 項測試全數順利通過（PASS）。
 
-## Capstone Connection｜專題連結
+## 專題連結
 
 當你的 Capstone 專題伺服器在提供操作動作的同時、亦需暴露可定址的知識資產時，請嚴格恪守此契約。成果中應包含一份確定性目錄快照、一次通過授權審查的資源讀取、一次 Prompt 範本解析、一個無效 URI 的標準錯誤處理案例，以及一份完整的事件訂閱日誌。
 
-你的交付驗收證據應當確鑿證明：任何清單查詢絕不依賴實體連線歷史記憶，且訂閱事件的推送絕不能直接賦予對底層資源實體的免鑑權存取權限。
+你的交付驗收證據應當確鑿證明：任何清單查詢都不依賴連線歷史記憶，且訂閱事件的推送絕不能直接賦予對底層資源的免授權存取權限。
 
 ## Exercises｜練習
 
@@ -336,7 +336,7 @@ python3 -m unittest discover tests -v
 
 ## Further Reading｜延伸閱讀
 
-- [MCP 2026-07-28 Resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources) ——官方資源規範手冊
-- [MCP 2026-07-28 Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts) ——官方 Prompt 範本規範手冊
-- [MCP 2026-07-28 Subscriptions](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions) ——長連線事件訂閱模式手冊
-- [MCP 2026-07-28 Caching](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/caching) ——快取控制建議與安全邊界手冊
+- [MCP 2026-07-28 Resources](https://modelcontextprotocol.io/specification/2026-07-28/server/resources)
+- [MCP 2026-07-28 Prompts](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts)
+- [MCP 2026-07-28 Subscriptions](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/subscriptions)
+- [MCP 2026-07-28 Caching](https://modelcontextprotocol.io/specification/2026-07-28/server/utilities/caching)
