@@ -10,7 +10,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 計算跨所有脈絡視窗元件（系統提示、工具、歷程、檢索文件、生成緩衝（generation buffer）裕度）的 token 預算
+- 計算跨所有脈絡視窗元件（system prompt、工具、歷程、檢索文件、生成緩衝（generation buffer）裕度）的 token 預算
 - 實作脈絡視窗管理策略：針對對話歷程的截斷、摘要與滑動視窗（sliding window）
 - 排序與安排脈絡元件優先級，以最大化模型對最關鍵資訊的注意力
 - 建構一套依據查詢類型與可用視窗容量動態分配 token 的脈絡組裝器
@@ -19,7 +19,7 @@
 
 Claude Opus 4.7 擁有 200K token 的脈絡視窗（beta 測試期間上限為 1M）。GPT-5 具備 400K。Gemini 3 Pro 提供 2M。Llama 4 宣稱支援 10M。在還沒填滿之前，這些數字聽起來無比龐大。
 
-以下是一個程式碼助理的程式碼助理的 token 配置範例。系統提示：500 tokens。50 個工具的定義規格：8,000 tokens。檢索出的參考文件：4,000 tokens。對話歷程（10 輪對話）：6,000 tokens。當前使用者查詢：200 tokens。生成預算（最大輸出限制）：4,000 tokens。總計：22,700 tokens。這只佔了 128K 視窗的 18%。
+以下是一個程式碼助理的 token 配置範例。system prompt：500 tokens。50 個工具的定義規格：8,000 tokens。檢索出的參考文件：4,000 tokens。對話歷程（10 輪對話）：6,000 tokens。當前使用者查詢：200 tokens。生成預算（最大輸出限制）：4,000 tokens。總計：22,700 tokens。這只佔了 128K 視窗的 18%。
 
 然而，注意力機制並不會隨著脈絡長度線性擴展。擁有 128K token 脈絡的模型在原生 Transformer 中需承受二次方注意力成本（O(n^2) 在原生 Transformer 中，儘管多數生產級模型採用了高效率注意力變體）。更關鍵的是，檢索精準度會嚴重劣化。「大海撈針」（Needle in a Haystack, NIAH）測試顯示，模型在長脈絡正中央尋找細節資訊時極易遭遇困難。Liu 等人（2023）的研究證實，LLM 檢索長脈絡開頭與結尾處的資訊時擁有近乎完美的準確率，但對於放置於中間段落（脈絡 40% 到 70% 位置）的資訊，正確率驟降 10% 到 20%。這種「迷失在中間」（lost-in-the-middle）現象在各模型間程度不一，但無一倖免地影響了當前所有的架構。
 
@@ -35,14 +35,14 @@ Claude Opus 4.7 擁有 200K token 的脈絡視窗（beta 測試期間上限為 1
 
 ```mermaid
 graph TD
-    subgraph Window["Context Window (128K tokens)"]
+    subgraph Window["脈絡視窗（128K tokens）"]
         direction TB
-        S["System Prompt\n~500 tokens"] --> T["Tool Definitions\n~2K-8K tokens"]
-        T --> R["Retrieved Context\n~2K-10K tokens"]
-        R --> H["Conversation History\n~2K-20K tokens"]
-        H --> F["Few-shot Examples\n~1K-3K tokens"]
-        F --> Q["User Query\n~100-500 tokens"]
-        Q --> G["Generation Budget\n~2K-8K tokens"]
+        S["system prompt\n~500 tokens"] --> T["工具定義\n~2K-8K tokens"]
+        T --> R["檢索出的脈絡\n~2K-10K tokens"]
+        R --> H["對話歷程\n~2K-20K tokens"]
+        H --> F["少樣本範例\n~1K-3K tokens"]
+        F --> Q["使用者查詢\n~100-500 tokens"]
+        Q --> G["生成預算\n~2K-8K tokens"]
     end
 
     style S fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -64,20 +64,20 @@ Liu 等人（2023）系統性測試。他們將一份關鍵文件穿插在 20 �
 
 這指引了工程上的直接啟示：
 
-- 將最關鍵的核心資訊放在最前面（系統提示、重要規則）
+- 將最關鍵的核心資訊放在最前面（system prompt、重要規則）
 - 將當前查詢與最具關聯性的脈絡放在最後面（利用近因效應）
 - 將脈絡的中間區段視為最低優先級區域
 - 若某些關鍵資訊不得不置於中間，請務必在尾端再次重複強調
 
 ```mermaid
 graph LR
-    subgraph Attention["Attention Distribution Across Context"]
+    subgraph Attention["脈絡中的注意力分布"]
         direction LR
-        P1["Position 0-20%\nHIGH attention\n(system prompt)"]
-        P2["Position 20-40%\nMODERATE"]
-        P3["Position 40-70%\nLOW attention\n(lost in middle)"]
-        P4["Position 70-90%\nMODERATE"]
-        P5["Position 90-100%\nHIGH attention\n(current query)"]
+        P1["位置 0-20%\n高注意力\n(system prompt)"]
+        P2["位置 20-40%\n中等"]
+        P3["位置 40-70%\n低注意力\n（中間遺失）"]
+        P4["位置 70-90%\n中等"]
+        P5["位置 90-100%\n高注意力\n（目前查詢）"]
     end
 
     style P1 fill:#51cf66,color:#000
@@ -89,7 +89,7 @@ graph LR
 
 ### 脈絡元件組成
 
-**系統提示（System prompt）**：確立人設定位、約束條件與行為法則。它置於最前，並在多輪互動中維持恆定。Claude Code 的系統提示（包含工具定義與行為指引）消耗約 6,000 tokens。請保持極度精煉，因為系統提示中的每一個字詞都會在每次 API 呼叫中被反覆計費。
+**system prompt**：確立人設定位、約束條件與行為法則。它置於最前，並在多輪互動中維持恆定。Claude Code 的 system prompt（包含工具定義與行為指引）消耗約 6,000 tokens。請保持極度精煉，因為 system prompt 中的每一個字詞都會在每次 API 呼叫中被反覆計費。
 
 **工具定義（Tool definitions）**：每個工具約消耗 50 到 200 tokens（包含名稱、描述、參數 Schema）。在尚未展開任何對話之前，50 個工具（每個 150 tokens）就已吞噬了 7,500 tokens。採用動態工具選取——僅注入與當前查詢相關的工具——能將此開銷削減 60% 到 80%。
 
@@ -97,9 +97,9 @@ graph LR
 
 **對話歷程（Conversation history）**：過去所有的使用者訊息與助理回應。它隨對話長度線性增長。一場 50 輪對話（每輪 200 tokens）會累積 10,000 tokens 的歷史，而其中絕大多數與當前問題毫無關聯。
 
-**少樣本範例（Few-shot examples）**：展示預期行為的輸入／輸出範例。兩到三個精心挑選的範例對輸出品質的提升，往往勝過最重要的置首、重要的置尾，可選內容置中，但它們同樣佔用配額。
+**少樣本範例（Few-shot examples）**：展示預期行為的輸入／輸出範例。兩到三個精心挑選的範例，往往比數千個 token 的指令更能提升輸出品質，但也會佔用空間。
 
-**生成預算（Generation budget）**：專為模型輸出預留的 token 配額。若將視窗容量全部填滿，模型將毫無施展回答的空間。請預留預留至少 2,000 到 4,000 tokens 作為生成裕度。
+**生成預算（Generation budget）**：專為模型輸出預留的 token 配額。若將視窗容量全部填滿，模型將毫無施展回答的空間。請預留至少 2,000 到 4,000 tokens 作為生成裕度。
 
 ### 脈絡壓縮策略
 
@@ -109,13 +109,13 @@ graph LR
 
 **工具剪裁（Tool pruning）**：分類使用者查詢的真實意圖，僅注入與該意圖匹配的工具定義。程式碼問題不需要行事曆工具，排程問題不需要檔案系統工具。這能直接將工具定義的消耗從 8,000 tokens 減少至 1,000 tokens 左右。
 
-**遞迴式摘要（Recursive summarization）**：對於超長篇文件，分階段循序壓縮。先對每個章節進行局部摘要，隨後再對各章節摘要進行第二輪濃縮。一份 50 頁的厚重文件得以收斂為 500 token 且濃縮為 500-token 摘要。
+**遞迴式摘要（Recursive summarization）**：對於超長篇文件，分階段循序壓縮。先對每個章節進行局部摘要，隨後再對各章節摘要進行第二輪濃縮。一份 50 頁的文件得以濃縮為 500-token 摘要，保留關鍵要點。
 
 ### 記憶系統架構
 
 脈絡工程涵蓋三個不同時間尺度的記憶維度：
 
-**短期記憶（Short-term memory）**：當前對話。直接置於脈絡視窗中，隨每輪互動持續增長，透過摘要與滑動截斷進行由摘要和截斷管理。
+**短期記憶（Short-term memory）**：當前對話。直接置於脈絡視窗中，隨每輪互動持續增長，透過摘要與截斷管理。
 
 **長期記憶（Long-term memory）**：跨對話留存的事實與偏好設定。「該使用者偏好 TypeScript」、「此專案使用 PostgreSQL」。持久化儲存於外部資料庫中，在工作階段開始時按需載入。Claude Code 將此類記憶持久化於 CLAUDE.md 中；ChatGPT 則體現在其 Memory 功能中。
 
@@ -123,18 +123,18 @@ graph LR
 
 ```mermaid
 graph TD
-    subgraph Memory["Memory Architecture"]
+    subgraph Memory["記憶體架構"]
         direction TB
-        STM["Short-term Memory\n(current conversation)\nDirect in context window"]
-        LTM["Long-term Memory\n(facts, preferences)\nDB -> retrieved on session start"]
-        EM["Episodic Memory\n(past interactions)\nEmbeddings -> retrieved on similarity"]
+        STM["短期記憶\n（目前對話）\n直接放在脈絡視窗中"]
+        LTM["長期記憶\n（事實、偏好）\nDB -> 工作階段開始時檢索"]
+        EM["情節記憶\n（過往互動）\nEmbeddings -> 依相似度檢索"]
     end
 
-    Q["Current Query"] --> STM
+    Q["目前查詢"] --> STM
     Q --> LTM
     Q --> EM
 
-    STM --> CW["Context Window"]
+    STM --> CW["脈絡視窗"]
     LTM --> CW
     EM --> CW
 
@@ -146,7 +146,7 @@ graph TD
 
 ### 動態脈絡組裝（dynamic context assembly）
 
-核心洞見：不同的查詢需要截然不同的脈絡配比。靜態系統提示 + 靜態全量工具 + 靜態全量歷程是極大的浪費。最頂尖的系統會針對每個查詢進行動態脈絡組裝：
+核心洞見：不同的查詢需要截然不同的脈絡配比。靜態 system prompt + 靜態全量工具 + 靜態全量歷程是極大的浪費。最頂尖的系統會針對每個查詢進行動態脈絡組裝：
 
 1. 分類查詢意圖
 2. 挑選關聯工具（而非全量注入）
@@ -531,7 +531,7 @@ def run_demo():
 
 ### 測試框架管轄的脈絡
 
-Claude Code 透過分層式架構管理脈絡。系統提示包含行為準則與工具定義（約 6K tokens）。當你開啟檔案時，其內容被注入為脈絡；當你搜尋時，結果會被動態追加；過時的對話輪次會被自動摘要。CLAUDE.md 則作為跨工作階段的長期記憶的長期記憶。
+Claude Code 透過分層式架構管理脈絡。system prompt 包含行為準則與工具定義（約 6K tokens）。當你開啟檔案時，其內容被注入為脈絡；當你搜尋時，結果會被動態追加；過時的對話輪次會被自動摘要。CLAUDE.md 則作為跨工作階段的長期記憶。
 
 核心的工程決策在於：Claude Code 絕不會將整個程式碼庫避免整個程式碼庫全部載入脈絡中，而是依需求精準檢索。這正是脈絡工程的最佳實踐典範。
 
@@ -543,15 +543,15 @@ Cursor 將你的整個程式碼庫預先索引為 embedding。當你輸入查詢
 
 ### 助理長期記憶
 
-ChatGPT 將使用者的個人偏好與關鍵事實儲存為長期記憶。在每場對話啟動時，關聯記憶被檢索並注入至系統提示中。「該使用者偏好 Python」僅耗費 5 個 token，卻能在跨對話中省去數百個重複指令 token。
+ChatGPT 將使用者的個人偏好與關鍵事實儲存為長期記憶。在每場對話啟動時，關聯記憶被檢索並注入至 system prompt 中。「該使用者偏好 Python」僅耗費 5 個 token，卻能在跨對話中省去數百個重複指令 token。
 
 ### RAG 是脈絡工程的具體實作脈絡工程
 
-檢索增強生成（RAG）正是形式化後的脈絡工程。你不再試圖將所有知識強塞進模型權重（模型訓練）或塞進系統提示（靜態脈絡），而是在查詢發生的瞬間精準檢索相關文件並注入脈絡視窗中。整個 RAG 管線——分塊、向量化、檢索、重新排序——存在的唯一目的，就是將最正確的資訊送進脈絡視窗。
+檢索增強生成（RAG）正是形式化後的脈絡工程。你不再試圖將所有知識強塞進模型權重（模型訓練）或塞進 system prompt（靜態脈絡），而是在查詢發生的瞬間精準檢索相關文件並注入脈絡視窗中。整個 RAG 管線——分塊、向量化、檢索、重新排序——存在的唯一目的，就是將最正確的資訊送進脈絡視窗。
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/prompt-context-optimizer.md`——一個可重複使用的稽核 Prompt，能評估脈絡組裝策略並提出提出最佳化建議。向其提供你的系統提示、工具數量、平均歷程長度與檢索策略，它能自動標記 token 浪費並指引改進方向。
+本課產出 `outputs/prompt-context-optimizer.md`——一個可重複使用的稽核 Prompt，能評估脈絡組裝策略並提出最佳化建議。向其提供你的 system prompt、工具數量、平均歷程長度與檢索策略，它能自動標記 token 浪費並指引改進方向。
 
 此外還產出 `outputs/skill-context-engineering.md`——一套依據任務類型、脈絡視窗容量與延遲預算，設計脈絡組裝管線的決策框架。
 
@@ -574,7 +574,7 @@ ChatGPT 將使用者的個人偏好與關鍵事實儲存為長期記憶。在每
 | 脈絡視窗（Context window） | 「模型能讀多少內容」 | 模型在單次前向傳播中所能處理的最大 token 總量（輸入 + 輸出）——GPT-5 為 400K，Claude Opus 4.7 為 200K（測試版 1M），Gemini 3 Pro 為 2M |
 | 脈絡工程（Context engineering） | 「進階版 Prompt 工程」 | 決定什麼該放入脈絡視窗、以何種順序排列、分配何種優先級別的工程紀律——涵蓋檢索、壓縮、工具挑選與記憶管理 |
 | 迷失在中間（Lost-in-the-middle） | 「模型容易忘記中間的細節」 | 實證研究發現 LLM 對脈絡首尾具有天然高注意力，對置於中間位置的資訊，其檢索與回答準確率下降 10% 到 20% |
-| Token 預算（Token budget） | 「還剩多少 token 可用」 | 在各元件（系統提示、工具、歷程、檢索、生成）之間對脈絡視窗容量進行顯式分配，並設定嚴格的上限保護 |
+| Token 預算（Token budget） | 「還剩多少 token 可用」 | 在各元件（system prompt、工具、歷程、檢索、生成）之間對脈絡視窗容量進行顯式分配，並設定嚴格的上限保護 |
 | 動態脈絡（Dynamic context） | 「動態即時載入所需內容」 | 依據依查詢意圖分類、相關工具挑選與檢索結果，為每個獨立查詢量身組裝出完全相異的脈絡視窗內容 |
 | 歷程摘要（History summarization） | 「濃縮對話內容」 | 以簡明扼要的摘要取代逐字完整的陳舊對話輪次，在顯著降低 token 成本的同時完整保全關鍵上下文資訊 |
 | 工具剪裁（Tool pruning） | 「僅注入用得到的工具」 | 分類查詢意圖並僅載入匹配的工具定義，將工具本身的 token 開銷大幅削減 60% 到 80% |
