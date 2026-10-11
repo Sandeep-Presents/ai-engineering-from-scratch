@@ -12,5 +12,6 @@
   "phases/18-ethics-safety-alignment/11-scalable-oversight-weak-to-strong/docs/en.md": "d196b5586d8b302756393fb7a48288b465f5908633395b3164d8924cf46f7a8d",
   "phases/18-ethics-safety-alignment/12-red-teaming-pair-automated-attacks/docs/en.md": "24dbc68c56b3c9903ecfd86f7237b014e57811bdf00ee62305650b87930ec7ba",
   "phases/18-ethics-safety-alignment/13-many-shot-jailbreaking/docs/en.md": "27a1efae78e594530ccd35f01fedacd8a1e4aeaec537bb40c419728f001bc261",
-  "phases/18-ethics-safety-alignment/14-ascii-art-visual-jailbreaks/docs/en.md": "49b3da88ca8fbe445a353426bbec66f0488f177c0a34b9ddb2f76269f964b2e8"
+  "phases/18-ethics-safety-alignment/14-ascii-art-visual-jailbreaks/docs/en.md": "49b3da88ca8fbe445a353426bbec66f0488f177c0a34b9ddb2f76269f964b2e8",
+  "phases/18-ethics-safety-alignment/15-indirect-prompt-injection/docs/en.md": "c45f346b585ff1881733b061f7e55d034eacaf23e912374d001ee27dac87df38"
 }
