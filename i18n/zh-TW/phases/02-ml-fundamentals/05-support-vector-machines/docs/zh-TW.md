@@ -40,7 +40,7 @@ distance = |w^T x_i + b| / ||w||
 
 ```mermaid
 graph LR
-    subgraph Margin
+    subgraph 間隔
         direction TB
         A["w^T x + b = +1"] ~~~ B["w^T x + b = 0"] ~~~ C["w^T x + b = -1"]
     end
@@ -69,7 +69,7 @@ subject to  y_i * (w^T x_i + b) >= 1  for all i
 
 ```mermaid
 graph TD
-    subgraph Classification
+    subgraph 分類
         SV1["支援向量（+ 類別）<br>y(w'x+b) = 1"] --- DB["決策邊界<br>w'x+b = 0"]
         DB --- SV2["支援向量（- 類別）<br>y(w'x+b) = 1"]
     end
