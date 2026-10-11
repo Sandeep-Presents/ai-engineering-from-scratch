@@ -22,7 +22,7 @@
 2. **管線氣泡（Pipeline bubbles）。** 傳統的管線平行（GPipe、1F1B）使 GPU 在等待其階段的輸入或梯度時被迫閒置。在 8 個階段下，即使採用 1F1B 排程，仍有約 12% 的 GPU 時間淪為氣泡空轉。
 3. **跨節點 All-to-all 通訊。** 結合專家平行的 MoE 將專家打散至不同節點。每次前向傳遞（forward pass）都會觸發一次 all-to-all 通訊將 token 分發至對應專家，隨後再觸發一次通訊進行匯總。在 2,000 張 GPU 下，運算與通訊時間比很容易惡化至 1:1。
 
-每項難題各有其單獨的解方：針對記憶體採用活化值檢查點、針對管線氣泡採用 Zero Bubble（Sea AI Lab，2023 年）、針對 all-to-all 採用專用通訊核心。而 DualPipe 的突破在於讓這三者協同運作。其排程機制在單一前向－反向區塊內重疊計算與通訊，同時從管線兩端注入微批次，並利用由此產生的排程表將 all-to-all 通訊隱藏在計算視窗內部。
+每項難題各有其單獨的解方：針對記憶體採用梯度檢查點（gradient checkpointing）、針對管線氣泡採用 Zero Bubble（Sea AI Lab，2023 年）、針對 all-to-all 採用專用通訊核心。而 DualPipe 的突破在於讓這三者協同運作。其排程機制在單一前向－反向區塊內重疊計算與通訊，同時從管線兩端注入微批次，並利用由此產生的排程表將 all-to-all 通訊隱藏在計算視窗內部。
 
 回報成果：近乎消除了管線氣泡，在 DeepSeek-V3 的 14.8 兆 token 訓練執行作業中達到了 95% 以上的 GPU 利用率。
 
@@ -85,7 +85,7 @@ Zero Bubble 能將其壓縮，但無法降至零。DualPipe 在穩定階段中�
 
 ### DualPipeV——架構精煉
 
-Sea AI Lab（2025 年）觀察到：當 EP 通訊重疊並非核心訴求時，2 倍參數複製純屬浪費。其 DualPipeV 排程將雙向注入摺疊為「V 字型」排程，僅在單一參數複本上執行。其氣泡略大於 DualPipe，但記憶體節省極其可觀。DeepSeek 在其開源的 DualPipe 實作中採納了 DualPipeV 作為關閉 EP 模式下的預設方案。
+Sea AI Lab（2025 年）觀察到：當 EP 通訊重疊並非核心訴求時，2 倍參數複製純屬浪費。其 DualPipeV 排程將雙向注入摺疊為「V 字型」排程，僅在單一參數複本上執行。其氣泡略大於 DualPipe，但記憶體節省極其可觀。DeepSeek 在其開源的 DualPipe 實作中採納了 DualPipeV 作為 EP-off 模式。
 
 各方案權衡對比：
 
