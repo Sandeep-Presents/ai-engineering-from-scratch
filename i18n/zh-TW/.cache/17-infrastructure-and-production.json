@@ -24,5 +24,6 @@
   "phases/17-infrastructure-and-production/23-sre-for-ai/docs/en.md": "70af1683e56bf583059a01d153b808ad3ba0e76f89a811dc57d03cd6f108da01",
   "phases/17-infrastructure-and-production/24-chaos-engineering-llm/docs/en.md": "cd452d8d62dd107244028e88aadbcffcc768cd58a78afe52f3d85a4906f4e79f",
   "phases/17-infrastructure-and-production/25-security-secrets-audit/docs/en.md": "8fa0b2d28ab54c4c0cff0b90f08642aded7a71456dbef7011d96d0fbff11f467",
-  "phases/17-infrastructure-and-production/26-compliance-frameworks/docs/en.md": "20cb93aee9790da3c61c0d106b955b01b033b90ec2262dbeb40dfdd803e4e686"
+  "phases/17-infrastructure-and-production/26-compliance-frameworks/docs/en.md": "20cb93aee9790da3c61c0d106b955b01b033b90ec2262dbeb40dfdd803e4e686",
+  "phases/17-infrastructure-and-production/27-finops-llms/docs/en.md": "1430e4cd6817449b618d6065ee9371aee75ed3cfbb05087a13b0c5db29827c34"
 }
