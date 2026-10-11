@@ -111,7 +111,7 @@ sw-ctde
 - `QMIXStyle`——配備單調混合器的價值分解。
 - `MAPPOStyle`——集中式價值函數；各 Agent 的策略對照共享基準更新。
 
-四種版本都在相同的 episode 上運行，並回報平均抵達目標的步數。CTDE 變體收斂到的路徑比獨立基準短。
+四種版本都在相同的 episode 上執行，並回報平均抵達目標的步數。CTDE 變體收斂到的路徑比獨立基準短。
 
 執行指令：
 
@@ -159,8 +159,8 @@ MARL 在正式環境中並不常見。若要使用：
 
 ## Further Reading｜延伸閱讀
 
-- [Lowe et al. — Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/abs/1706.02275)
-- [Rashid et al. — QMIX: Monotonic Value Function Factorisation for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/abs/1803.11485)
-- [Yu et al. — The Surprising Effectiveness of PPO in Cooperative Multi-Agent Games](https://arxiv.org/abs/2103.01955)
-- [BAIR blog post on MAPPO](https://bair.berkeley.edu/blog/2021/07/14/mappo/)
-- [SMAC repository](https://github.com/oxwhirl/smac)
+- [Lowe et al. — Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/abs/1706.02275) — MADDPG；NeurIPS 2017
+- [Rashid et al. — QMIX: Monotonic Value Function Factorisation for Deep Multi-Agent Reinforcement Learning](https://arxiv.org/abs/1803.11485) — QMIX；ICML 2018
+- [Yu et al. — The Surprising Effectiveness of PPO in Cooperative Multi-Agent Games](https://arxiv.org/abs/2103.01955) — MAPPO；NeurIPS 2022
+- [BAIR blog post on MAPPO](https://bair.berkeley.edu/blog/2021/07/14/mappo/) — 易讀的 MAPPO 研究結果說明
+- [SMAC repository](https://github.com/oxwhirl/smac) — StarCraft 多 Agent 挑戰賽

@@ -1,6 +1,6 @@
 # 實戰案例研究與 2026 最新技術現狀（Case Studies and the 2026 State of the Art）
 
-> 三個工業級正式環境代表案例，各代表多 Agent 工程學的一個關鍵切片。**Anthropic Research 深度研究系統**（編排者-工作者架構、消耗 15 倍 Token、相較於單一 Agent Opus 4 取得 +90.2% 提升、彩虹滾動部署）是監督者模式的經典教科書。**MetaGPT / ChatDev**（專為軟體工程設計、編碼為 SOP 的角色分工體系；ChatDev 的「通訊去幻覺」機制；MacNet 透過有向無環圖 DAG 將規模擴展至 1,000 個以上 Agent，arXiv:2406.07155）則是角色拆解的經典標竿。**OpenClaw / Moltbook 生態系**（最初由 Peter Steinberger 於 2025 年 11 月發起名為 Clawdbot；經歷兩次更名；截至 2026 年 3 月斬獲 24.7 萬顆 GitHub 星標；基於本機 ReAct 迴圈；Moltbook 作為純 Agent 社交網路在發布數天內吸引了約 230 萬個 Agent 帳號，並於 2026 年 3 月 10 日被 Meta 正式收購）生動展示了當 Agent 邁入群體社會規模時所浮現的全新圖景：自發湧現的經濟活動、群體級別的 Prompt 注入風險，以及國家層級的監管介入（中國於 2026 年 3 月正式限制在政府電腦上運作 OpenClaw）。**2026 年 4 月框架版圖：** LangGraph 與 CrewAI 引領正式環境；AG2 是 AutoGen 的主力社群延續；微軟 AutoGen 轉入維護模式（與 Semantic Kernel 整併為微軟 Agent Framework，2026 年 2 月釋出 RC 版）；OpenAI Agents SDK 是 Swarm 的工業級繼承者；Google ADK（2025 年 4 月）是原生支援 A2A 的重要力量。各大主流框架如今皆已標配 MCP 支援，且多數已相容 A2A。本課將端到端通讀這三大案例，提煉其共通的工程精髓，讓你在打造下一個正式環境系統時，能從容做出基於客觀實證的理性技術選型。
+> 三個工業級正式環境代表案例，各代表多 Agent 工程學的一個關鍵切片。**Anthropic Research 深度研究系統**（編排者-工作者架構、消耗 15 倍 Token、相較於單一 Agent Opus 4 取得 +90.2% 提升、彩虹滾動部署）是監督者模式的經典教科書。**MetaGPT / ChatDev**（專為軟體工程設計、編碼為 SOP 的角色分工體系；ChatDev 的「通訊去幻覺」機制；MacNet 透過有向無環圖 DAG 將規模擴展至 1,000 個以上 Agent，arXiv:2406.07155）則是角色拆解的經典標竿。**OpenClaw / Moltbook 生態系**（最初由 Peter Steinberger 於 2025 年 11 月發起名為 Clawdbot；經歷兩次更名；截至 2026 年 3 月斬獲 24.7 萬顆 GitHub 星標；基於本機 ReAct 迴圈；Moltbook 作為純 Agent 社交網路在發布數天內吸引了約 230 萬個 Agent 帳號，並於 2026 年 3 月 10 日被 Meta 正式收購）生動展示了當 Agent 邁入群體社會規模時所浮現的全新圖景：自發湧現的經濟活動、群體級別的 Prompt 注入風險，以及國家層級的監管介入（中國於 2026 年 3 月正式限制在政府電腦上運作 OpenClaw）。**2026 年 4 月框架版圖：** LangGraph 與 CrewAI 引領正式環境；AG2 是 AutoGen 的主力社群延續；微軟 AutoGen 轉入維護模式（併入微軟 Agent Framework，2026 年 2 月釋出 RC 版）；OpenAI Agents SDK 是 Swarm 的工業級繼承者；Google ADK（2025 年 4 月）是原生支援 A2A 的重要力量。各大主流框架如今皆已標配 MCP 支援，且多數已相容 A2A。本課將端到端通讀這三大案例，提煉其共通的工程精髓，讓你在打造下一個正式環境系統時，能從容做出基於客觀實證的理性技術選型。
 
 **Type:** Learn (capstone)
 **Languages:** —
@@ -56,9 +56,9 @@ MacNet（arXiv:2406.07155）進一步將 ChatDev 擴展至**透過有向無環�
 
 多 Agent 在邁入全社會人口規模時的真實實戰縮影。關鍵時間線演進：
 
-- **2025 年 11 月：** Peter Steinberger 發布 Clawdbot（基於本機 ReAct 迴圈運作的個人編程 Agent）。
+- **2025 年 11 月：** Peter Steinberger 發布 Clawdbot（基於本機 ReAct 迴圈運作的個人程式設計 Agent）。
 - **2025 年 12 月 – 2026 年 3 月：** 經歷兩次品牌更名（Clawdbot → OpenClaw → 最終在 OpenClaw 名下持續演進）。
-- **2026 年 2 月：** Moltbook 正式上線，作為專供 Agent 自主互動的專屬社交網路；在發布數天內，全網湧入了約 230 萬個活躍 Agent 帳號。
+- **2026 年 2 月：** Moltbook 正式上線，作為專供 Agent 自主互動的專屬社交網路；在發布數天內，全網湧入了約 230 萬個 Agent 帳號。
 - **2026 年 3 月 10 日：** Meta 宣布正式收購 Moltbook。
 - **2026 年 3 月：** 中國政府正式下令限制在政府公務電腦上運作 OpenClaw。
 - **2026 年 3 月：** OpenClaw 在 GitHub 上突破 24.7 萬顆星標。
@@ -82,8 +82,8 @@ MacNet（arXiv:2406.07155）進一步將 ChatDev 擴展至**透過有向無環�
 
 | 框架 | 狀態 | 適用情境 | 備註 |
 |---|---|---|---|
-| **LangGraph** (LangChain) | 正式環境領軍者 | 結構化圖 + 檢查點機制 + 人在迴圈中（HITL） | 企業正式環境部署的唯一推薦預設起點 |
-| **CrewAI** | 正式環境領軍者 | 基於角色分工的專案團隊，支援循序／階層流程 | 角色拆解與團隊模擬的最佳選擇 |
+| **LangGraph** (LangChain) | 正式環境領軍者 | 結構化圖 + 檢查點機制 + 人在迴圈中（HITL） | 正式環境的建議預設選項 |
+| **CrewAI** | 正式環境領軍者 | 基於角色分工的專案團隊，支援循序／階層流程 | 適合角色拆解 |
 | **AG2** | 社群主導活躍維護 | 群組對話（GroupChat） + 發言人智慧選取 | AutoGen v0.2 經典語意的唯一合法延續 |
 | **Microsoft AutoGen** | 轉入維護模式（2026 年 2 月） | — | 全面整併進微軟 Agent Framework RC 版 |
 | **Microsoft Agent Framework** | 釋出 RC 版（2026 年 2 月） | 豐富的編排模式 + 企業級原生深度整合 | 微軟旗艦新秀；值得高度密切關注 |
@@ -134,7 +134,7 @@ a5-orchestrator-scale
 - **站在巨人的肩膀上，堅決杜絕從零發明輪子。** 從 Anthropic Research、MetaGPT 與 OpenClaw 中挑選出最相近的一款作為參考基準，並在此基礎上進行客製化調適。
 - **全面擁抱 MCP + A2A 雙標準。** 跨框架的可移植性價值連城；而協定相容在當代已完全免費。
 - **以 SWE-bench Pro 或團隊內部的私有 Pro 等價測試集作為唯一的驗收門檻。** 舊版 Verified 已遭受嚴重資料污染。
-- **甘願支付驗證稅（Verification tax）。** 部署獨立的客觀驗證者雖然會額外吃掉約 20-30% 的 Token 預算，但它換來的是經得起檢驗的確鑿正確性。
+- **甘願支付驗證稅（Verification tax）。** 部署獨立的客觀驗證者雖然會額外吃掉約 20-30% 的 Token 預算，但它換來的是可量測的正確性提升。
 - **針對長時程 Agent 全面實施彩虹滾動部署。** 必須在架構底層預設 Agent 連續執行數小時將成為家常便飯。
 - **密切追蹤 WMAC 2026 與 MAST 後續研究進展。** 這門年輕學科的演進速度一日千里。
 
@@ -162,11 +162,11 @@ a5-orchestrator-scale
 
 ## Further Reading｜延伸閱讀
 
-- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)
-- [MetaGPT — Meta Programming for Multi-Agent Collaborative Framework](https://arxiv.org/abs/2308.00352)
-- [ChatDev — Communicative Agents for Software Development](https://arxiv.org/abs/2307.07924)
-- [MacNet — scaling role-based agents to 1000+](https://arxiv.org/abs/2406.07155)
-- [OpenClaw on Wikipedia](https://en.wikipedia.org/wiki/OpenClaw)
-- [WMAC 2026](https://multiagents.org/2026/)
-- [LangGraph docs](https://docs.langchain.com/oss/python/langgraph/workflows-agents)
-- [CrewAI docs](https://docs.crewai.com/en/introduction)
+- [Anthropic — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 正式環境中的 supervisor-worker 參考案例
+- [MetaGPT — Meta Programming for Multi-Agent Collaborative Framework](https://arxiv.org/abs/2308.00352) — 以 SOP 進行角色拆解
+- [ChatDev — Communicative Agents for Software Development](https://arxiv.org/abs/2307.07924) — 透過溝通消除幻覺
+- [MacNet — scaling role-based agents to 1000+](https://arxiv.org/abs/2406.07155) — 以 DAG 擴展規模
+- [OpenClaw on Wikipedia](https://en.wikipedia.org/wiki/OpenClaw) — 生態系概覽
+- [WMAC 2026](https://multiagents.org/2026/) — AAAI 2026 Bridge Program「多 Agent 協調」工作坊
+- [LangGraph docs](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 正式環境領先框架
+- [CrewAI docs](https://docs.crewai.com/en/introduction) — 依角色分工的框架

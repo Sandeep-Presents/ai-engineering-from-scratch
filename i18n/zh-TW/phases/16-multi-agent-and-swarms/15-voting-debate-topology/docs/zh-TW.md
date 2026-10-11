@@ -24,7 +24,7 @@
 
 Wang 等人於 2022 年發表《Self-Consistency Improves Chain of Thought Reasoning》：在 temperature > 0 的條件下對同一個模型取樣 N 次，並對所有推理路徑的最終答案做多數決投票。在 GSM8K 上，相較於單次貪婪解碼（greedy decode），N=40 的取樣帶來了可觀的提升。自我一致性是多 Agent 投票的單 Agent 前身。
 
-限制：自我一致性只用單一基底模型，因此誤差天生相關。若模型有系統性偏見，所有 N 個樣本都會共享該偏見。
+限制：自我一致性只用單一基底模型，因此誤差天生相關。若模型有系統性偏差（bias），所有 N 個樣本都會共享該偏差。
 
 ### 多 Agent 投票：異質擴展體系
 
@@ -75,7 +75,7 @@ AgentVerse (ICLR 2024, https://proceedings.iclr.cc/paper_files/paper/2024/file/5
 
 ### 異質性（Heterogeneity）：真正影響準確率的旋鈕
 
-2024 至 2026 年的實務文獻中有一個模式：把 N 個 Agent 之一換成完全不同的異質基底模型，帶來的準確率提升，比把同質 Agent 數量增加 1 個更大。其背後的直覺是打破單一文化的同質盲點：每一個新的獨立誤差來源，都比一個帶有相同系統性偏見的相關複製品更有價值。
+2024 至 2026 年的實務文獻中有一個模式：把 N 個 Agent 之一換成完全不同的異質基底模型，帶來的準確率提升，比把同質 Agent 數量增加 1 個更大。其背後的直覺是打破單一文化的同質盲點：每一個新的獨立誤差來源，都比一個帶有相同系統性偏差的相關複製品更有價值。
 
 在極端情況下，異質性勝過數量。在大多數具有明確真實標籤（ground truth）的任務上，三個不同模型勝過同一模型的五個複製品。
 
@@ -158,9 +158,9 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Wang et al. — Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171)
-- [Du et al. — Improving Factuality and Reasoning via Multiagent Debate](https://arxiv.org/abs/2305.14325)
-- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935)
-- [Should we be going MAD?](https://arxiv.org/abs/2311.17371)
-- [AgentVerse (ICLR 2024)](https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf)
-- [MARBLE repo](https://github.com/ulab-uiuc/MARBLE)
+- [Wang et al. — Self-Consistency Improves Chain of Thought Reasoning](https://arxiv.org/abs/2203.11171) — 單一模型基準
+- [Du et al. — Improving Factuality and Reasoning via Multiagent Debate](https://arxiv.org/abs/2305.14325) — Agent 數量與回合數各自都有影響
+- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935) — 拓撲基準測試，顯示 graph 最適合研究、chain 最適合管線
+- [Should we be going MAD?](https://arxiv.org/abs/2311.17371) — MAD 策略綜述；指出相同預算下 MAD 往往不如自我一致性
+- [AgentVerse (ICLR 2024)](https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf) — 湧現的志願與從眾模式
+- [MARBLE repo](https://github.com/ulab-uiuc/MARBLE) — 基準測試參考實作

@@ -53,14 +53,14 @@
 
 ### SWE-bench Pro——無污染的現實照妖鏡
 
-論文 arXiv:2509.16941。包含橫跨企業內部業務系統、B2B 雲端服務與底層開發工具等 41 個真實儲存庫的 1,865 道難題。其設計的核心宗旨是**徹底杜絕資料污染**，所有問題皆來自模型預訓練知識截止日期之後的最新程式碼庫。前沿模型在 Pro 上的得分僅約 23%，遠低於其在 Verified 上的 70%+。兩者的落差是資料污染的訊號。
+論文 arXiv:2509.16941。包含橫跨企業內部業務系統、B2B 雲端服務與底層開發工具等 41 個真實儲存庫的 1,865 道難題。它的設計目標是避免受到較晚訓練資料污染。前沿模型在 Pro 上的得分僅約 23%，遠低於其在 Verified 上的 70%+。兩者的落差是資料污染的訊號。
 
 2026 年 4 月權威評測實測數字快照：
 - Claude Opus 4.7 在 Pro 上的得分：**64.3%**（在配備了明確的 Agent 團隊協同鷹架下測得；Anthropic 尚未公開一手技術報告——暫作初步對照數字）。
 - Verdent（專門的 Agent 鷹架）在 Verified 上的得分：**76.1% pass@1**（[技術報告](https://www.verdent.ai/blog/swe-bench-verified-technical-report)）。
 - 前沿裸模型在缺乏專屬 Agent 鷹架時於 Pro 上的原始得分：僅約 23-35%（[SWE-bench Pro 論文](https://arxiv.org/abs/2509.16941)）。
 
-核心戰略結論：「我們在 SWE-bench Verified 上打敗了誰」在當下已徹底喪失作為實質能力的證明力。Pro 是眼下唯一的黃金檢驗閘門。而配備了成熟的 Agent 團隊協同鷹架能在 Pro 上斬獲高達 30-40 個百分點的實質飛躍，這是 2026 年支撐多 Agent 協同具備實質工程價值的最強有力實證。
+核心戰略結論：「我們在 SWE-bench Verified 上打敗了誰」在當下已徹底喪失作為實質能力的證明力。Pro 是目前主要的 gating test。而配備了成熟的 Agent 團隊協同鷹架能在 Pro 上斬獲高達 30-40 個百分點的實質飛躍，這是 2026 年支撐多 Agent 協同具備實質工程價值的最強有力實證。
 
 ### AAAI 2026 WMAC
 
@@ -145,9 +145,9 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935)
-- [MARBLE repository](https://github.com/ulab-uiuc/MARBLE)
-- [MedAgentBoard](https://arxiv.org/abs/2505.12371)
-- [AgentArch](https://arxiv.org/abs/2509.10769)
-- [SWE-bench leaderboards](https://www.swebench.com/)
-- [AAAI 2026 WMAC](https://multiagents.org/2026/)
+- [MultiAgentBench / MARBLE](https://arxiv.org/abs/2503.01935) — 具里程碑 KPI 的拓撲基準測試
+- [MARBLE repository](https://github.com/ulab-uiuc/MARBLE) — 參考實作
+- [MedAgentBoard](https://arxiv.org/abs/2505.12371) — 領域壓力測試；多 agent 往往未勝過單一模型
+- [AgentArch](https://arxiv.org/abs/2509.10769) — 企業 agent 架構
+- [SWE-bench leaderboards](https://www.swebench.com/) — frontier models 在 Verified 與 Pro 上的分數
+- [AAAI 2026 WMAC](https://multiagents.org/2026/) — 2026 年社群焦點

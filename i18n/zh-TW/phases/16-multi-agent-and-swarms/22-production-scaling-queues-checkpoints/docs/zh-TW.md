@@ -14,7 +14,7 @@
 - Agent 有時需要持續運作數小時（深度調研、等待人在迴圈中的漫長人工確認）。
 - 背景工作節點（Worker 行程）隨時可能突發當機。重新啟動會導致所有中間記憶瞬間歸零。
 - 尖峰負載往往高達日常平均的 10 倍以上；你必須具備無縫的水平動態擴展能力。
-- 使用者依據 Agent 的實際執行付費；你必須在金融結算層面提供嚴格的「精確執行一次（Exactly-once）」語意保證。
+- 使用者依據 Agent 的實際執行付費；你必須確保扣款實質上只生效一次。
 
 單純的記憶體事件迴圈面對上述任何一項挑戰皆徹底無能為力。你必須在底層鋪設一層堅不可摧的持久化執行層。2026 年的工業級主流選項包括：
 
@@ -93,7 +93,7 @@ Ashpreet Bedi 在其 2026 年的知名專論《Scaling Agentic Software》中提
 
 ### 精確執行一次的語意（Exactly-Once Semantics）
 
-面對付費的 Agent 執行次，你必須提供「實質上精確執行一次（At-least-once delivery + Idempotent consumer）」的嚴格保證。必備的工程組合拳：
+面對付費的 Agent 執行次，你必須確保其實質上只生效一次（至少一次傳遞＋冪等消費者）。必備的工程組合拳：
 
 - **為每次執行指派全域唯一的去重金鑰（Dedup key）。** 在每一次發起外部副作用呼叫時皆強制攜帶該金鑰。
 - **發件箱模式（Outbox pattern）。** 外部副作用首先作為意圖落盤寫入資料庫發件箱資料表，隨後由獨立的後台行程非同步執行。兩個環節皆保證具備冪等性。
@@ -176,8 +176,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents)
-- [MegaAgent](https://arxiv.org/abs/2408.09955)
-- [Matrix](https://arxiv.org/abs/2511.21686)
-- [Temporal docs](https://docs.temporal.io/)
-- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)
+- [LangChain — The runtime behind production deep agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — LangGraph 執行環境設計
+- [MegaAgent](https://arxiv.org/abs/2408.09955) — 每個 agent 的生產者－消費者佇列；數千個並行 agent 的雙層協調
+- [Matrix](https://arxiv.org/abs/2511.21686) — 以訊息佇列為協調基礎的去中心化框架
+- [Temporal docs](https://docs.temporal.io/) — 耐久執行的參考工作流程引擎
+- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 包含彩虹部署的正式環境經驗

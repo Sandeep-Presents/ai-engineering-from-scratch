@@ -162,8 +162,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [NegotiationArena](https://arxiv.org/abs/2402.05863)
-- [Measuring Bargaining Abilities of Language Models](https://arxiv.org/abs/2402.15813)
-- [Large-Scale Autonomous Negotiation Competition](https://arxiv.org/abs/2503.06416)
-- [LLM-Stakeholders Interactive Negotiation (NeurIPS 2024)](https://proceedings.neurips.cc/paper_files/paper/2024/file/984dd3db213db2d1454a163b65b84d08-Paper-Datasets_and_Benchmarks_Track.pdf)
-- [Smith 1980 — The Contract Net Protocol](https://ieeexplore.ieee.org/document/1675516)
+- [NegotiationArena](https://arxiv.org/abs/2402.05863) — 基準測試；persona 操弄與剝削相關發現
+- [Measuring Bargaining Abilities of Language Models](https://arxiv.org/abs/2402.15813) — OG-Narrator 與「買方比賣方更難」的結果
+- [Large-Scale Autonomous Negotiation Competition](https://arxiv.org/abs/2503.06416) — 約 18 萬場談判；隱藏 chain-of-thought 的 agent 勝出
+- [LLM-Stakeholders Interactive Negotiation (NeurIPS 2024)](https://proceedings.neurips.cc/paper_files/paper/2024/file/984dd3db213db2d1454a163b65b84d08-Paper-Datasets_and_Benchmarks_Track.pdf) — 具隱藏效用、可評分的多方博弈
+- [Smith 1980 — The Contract Net Protocol](https://ieeexplore.ieee.org/document/1675516) — 經典機制，刊於 IEEE Transactions on Computers

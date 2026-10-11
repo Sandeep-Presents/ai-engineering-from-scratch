@@ -19,7 +19,7 @@
 
 ### 古典 BFT 能賦予什麼
 
-實用拜占庭容錯（Practical Byzantine Fault Tolerance, Castro & Liskov, OSDI 1999）能夠容忍比例小於 `f < n/3` 的惡意拜占庭節點。該協定由三個經典階段構成（預準備 pre-prepare、準備 prepare、確認寫入 commit），並依賴兩大底層原語（數位簽章訊息、共識門檻憑證（quorum certificates））。它能確保在總數 `n >= 3f + 1` 的誠實與惡意混合節點群體中，對單一具體數值達成嚴密的數學共識。
+實用拜占庭容錯（Practical Byzantine Fault Tolerance, Castro & Liskov, OSDI 1999）可容忍的拜占庭節點數須滿足 `f < n/3`。該協定由三個經典階段構成（預準備 pre-prepare、準備 prepare、確認寫入 commit），並依賴兩大底層原語（數位簽章訊息、共識門檻憑證（quorum certificates））。它能確保在總數 `n >= 3f + 1` 的誠實與惡意混合節點群體中，對單一具體數值達成嚴密的數學共識。
 
 這套保證無比強大，但建立在三大嚴苛假設之上：
 
@@ -41,7 +41,7 @@
 
 **CP-WBFT**（arXiv:2511.10400）——信心探針加權拜占庭容錯（Confidence-Probed Weighted BFT）。每位投票者在交付答案時，必須強制附加一個信心探針評分（可為自主回報的機率值，或由專屬校準模型預測的信賴度）。投票權重與信心評分呈正比動態縮放。實測報告指出在完全圖拓撲上實現了 +85.71% 的 BFT 效能躍升。專門精準剋制：諂媚盲從（因為盲從妥協的 Agent 對自身非自發的立場通常伴隨著極低的置信評分）。
 
-**DecentLLMs**（arXiv:2507.14928）——無領袖對等共識架構。工作者 Agent 平行提出各自的候選解，評估者 Agent 對各項提議進行客觀評分，最終共識數值收斂為經評分位置的**幾何中位數（Geometric median）**。在滿足 `f < n/2` 的條件下展現出強大的穩健性。專門防禦：拜占庭惡意說謊與同質相關性誤差（幾何中位數對離群值極度不敏感，能強行將共識拉向最密集的健康群集，而非落入被模型偏見人為拉偏的算術平均數）。
+**DecentLLMs**（arXiv:2507.14928）——無領袖對等共識架構。工作者 Agent 平行提出各自的候選解，評估者 Agent 對各項提議進行客觀評分，最終共識數值收斂為經評分位置的**幾何中位數（Geometric median）**。在滿足 `f < n/2` 的條件下展現出強大的穩健性。專門防禦：拜占庭惡意說謊與同質相關性誤差（幾何中位數對離群值極度不敏感，能強行將共識拉向最密集的健康群集，而非落入受模型偏差（bias）影響的算術平均數）。
 
 **WBFT**（arXiv:2505.05103）——加權拜占庭容錯與階層式分群（Weighted BFT with Hierarchical Structure Clustering）。投票權重由回應品質結合歷史累積的動態信任分共同裁定。將全網 Agent 分群為「核心節點（Core）」與「邊緣節點（Edge）」；核心節點群體必須先行達成內部共識，邊緣節點隨後跟進對齊。專門防禦：規模擴展性瓶頸（核心節點規模小、達成共識極速飛快），並能在一定程度上防範單一文化（核心節點可刻意挑選異質模型以保證多樣性）。
 
@@ -51,7 +51,7 @@
 
 - 即便在完全不存在任何惡意對抗者的純淨環境下，在眾多標準評測基準中，LLM Agent 在純量問題上的意見分歧率依然穩定高於 30%。
 - 單一採用了欺騙性人格設定（Deceptive persona）的惡意 Agent，就足以將整個 Agent 混合體（Mixture-of-Agents）的最終共識拉偏基準線高達 40 個百分點以上。
-- 分歧率與模型多樣性呈正相關——異質混合群體的分歧率顯著高於同質單一模型群體（優勢：誤差彼此完全解耦；劣勢：達成一致所需的時間顯著更長）。
+- 分歧率與模型多樣性呈正相關——異質混合群體的分歧率高於同質單一模型群體（優勢：誤差較不相關；劣勢：漂移較慢，因此達成共識所需時間較長）。
 
 核心啟示：BFT 賦予你的是對齊多方輸出的嚴謹工程機制，但它無法在物理上保證對齊後的最終輸出就是客觀真理。必須將共識機制與客觀驗證者（Phase 16 · 08，角色專門化）、模型多樣性（Phase 16 · 15，辯論拓撲）以及專屬評估者 Agent（Phase 16 · 24，評測基準）深度疊加結合。
 
@@ -148,8 +148,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Castro & Liskov — Practical Byzantine Fault Tolerance (OSDI 1999)](https://pmg.csail.mit.edu/papers/osdi99.pdf)
-- [CP-WBFT — Confidence-Probe Weighted BFT](https://arxiv.org/abs/2511.10400)
-- [DecentLLMs — leaderless multi-agent consensus](https://arxiv.org/abs/2507.14928)
-- [WBFT — Weighted BFT with Hierarchical Structure Clustering](https://arxiv.org/abs/2505.05103)
-- [Can AI Agents Agree?](https://arxiv.org/abs/2603.01213)
+- [Castro & Liskov — Practical Byzantine Fault Tolerance (OSDI 1999)](https://pmg.csail.mit.edu/papers/osdi99.pdf) — 基礎
+- [CP-WBFT — Confidence-Probe Weighted BFT](https://arxiv.org/abs/2511.10400) — 依信賴度加權投票
+- [DecentLLMs — leaderless multi-agent consensus](https://arxiv.org/abs/2507.14928) — 幾何中位數聚合
+- [WBFT — Weighted BFT with Hierarchical Structure Clustering](https://arxiv.org/abs/2505.05103) — Core／Edge 分層以限制延遲
+- [Can AI Agents Agree?](https://arxiv.org/abs/2603.01213) — 純量共識的脆弱性與欺騙性 persona 攻擊

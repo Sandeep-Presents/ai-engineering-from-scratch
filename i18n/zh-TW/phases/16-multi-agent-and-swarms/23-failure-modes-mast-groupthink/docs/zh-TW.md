@@ -1,6 +1,6 @@
 # 失效模式——MAST 分類體系、群體盲從、單一文化與連鎖崩潰（Failure Modes — MAST, Groupthink, Monoculture, Cascading Errors）
 
-> 2026 年多 Agent 領域的權威失效分類標準當屬 **MAST**（Cemri 等人，NeurIPS 2025，arXiv:2503.13657），該研究深入剖析了橫跨 7 個頂尖開源多 Agent 系統的 1,642 條真實執行軌跡，揭示出高達 **41% 至 86.7% 的驚人失敗率**。三大核心根因分類為：**規格定義問題（Specification Problems）**（佔比 41.77%）——角色邊界模糊、任務目標欠缺精準約束；**協同失靈（Coordination Failures）**（佔比 36.94%）——通訊中斷、狀態不同步；**驗證缺失（Verification Gaps）**（佔比 21.30%）——缺乏獨立檢驗、客觀品質把關缺位。**群體盲從家族（Groupthink Family）**（arXiv:2508.05687）進一步歸納了：單一文化崩潰（同質基底模型導致相關性錯誤）、從眾偏見（Agent 互相迎合並強化彼此的幻覺（hallucination））、心智理論缺陷、混合動機內耗以及連鎖可靠性崩潰。連鎖崩潰的典型代表為重試風暴（Retry storms）：支付服務的瞬時抖動引發訂單 Agent 盲目重試，進而觸發庫存檢查風暴，在數秒內使庫存服務面臨 10 倍負載而全面癱瘓（必須強制配置熔斷機制）。記憶體污染：單一 Agent 的幻覺滲入共享記憶體，下游 Agent 奉為真理，導致系統準確率（accuracy）慢性衰退，使根因追溯極其痛苦。**STRATUS**（NeurIPS 2025）指出：透過部署專門的偵測、診斷與驗證 Agent 鐵三角，能使故障緩解成功率提升 1.5 倍。本課將各類失效模式視為一等公民的架構輸入目標。
+> 2026 年多 Agent 領域的權威失效分類標準當屬 **MAST**（Cemri 等人，NeurIPS 2025，arXiv:2503.13657），該研究深入剖析了橫跨 7 個頂尖開源多 Agent 系統的 1,642 條真實執行軌跡，揭示出高達 **41% 至 86.7% 的驚人失敗率**。三大核心根因分類為：**規格定義問題（Specification Problems）**（佔比 41.77%）——角色邊界模糊、任務目標欠缺精準約束；**協同失靈（Coordination Failures）**（佔比 36.94%）——通訊中斷、狀態不同步；**驗證缺失（Verification Gaps）**（佔比 21.30%）——缺乏獨立檢驗、客觀品質把關缺位。**群體盲從家族（Groupthink Family）**（arXiv:2508.05687）進一步歸納了：單一文化崩潰（同質基底模型導致相關性錯誤）、從眾偏見（Agent 互相迎合並強化彼此的幻覺（hallucination））、心智理論缺陷、混合動機內耗以及連鎖可靠性崩潰。連鎖崩潰的典型代表為重試風暴（Retry storms）：支付服務失敗引發訂單與庫存重試，讓庫存服務在數秒內承受 10 倍負載（需配置熔斷機制）。記憶體污染：單一 Agent 的幻覺滲入共享記憶體，下游 Agent 奉為真理，導致系統準確率（accuracy）慢性衰退，使根因追溯極其痛苦。**STRATUS**（NeurIPS 2025）指出：透過部署專門的偵測、診斷與驗證 Agent 鐵三角，能使故障緩解成功率提升 1.5 倍。本課將各類失效模式視為一等公民的架構輸入目標。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -200,8 +200,8 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657)
-- [Groupthink failures in multi-agent LLMs](https://arxiv.org/abs/2508.05687)
-- [STRATUS — specialized agents for MAS incident response](https://neurips.cc/)
-- [Release It! — stability patterns (Nygard)](https://pragprog.com/titles/mnee2/release-it-second-edition/)
-- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)
+- [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 分類法，NeurIPS 2025
+- [Groupthink failures in multi-agent LLMs](https://arxiv.org/abs/2508.05687) — 單一文化、從眾與五類失效分類
+- [STRATUS — specialized agents for MAS incident response](https://neurips.cc/) — NeurIPS 2025 論文集項目（偵測＋診斷＋驗證）
+- [Release It! — stability patterns (Nygard)](https://pragprog.com/titles/mnee2/release-it-second-edition/) — 斷路器模式的經典參考
+- [Anthropic — Multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 正式環境失效模式說明

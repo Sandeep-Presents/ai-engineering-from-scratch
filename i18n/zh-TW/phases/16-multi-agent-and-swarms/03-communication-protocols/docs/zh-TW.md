@@ -40,7 +40,7 @@ AI 生態系對此給出了四種標準協定作為回應，各自攻克該難�
 flowchart TD
   ANP["ANP — 陌生 agent 如何建立信任？<br/>去中心化身分（DID）、E2EE、元協定"]
   A2A["A2A — agent 如何協作達成目標？<br/>Agent Cards、任務生命週期、串流、協商"]
-  ACP["ACP — agent 如何在可稽核的系統中溝通？<br/>Run、軌跡中繼資料、工作階段連續性"]
+  ACP["ACP — agent 如何在可稽核的系統中溝通？<br/>Run、軌跡中繼資料、工作階段（session）連續性"]
   MCP["MCP — agent 如何使用工具？<br/>工具探索、執行、上下文共享"]
 
   style ANP fill:#f3e8ff,stroke:#7c3aed

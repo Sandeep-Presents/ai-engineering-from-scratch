@@ -41,7 +41,7 @@
 
 設想三個 Agent 協同攻克一項複雜任務。最終交付成果斬獲了 0.8 分的高分。究竟該如何客觀公允地向三者分配這份榮譽與收益？
 
-夏普利值是合作博弈論中唯一能夠同時嚴格滿足四大公理（有效性、對稱性、線性、虛擬角色性）的唯一公平分配公式。對於 Agent i，其夏普利值定義為：
+夏普利值是合作博弈論中唯一能夠同時嚴格滿足四大公理（有效性、對稱性、線性、虛無玩家（null player）條件）的唯一公平分配公式。對於 Agent i，其夏普利值定義為：
 
 ```
 shapley(i) = (1/N!) * sum over all orderings O of (v(S_i_O ∪ {i}) - v(S_i_O))
@@ -53,9 +53,9 @@ shapley(i) = (1/N!) * sum over all orderings O of (v(S_i_O ∪ {i}) - v(S_i_O))
 
 ### 用於聚合輸出的次價拍賣機制（Second-Price Auction）
 
-Google Research 在《Mechanism design for large language models》中提出了一種專門用於聚合多個 LLM 輸出的次價代幣拍賣機制。架構設定：N 個 Agent 各自生成一份候選回應；每個 Agent 對於自身產出被系統最終選中持有各自的私有保留估值。拍賣主辦方選取報價最高的方案，但最終僅向其支付**第二高報價**的金額。在單調聚合（即整體效用取決於選中了哪個方案，而非總共提出了多少出價）的數學前提下，該機制具激勵相容性（truthful）：誠實呈報估值是各 Agent 的最優策略。
+Google Research 在《Mechanism design for large language models》中提出了一種專門用於聚合多個 LLM 輸出的次價代幣拍賣機制。架構設定：N 個 Agent 各自生成一份候選回應；每個 Agent 對於自身產出被系統最終選中持有各自的私人估值。拍賣主辦方選取報價最高的方案，但最終僅向其支付**第二高報價**的金額。在單調聚合（即整體效用取決於選中了哪個方案，而非總共提出了多少出價）的數學前提下，該機制具激勵相容性（truthful）：誠實呈報估值是各 Agent 的最優策略。
 
-這項機制對大型語言模型工程具有重要價值：你能將文字生成任務直接外包給市場上定價策略各異的多個 Agent；拍賣機制保證了系統能挑選出最優產出，同時向其支付絕對公平客觀的報酬，且所有 Agent 在博弈結構上完全喪失了惡意虛報價格的投機動機。
+這項機制對大型語言模型工程具有重要價值：你能將文字生成任務直接外包給市場上定價策略各異的多個 Agent；拍賣機制會依最高估值選出提案並支付次高估值，且 Agent 沒有虛報價格的誘因。
 
 ### 聲譽資本（Reputation Capital）
 
@@ -151,9 +151,9 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [The Agent Economy](https://arxiv.org/abs/2602.14219)
-- [Google Research — Mechanism design for large language models](https://research.google/blog/mechanism-design-for-large-language-models/)
-- [AAMAS 2025 — decentralized LaMAS](https://www.ifaamas.org/Proceedings/aamas2025/pdfs/p2896.pdf)
-- [Bittensor TAO documentation](https://docs.bittensor.com/)
-- [Fetch.ai / ASI Alliance](https://fetch.ai/)
-- [W3C Decentralized Identifiers (DIDs) spec](https://www.w3.org/TR/did-core/)
+- [The Agent Economy](https://arxiv.org/abs/2602.14219) — 2026 年 agent 經濟體系五層堆疊綜述
+- [Google Research — Mechanism design for large language models](https://research.google/blog/mechanism-design-for-large-language-models/) — 以單調聚合為基礎的 token 拍賣
+- [AAMAS 2025 — decentralized LaMAS](https://www.ifaamas.org/Proceedings/aamas2025/pdfs/p2896.pdf) — Shapley 值信用歸因
+- [Bittensor TAO documentation](https://docs.bittensor.com/) — subnet 結構與獎勵分配
+- [Fetch.ai / ASI Alliance](https://fetch.ai/) — ASI-1 Mini LLM 與 FET token
+- [W3C Decentralized Identifiers (DIDs) spec](https://www.w3.org/TR/did-core/) — 身分識別基礎

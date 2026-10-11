@@ -1,6 +1,6 @@
 # A2A——Agent 間互聯通訊協定（A2A — The Agent-to-Agent Protocol）
 
-> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得全球超過 150 家企業機構的全力背書。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影像）的任務模型、黑箱式不透明任務生命週期，以及安全身分認證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
+> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得全球超過 150 家企業機構的全力背書。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分認證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `http.server`, `json`)
@@ -116,7 +116,7 @@ A2A 原生支援三種業界標準安全模式：
 
 ### A2A 遭遇瓶頸的場景
 
-- **對延遲極度敏感的微秒級呼叫。** A2A 的任務生命週期本質上是非同步的。若需要亞毫秒級別的極速 Agent 內部通訊，直接呼叫本機 RPC 顯然更為合適。
+- **對延遲極度敏感的亞毫秒級呼叫。** A2A 的任務生命週期本質上是非同步的。若需要亞毫秒級別的極速 Agent 內部通訊，直接呼叫本機 RPC 顯然更為合適。
 - **同行程內部緊密耦合的 Agent。** 若兩個 Agent 本來就跑在同一個 Python 行程中，硬套 A2A 的 HTTP 網路來回往返無異於嚴重的過度設計。
 - **資源有限的小型敏捷團隊。** 完整實作規格的開銷不可忽視；純內部封閉的簡單 Agent 或許無需如此嚴苛的形式主義。
 

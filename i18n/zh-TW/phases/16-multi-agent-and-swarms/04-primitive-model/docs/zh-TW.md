@@ -1,6 +1,6 @@
 # 多 Agent 原語模型（The Multi-Agent Primitive Model）
 
-> 四個核心原語，僅此而已——Agent、交接（Handoff）、共享狀態（Shared state）以及編排器（Orchestrator）——共同張開了一個四維的設計空間，而 2026 年市場上所有主流的多 agent 框架（AutoGen、LangGraph、CrewAI、OpenAI Agents SDK、微軟 Agent Framework）皆只不過是該空間中的特定座標點。本課將從零開始親手建構這四大原語，在由四者組成的玩具系統上實際運作，隨後將各大主流框架精準映射至這些座標軸上，讓你在未來面對任何新發布的框架時，皆能在一頁段落內看穿其本質。
+> 四個核心原語，僅此而已——Agent、交接（Handoff）、共享狀態（Shared state）以及編排器（Orchestrator）——共同張開了一個四維的設計空間，而 2026 年市場上所有主流的多 agent 框架（AutoGen、LangGraph、CrewAI、OpenAI Agents SDK、微軟 Agent Framework）皆只不過是該空間中的特定座標點。本課將從零開始親手建構這四大原語，在由四者組成的玩具系統上實際運作，隨後將各大主流框架精準映射至這些座標軸上，讓你在未來面對任何新發布的框架時，皆能用一段話讀懂其本質。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -31,7 +31,7 @@
 | 框架 | Agent | 交接 | 共享狀態 | 編排者 |
 |-----------|-------|---------|--------------|--------------|
 | OpenAI Swarm / Agents SDK | `Agent(instructions, tools)` | 工具回傳 Agent | 呼叫端負責 | LLM 的下一次交接呼叫 |
-| AutoGen v0.4 / AG2 | `ConversableAgent` | GroupChat 的發言者選取器 | 訊息池 | 選取器函式（LLM 或輪詢） |
+| AutoGen v0.4 / AG2 | `ConversableAgent` | GroupChat 的發言者選取器 | 訊息池 | 選取器函式（LLM 或循環輪替（round-robin）） |
 | CrewAI | `Agent(role, goal, backstory)` | `Process.Sequential / Hierarchical` | 串接 Task 輸出 | 管理者 LLM 或靜態順序 |
 | LangGraph | 節點函式 | 圖邊與條件 | `StateGraph` reducer | 確定性的圖 |
 | Microsoft Agent Framework | agent 與編排模式 | 依模式而定 | thread／context | 依模式而定 |

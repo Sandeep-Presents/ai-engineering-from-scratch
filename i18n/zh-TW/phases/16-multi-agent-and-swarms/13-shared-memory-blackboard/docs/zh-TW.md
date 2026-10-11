@@ -1,6 +1,6 @@
 # 共享記憶體與黑板架構模式（Shared Memory and Blackboard Patterns）
 
-> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一具有狀態的部分——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。業界最富盛名的參考失效模式當屬**記憶體污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，使整個系統的準確率逐漸下降——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實現這兩種拓撲結構、人為注入記憶體污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
+> 在 2026 年的多 Agent 系統中，並存著兩大主流狀態架構：**全域訊息池（Message pool）**（如 AutoGen GroupChat 或 MetaGPT，全員皆能通讀彼此的完整訊息歷史）與**基於訂閱機制的黑板架構（Blackboard with subscription）**（如 Context-Aware MCP 或 Matrix 框架，各 Agent 僅精準訂閱專屬的主題事件）。這兩者皆是多 Agent 系統中唯一具有狀態的部分——這意味著所有耐人尋味的複雜 bug 皆潛伏於此。典型失效模式當屬**記憶體污染（Memory poisoning）**：單一 Agent 產出了一項幻覺「事實」，下游的其他 Agent 將其奉為經權威驗證的真理並接續推理，使整個系統的準確率逐漸下降——這種暗中滲透的故障，比系統直接拋出異常崩潰要難除錯得多。本課將透過 Python 標準函式庫親手實現這兩種拓撲結構、人為注入記憶體污染攻擊，並展示在真實正式環境中切實可行的三大防禦緩解支柱。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `threading`)

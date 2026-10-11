@@ -1,6 +1,6 @@
-# 交接與例行程式——無狀態編排架構（Handoffs and Routines — Stateless Orchestration）
+# 交接與例行流程——無狀態編排架構（Handoffs and Routines — Stateless Orchestration）
 
-> OpenAI 於 2024 年 10 月發布的 Swarm 將多 Agent 編排體系高度提煉為兩大核心原語：**例行程式（Routines）**（以系統 prompt 封裝的指令集與可用工具）以及**交接（Handoffs）**（一個回傳另一個 Agent 物件的專屬工具）。沒有複雜的狀態機，沒有繁瑣的條件判定 DSL——底層 LLM 僅僅透過呼叫正確的交接工具來自行完成路由跳轉。OpenAI Agents SDK（2025 年 3 月發布）是其工業級正式環境繼承者。然而 Swarm 本身依然是業界最為乾淨純粹的概念參照——其全部核心原始碼僅有寥寥數百行。這套模式之所以能迅速風靡全網，在於其 API 介面極度精煉：「Agent = Prompt + 工具；交接 = 回傳 Agent 的函式」。客觀局限性：本質上完全無狀態，因此記憶體的跨輪次維護完全成為外層呼叫者的責任。
+> OpenAI 於 2024 年 10 月發布的 Swarm 將多 Agent 編排體系高度提煉為兩大核心原語：**例行流程（Routines）**（以系統 prompt 封裝的指令集與可用工具）以及**交接（Handoffs）**（一個回傳另一個 Agent 物件的專屬工具）。沒有複雜的狀態機，沒有繁瑣的條件判定 DSL——底層 LLM 僅僅透過呼叫正確的交接工具來自行完成路由跳轉。OpenAI Agents SDK（2025 年 3 月發布）是其工業級正式環境繼承者。然而 Swarm 本身依然是業界最為乾淨純粹的概念參照——其全部核心原始碼僅有寥寥數百行。這套模式之所以能迅速風靡全網，在於其 API 介面極度精煉：「Agent = Prompt + 工具；交接 = 回傳 Agent 的函式」。客觀局限性：本質上完全無狀態，因此記憶體的跨輪次維護完全成為外層呼叫者的責任。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -17,7 +17,7 @@ Swarm 則採取了截然相反的極簡路線：直接複用大型語言模型�
 
 ### 兩大核心原語
 
-**例行程式（Routine）。** 一段精準界定 Agent 角色邊界與可用工具的系統 prompt。可以將其視為一組受限的專屬指令集：「你是一名分流總機 Agent；若使用者詢問退款事宜，請將對話交接給退款專門 Agent。」
+**例行流程（Routine）。** 一段精準界定 Agent 角色邊界與可用工具的系統 prompt。可以將其視為一組受限的專屬指令集：「你是一名分流總機 Agent；若使用者詢問退款事宜，請將對話交接給退款專門 Agent。」
 
 **交接（Handoff）。** 一個由 Agent 自主呼叫、且執行後會直接回傳一個全新 Agent 物件的專屬工具。Swarm 執行環境一旦偵測到函式回傳了 Agent 物件，便會在下一輪對話中自動將當前活躍的 Agent 切換為該新物件。
 
@@ -133,7 +133,7 @@ python3 code/main.py
 
 ## Further Reading｜延伸閱讀
 
-- [OpenAI cookbook — Orchestrating Agents: Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 對例行程式與交接原語最為透徹權威的奠基論述。
+- [OpenAI cookbook — Orchestrating Agents: Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 對例行流程與交接原語最為透徹權威的奠基論述。
 - [OpenAI Swarm repo](https://github.com/openai/swarm) — 原始開源專案，作為業界最極簡的概念參照基準。
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/) — 配備會話管理與鏈路追蹤的工業級正式環境繼承者。
 - [Anthropic handoff-in-Claude notes](https://docs.anthropic.com/en/docs/claude-code) — 深入探討 Claude Code 的子 agent 如何透過 `Task` 實作類似交接的架構模式。

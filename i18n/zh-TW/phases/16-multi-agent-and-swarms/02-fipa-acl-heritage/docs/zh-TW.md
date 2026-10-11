@@ -1,6 +1,6 @@
 # FIPA-ACL 與言語行為理論的歷史傳承（Heritage of FIPA-ACL and Speech Acts）
 
-> 在 MCP 誕生之前，在 A2A 出現之前，早已存在 FIPA-ACL。2000 年，IEEE 智慧硬體 agent 基金會（Foundation for Intelligent Physical Agents）批准了一套標準 agent 通訊語言，其中包含二十種施為詞（performatives）、兩種內容語言以及一整套互動協定——包含合約網（contract net）、訂閱／通知（subscribe/notify）以及條件請求（request-when）。由於本體論（ontology）的額外負擔對網際網路而言過於沉重，它在工業界逐漸沉寂；然而如今 LLM 引領的多 agent 系統復興，正悄悄在沒有形式語意學約束的情況下重新實現相同的思想：以 JSON 契約替代施為詞，以自然語言替代本體論。本課將嚴肅通讀 FIPA-ACL，以便你能看清 2026 年的各大協定決策中哪些是歷史重造輪子、哪些是真正的新穎突破，以及當前浪潮將在何處不可避免地重新踩中 2000 年代早已解決的歷史老坑。
+> 在 MCP 誕生之前，在 A2A 出現之前，早已存在 FIPA-ACL。2000 年，IEEE 智慧型實體 agent 基金會（IEEE Foundation for Intelligent Physical Agents）批准了一套標準 agent 通訊語言，其中包含二十種施為詞（performatives）、兩種內容語言以及一整套互動協定——包含合約網（contract net）、訂閱／通知（subscribe/notify）以及條件請求（request-when）。由於本體論（ontology）的額外負擔對網際網路而言過於沉重，它在工業界逐漸沉寂；然而如今 LLM 引領的多 agent 系統復興，正悄悄在沒有形式語意學約束的情況下重新實現相同的思想：以 JSON 契約替代施為詞，以自然語言替代本體論。本課將嚴肅通讀 FIPA-ACL，以便你能看清 2026 年的各大協定決策中哪些是歷史重造輪子、哪些是真正的新穎突破，以及當前浪潮將在何處不可避免地重新踩中 2000 年代早已解決的歷史老坑。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -193,7 +193,7 @@ python3 code/main.py
 | 術語 | 常見說法 | 實際意義 |
 |------|----------------|----------------------|
 | 言語行為（Speech act） | 「會產生動作的話語」 | Austin／Searle：話語即行動，是 ACL 的理論源頭。 |
-| FIPA | 「那個老舊的 XML 東西」 | IEEE 智慧硬體 agent 基金會（Foundation for Intelligent Physical Agents），2000 年將 ACL 標準化。 |
+| FIPA | 「那個老舊的 XML 東西」 | IEEE 智慧型實體 agent 基金會（IEEE Foundation for Intelligent Physical Agents），2000 年將 ACL 標準化。 |
 | ACL | 「Agent 通訊語言」 | FIPA 的訊息信封格式：施為詞 + 內容 + 中繼資料。 |
 | 施為詞（Performative） | 「動詞」 | 訊息的意圖類別，例如 `inform`、`request`、`propose`、`cfp` 等。 |
 | KQML | 「FIPA 的前身」 | 知識查詢與操作語言（1993 年）。較簡單、範圍較窄。 |
