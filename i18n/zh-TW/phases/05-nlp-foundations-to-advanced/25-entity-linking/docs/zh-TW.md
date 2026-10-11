@@ -20,9 +20,9 @@
 實體連結（EL）把每個提及解析到知識庫（knowledge base）裡唯一的一筆：Wikidata、Wikipedia、DBpedia，或你的領域知識庫。兩個子任務：
 
 1. **候選生成（candidate generation）。** 給定「Jordan」，哪些知識庫條目說得通？
-2. **實體連結與消歧。** 給定脈絡，哪個候選才對？
+2. **消歧。** 給定脈絡，哪個候選才對？
 
-兩步都學得會。兩步都有評測。這條組合管線（pipeline）穩了十年——變的是實體連結與消歧器的品質。
+兩步都學得會。兩步都有評測。這條組合管線（pipeline）穩了十年——變的是消歧器的品質。
 
 ## The Concept｜核心概念
 
@@ -30,20 +30,20 @@
 
 **候選生成。** 給定提及的表面形式（「Jordan」），在別名索引裡查候選。Wikipedia 的別名辭典蓋住大多數命名實體（named entity）：「JFK」→ John F. Kennedy、Jacqueline Kennedy、JFK 機場、電影 JFK。典型索引每個提及回 10 到 30 個候選。
 
-**實體連結與消歧：三種做法。**
+**消歧：三種做法。**
 
 1. **先驗加脈絡（Milne 與 Witten，2008）。** `P(entity | mention) × context-similarity(entity, text)`。好用、快、不用訓練。
 2. **基於 embedding（ESS／REL／Blink）。** 把提及加脈絡編碼。把每個候選的描述編碼。取餘弦相似度（cosine similarity）最大的。2020 到 2024 的預設。
 3. **生成式（GENRE，2021；基於 LLM，2023 以後）。** 一個 token 一個 token 解出實體的標準名稱。約束在合法實體名稱的前綴樹（trie）上，所以輸出保證是合法的知識庫 id。
 
-**端到端架構與管線式架構。** 現代模型（ELQ、BLINK、ExtEnD、GENRE）一次做完 NER、候選生成和實體連結與消歧。管線系統在正式環境（production）仍佔多數，因為你可以換零件。
+**端到端架構與管線式架構。** 現代模型（ELQ、BLINK、ExtEnD、GENRE）一次做完 NER、候選生成和消歧。管線系統在正式環境（production）仍佔多數，因為你可以換零件。
 
 ### 兩種量測
 
 - **提及召回率（mention recall，候選生成）。** 人工標註的提及裡，正確的知識庫條目出現在候選清單中的比例。整條管線的下限。
-- **實體連結與消歧準確率（accuracy）／F1。** 候選正確時，第一名有多常是對的。
+- **消歧準確率（accuracy）／F1。** 候選正確時，第一名有多常是對的。
 
-兩個都要報。候選召回率 80% 上有 99% 實體連結與消歧的系統，整條管線是 80%。
+兩個都要報。候選召回率 80% 上有 99% 消歧的系統，整條管線是 80%。
 
 ```figure
 gx-entity-linking
@@ -63,7 +63,7 @@ alias_to_entities = {
 
 Wikipedia 別名資料：大約 1800 萬對（別名，實體）。從 Wikidata 傾印下載。存成倒排索引。
 
-### 步驟 2：基於脈絡的實體連結與消歧
+### 步驟 2：基於脈絡的消歧
 
 ```python
 def disambiguate(mention, context, alias_index, entity_desc):
@@ -167,8 +167,8 @@ Refuse any EL pipeline without a mention-recall baseline (you cannot evaluate a 
 
 ## Exercises｜練習
 
-1. **簡單。** 在 10 個有歧義的提及（Paris、Jordan、Apple）上，實作 `code/main.py` 裡的先驗加脈絡實體連結與消歧器。用手標出正確實體。量準確率。
-2. **中等。** 用句子 transformer 編碼 50 個有歧義的提及。把每個候選的描述做成 embedding。比較基於 embedding 的實體連結與消歧和 Jaccard 脈絡重疊。
+1. **簡單。** 在 10 個有歧義的提及（Paris、Jordan、Apple）上，實作 `code/main.py` 裡的先驗加脈絡消歧器。用手標出正確實體。量準確率。
+2. **中等。** 用句子 transformer 編碼 50 個有歧義的提及。把每個候選的描述做成 embedding。比較基於 embedding 的消歧和 Jaccard 脈絡重疊。
 3. **困難。** 建一個 1000 個實體的領域知識庫（例如你公司的員工加產品）。端到端實作 NER 加實體連結。在 100 句留出句子上量精確率（precision）和召回率。
 
 ## Key Terms｜關鍵術語
@@ -177,7 +177,7 @@ Refuse any EL pipeline without a mention-recall baseline (you cannot evaluate a 
 |------|-----------------|-----------------------|
 | 實體連結（EL） | 連到 Wikipedia | 把提及對到唯一的知識庫條目。 |
 | 候選生成 | 可能是誰？ | 為一個提及回一份說得通的知識庫條目短名單。 |
-| 實體連結與消歧 | 挑對的那個 | 用脈絡為候選打分，挑出贏家。 |
+| 消歧 | 挑對的那個 | 用脈絡為候選打分，挑出贏家。 |
 | 別名索引 | 那張查找表 | 從表面形式對到候選實體。 |
 | NIL | 不在知識庫裡 | 明確預測沒有知識庫條目相符。 |
 | 知識庫 | 知識庫 | Wikidata、Wikipedia、DBpedia，或你的領域知識庫。 |
