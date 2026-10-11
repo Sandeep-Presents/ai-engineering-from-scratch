@@ -13,5 +13,6 @@
   "phases/16-multi-agent-and-swarms/12-a2a-protocol/docs/en.md": "64266b28fc18ceb78fc5bc7d7b0902de21e051cdf4631ebb1574412c24d4cdd2",
   "phases/16-multi-agent-and-swarms/13-shared-memory-blackboard/docs/en.md": "7e7a61e06f94de6a99a218705ffcb297058136ace1c363d03e0dce8896a9b8e8",
   "phases/16-multi-agent-and-swarms/14-consensus-and-bft/docs/en.md": "6dc4dab48994111b84688ebf3d53c594380464634f725fe46f09aa4ce2b745bd",
-  "phases/16-multi-agent-and-swarms/15-voting-debate-topology/docs/en.md": "d7696a6e00496b73229ba5b9344d386a790acfccf4211aab16f5acf433af2f1e"
+  "phases/16-multi-agent-and-swarms/15-voting-debate-topology/docs/en.md": "d7696a6e00496b73229ba5b9344d386a790acfccf4211aab16f5acf433af2f1e",
+  "phases/16-multi-agent-and-swarms/16-negotiation-bargaining/docs/en.md": "82443b4ceb00092856951f3fd422664295b574470a9f87704df1076b8724c41c"
 }
