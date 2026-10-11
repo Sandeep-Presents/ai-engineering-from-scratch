@@ -1,6 +1,6 @@
 # Whisper：架構與 fine-tuning
 
-> Whisper 是 30 秒視窗（window）的 transformer 編碼器–解碼器，在 68 萬小時的多語、弱監督（weakly supervised）音訊和文字配對上訓練。一個架構、多個任務、99 種語言都穩。2026 年的 ASR 參考。
+> Whisper 是 30 秒視窗（window）的 transformer 編碼器–解碼器（transformer encoder–decoder），在 68 萬小時的多語、弱監督（weakly supervised）音訊和文字配對上訓練。一個架構、多個任務、99 種語言都穩。2026 年的 ASR 參考。
 
 **Type:** Build
 **Languages:** Python
@@ -30,7 +30,7 @@ Whisper 由 OpenAI 在 2022 年 9 月發布，是第一個能像一般商品般�
 
 Large-v3 有 15.5 億參數（parameter）。Turbo 的解碼器從 32 層改成 4 層，延遲降成八分之一，WER 代價不到 1 個百分點。
 
-**Prompt 格式。** Whisper 是多任務模型，由解碼器 prompt 裡的特殊 token 來轉：
+**Prompt 格式。** Whisper 是多任務模型，由解碼器 prompt 裡的特殊 token 引導：
 
 ```
 <|startoftranscript|><|en|><|transcribe|><|notimestamps|> Hello world.<|endoftext|>
