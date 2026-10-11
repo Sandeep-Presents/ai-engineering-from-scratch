@@ -162,7 +162,7 @@ function-call-args
 ## Further Reading｜延伸閱讀
 
 - [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling)
-- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview)
+- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) — `tool_use` and `tool_result` block semantics
 - [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling)
 - [Vertex AI — Function calling reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/function-calling)
 - [OpenAI — Structured outputs](https://platform.openai.com/docs/guides/structured-outputs)

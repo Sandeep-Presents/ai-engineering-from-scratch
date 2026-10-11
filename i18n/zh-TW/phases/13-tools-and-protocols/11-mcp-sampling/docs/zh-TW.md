@@ -189,7 +189,7 @@ MRTR 機制僅允許在 `tools/call`、`prompts/get` 與 `resources/read` 上運
 t3-sampling-flip
 ```
 
-## 動手實作
+## Build It｜動手實作
 
 `code/main.py` 在完全零第三方依賴的前提下，完整實作了標準的雙輪 MRTR 業務流程：
 

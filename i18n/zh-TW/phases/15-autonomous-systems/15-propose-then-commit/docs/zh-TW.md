@@ -105,8 +105,8 @@ mx-propose-then-commit
 
 ## Further Reading｜延伸閱讀
 
-- [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop)
-- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/)
+- [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — `RequestInfoEvent`, durable approvals.
+- [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — `waitForApproval()` and Durable Objects.
 - [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy)
 - [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/)
 - [Anthropic — Claude's Constitution (January 2026)](https://www.anthropic.com/news/claudes-constitution)

@@ -38,9 +38,9 @@
 ```mermaid
 flowchart LR
   D[決策] --> C{後果與可逆性}
-  C -->|高後果| L[鎖定]
-  C -->|已知安全範圍| B[有界]
-  C -->|成本低且可逆| A[委派]
+  C -->|High consequence| L[鎖定]
+  C -->|Known safe range| B[有界]
+  C -->|Cheap and reversible| A[委派]
   L --> H[人工檢查點]
   B --> P[agent 在限制內提議]
   A --> I[agent 實作並證明]

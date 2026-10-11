@@ -66,7 +66,7 @@ LLM -> final text answer
 
 宿主環境通常在獨立的執行緒、非同步協程（Coroutine）或遠端背景工作行程（Worker）中並行驅動各個呼叫的執行器。最簡單的封裝是使用執行緒池（Thread Pool）；正式環境則普遍採用基於 asyncio 的 `asyncio.gather` 或結構化並行機制。各任務完成的先後順序往往不可預期——而 ID 正是重新串接因果關係的唯一錨點。
 
-常見的工程 Bug：強制按照呼叫清單的原始先後順序回傳結果，而非按照實際完成的先後順序。雖然多數模型能依據 `tool_call_id` 自動重組，但如果某個結果遺失或重複，亂序提交會讓除錯更困難。推薦一律以帶有明確 ID 的實際完成順序回傳結果。
+常見的工程 Bug：強制按照呼叫清單的原始先後順序回傳結果，而非按照實際完成的先後順序。雖然多數模型能依據 `tool_call_id` 自動重組，但如果某個結果遺失或重複，以錯誤順序回傳結果會讓除錯更困難。推薦一律以帶有明確 ID 的實際完成順序回傳結果。
 
 ### 串流工具呼叫的接收與累積
 
@@ -161,4 +161,4 @@ tp-parallel-fanout
 - [Anthropic — Parallel tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/parallel-tool-use)
 - [Google — Gemini function calling parallel section](https://ai.google.dev/gemini-api/docs/function-calling)
 - [OpenAI — Streaming responses with tools](https://platform.openai.com/docs/api-reference/responses-streaming)
-- [Anthropic — Streaming messages](https://docs.anthropic.com/en/api/messages-streaming)
+- [Anthropic — Streaming messages](https://docs.anthropic.com/en/api/messages-streaming) — `content_block_delta` with `input_json_delta`

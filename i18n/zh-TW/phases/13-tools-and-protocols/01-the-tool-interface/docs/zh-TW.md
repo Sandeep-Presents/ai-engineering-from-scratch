@@ -150,7 +150,7 @@ tp-tool-loop
 ## Further Reading｜延伸閱讀
 
 - [OpenAI — Function calling guide](https://platform.openai.com/docs/guides/function-calling)
-- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview)
-- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Anthropic — Tool use overview](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview) — `tool_use` / `tool_result` block format
+- [Google — Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling) — `functionDeclarations` and parallel-call semantics in Gemini
 - [Model Context Protocol — Specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28)
 - [JSON Schema — 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes)

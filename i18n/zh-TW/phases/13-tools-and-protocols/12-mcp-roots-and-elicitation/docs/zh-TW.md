@@ -224,7 +224,7 @@ URL 引導機制絕不能替代 MCP 用戶端與伺服器之間的實體連線�
 t3-roots-boundary
 ```
 
-## 動手實作
+## Build It｜動手實作
 
 `code/main.py` 完整展示了現代 `notes_delete` 刪除工具的工程典範：
 
