@@ -208,4 +208,4 @@ Host gpu-box
 | LSP | 「自動完成引擎」 | 語言伺服器（language server）通訊協定（Language Server Protocol）：一套標準，讓編輯器能向特定語言的語言伺服器（language server）取得型別資訊、程式碼（code）補全和診斷資訊 |
 | Pylance | 「Python 擴充功能」 | Microsoft 的 Python 語言伺服器（language server），使用 Pyright 提供型別檢查和 IntelliSense |
 | Remote SSH | 「在伺服器上工作」 | VS Code 擴充功能，會在遠端機器上執行輕量伺服器，並將介面串流到本機編輯器 |
-| Format on save | 「自動排版」 | 每次儲存時，編輯器會執行格式化工具（formatter），例如 Black、Ruff，讓程式碼（code）風格保持一致 |
+| 儲存時自動格式化（format on save） | 「自動排版」 | 每次儲存時，編輯器會執行格式化工具（formatter），例如 Black、Ruff，讓程式碼（code）風格保持一致 |
