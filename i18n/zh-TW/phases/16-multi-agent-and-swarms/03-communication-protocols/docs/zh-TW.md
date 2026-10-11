@@ -278,7 +278,7 @@ data: {"statusUpdate":{"taskId":"task-123","contextId":"ctx-123","status":{"stat
 ACP 是一套專為**企業級環境**量身打造的通訊協定。不同於許多二手摘要的錯誤宣稱，ACP **並未**採用 JSON-LD。它是一套透過 OpenAPI 規格所定義的標準 REST/JSON API。其最具特色的核心亮點在於 **TrajectoryMetadata**：agent 回傳的每一項回應皆可攜帶一份詳盡的日誌，完整記錄產出該結果所經歷的所有推理步驟與工具呼叫。
 ```mermaid
 sequenceDiagram
-    participant Client as 用戶端
+    participant Client
     participant ACP as ACP Agent
     participant Audit as 稽核日誌
 
@@ -559,7 +559,7 @@ graph TB
     style ext fill:#fef2f2,stroke:#991b1b
     style AUDIT fill:#fef3c7,stroke:#d97706
 ```
-- **MCP** 負責將每個 agent 深度連接至其各自所需的工具
+- **MCP** 負責將每個 agent 連接至各自所需的工具
 - **A2A** 負責承載組織內部與跨機構 agent 之間的動態協同與任務委派
 - **ACP** 將所有生成的回應妥善封裝於軌跡中繼資料中，以滿足嚴格的稽核合規
 - **ANP** 針對你無法直接掌控的外部跨機構 agent 提供強有力的密碼學身分驗證

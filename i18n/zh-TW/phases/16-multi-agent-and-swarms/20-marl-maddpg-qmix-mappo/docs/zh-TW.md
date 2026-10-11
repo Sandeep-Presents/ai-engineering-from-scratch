@@ -139,7 +139,7 @@ MARL 在正式環境中並不常見。若要使用：
 
 1. 執行 `code/main.py`。量測獨立 Agent 與 MAPPO 風格 Agent 的平均步數差距。在 6x6 網格上，差距是變大還是變小？
 2. 實作競爭變體：兩個 Agent、一顆 pellet，只有先到達的 Agent 得獎。哪種模式能乾淨地處理競爭？（歷史上是 MADDPG）。
-3. 閱讀 MADDPG（arXiv:1706.02275）第 3 節。用自己的話，以偽代碼寫出 Critic 的更新規則。
+3. 閱讀 MADDPG（arXiv:1706.02275）第 3 節。用自己的話，以偽程式碼寫出 Critic 的更新規則。
 4. 閱讀 MAPPO（arXiv:2103.01955）。作者為什麼認為「集中式價值 + PPO」在他們的基準上勝過 off-policy MARL？列出三個最有力的論點。
 5. 把 CTDE 套用到一個假設的 LLM Agent 系統（例如研究 Agent + 摘要 Agent + 寫程式 Agent）。列出設計時可見、但執行時必須隔離的全域資訊。
 
@@ -164,4 +164,3 @@ MARL 在正式環境中並不常見。若要使用：
 - [Yu et al. — The Surprising Effectiveness of PPO in Cooperative Multi-Agent Games](https://arxiv.org/abs/2103.01955)
 - [BAIR blog post on MAPPO](https://bair.berkeley.edu/blog/2021/07/14/mappo/)
 - [SMAC repository](https://github.com/oxwhirl/smac)
-</content>

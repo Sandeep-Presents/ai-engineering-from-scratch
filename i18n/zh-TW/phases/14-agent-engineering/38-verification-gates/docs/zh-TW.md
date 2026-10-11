@@ -34,8 +34,8 @@ flowchart TD
   Feedback[feedback_record.jsonl] --> Gate
   Gate --> Verdict[verification_report.json]
   Verdict --> Pass{通過？}
-  Pass -- 是 --> Review[審核 Agent]
-  Pass -- 否 --> Refuse[拒絕標記完工並回報人類]
+  Pass -- yes --> Review[審核 Agent]
+  Pass -- no --> Refuse[拒絕標記完工並回報人類]
 ```
 
 ### 驗收關卡所檢核的核心面向

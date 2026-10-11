@@ -28,13 +28,13 @@
 
 | 工作台表面 | 承載的核心資訊 | 缺漏時引發的典型失效 |
 |---|---|---|
-| Instructions | 啟動規則、嚴禁執行的紅線、完工定義（Definition of Done） | Agent 只能盲猜何謂「可發布」 |
-| State | 當前任務、被修改檔案、阻礙卡點、下一步行動 | 每個工作階段皆從零重新摸索 |
-| Scope | 允許存取的檔案、禁止修改的檔案、驗收合格標準 | 編輯滲入無關程式碼 |
-| Feedback | 捕獲進迴圈的實際指令輸出 | Agent 在 400 報錯下自稱成功 |
-| Verification | 單元測試、程式碼檢查 Linter、冒煙測試、範疇檢查 | 「看起來沒問題」的程式碼進入 main |
-| Review | 由不同角色進行的第二輪獨立審查 | 建置者自己批改自己的作業 |
-| Handoff | 修改了什麼、為何修改、尚餘哪些工作未完成 | 下一個工作階段被迫重新探索一切 |
+| 指引指令（Instructions） | 啟動規則、嚴禁執行的紅線、完工定義（Definition of Done） | Agent 只能盲猜何謂「可發布」 |
+| 狀態（State） | 當前任務、被修改檔案、阻礙卡點、下一步行動 | 每個工作階段皆從零重新摸索 |
+| 範疇（Scope） | 允許存取的檔案、禁止修改的檔案、驗收合格標準 | 編輯滲入無關程式碼 |
+| 回饋（Feedback） | 捕獲進迴圈的實際指令輸出 | Agent 在 400 報錯下自稱成功 |
+| 驗證（Verification） | 單元測試、程式碼檢查 Linter、冒煙測試、範疇檢查 | 「看起來沒問題」的程式碼進入 main |
+| 審查（Review） | 由不同角色進行的第二輪獨立審查 | 建置者自己批改自己的作業 |
+| 移交（Handoff） | 修改了什麼、為何修改、尚餘哪些工作未完成 | 下一個工作階段被迫重新探索一切 |
 
 工作台獨立於模型本身。你可以替換底層模型並保留這些表面；但若拿掉這些表面，就無法維持系統的可靠性。
 
@@ -68,14 +68,14 @@ Prompt 工程告訴模型「這一回合你要什麼」。工作台則規範模�
 
 | 分散式系統原語 | 核心本質 | 在 Agent 系統中承載的角色 |
 |---|---|---|
-| Function | 強型別處理常式。純函式為佳。擁有輸入與輸出。 | 工具呼叫、規則檢查、驗證步驟、模型呼叫 |
-| Worker | 擁有一個或多個函式與生命週期的長效行程 | 建置者、審核者、驗證者、MCP 伺服器 |
-| Trigger | 呼叫特定函式的事件來源 | 迴圈 Tick 定時器、HTTP 請求、佇列訊息、Cron、檔案變更、掛鉤 |
-| Runtime | 決定何者在何處執行、擁有何種超時與資源配額的邊界 | Claude Code 行程、LangGraph 執行環境、工作者容器 |
-| HTTP / RPC | 呼叫端與工作者之間的連線協定 | 工具呼叫協定、MCP 請求、模型 API |
-| Queue | 觸發器與工作者之間的持久化緩衝區；背壓、重試、冪等性 | 任務看板、回饋日誌、審核收件匣 |
-| Session persistence | 跨越系統崩潰、重啟與模型切換依然倖存的持久化狀態 | `agent_state.json`、檢查點、KV 儲存、儲存庫檔案本身 |
-| Authorization policy | 規範誰獲准以何種權限範疇呼叫何種函式 | 允許／禁止檔案清單、審批授權邊界、MCP 能力清單 |
+| 函式（Function） | 強型別處理常式。純函式為佳。擁有輸入與輸出。 | 工具呼叫、規則檢查、驗證步驟、模型呼叫 |
+| 工作者（Worker） | 擁有一個或多個函式與生命週期的長效行程 | 建置者、審核者、驗證者、MCP 伺服器 |
+| 觸發器（Trigger） | 呼叫特定函式的事件來源 | 迴圈 Tick 定時器、HTTP 請求、佇列訊息、Cron、檔案變更、掛鉤 |
+| 執行環境（Runtime） | 決定何者在何處執行、擁有何種超時與資源配額的邊界 | Claude Code 行程、LangGraph 執行環境、工作者容器 |
+| 呼叫協定（HTTP / RPC） | 呼叫端與工作者之間的連線協定 | 工具呼叫協定、MCP 請求、模型 API |
+| 佇列（Queue） | 觸發器與工作者之間的持久化緩衝區；背壓、重試、冪等性 | 任務看板、回饋日誌、審核收件匣 |
+| 工作階段持久化（Session persistence） | 跨越系統崩潰、重啟與模型切換依然倖存的持久化狀態 | `agent_state.json`、檢查點、KV 儲存、儲存庫檔案本身 |
+| 授權原則（Authorization policy） | 規範誰獲准以何種權限範疇呼叫何種函式 | 允許／禁止檔案清單、審批授權邊界、MCP 能力清單 |
 
 將七大工作台表面一一精確映射至這些基礎原語：
 
@@ -96,13 +96,13 @@ Agent 迴圈本質上就是一個 Worker 行程：消費事件（使用者訊息
 | 廠商或社群流行名詞 | 實際工程本質 |
 |---|---|
 | Ralph Loop（Claude Code、Codex、agentic_harness 一書）——在 Agent 試圖過早結束時，將原始意圖重新注入全新視窗 | 一個觸發器將任務重新排入佇列並給予乾淨脈絡；工作階段持久化攜帶目標向前推進 |
-| Plan / Execute / Verify（PEV 三段式） | 三個獨立 Worker，各自承擔單一角色，透過狀態與佇列在各階段間通訊 |
+| 規劃／執行／驗證（PEV 三段式） | 三個獨立工作者，各自承擔單一角色，透過狀態與佇列在各階段間通訊 |
 | 控制平面與運算平面分離（Harness-compute separation，OpenAI Agents SDK，2026 年 4 月） | 重新包裝分散式系統中的控制平面（Control-plane）與資料平面（Data-plane）。早於 Agent 這個標籤數十年。 |
 | Open Agent Passport（OAP，2026 年 3 月）——在執行前對工具呼叫進行宣告式策略簽名審計 | 由動作前置 Worker 所強制執行的授權策略，附帶具備數位簽名的審計佇列 |
-| Guides and Sensors（Birgitta Böckeler / Thoughtworks）——前饋規則 + 回饋可觀測性 | 授權策略 + 確定性驗證函式 + 可觀測性追蹤鏈 |
+| 指引與感測器（Guides and Sensors；Birgitta Böckeler／Thoughtworks）——前饋規則 + 回饋可觀測性 | 授權策略 + 確定性驗證函式 + 可觀測性追蹤鏈 |
 | 漸進式脈絡壓縮，5 階段（Claude Code 逆向工程，2026 年 4 月） | 一個狀態管理 Worker，如同 Cron 定時巡檢工作階段持久化儲存以維持預算 |
-| Hooks / Middleware 中介軟體（LangChain、Claude Code）——攔截模型與工具呼叫 | 包裹於執行環境呼叫路徑周圍的觸發器與函式組合 |
-| 具備漸進揭露的 Markdown Skills（Anthropic、Flue） | 一個函式註冊表，其函式中繼資料僅在需要時即時動態載入脈絡中 |
+| 掛鉤／中介軟體（Hooks / middleware；LangChain、Claude Code）——攔截模型與工具呼叫 | 包裹於執行環境呼叫路徑周圍的觸發器與函式組合 |
+| 採漸進式揭露的 Markdown 技能（Skills as Markdown with progressive disclosure；Anthropic、Flue） | 一個函式註冊表，其函式中繼資料僅在需要時即時動態載入脈絡中 |
 | 沙盒隔離 Agent（Codex / Sandcastle / Vercel Sandbox） | 運算平面：一個具備隔離檔案系統、網路與生命週期的執行環境 |
 | MCP 伺服器 | 透過穩定 RPC 對外暴露函式的工作者，以能力清單作為授權憑證 |
 
@@ -180,11 +180,11 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Workbench | 「專案配置」 | 圍繞模型、使工程執行可靠的一組系統表面 |
-| Surface | 「設定檔或腳本」 | Agent 每一回合都會讀取或寫入的具名、機器可讀介面 |
-| System of record | 「任務筆記」 | 聊天紀錄消失時，Agent 視為依據的檔案 |
-| Definition of done | 「驗收標準」 | 一份客觀、以檔案為依據、Agent 無法偽造的檢查清單 |
-| Workbench audit | 「儲存庫就緒檢查」 | 工作開始前，檢查七大表面並標出缺漏的掃描 |
+| 工作台（Workbench） | 「專案配置」 | 圍繞模型、使工程執行可靠的一組系統表面 |
+| 工作台表面（Surface） | 「設定檔或腳本」 | Agent 每一回合都會讀取或寫入的具名、機器可讀介面 |
+| 記錄系統（System of record） | 「任務筆記」 | 聊天紀錄消失時，Agent 視為依據的檔案 |
+| 完工定義（Definition of done） | 「驗收標準」 | 一份客觀、以檔案為依據、Agent 無法偽造的檢查清單 |
+| 工作台稽核（Workbench audit） | 「儲存庫就緒檢查」 | 工作開始前，檢查七大表面並標出缺漏的掃描 |
 
 ## Further Reading｜延伸閱讀
 

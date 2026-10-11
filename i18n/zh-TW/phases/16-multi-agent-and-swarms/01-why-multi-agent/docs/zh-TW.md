@@ -432,7 +432,7 @@ async function compare() {
 | 協調器（Coordinator） | 「交通警察」 | 非 agent 的元件（通常只是程式碼，而非 LLM），依規則在 agent 之間路由訊息。 |
 | 共識（Consensus） | 「agent 們達成一致」 | 一種協定，多個 agent 必須先達成一致才能繼續。用於需要解決衝突輸出的情境。 |
 | 湧現行為（Emergent behavior） | 「agent 們自己想通了」 | 系統層級的模式，源自 agent 之間的互動，但並未被明確編寫。可能有益，也可能有害。 |
-| Fan-out / fan-in | 「agent 版的 map-reduce」 | 將任務分給多個平行 agent（fan-out），再合併其結果（fan-in）。 |
+| 扇出／扇入（Fan-out / fan-in） | 「agent 版的 map-reduce」 | 將任務分給多個平行 agent（fan-out），再合併其結果（fan-in）。 |
 | 訊息傳遞（Message passing） | 「agent 彼此對話」 | agent 之間的通訊機制：由一個 agent 把結構化資料傳給另一個 agent，取代共享的上下文視窗。 |
 
 ## Further Reading｜延伸閱讀

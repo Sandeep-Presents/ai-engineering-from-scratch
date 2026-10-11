@@ -27,8 +27,8 @@ flowchart LR
   Agent[Agent 迴圈] --> Manager[StateManager]
   Manager --> Schema[agent_state.schema.json]
   Schema --> Validate{有效？}
-  Validate -- 是 --> Write[agent_state.json]
-  Validate -- 否 --> Reject[拒絕並引發錯誤]
+  Validate -- yes --> Write[agent_state.json]
+  Validate -- no --> Reject[拒絕並引發錯誤]
   Write --> Manager
 ```
 
@@ -123,11 +123,11 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Repo memory | 「筆記檔案」 | 儲存於儲存庫中、納入版本控制且受結構描述約束的實際狀態檔案 |
+| 儲存庫記憶（Repo memory） | 「筆記檔案」 | 儲存於儲存庫中、納入版本控制且受結構描述約束的實際狀態檔案 |
 | 結構描述優先（Schema-first） | 「校驗輸入」 | 在寫入程式碼前預先定義資料契約，拒絕資料結構漂移 |
-| Atomic write | 「直接覆寫改名」 | 先寫入暫存檔、fsync 刷盤、再原子重新命名，確保局部崩潰不損壞檔案 |
-| Migration | 「架構版本升級」 | 將 vN 版本狀態平滑轉換為 v(N+1) 版本的自動化遷移腳本 |
-| System of record | 「最高權威事實」 | 當聊天對話紀錄被截斷遺失時，工作台唯一視為權威依據的產物 |
+| 原子寫入（Atomic write） | 「直接覆寫改名」 | 先寫入暫存檔、fsync 刷盤、再原子重新命名，確保局部崩潰不損壞檔案 |
+| 遷移（Migration） | 「架構版本升級」 | 將 vN 版本狀態平滑轉換為 v(N+1) 版本的自動化遷移腳本 |
+| 記錄系統（System of record） | 「最高權威事實」 | 當聊天對話紀錄被截斷遺失時，工作台唯一視為權威依據的產物 |
 
 ## Further Reading｜延伸閱讀
 

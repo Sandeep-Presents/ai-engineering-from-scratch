@@ -117,15 +117,15 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Router | `AGENTS.md` | 引導 Agent 深入閱讀特定專項文件與檔案的精簡根目錄檔案 |
-| State file | 「工作筆記」 | 機器可讀的狀態記錄，記錄 Agent 身處何方，每輪強制讀寫 |
-| Task board | 「任務待辦看板」 | 記錄工作狀態、責任指派與驗收標準的 JSON 任務佇列 |
-| System of record | 「最高事實來源」 | 當聊天歷史被截斷或遺失時，工作台唯一視為權威的檔案 |
+| 路由器（Router） | `AGENTS.md` | 引導 Agent 深入閱讀特定專項文件與檔案的精簡根目錄檔案 |
+| 狀態檔案（State file） | 「工作筆記」 | 機器可讀的狀態記錄，記錄 Agent 身處何方，每輪強制讀寫 |
+| 任務看板（Task board） | 「任務待辦看板」 | 記錄工作狀態、責任指派與驗收標準的 JSON 任務佇列 |
+| 記錄系統（System of record） | 「最高事實來源」 | 當聊天歷史被截斷或遺失時，工作台唯一視為權威的檔案 |
 
 ## Further Reading｜延伸閱讀
 
 - [agents.md — the open spec](https://agents.md/) ——獲 Cursor、Codex、Claude Code、Copilot、Gemini、OpenCode 共同採納的開放標準
-- [Augment Code, A good AGENTS.md is a model upgrade](https://www.augmentcode.com/blog/how-to-write-good-agents-dot-md-files) ——優秀設定檔帶來的大模型跨級飛躍實測
+- [Augment Code, A good AGENTS.md is a model upgrade](https://www.augmentcode.com/blog/how-to-write-good-agents-dot-md-files) ——優秀設定檔帶來宛如模型升級的品質躍升實測
 - [Blake Crosley, AGENTS.md Patterns: What Actually Changes Agent Behavior](https://blakecrosley.com/blog/agents-md-patterns) ——實證檢驗究竟哪些模式能實質改變行為
 - [Datadog Frontend, Steering AI Agents in Monorepos with AGENTS.md](https://dev.to/datadog-frontend-dev/steering-ai-agents-in-monorepos-with-agentsmd-13g0) ——大型 Monorepo 巢狀就近優先實踐
 - [Nx Blog, Teach Your AI Agent How to Work in a Monorepo](https://nx.dev/blog/nx-ai-agent-skills) ——跨六大工具的單一來源自動化配置

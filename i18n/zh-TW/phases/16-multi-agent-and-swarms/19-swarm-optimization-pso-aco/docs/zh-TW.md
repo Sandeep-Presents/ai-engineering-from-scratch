@@ -154,4 +154,3 @@ python3 code/main.py
 - [LMPSO — Language Model Particle Swarm Optimization](https://arxiv.org/abs/2504.09247)
 - [Model Swarms — gradient-free LLM expert optimization](https://arxiv.org/abs/2410.11163)
 - [AMRO-S — ant-colony multi-agent routing](https://arxiv.org/abs/2603.12933)
-</content>

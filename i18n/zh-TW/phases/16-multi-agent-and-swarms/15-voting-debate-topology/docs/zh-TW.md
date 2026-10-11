@@ -1,6 +1,6 @@
 # 投票、自我一致性與辯論拓撲結構（Voting, Self-Consistency, and Debate Topology）
 
-> 最便宜的聚合方式：取樣 N 個獨立 Agent，進行多數決投票。Wang 等人於 2022 年提出的自我一致性（Self-consistency）對單一模型取樣 N 次，做的就是這件事。多 Agent 體系則進一步引入**異質性（Heterogeneous）** Agent，以打破單一文化的同質盲點——使用不同的基底模型、不同的 prompt、不同的溫度係數以及不同的上下文。除了多數決之外，辯論拓撲也很重要：MultiAgentBench（arXiv:2503.01935，ACL 2025）評估了星狀（Star）、鏈狀（Chain）、樹狀（Tree）與圖狀（Graph）的協同方式，發現**圖狀拓撲在研究任務上表現最佳**，但 Agent 超過約 4 個後，會出現「協同稅（coordination tax）」。AgentVerse（ICLR 2024）記錄了兩種自發湧現的行為模式——自願承擔與從眾順從——而從眾順從既能促成共識，也會帶來群體盲從（groupthink）的風險（見第 24 課）。本課將描繪拓撲設計空間、實作各種變體，並衡量協同稅。
+> 最便宜的聚合方式：取樣 N 個獨立 Agent，進行多數決投票。Wang 等人於 2022 年提出的自我一致性（Self-consistency）對單一模型取樣 N 次，做的就是這件事。多 Agent 體系則進一步引入**異質性（Heterogeneous）** Agent，以打破單一文化的同質盲點——使用不同的基底模型、不同的 prompt、不同的溫度係數以及不同的上下文。除了多數決之外，辯論拓撲也很重要：MultiAgentBench（arXiv:2503.01935，ACL 2025）評估了星狀（Star）、鏈狀（Chain）、樹狀（Tree）與圖狀（Graph）的協同方式，發現**圖狀拓撲在研究任務上表現最佳**，但 Agent 超過約 4 個後，會出現「協同稅（coordination tax）」。AgentVerse（ICLR 2024）記錄了兩種自發湧現的行為模式——自願承擔與從眾順從——而從眾順從既能促成共識，也會帶來群體盲從（groupthink）的風險（見 Phase 16 · 24）。本課將描繪拓撲設計空間、實作各種變體，並衡量協同稅。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -46,7 +46,7 @@ star                chain               tree                graph
 
 **星狀（Star）**：一個中心節點（Hub），其餘 Agent 只與中心節點通訊。等同於沒有旁路回饋通道的監督者-工作者架構。
 **鏈狀（Chain）**：線性傳遞，每個 Agent 只看得到前一個 Agent 的輸出。類似管線（pipeline）。
-**樹狀（Tree）**：階層式結構，用於階層式 Agent 系統（第 06 課）。
+**樹狀（Tree）**：階層式結構，用於階層式 Agent 系統（Phase 16 · 06）。
 **圖狀（Graph）**：任意到任意（any-to-any）。包含全連通的完全子圖（clique），以及任意的有向無環圖（DAG）。
 
 ### 協同稅（Coordination Tax，MultiAgentBench）
@@ -69,7 +69,7 @@ MultiAgentBench（MARBLE，ACL 2025，arXiv:2503.01935）在包含研究、程�
 AgentVerse（ICLR 2024，https://proceedings.iclr.cc/paper_files/paper/2024/file/578e65cdee35d00c708d4c64bce32971-Paper-Conference.pdf）記錄了多 Agent 辯論中，即使沒有明確設計也會出現的兩種行為：
 
 - **自願承擔行為（Volunteer behavior）。** 某個 Agent 未經提示便主動提供協助（「我可以負責下一步」）。這很有用：它會把子任務分配給最有能力的 Agent。
-- **從眾順從行為（Conformity behavior）。** 某個 Agent 調整自己的立場以符合批判者，即使批判者是錯的。這是辯論中的諂媚現象（第 14 課）。
+- **從眾順從行為（Conformity behavior）。** 某個 Agent 調整自己的立場以符合批判者，即使批判者是錯的。這是辯論中的諂媚現象（Phase 16 · 14）。
 
 從眾是「辯論到達成一致為止」會獎勵霸凌者的原因。限制輪次並引入獨立裁判，有助於緩解此問題。
 
@@ -137,7 +137,7 @@ python3 code/main.py
 ## Exercises｜練習
 
 1. 執行 `code/main.py`。針對圖狀拓撲繪製協同稅曲線：準確率對 N、token 對 N。曲線在哪個 N 出現轉折？
-2. 實作 A-HMAD：三個刻意帶有不同偏見的異質 Agent。在第 14 課的 monoculture 攻擊下，全同質基準線與 A-HMAD 相比如何？
+2. 實作 A-HMAD：三個刻意帶有不同偏見的異質 Agent。在 Phase 16 · 14 的 monoculture 攻擊下，全同質基準線與 A-HMAD 相比如何？
 3. 在圖狀拓撲中加入一個「裁判（Judge）」角色：它不投票，只為最終共識打分。這會改變自發的從眾順從行為嗎？
 4. 閱讀 AgentVerse 論文（ICLR 2024）。判斷你的實作最明顯出現哪一種湧現行為？能否透過修改 prompt 引發相反的行為？
 5. 閱讀 MultiAgentBench（arXiv:2503.01935）第 4 節（拓撲實驗）。選一個論文中的任務，用本課的測量框架重現「圖狀拓撲在研究任務上最佳」的結果。
