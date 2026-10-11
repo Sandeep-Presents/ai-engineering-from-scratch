@@ -48,7 +48,7 @@ flowchart LR
 2. **投影器**。小模組（2 到 4 層 MLP，或 Q-former），把視覺 token 映到 LLM 的 embedding 維度。大多數 fine-tuning 發生在這裡。
 3. **LLM**。只有解碼器的語言模型（Qwen3、Llama、Mistral、GLM、InternLM）。依序讀視覺加文字 token，再生成文字。
 
-三塊原則上都能訓練。實務上視覺編碼器和 LLM 大多凍結，只訓練投影器。只需訓練投影器中數十億個參數，成本就相對低，代價很低。
+三塊原則上都能訓練。實務上視覺編碼器和 LLM 大多凍結，只訓練投影器。只需訓練投影器中數十億個參數，成本相對低。
 
 ### DeepStack
 

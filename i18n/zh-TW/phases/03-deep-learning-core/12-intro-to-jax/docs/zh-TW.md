@@ -1,6 +1,6 @@
 # JAX 入門
 
-> PyTorch 會就地修改張量（tensor）。TensorFlow 會建圖。JAX 會編譯純函式（pure function）。最後這一件，會改變你怎麼想深度學習（deep learning）。
+> PyTorch 會就地修改張量（tensor）。TensorFlow 會建圖。JAX 會編譯純函式（pure function）。這最後一項會改變你對深度學習（deep learning）的思考方式。
 
 **Type:** Build
 **Languages:** Python
@@ -199,7 +199,7 @@ JAX 給你基本元件。函式庫給你好用的介面：
 | **Flax**（Google） | 神經網路層 | 帶明確狀態的 `nn.Module` |
 | **Equinox**（Patrick Kidger） | 神經網路層 | 以 pytree 為基礎，很 Pythonic |
 | **Optax**（DeepMind） | 最佳化器加學習率排程（learning rate schedule） | 可組合的梯度變換 |
-| **Orbax**（Google） | 檢查點 | 儲存和還原 pytree |
+| **Orbax**（Google） | Checkpointing | 儲存和還原 pytree |
 | **CLU**（Google） | 指標（metric）和日誌記錄（logging） | 訓練迴圈的工具 |
 
 Optax 是標準的最佳化器函式庫。它把梯度變換，例如 Adam、SGD、梯度裁剪（gradient clipping），和參數更新分開，所以組合起來很直接：
@@ -461,7 +461,7 @@ pip install jax[tpu] -f https://storage.googleapis.com/jax-releases/libtpu_relea
 - 用 `jax.profiler` 或 TensorBoard 剖析。XLA 編譯可能把瓶頸藏起來。
 - JAX 預設先配置 75% 的 GPU 記憶體。設 `XLA_PYTHON_CLIENT_PREALLOCATE=false` 可以關掉。
 
-**檢查點：**
+**Checkpointing:**
 
 ```python
 import orbax.checkpoint as ocp

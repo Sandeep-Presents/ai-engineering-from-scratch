@@ -61,7 +61,7 @@ eps = eps_uncond + w * (eps_cond - eps_uncond)
 
 `w` 是引導尺度。`w=0` 是無條件，`w=1` 是單純的有條件，`w>1` 把輸出往「更貼著 prompt」推，代價是多樣性變少。SD 的預設是 `w=7.5`。
 
-CFG 是文字到影像能達到正式環境品質的原因。沒有它，prompt 只輕輕偏一下輸出。有了它，prompt 說了算。
+CFG 是文字到影像能達到正式環境品質的原因。沒有它，prompt 只輕輕偏一下輸出。有了它，prompt 會主導輸出。
 
 ### 潛在空間的幾何
 
@@ -110,7 +110,7 @@ cv3-latent-compression
 
 ## Build It｜動手實作
 
-本課從頭到尾用 `diffusers`，不從零重做 Stable Diffusion。你若要重做的那些零件，VAE、文字編碼器、U-Net、排程器，各自是別課的題目。這裡的目標是把正式環境的 API 用熟。
+本課從頭到尾用 `diffusers`，不從零重做 Stable Diffusion。你若要重做的那些元件，VAE、文字編碼器、U-Net、排程器，各自是別課的題目。這裡的目標是把正式環境的 API 用熟。
 
 ### 步驟 1：文字到影像
 
@@ -268,7 +268,7 @@ for step, batch in enumerate(dataloader):
 
 ## Further Reading｜延伸閱讀
 
-- [High-Resolution Image Synthesis with Latent Diffusion (Rombach et al., 2022)](https://arxiv.org/abs/2112.10752) ——Stable Diffusion 那篇論文。每個支持這個設計的消融都在裡面
+- [High-Resolution Image Synthesis with Latent Diffusion (Rombach et al., 2022)](https://arxiv.org/abs/2112.10752) ——Stable Diffusion 那篇論文。其中收錄了所有佐證此設計的消融實驗
 - [Classifier-Free Diffusion Guidance (Ho & Salimans, 2022)](https://arxiv.org/abs/2207.12598) ——CFG 那篇
 - [LoRA: Low-Rank Adaptation of Large Language Models (Hu et al., 2021)](https://arxiv.org/abs/2106.09685) ——LoRA 先出現在自然語言。幾乎沒改就搬到 Stable Diffusion
 - [diffusers documentation](https://huggingface.co/docs/diffusers) ——每條 SD、SDXL、SD3、FLUX 管線的參考

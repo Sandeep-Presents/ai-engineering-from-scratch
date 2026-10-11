@@ -1,6 +1,6 @@
 # 音訊評估：WER、MOS、UTMOS、MMAU、FAD，以及開放排行榜
 
-> 量不到的東西不能交付。這一課點名 2026 年每個音訊任務的指標（metric）：語音辨識（speech recognition，WER、CER、RTFx）、語音合成（MOS、UTMOS、SECS、語音辨識來回的 WER）、音訊語言（MMAU、LongAudioBench）、音樂（FAD、CLAP）、說話人（EER）。再加上你拿來比較的排行榜。
+> 量不到的東西不能交付。這一課列出 2026 年每個音訊任務的指標（metric）：語音辨識（speech recognition，WER、CER、RTFx）、語音合成（MOS、UTMOS、SECS、語音辨識來回的 WER）、音訊語言（MMAU、LongAudioBench）、音樂（FAD、CLAP）、說話人（EER）。再加上你拿來比較的排行榜。
 
 **Type:** Learn
 **Languages:** Python
@@ -45,7 +45,7 @@
 
 **SECS（說話人編碼器餘弦相似度，speaker encoder cosine similarity）。** 給聲音仿製用。參考和仿製輸出之間的 ECAPA embedding 餘弦。&gt; 0.75 等於認得出來的仿製。
 
-**語音辨識來回的 WER。** 對 TTS 輸出跑 Whisper，再和輸入文字算 WER。抓可懂度退步。2026 年現況最好：CER &lt; 2%。
+**語音辨識來回的 WER。** 對 TTS 輸出跑 Whisper，再和輸入文字算 WER。抓可懂度退步。2026 年目前最佳結果：CER &lt; 2%。
 
 **TTFA（到第一段音訊的時間）。** 牆鐘延遲。Kokoro-82M 大約 100 毫秒。F5-TTS 大約 1 秒。
 
@@ -107,7 +107,7 @@
 | TTS Arena（HF） | 英文 TTS | `huggingface.co/spaces/TTS-AGI/TTS-Arena` |
 | Artificial Analysis Speech | TTS 加語音轉文字，配對投票的 ELO | `artificialanalysis.ai/speech` |
 | MMAU-Pro | 音訊語言模型推理 | `sonalkum.github.io/mmau-pro` |
-| SpeakerBench／VoxSRC | 語者辨識 | `voxsrc.github.io` |
+| SpeakerBench／VoxSRC | 說話人辨識 | `voxsrc.github.io` |
 | MMAU 音樂子集 | 音樂語言模型 | （在 MMAU 裡） |
 | HEAR 基準 | 自監督音訊 | `hearbenchmark.com` |
 

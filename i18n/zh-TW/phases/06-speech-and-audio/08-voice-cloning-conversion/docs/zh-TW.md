@@ -33,7 +33,7 @@
 **聲音轉換（VC）。** 兩個家族：
 
 - **辨識再合成。** 跑類似 ASR 的模型，抽出內容表示（例如軟音素後驗、PPG），再用目標說話人 embedding 重新合成。不易受語言和口音影響。KNN-VC（2023）、Diff-HierVC（2023）用這個。
-- **解開。** 訓練一個自編碼器（autoencoder），在瓶頸的潛在空間（latent space）把內容、說話人、韻律分開。推論時把說話人 embedding 換掉。品質較低，但比較快。AutoVC（2019）、VITS-VC 變體用這個。
+- **解耦。** 訓練一個自編碼器（autoencoder），在瓶頸的潛在空間（latent space）把內容、說話人、韻律分開。推論時把說話人 embedding 換掉。品質較低，但比較快。AutoVC（2019）、VITS-VC 變體用這個。
 
 **以神經編解碼器（neural codec）為基礎的仿製（2024 年之後）。** VALL-E、VALL-E 2、NaturalSpeech 3、VoiceBox 把音訊當成 SoundStream／EnCodec 的離散 token，在編解碼器 token 上訓練大型自迴歸或流匹配模型。短 prompt 的品質可媲美 ElevenLabs。
 
@@ -41,7 +41,7 @@
 
 **浮水印。** PerTh（Perth）和 SilentCipher（2024）把大約 16 到 32 位元的 ID 聽不出來地寫進音訊。重編碼、串流、常見編輯之後還在。正式環境能用的開放原始碼。
 
-**同意閘。** 每一份仿製輸出都必須配一份可驗證的同意紀錄（consent record）。「我，Rohit，在 2026-04-22，授權這個聲音用於 X 目的。」記錄在可偵測竄改的日誌中。
+**同意閘。** 每一份仿製輸出都必須配一份可驗證的同意紀錄（consent record）。「我，Rohit，在 2026-04-22，授權這個聲音用於 X 目的。」記錄在可察覺曾遭竄改的紀錄中。
 
 **偵測。** AASIST、RawNet2、Wav2Vec2-AASIST 當偵測器交付。ASVspoof 2025 挑戰賽公布，面對 ElevenLabs、VALL-E 2、Bark 的輸出，目前最好的偵測器 EER 是 0.8% 到 2.3%。
 
@@ -169,7 +169,7 @@ def cloned_inference(text, ref_audio, consent_record):
 
 - [Chen et al. (2024). F5-TTS](https://arxiv.org/abs/2410.06885) ——開放原始碼、目前最好的零樣本仿製。
 - [Baevski et al. / Microsoft (2023). VALL-E](https://arxiv.org/abs/2301.02111) 和 [VALL-E 2 (2024)](https://arxiv.org/abs/2406.05370) ——神經編解碼器 TTS。
-- [Qian et al. (2019). AutoVC](https://arxiv.org/abs/1905.05879) ——以解開為基礎的聲音轉換。
+- [Qian et al. (2019). AutoVC](https://arxiv.org/abs/1905.05879) ——以解耦為基礎的聲音轉換。
 - [Baas, Waubert de Puiseau, Kamper (2023). KNN-VC](https://arxiv.org/abs/2305.18975) ——以檢索為基礎的聲音轉換。
 - [SilentCipher (2024) — Audio Watermarking](https://github.com/sony/silentcipher) ——正式環境能用的 32 位元音訊浮水印。
 - [ASVspoof 2025 results](https://www.asvspoof.org/) ——偵測器和合成器的對決，2026 年更新。

@@ -13,7 +13,7 @@
 
 出現了兩個家族：
 
-1. **重建優先的編解碼器**。EnCodec、DAC。目標是知覺音質（perceptual quality）。token 是「聲學的」，什麼都抓，包括說話人身分、音色、背景雜訊。
+1. **重建優先的編解碼器**。EnCodec、DAC。目標是最佳化知覺音質（perceptual quality）。token 是「聲學的」，什麼都抓，包括說話人身分、音色、背景雜訊。
 2. **語意優先的編解碼器**。Mimi（Kyutai）、SpeechTokenizer。強迫第一本碼本（codebook）編碼語言或音素內容（常常從 WavLM 蒸餾）。後面的碼本是聲學細節。
 
 2024 到 2026 的洞見：**純重建編解碼器，從文字生成時語音會糊。** 編解碼器 token 上的 LLM 必須在同一本碼本裡同時學語言結構和聲學結構，難以擴展。把它們分開，語意碼本 0、聲學碼本 1 到 N，Moshi 和 Sesame CSM 才做得動。
@@ -146,7 +146,7 @@ N_tokens = 10 * 12.5 * 8 = 1000 tokens
 | 語音上的自迴歸語言模型（TTS） | SNAC 或 Mimi |
 | 串流全雙工語音 | Mimi（12.5 Hz） |
 | 帶文字條件的音效庫 | EnCodec 加 T5 條件 |
-| 細的音訊編輯 | DAC 加局部重畫 |
+| 精細音訊編輯 | DAC 加局部重畫 |
 
 經驗法則：**如果你在做生成模型，從 Mimi 或 SNAC 開始。如果你在做壓縮管線（pipeline），用 Opus。**
 

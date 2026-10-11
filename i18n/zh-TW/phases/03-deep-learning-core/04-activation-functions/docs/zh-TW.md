@@ -104,7 +104,7 @@ ReLU，全名 Rectified Linear Unit，也就是修正線性單元。Nair 與 Hin
 relu(x) = max(0, x)
 ```
 
-輸出範圍是 [0, infinity)。導數簡單到不用算：
+輸出範圍是 [0, infinity)。導數形式非常簡單：
 
 ```
 relu'(x) = 1  if x > 0

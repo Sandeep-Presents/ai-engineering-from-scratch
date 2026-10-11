@@ -11,8 +11,8 @@
 
 - 打造一個完整的深度學習（deep learning）框架，大約 500 行，包含 Module、Linear、ReLU、Sigmoid、Dropout、BatchNorm、Sequential、損失函數、最佳化器和 DataLoader
 - 說明 Module 這個抽象，也就是 forward、backward、parameters，以及為什麼必須在 train 和 eval 模式之間切換
-- 把所有零件接成一個能動的訓練迴圈（training loop），在圓形分類上訓練一個 4 層網路
-- 把框架裡的每個零件對到 PyTorch 的對應物：nn.Module、nn.Sequential、optim.Adam、DataLoader
+- 把所有元件接成一個能動的訓練迴圈（training loop），在圓形分類上訓練一個 4 層網路
+- 把框架裡的每個元件對到 PyTorch 的對應物：nn.Module、nn.Sequential、optim.Adam、DataLoader
 
 ## The Problem｜問題
 

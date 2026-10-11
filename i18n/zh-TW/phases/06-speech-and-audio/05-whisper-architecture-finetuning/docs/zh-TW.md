@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-Whisper 由 OpenAI 在 2022 年 9 月發布，是第一個能像一般商品般使用的 ASR 模型：貼上音訊就拿到文字，99 種語言，對雜訊穩，筆電跑得動。到 2024 年，OpenAI 已經交付 Large-v3 和 Turbo。到 2026 年，從 podcast 轉錄到語音助理到 YouTube 字幕，Whisper 是預設基準模型（baseline）。
+Whisper 由 OpenAI 在 2022 年 9 月發布，是第一個普及到一般使用者也能輕易使用的 ASR 模型：貼上音訊就拿到文字，99 種語言，對雜訊穩，筆電跑得動。到 2024 年，OpenAI 已經交付 Large-v3 和 Turbo。到 2026 年，從 podcast 轉錄到語音助理到 YouTube 字幕，Whisper 是預設基準模型（baseline）。
 
 但 Whisper 不能永遠當黑盒。領域偏移（domain shift）會使它的表現大幅下降：技術行話、說話人口音、專有名詞、短片段、靜音。你需要知道：
 
@@ -62,7 +62,7 @@ Large-v3 有 15.5 億參數（parameter）。Turbo 的解碼器從 32 層改成 
 
 2026 年的標準流程：
 
-1. 蒐 10 到 100 小時目標領域的音訊，附對齊的逐字稿。
+1. 蒐集 10 到 100 小時的目標領域音訊，附對齊的逐字稿。
 2. 用 `transformers.Seq2SeqTrainer`，加上 `generate_with_loss` 回呼。
 3. 參數效率：注意力層的 `q_proj`、`k_proj`、`v_proj` 上做 LoRA，GPU 記憶體少到四分之一，WER 代價不到 0.3。
 4. 不到 10 小時就凍結編碼器。只調解碼器。
@@ -121,7 +121,7 @@ model = get_peft_model(model, lora)
 # model.print_trainable_parameters()  -> ~3M trainable / 809M total
 ```
 
-然後是標準的 Trainer 迴圈。每 1000 步存檢查點。在留出集上用 WER 評估。
+然後是標準的 Trainer 迴圈。每 1000 步儲存 model checkpoint。在留出集上用 WER 評估。
 
 ### 步驟 4：看每一層學到什麼
 

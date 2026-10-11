@@ -96,7 +96,7 @@ SD3 和 FLUX 對 prompt 的推理比 SD1.5 好那麼多，文字編碼器是很�
 - **SDXL Turbo / FLUX schnell**。1 到 4 步的模型，用對抗式擴散蒸餾訓練。
 - **SD Turbo**。OpenAI 風格的一致性模型，改到潛在擴散上。
 
-任何新模型的正式環境服務，都會同時附上「完整品質」的檢查點，和「turbo / schnell」變體。Schnell（德文的「快」，Black Forest Labs 的慣例）跑 1 到 4 步，放得進即時管線（pipeline）。
+任何新模型的正式環境服務，都會同時附上「完整品質」的 checkpoint，和「turbo / schnell」變體。Schnell（德文的「快」，Black Forest Labs 的慣例）跑 1 到 4 步，放得進即時管線（pipeline）。
 
 ### 2026 年的模型版圖
 

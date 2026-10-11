@@ -1,6 +1,6 @@
 # CNN：從 LeNet 到 ResNet
 
-> 近三十年每一個主要的 CNN，都是同一套卷積、非線性（nonlinearity）、下採樣（downsampling）的配方，再多釘上一個新想法。依序把這些想法學起來。
+> 近三十年每一個主要的 CNN，都是同一套卷積、非線性（nonlinearity）、降採樣（downsampling）的配方，再多釘上一個新想法。依序把這些想法學起來。
 
 **Type:** Learn + Build
 **Languages:** Python
@@ -18,7 +18,7 @@
 
 2011 年，最好的 ImageNet 分類器 top-5 準確率大約 74%。2012 年 AlexNet 是 85%。2015 年 ResNet 是 96%。沒有新資料。沒有新一代 GPU。增益來自架構（architecture）的想法。能做事的視覺工程師得知道哪個想法來自哪篇論文，因為你在 2026 年送出去的每一個正式環境骨幹，都是那些零件的重組。而且這些想法一直被搬到別處：分組卷積（grouped convolution）從 CNN 走到 transformer，殘差連接從 ResNet 走到現存的每一個 LLM，擴散模型裡也有批次正規化（batch normalization）。
 
-依序讀這些網路（network），也能讓你免於一個常見錯誤：問題用 LeNet 大小的網路就解得了，你卻去拿最大的模型（model）。MNIST 不需要 ResNet。知道每一族的縮放曲線，你才知道該坐在曲線的哪裡。
+依序讀這些網路（network），也能讓你免於一個常見錯誤：問題用 LeNet 大小的網路就解得了，你卻去拿最大的模型（model）。MNIST 不需要 ResNet。知道每一族的縮放曲線，你才知道該選擇哪一種模型規模。
 
 ## The Concept｜核心概念
 
@@ -51,7 +51,7 @@ input (1, 32, 32)
   dense -> 10
 ```
 
-現代世界叫 CNN 的東西，卷積和下採樣交替，再餵給一個小的分類頭（classifier head），就是層更多、通道（channel）更大、活化函數更好的 LeNet。
+現代世界叫 CNN 的東西，卷積和降採樣交替，再餵給一個小的分類頭（classifier head），就是層更多、通道（channel）更大、活化函數更好的 LeNet。
 
 ### AlexNet（2012）
 
@@ -145,7 +145,7 @@ flowchart LR
 - **BasicBlock**，用在 ResNet-18、ResNet-34：兩個 3x3 卷積，跳躍連接（skip connection）繞過兩者。
 - **Bottleneck**，用在 ResNet-50、-101、-152：1x1 把通道降下來，中間 3x3，1x1 再升回去，跳躍繞過這三個。通道數高的時候比較便宜。
 
-跳躍要跨過下採樣、stride=2 時，恆等（identity）路徑改成 1x1、stride=2 的卷積，好讓形狀對上。
+跳躍要跨過降採樣、stride=2 時，恆等（identity）路徑改成 1x1、stride=2 的卷積，好讓形狀對上。
 
 ### 為什麼殘差在視覺之外也要緊
 
@@ -308,7 +308,7 @@ print(f"output: {net(x).shape}")
 print(f"params: {sum(p.numel() for p in net.parameters()):,}")
 ```
 
-四組，每組兩個區塊。第 2、3、4 組開頭的步幅是 2。每次下採樣，通道數加倍。大約 280 萬個參數。這就是可以一路乾淨地放大到 ResNet-152 的標準配方。
+四組，每組兩個區塊。第 2、3、4 組開頭的步幅是 2。每次降採樣，通道數加倍。大約 280 萬個參數。這就是可以一路乾淨地放大到 ResNet-152 的標準配方。
 
 ### 步驟 5：比較用參數換特徵的效率
 

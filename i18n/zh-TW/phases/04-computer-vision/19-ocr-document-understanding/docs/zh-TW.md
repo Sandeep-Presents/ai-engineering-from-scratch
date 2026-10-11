@@ -1,6 +1,6 @@
 # OCR 與文件理解（document understanding）
 
-> OCR 是三階段的管線（pipeline）：偵測文字框、辨識字元、再排版。每個現代 OCR 系統不是重排這三階段，就是把它們併在一起。
+> OCR 是三階段的管線（pipeline）：偵測文字框、辨識字元、重建版面。每個現代 OCR 系統不是重排這三階段，就是把它們併在一起。
 
 **Type:** Learn + Use
 **Languages:** Python

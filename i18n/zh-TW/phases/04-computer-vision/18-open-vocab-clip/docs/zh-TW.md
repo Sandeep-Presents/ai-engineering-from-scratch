@@ -20,7 +20,7 @@
 
 CLIP（Radford 等人，OpenAI，2021）顯示，用從網路上蒐來的 4 億組（影像、說明文字）配對來訓練，模型在推論（inference）時可以分到任何一組類別，而且類別只用自然語言描述。你要一個新類別，寫一個句子就好。
 
-這個能力叫零樣本遷移（zero-shot transfer），就是每個現代視覺系統都從 CLIP 家族的檢查點出發的原因。偵測（Grounding DINO、OWL-ViT）、分割（CLIPSeg、SAM）、檢索、內容審查、視覺語言模型、文字到影像生成，都建在 CLIP 風格的聯合 embedding 上。
+這個能力叫零樣本遷移（zero-shot transfer），就是每個現代視覺系統都從 CLIP 家族的 checkpoint 出發的原因。偵測（Grounding DINO、OWL-ViT）、分割（CLIPSeg、SAM）、檢索、內容審查、視覺語言模型、文字到影像生成，都建在 CLIP 風格的聯合 embedding 上。
 
 ## The Concept｜核心概念
 
@@ -149,7 +149,7 @@ def zero_shot_classify(model, image_feats, class_text_feats, class_names):
     return [class_names[p] for p in pred.tolist()]
 ```
 
-每一步一行。這就是正式環境 CLIP 檢查點在用的零樣本程序。
+每一步一行。這就是正式環境 CLIP checkpoint 在用的零樣本程序。
 
 ### 步驟 4：健全檢查
 
@@ -198,7 +198,7 @@ SigLIP 較新，小規模訓得更好，新工作偏好它：`google/siglip-base
 本課會產出：
 
 - `outputs/prompt-zero-shot-class-picker.md`：一份 prompt，依一串類別和一個領域，為零樣本 CLIP 設計類別模板
-- `outputs/skill-image-text-retriever.md`：一項技能，用任何 CLIP 檢查點建立影像 embedding 索引，支援用文字查、也支援用影像查
+- `outputs/skill-image-text-retriever.md`：一項技能，用任何 CLIP checkpoint 建立影像 embedding 索引，支援用文字查、也支援用影像查
 
 ## Exercises｜練習
 

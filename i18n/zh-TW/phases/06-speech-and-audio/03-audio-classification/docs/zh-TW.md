@@ -9,7 +9,7 @@
 
 ## The Problem｜問題
 
-你拿到一段 10 秒的片段。你想知道：「這是什麼？」都市聲音（警笛、鑽孔、狗）、語音指令（yes／no／stop）、語言識別（en／es／ar）、說話人情緒（生氣／中性），或環境聲（室內／室外、嘈雜人聲）。這些都是*音訊分類（audio classification）*。2026 年的基準（baseline）架構已經成熟：對數 mel，到 CNN 或 transformer，再到 softmax。
+你拿到一段 10 秒的片段。你想知道：「這是什麼？」都市聲音（警笛、電鑽、狗）、語音指令（yes／no／stop）、語言識別（en／es／ar）、說話人情緒（生氣／中性），或環境聲（室內／室外、嘈雜人聲）。這些都是*音訊分類（audio classification）*。2026 年的基準（baseline）架構已經成熟：對數 mel，到 CNN 或 transformer，再到 softmax。
 
 核心難點不是網路。是資料。音訊資料集的類別極不平衡，領域偏移明顯（乾淨音訊與雜訊音訊），標籤有雜訊（誰決定「都市嘈雜」對上「餐廳噪音」？）。問題的八成是整理、增強和評估，不是把 CNN 換成 transformer。
 
@@ -135,7 +135,7 @@ inputs = ext(audio, sampling_rate=16000, return_tensors="pt")
 logits = model(**inputs).logits
 ```
 
-這個例子從 Hub fine-tune AST。2026 年的預設 BEATs 不在 Hugging Face Hub 上：從 [BEATs release in microsoft/unilm](https://github.com/microsoft/unilm/tree/master/beats) 下載檢查點，用那個儲存庫的 `BEATs` 和 `BEATsConfig` 類別載入。fine-tuning 迴圈的形狀相同。
+這個例子從 Hub fine-tune AST。2026 年的預設 BEATs 不在 Hugging Face Hub 上：從 [BEATs release in microsoft/unilm](https://github.com/microsoft/unilm/tree/master/beats) 下載 model checkpoint，用那個儲存庫的 `BEATs` 和 `BEATsConfig` 類別載入。fine-tuning 迴圈的形狀相同。
 
 ## Use It｜實際應用
 
@@ -146,7 +146,7 @@ logits = model(**inputs).logits
 | 很小的資料集（不到 1000 段） | MFCC 平均上的 k-NN（你的基準模型）加音訊增強 |
 | 中等資料集（1,000 到 10 萬） | BEATs 或 AST fine-tune |
 | 大資料集（超過 10 萬） | 從零訓練，或 fine-tune Whisper 編碼器 |
-| 即時、邊緣 | 40 個 MFCC 的 CNN，量化成 int8（關鍵詞偵測風格） |
+| 即時、邊緣 | 40 個 MFCC 的 CNN，量化成 int8（關鍵字偵測風格） |
 | 多標籤（AudioSet） | BEATs-iter3，BCE 損失加 mixup 加 SpecAugment |
 | 語言識別 | MMS-LID、SpeechBrain VoxLingua107 基準模型 |
 

@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 在 CIFAR-10 上做一條從頭到尾的影像分類管線（pipeline）：資料集（dataset）、資料增強（data augmentation）、模型、訓練迴圈、評估
-- 說明每個零件的角色，DataLoader、損失、最佳化器（optimizer）、學習率排程器、資料增強，並預測弄壞其中一個會在損失曲線上怎麼顯現
+- 說明每個元件的角色，DataLoader、損失、最佳化器（optimizer）、學習率排程器、資料增強，並預測弄壞其中一個會在損失曲線上怎麼顯現
 - 從零實作 mixup、cutout 和標籤平滑（label smoothing），並說明各自什麼時候值得加
 - 讀混淆矩陣（confusion matrix）和逐類別的精確率（precision）／召回率（recall）表，診斷資料集和模型的失敗，而不只看總準確率
 
@@ -369,7 +369,7 @@ print_confusion(cm)
 
 ## Use It｜實際應用
 
-`torchvision` 把上面這些包成慣用的零件。真正的 CIFAR-10，整條管線是四行再加一個訓練迴圈。
+`torchvision` 把上面這些包成慣用的元件。真正的 CIFAR-10，整條管線是四行再加一個訓練迴圈。
 
 ```python
 from torchvision.datasets import CIFAR10

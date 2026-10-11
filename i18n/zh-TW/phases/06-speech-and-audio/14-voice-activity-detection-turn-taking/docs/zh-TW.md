@@ -152,7 +152,7 @@ def flush_on_end(stt_client, audio_buffer):
 ## Exercises｜練習
 
 1. **簡單。** 跑 `code/main.py`。它模擬語音、靜音、語音、咳嗽的序列，並測試三層 VAD。
-2. **中等。** 安裝 `silero-vad`，處理 5 分鐘錄音，調閾值，讓第一個字被切掉和誤觸發都變少。回報精確率（precision）和召回率（recall）。
+2. **中等。** 安裝 `silero-vad`，處理 5 分鐘錄音，調整閾值，讓第一個字被切掉和誤觸發都變少。回報精確率（precision）和召回率（recall）。
 3. **困難。** 做一個小的輪次偵測器：Silero VAD 加 3 層 MLP，吃最後 10 個詞的 embedding（用 sentence-transformers）。在用手標的輪次結束資料集上訓練。F1 要比只用 Silero 高 10%。
 
 ## Key Terms｜關鍵術語

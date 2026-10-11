@@ -30,11 +30,11 @@
 - **32 種攻擊演算法（algorithm）。** TTS、聲音轉換、對抗擾動。
 - **兩條賽道。** 對抗措施（CM）單獨偵測。另一賽道是用於生物辨識系統的防仿冒 ASV（SASV）。
 
-ASVspoof 5 上的現況最好大約 7.23% EER。較舊的 ASVspoof 2019 LA 是 0.42% EER。實際部署：野外片段預期 5% 到 10% EER。
+ASVspoof 5 上目前最佳的 EER 約為 7.23%。較舊的 ASVspoof 2019 LA 是 0.42% EER。實際部署：野外片段預期 5% 到 10% EER。
 
 ### AASIST 和 RawNet2：偵測模型家族
 
-**AASIST**（2021，一路更新到 2026）。頻譜特徵（feature）上的圖注意力。ASVspoof 5 對抗措施任務上目前的現況最好。
+**AASIST**（2021，一路更新到 2026）。頻譜特徵（feature）上的圖注意力。在 ASVspoof 5 對抗措施任務上表現目前最佳。
 
 **RawNet2。** 原始波形上的卷積前端，加 TDNN 骨幹。比較單純的基準模型（baseline）。配上 fine-tune 仍然有競爭力。
 
@@ -180,17 +180,17 @@ def safe_tts(text, voice, clone_reference=None):
 |------|-----------------|-----------------------|
 | ASVspoof | 那個基準 | 兩年一次的挑戰。2024 是 ASVspoof 5。 |
 | CM（對抗措施） | 偵測器 | 分類器：真實語音對上合成或轉換過的。 |
-| SASV | 語者驗證加 CM | 生物辨識和仿冒偵測合在一起。 |
+| SASV | 說話人驗證加 CM | 生物辨識和仿冒偵測合在一起。 |
 | AudioSeal | Meta 的浮水印 | 局部的，16 位元承載資料，比 WavMark 快 485 倍。 |
 | 位元回復準確率 | 浮水印還在不在 | 攻擊之後，承載位元被找回來的比例。 |
 | C2PA | 出處清單 | 關於建立和作者的密碼學中繼資料。 |
-| AASIST | 偵測器家族 | 以圖注意力為基礎的反仿冒現況最好。 |
+| AASIST | 偵測器家族 | 以圖注意力為基礎的反仿冒偵測器，目前表現最佳。 |
 
 ## Further Reading｜延伸閱讀
 
 - [Todisco et al. (2024). ASVspoof 5](https://dl.acm.org/doi/10.1016/j.csl.2025.101825) ——目前的基準。
 - [Defossez et al. (2024). AudioSeal](https://arxiv.org/abs/2401.17264) ——浮水印的預設。
 - [Chen et al. (2025). WaveVerify](https://arxiv.org/abs/2507.21150) ——對付時間攻擊的專家混合偵測器。
-- [Jung et al. (2022). AASIST](https://arxiv.org/abs/2110.01200) ——現況最好的偵測骨幹。
+- [Jung et al. (2022). AASIST](https://arxiv.org/abs/2110.01200) ——目前最佳的偵測骨幹。
 - [AudioMarkBench (2024)](https://proceedings.neurips.cc/paper_files/paper/2024/file/5d9b7775296a641a1913ab6b4425d5e8-Paper-Datasets_and_Benchmarks_Track.pdf) ——穩健性評估。
 - [C2PA specification](https://spec.c2pa.org/specifications/specifications/2.4/index.html) ——出處清單格式。

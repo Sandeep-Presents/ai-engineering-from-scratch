@@ -1,6 +1,6 @@
 # 影像生成（image generation）：擴散模型（diffusion model）
 
-> 擴散模型學的是去雜訊（denoise）。訓練它從一張有雜訊的影像上拿掉一點點雜訊（noise），再把這件事倒著做一千次，你就有一個影像生成器。
+> 擴散模型學的是去雜訊（denoise）。訓練模型逐步從有雜訊的影像中去除少量雜訊，再反覆執行這個反向過程一千次，你就有一個影像生成器。
 
 **Type:** Build
 **Languages:** Python

@@ -121,7 +121,7 @@ class HiFiGAN(nn.Module):
         return self.blocks(mel)  # -> waveform
 ```
 
-訓練：對抗（短視窗上的判別器）加梅爾頻譜圖重建損失加特徵匹配損失。已成為成熟商品。用 `hifi-gan` 儲存庫或 nvidia-NeMo 的預訓練檢查點。
+訓練：對抗（短視窗上的判別器）加梅爾頻譜圖重建損失加特徵匹配損失。已成為成熟商品。用 `hifi-gan` 儲存庫或 nvidia-NeMo 的預訓練 checkpoints。
 
 ### 步驟 5：完整管線（偽程式）
 

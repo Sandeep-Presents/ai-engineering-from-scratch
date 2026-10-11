@@ -9,10 +9,10 @@
 
 ## Learning Objectives｜學習目標
 
-- 把三種主要的自我監督式方法走一遍：對比式學習（contrastive learning，SimCLR）、老師與學生（teacher-student，DINO）、遮罩重建（masked reconstruction，MAE）。並說明各方法分別最佳化什麼目標
+- 把三種主要的自我監督式方法走一遍：對比式學習（contrastive learning，SimCLR）、教師－學生架構（teacher-student，DINO）、遮罩重建（masked reconstruction，MAE）。並說明各方法分別最佳化什麼目標
 - 從零實作 InfoNCE 損失（loss），並說明為什麼批次 512 行得通、批次 32 會失敗
 - 說明為什麼 MAE 的 75% 遮罩比例（mask ratio）不是隨便定的，以及它和 BERT 對文字遮 15% 有何不同
-- 用 DINOv2 或 MAE 的 ImageNet 檢查點，做線性探測（linear probe）和零樣本檢索
+- 用 DINOv2 或 MAE 的 ImageNet checkpoint，做線性探測（linear probe）和零樣本檢索
 
 ## The Problem｜問題
 
@@ -20,7 +20,7 @@
 
 自我監督式學習（self-supervised learning）就是答案。一個現代的自我監督式 ViT，在 LAION 或 JFT 上訓練，fine-tuning 之後能打平或贏過監督式 ImageNet 的準確率（accuracy）。它遷移到下游任務（偵測、分割、深度）也比監督式預訓練好。DINOv2（Meta，2023）和 MAE（Meta，2022）是目前正式環境裡、可遷移視覺特徵的預設。
 
-觀念上的轉變是：前置任務（pretext task），也就是模型被訓練去做的那件事，不必是下游任務。要緊的是它逼模型學到有用的特徵。預測灰階影像的顏色、把影像旋轉再請模型分類轉了幾度、遮住小塊再重建，這些都做成功過。能放大的三種是對比式學習、老師與學生的蒸餾、以及遮罩重建。
+觀念上的轉變是：前置任務（pretext task），也就是模型被訓練去做的那件事，不必是下游任務。要緊的是它逼模型學到有用的特徵。預測灰階影像的顏色、把影像旋轉再請模型分類轉了幾度、遮住小塊再重建，這些都做成功過。能放大的三種是對比式學習、教師－學生架構的蒸餾、以及遮罩重建。
 
 ## The Concept｜核心概念
 
@@ -29,7 +29,7 @@
 ```mermaid
 flowchart LR
     A["對比式學習<br/>SimCLR、MoCo、CLIP"] --> AT["正配對<br/>（同一張影像，兩次增強）<br/>拉近，<br/>負樣本推開"]
-    B["老師與學生<br/>DINO、BYOL、iBOT"] --> BT["學生預測<br/>老師的輸出；<br/>老師是學生的 EMA"]
+    B["教師－學生架構<br/>DINO、BYOL、iBOT"] --> BT["學生模型預測<br/>教師模型的輸出；<br/>教師模型是學生模型的 EMA"]
     C["遮罩重建<br/>MAE、BEiT、SimMIM"] --> CT["遮掉 75% 的小塊；<br/>重建像素或<br/>token 目標"]
 
     style A fill:#dbeafe,stroke:#2563eb
@@ -52,9 +52,9 @@ tau = temperature (0.1 standard)
 
 這就是 InfoNCE 損失。每個正樣本需要很多負樣本，所以批次大小要緊。SimCLR 要 512 到 8192。MoCo 用過去批次的動量佇列，把負樣本數量和批次大小拆開。
 
-### 老師與學生（DINO）
+### 教師－學生架構（DINO）
 
-兩個架構相同的網路：學生和老師。老師是學生權重（weight）的指數移動平均（EMA）。兩者都看這張影像的增強視角。學生的輸出被訓練去對上老師的輸出。沒有顯式的負樣本。
+兩個架構相同的網路：學生模型和教師模型。教師模型是學生模型權重（weight）的指數移動平均（EMA）。兩者都看這張影像的增強視角。學生模型的輸出被訓練去對上教師模型的輸出。沒有顯式的負樣本。
 
 ```
 loss = CE( student_output(view_1),  teacher_output(view_2) )
@@ -63,7 +63,7 @@ loss = CE( student_output(view_1),  teacher_output(view_2) )
 teacher_weights = m * teacher_weights + (1 - m) * student_weights   (m ≈ 0.996)
 ```
 
-它為什麼不會塌成「預測一個常數」：老師的輸出會置中（減去每個維度的平均），也會銳化（除以很小的溫度）。置中避免某一個維度獨大。銳化避免輸出塌成均勻分布。
+它為什麼不會塌成「預測一個常數」：教師模型的輸出會置中（減去每個維度的平均），也會銳化（除以很小的溫度）。置中避免某一個維度獨大。銳化避免輸出塌成均勻分布。
 
 DINO 放大成 DINOv2，用 1.42 億張挑過的影像。得出的特徵，是目前零樣本視覺檢索和稠密預測的最好結果。
 
@@ -220,7 +220,7 @@ with torch.no_grad():
 
 得出的 768 維 embedding，是現代影像檢索、稠密對應、零樣本遷移管線的骨幹（backbone）。下游任務的 fine-tuning，很少需要超過一個線性頭。
 
-影像加文字的 embedding，對等的是 SigLIP 或 OpenCLIP。MAE 風格的 fine-tuning，`timm` 提供每個 MAE 檢查點。
+影像加文字的 embedding，對等的是 SigLIP 或 OpenCLIP。MAE 風格的 fine-tuning，`timm` 提供每個 MAE checkpoint。
 
 ## Ship It｜交付成果
 
@@ -243,7 +243,7 @@ with torch.no_grad():
 | 前置任務 | 「那個假任務」 | 自我監督式學習時用的目標（重建小塊、對上視角）。預訓練之後就丟掉 |
 | 線性探測 | 「凍結編碼器加線性頭」 | 自我監督式學習的標準評估：只在凍結特徵上訓練一個線性分類器 |
 | InfoNCE | 「對比損失」 | 對餘弦相似度做 softmax。正配對是目標類別，其餘都是負樣本 |
-| EMA 老師 | 「移動平均的老師」 | 老師的權重是學生權重的指數移動平均。BYOL、MoCo、DINO 都用 |
+| EMA 教師模型 | 「權重採移動平均的教師模型」 | 教師模型的權重是學生模型權重的指數移動平均。BYOL、MoCo、DINO 都用 |
 | 遮罩比例 | 「藏起來的小塊百分比」 | MAE 時被遮小塊的比例。視覺 75%，文字 15% |
 | 表示塌縮 | 「常數輸出」 | 自我監督式學習失敗：編碼器對所有輸入都輸出常數向量。用置中、銳化或負樣本來擋 |
 | DINOv2 | 「正式環境的自我監督式骨幹」 | Meta 2023 的自我監督式 ViT。2026 年最通用的影像特徵 |
@@ -251,6 +251,6 @@ with torch.no_grad():
 ## Further Reading｜延伸閱讀
 
 - [SimCLR (Chen et al., 2020)](https://arxiv.org/abs/2002.05709) ——對比式學習的參考
-- [DINO (Caron et al., 2021)](https://arxiv.org/abs/2104.14294) ——帶動量、置中、銳化的老師與學生
+- [DINO (Caron et al., 2021)](https://arxiv.org/abs/2104.14294) ——採用動量、置中、銳化的教師－學生架構
 - [MAE (He et al., 2022)](https://arxiv.org/abs/2111.06377) ——ViT 的遮罩自編碼器預訓練
 - [DINOv2 (Oquab et al., 2023)](https://arxiv.org/abs/2304.07193) ——把自我監督式 ViT 放大到正式環境可用的特徵

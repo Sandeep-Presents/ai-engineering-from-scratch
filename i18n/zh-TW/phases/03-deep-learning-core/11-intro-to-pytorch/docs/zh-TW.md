@@ -11,7 +11,7 @@
 
 - 用 PyTorch 的 nn.Module、nn.Sequential 和 autograd（自動微分）建立並訓練神經網路（neural network）
 - 使用 PyTorch 張量（tensor）、GPU 加速，以及標準訓練迴圈（training loop）：zero_grad、forward、loss、backward、step
-- 把你從頭做的迷你框架零件，換成 PyTorch 的對應物
+- 把你從頭做的迷你框架元件，換成 PyTorch 的對應物
 - 在同一個任務上剖析並比較純 Python 框架和 PyTorch 的訓練速度
 
 ## The Problem｜問題
@@ -118,7 +118,7 @@ print(x.grad)  # dz/dx = 2x + 3
 
 ### nn.Module
 
-`nn.Module` 是 PyTorch 裡每個神經網路零件的基底類別。你在第 10 課已經做過這個抽象。PyTorch 的版本加上自動的參數（parameter）註冊、遞迴找出子模組、裝置管理，以及 state dict 序列化（serialization）。
+`nn.Module` 是 PyTorch 裡每個神經網路元件的基底類別。你在第 10 課已經做過這個抽象。PyTorch 的版本加上自動的參數（parameter）註冊、遞迴找出子模組、裝置管理，以及 state dict 序列化（serialization）。
 
 ```python
 import torch.nn as nn

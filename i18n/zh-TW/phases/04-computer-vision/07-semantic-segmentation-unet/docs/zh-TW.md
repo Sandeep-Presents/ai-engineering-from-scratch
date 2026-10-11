@@ -1,6 +1,6 @@
 # 語意分割（semantic segmentation）：U-Net
 
-> 分割是對每一個像素（pixel）做分類。U-Net 能做成，是因為它把下採樣（downsampling）的編碼器（encoder）配上上採樣（upsampling）的解碼器（decoder），再在兩者之間接上跳躍連接（skip connection）。
+> 分割是對每一個像素（pixel）做分類。U-Net 能做成，是因為它把降採樣（downsampling）的編碼器（encoder）配上上採樣（upsampling）的解碼器（decoder），再在兩者之間接上跳躍連接（skip connection）。
 
 **Type:** Build
 **Languages:** Python
@@ -169,7 +169,7 @@ class DoubleConv(nn.Module):
 
 這個區塊後面一直重複用。`bias=False` 是因為 BN 的 beta 已經處理偏置（bias）。
 
-### 步驟 2：下採樣和上採樣區塊
+### 步驟 2：降採樣和上採樣區塊
 
 ```python
 class Down(nn.Module):
@@ -365,7 +365,7 @@ model = smp.Unet(
 
 真正做事時還值得知道這些：
 
-- **DeepLabV3+** 用膨脹卷積換掉以最大池化為基礎的下採樣，瓶頸維持解析度。衛星和自駕資料上，邊界更俐落。
+- **DeepLabV3+** 用膨脹卷積換掉以最大池化為基礎的降採樣，瓶頸維持解析度。衛星和自駕資料上，邊界更俐落。
 - **SegFormer** 把卷積編碼器換成階層式的 transformer。許多基準上目前最好。
 - **Mask2Former** 和 **OneFormer** 用單一架構把語意、實例、全景合在一起。
 

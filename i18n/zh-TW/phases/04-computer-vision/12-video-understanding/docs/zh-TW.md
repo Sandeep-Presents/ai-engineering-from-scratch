@@ -89,7 +89,7 @@ I3D 的手法：拿一個預訓練的 2D ImageNet 模型，把每個 2D 核沿�
 好處：
 
 - 每個主要基準上的準確率都是目前最好。
-- 可以從影像 transformer（ViT）用小塊膨脹（inflation）遷移過來。
+- 可以透過 patch inflation，將影像 transformer（ViT）的 patch 表示擴展成影片的時空 patch，從影像模型遷移過來。
 - 用稀疏注意力可以吃長上下文（long context）的影片。
 
 壞處：

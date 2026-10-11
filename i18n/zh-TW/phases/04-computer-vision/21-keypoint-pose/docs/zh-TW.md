@@ -60,7 +60,7 @@ target[k, y, x] = exp(-((x - cx_k)^2 + (y - cy_k)^2) / (2 sigma^2))
 
 ### 次像素定位（sub-pixel localization）
 
-argmax 給的是整數座標。要次像素精度，在 argmax 和鄰居上擬合一條拋物線，或用這個常見的偏移：`(dx, dy) = 0.25 * (heatmap[y, x+1] - heatmap[y, x-1], ...)` 那個方向。
+argmax 給的是整數座標。要達到次像素精度，可在 argmax 及其相鄰位置擬合拋物線，或用這個常見的偏移：`(dx, dy) = 0.25 * (heatmap[y, x+1] - heatmap[y, x-1], ...)` 那個方向。
 
 ### 部位親和場（PAF）
 
