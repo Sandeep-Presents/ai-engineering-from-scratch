@@ -1,6 +1,6 @@
 # 抽樣方法
 
-> 抽樣是 AI 探索各種可能性的方式。
+> 抽樣（sampling）是 AI 探索各種可能性的方式。
 
 **Type:** Build
 **Language:** Python
@@ -36,7 +36,7 @@
 
 **估計。** 機器學習中的許多量沒有封閉解，例如資料分布上的期望損失、能量模型的配分函數（partition function）、貝氏推論（Bayesian inference）中的證據。蒙地卡羅估計會對樣本取平均，近似計算這些量。
 
-**探索。** MCMC 演算法會探索貝氏推論中的後驗分布。演化策略會抽樣產生參數擾動。湯普森取樣（Thompson sampling）會在 bandit 中平衡探索與利用。
+**探索。** MCMC 演算法會探索貝氏推論中的後驗分布。演化策略會抽樣產生參數擾動。湯普森取樣（Thompson sampling）會在 bandit 中平衡探索（exploration）與利用（exploitation）。
 
 核心挑戰是：你只能直接從簡單分布（均勻分布（uniform distribution）、常態分布（normal distribution））取樣。其他情況下，你需要一種方法，將簡單分布的樣本變換成目標分布（target distribution）的樣本。
 
