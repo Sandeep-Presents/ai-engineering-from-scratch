@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 從頭實作反向縮放的 dropout、L2 權重衰減（weight decay）、批次正規化（batch normalization）、層正規化（layer normalization）與 RMSNorm
+- 從頭實作反向縮放 dropout（inverted dropout）、L2 權重衰減（weight decay）、批次正規化（batch normalization）、層正規化（layer normalization）與 RMSNorm
 - 量測訓練與測試的準確率（accuracy）差距，並用正則化實驗診斷過度擬合（overfitting）
 - 說明為什麼 transformer 用層正規化而不是批次正規化，以及為什麼現代 LLM 偏好 RMSNorm
 - 依過度擬合有多嚴重，組合正確的正則化技術
@@ -51,7 +51,7 @@ p = 0.5 時，每次前向傳遞（forward pass）有一半神經元是 0。網�
 
 集成（ensemble）的解釋：N 個神經元加上 dropout，會產生 2^N 個子網路，也就是哪些神經元開、哪些關的每種組合。用 dropout 訓練，大約是同時訓練全部 2^N 個子網路，每個小批次看到的不一樣。測試時用全部神經元，不做 dropout，再把輸出乘上 (1 - p)，好對上訓練時的期望值。這等於把 2^N 個子網路的預測平均起來。一個模型，就得到一個巨大的集成。
 
-實務上，縮放放在訓練時做，而不是測試時。這叫反向 dropout（inverted dropout）：
+實務上，縮放放在訓練時做，而不是測試時。這叫反向縮放 dropout：
 
 ```
 During training:  output = activation(z) * mask / (1 - p)
