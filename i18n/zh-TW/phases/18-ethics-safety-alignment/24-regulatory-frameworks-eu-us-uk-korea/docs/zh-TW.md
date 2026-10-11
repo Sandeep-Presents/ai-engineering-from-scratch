@@ -1,0 +1,123 @@
+# 主權監管框架——歐盟、美國、英國與韓國（Regulatory Frameworks — EU, US, UK, Korea）
+
+> 四大核心國家主權監管機制共同構築了 2026 年全球 AI 治理體系。**歐盟 AI 法案（EU AI Act）**（2024 年 8 月 1 日正式生效）——違禁 AI 行為與 AI 素養條款自 2025 年 2 月 2 日起全面強制施行；通用 AI（GPAI）法定義務自 2025 年 8 月 2 日起生效；法案全量實施與第 50 條透明度標註規範於 2026 年 8 月 2 日強制落地；遺留 GPAI 與內嵌高風險系統則給予過渡至 2027 年 8 月 2 日；違法處罰上限高達 1,500 萬歐元或全球年度營業額的 3%。**GPAI 實踐準則（Code of Practice）**（2025 年 7 月 10 日發布）：分為透明度、著作權保護、安全與防護三大專章，共計 12 項具體承諾；2026 年 8 月起強制執法。**英國 AISI 轉型為 AI 安全研究所（AI Security Institute）**（2025 年 2 月更名）：名稱從 Safety 轉向 Security，標誌著監管範圍收斂聚焦於前沿技術安全。**美國 AISI 轉型為 CAISI**（2025 年 6 月更名）：在 NIST 旗下重組為「AI 標準與創新中心」；政策風向全面轉向親增長、親創新立場。**韓國《人工智慧基本法》**（2024 年 12 月國會通過，2026 年 1 月正式施行）：第 12 條在科學技術資訊通信部（MSIT）旗下設立 AISI，強制要求外國 AI 巨頭指派韓國境內在地代理人，並對「高影響力」AI 與生成式 AI 強制推行演算法風險評估與安全控制。
+
+**Type:** Learn
+**Languages:** none
+**Prerequisites:** Phase 18 · 18 (frontier frameworks), Phase 18 · 27 (data governance)
+**Time:** ~75 minutes
+
+## Learning Objectives｜學習目標
+
+- 深入掌握歐盟 AI 法案的風險分級金字塔（違禁、高風險、通用 AI、有限風險），並熟記 2025 年 8 月、2026 年 8 月與 2027 年 8 月三大關鍵執法里程碑。
+- 梳理 GPAI 實踐準則的三大專章（透明度、著作權、安全防護），並明確界定各章節所分別約束的實體企業範圍。
+- 深刻理解 2025 年英美兩大機構的重大重組更名：英國 AISI 轉向 AI Security Institute、美國 AISI 轉型為 CAISI，以及各自反映的底層國家戰略轉向。
+- 掌握韓國《人工智慧基本法》的核心條款，特別是針對跨國科技巨頭的境內代理人制度。
+
+## The Problem｜問題
+
+第 18 節所剖析的實驗室安全框架（RSP、PF、FSF）皆屬於商業機構的主動自願性承諾。而主權國家的法律監管則是不可抗拒的剛性強制力。2024 至 2026 年間，全球迎來了第一波綜合性橫向 AI 法律的實體落地生效。企業在正式環境中交付任何大模型系統，皆必須將實體工程架構控制項精準映射至法定義務之中；而不同主權司法管轄區之間的合規要求存在深刻衝突。
+
+## The Concept｜核心概念
+
+### 歐盟 AI 法案（EU AI Act）
+
+**2024 年 8 月 1 日正式生效**。核心基於風險分級的監管架構：
+
+- **不可接受風險的違禁 AI（Prohibited practices，第 5 條）**：社會信用評分、在公共場所實施即時遠端生物辨識（附帶嚴格的司法執法例外）、利用心理弱點實施剝削性操縱。已於 2025 年 2 月 2 日全面強制執法。
+- **高風險 AI 系統（High-risk systems，附錄 III）**：涵蓋人員招募、教育評估、個人信用審核、刑事司法、移民與邊境管制等關鍵場景。強制要求具備第三方合格評定、全生命週期風險管理、自動化操作日誌留存與透明度保障。
+- **通用大模型（GPAI models）**：於 2025 年 8 月 2 日強制生效。所有 GPAI 提供商皆需承擔透明度義務；而訓練算力突破 $10^{25}$ FLOP 的「系統性風險 GPAI」則需承擔額外的極端安全模型評估與紅隊演練義務。
+- **有限風險系統（Limited-risk systems）**：履行第 50 條規定的透明度標註義務（如對深度偽造與 AI 生成文字實施強制打標）。於 2026 年 8 月 2 日全面生效。
+
+法定執法時間表：
+- 2025 年 2 月 2 日：全面查禁違禁 AI，推行 AI 素養規範。
+- 2025 年 8 月 2 日：GPAI 治理體系強制落地。
+- 2026 年 8 月 2 日：高風險系統全量施行 + 第 50 條透明度打標強制生效 + 最高 1,500 萬歐元或 3% 全球年營業額的罰鍰開鍘。
+- 2027 年 8 月 2 日：既有遺留 GPAI 模型與內嵌於歐盟協調法規產品中的高風險系統最終寬限期結束。
+
+歐盟執委會於 2025 年底提議將高風險系統的執法過渡期調整為 16 個月。
+
+### GPAI 實踐準則（Code of Practice）
+
+於 2025 年 7 月 10 日正式公布。包含三大核心專章：
+
+- **第一章：透明度規範（Transparency）**。拘束所有通用大模型（GPAI）提供商。
+- **第二章：著作權合規（Copyright）**。拘束所有通用大模型提供商（強制揭露訓練語料摘要並尊重機器人爬蟲 Robots 協議）。
+- **第三章：系統性安全與國家防衛（Safety and Security）**。專門約束具備系統性風險的頂級 GPAI 巨頭（預計全球僅有 5 至 15 家前沿實驗室入榜）。
+
+全書共計 12 項具體合規承諾。由歐盟 AI 辦公室牽頭的簽署方工作組負責統籌實施。法規將於 2026 年 8 月 2 日正式啟動強制執法；在此之前，監管機構接受企業基於誠信原則的自願推進。
+
+### 第 50 條透明度專項準則
+
+首份草案於 2025 年 12 月 17 日發布，第二版草案於 2026 年 3 月更新，預計將於 2026 年 6 月正式定稿。其專門規範 AI 生成內容的標註技術——這正是從法規層面強制要求第 18 課第 23 節的數位浮水印與 C2PA 必須全面落地的法律依據。
+
+### 英國 AI 安全研究所（2025 年 2 月重組更名）
+
+官方名稱由 AI Safety Institute 正式更名為 **AI Security Institute**。這項重組反映了監管重心的重大戰略收縮：主動淡化演算法偏見、言論自由與倫理審查等泛社會學議題，全面聚焦於前沿頂尖模型在國家安全、網路戰與重大基礎設施維度的實質安全防護。英國官方於 2024 年 5 月開源了旗艦 Inspect 評測套件，並持續攜手 Redwood Research（第 10 節）在控制安全論證（Control Safety Cases）領域展開深度實證。
+
+### 美國 CAISI（2025 年 6 月重組成立）
+
+美國新政府正式將隸屬於 NIST 的原 AI Safety Institute 重新改組為「AI 標準與創新中心（Center for AI Standards and Innovation, CAISI）」。官方監管哲學全面轉向「親增長、親創新（Pro-growth）」的產業扶持立場。大幅削減了對前置繁複安全評測的硬性行政干預，轉為強調技術標準制定與商業創新保護。這構成了與歐盟嚴苛監管主義分庭抗禮的強大國家競爭力地緣對衝。
+
+### 韓國《人工智慧基本法》
+
+於 2024 年 12 月在韓國國會正式三讀通過，2025 年 1 月頒布，2026 年 1 月正式施行。該法一舉整合了韓國國內原先分散的 19 項獨立 AI 法案。
+
+其第 12 條明文在科學技術資訊通信部（MSIT）旗下設立韓國國家級 AISI。核心強制性條款：
+- 任何在韓國境內運營的跨國外國 AI 科技企業，必須強制指派法定在地代理人。
+- 針對「高影響力（High-impact）」AI 系統實施強制性的事前演算法風險評估。
+- 針對所有生成式 AI 產品強制部署安全防護技術措施。
+
+韓國藉此成為亞洲第一個正式實施全面性、橫向跨行業 AI 基本法的主權國家。
+
+### 全球主權監管的地緣博弈
+
+- **歐盟模式**：最嚴苛、基於風險金字塔、巨額行政罰鍰。是全球資料隱私與合規治理的事實基準線。
+- **美國模式**：聯邦層面極致偏向產業創新與市場自由，由加州（如加州 AB 2013 法案，第 27 節）等進步州填補地方監管空白。
+- **英國模式**：極度聚焦於前沿國家安全能力防禦，手握極其強悍的獨立評測技術工具。
+- **韓國模式**：由資通訊部直接強勢主導，高度針對跨國境外科技巨頭實施在地約束。
+
+面對這場全球監管哲學的劇烈碰撞，任何跨國業務團隊在架構設計上皆必須「向上相容於最嚴苛的標準」——在 2026 年，這意味著你的底層系統架構必須無條件優先滿足歐盟 AI 法案的要求。
+
+### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
+
+第 18 節涵蓋實驗室自願性框架；第 24 節確立各國法定硬性約束；第 25 節將探討大模型專屬的 CVE 漏洞庫；第 26 與 27 節則將落地文檔規範（模型卡）與預訓練資料血緣治理。
+
+```figure
+an-eu-act-timeline
+```
+
+## Use It｜實際應用
+
+本課不設可執行程式碼。讀者應當認真精讀歐盟 AI 法案一手立法文本（Regulation 2024/1689）、GPAI 實踐準則全文，以及英國 AISI 發布的 Inspect 評測框架手冊。動手繪製一張企業自身業務在跨越歐盟、美國與亞洲市場時所必須履行的具體合規清單。
+
+## Ship It｜交付成果
+
+本課交付標準實戰產物 `outputs/skill-regulatory-map.md`。輸入一項大模型產品的具體功能架構、伺服器部署拓撲與目標使用者地理分佈，該 Skill 將自動為你推導出所觸發的各大主權法規管轄權、在各法案內部的具體風險等級定性，以及橫跨 2025 至 2027 年的實體合規落地時間表。
+
+## Exercises｜練習
+
+1. 仔細研讀歐盟 AI 法案（Regulation 2024/1689）與 2025 年 7 月發布的 GPAI 實踐準則。精確列出三項適用於「所有通用大模型提供商」的法定強制義務，以及三項僅僅適用於「具備系統性風險之 GPAI 巨頭」的專屬義務。
+2. 某業務系統由一家矽谷美國公司開發、伺服器實體架構部署於歐盟法蘭克福機房，並向韓國終端消費者提供服務。這三國的法規管轄權將如何交織？在遭遇具體合規衝突時，以哪一方的法律約束為最終裁決基準？
+3. 英國 AISI 將名稱由「Safety」更名為「Security」，引發了廣泛政治討論。撰寫短文分析支持該轉向的合理論據；隨後再撰寫短文分析其背後的潛在風險代價。
+4. 美國 CAISI 的「親增長（Pro-growth）」立場標誌著與前期拜登政府政策的重大決裂。列出兩項能實質體現該政策轉向的具體監管法規變更。
+5. 韓國《人工智慧基本法》強制要求跨國大模型公司指派韓國境內法定代理人。深入論述這對一家總部位於舊金山、原本僅向全球提供純線上 API 服務的 AI 新創團隊，會帶來哪些具體的工程維運與法務成本衝擊？
+
+## Key Terms｜關鍵術語
+
+| Term | What people say | What it actually means |
+|------|----------------|------------------------|
+| EU AI Act | "the regulation" | Risk-tier-based horizontal AI regulation; in force Aug 2024 |
+| GPAI | "general-purpose AI" | Large foundation models; systemic-risk subset has additional obligations |
+| Article 50 | "transparency obligations" | AI-generated content labelling; applies Aug 2026 |
+| UK AISI | "AI Security Institute" | Renamed Feb 2025; narrower frontier-security focus |
+| CAISI | "US center for AI standards" | Renamed Jun 2025 from AI Safety Institute; pro-growth posture |
+| Korean AI Framework Act | "MSIT horizontal regulation" | First Asian comprehensive AI law; effective Jan 2026 |
+| Systemic-risk GPAI | "the 1e25 FLOP threshold" | Additional obligations tier; estimated 5-15 companies bound |
+
+## Further Reading｜延伸閱讀
+
+- [EU AI Act text (Regulation 2024/1689)](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai) — 歐盟 AI 法案官方立法文本與時間表。
+- [GPAI Code of Practice (10 July 2025)](https://digital-strategy.ec.europa.eu/en/library/final-version-general-purpose-ai-code-practice) — 通用大模型實踐準則三章全文。
+- [UK AI Security Institute (renamed Feb 2025)](https://www.gov.uk/government/organisations/ai-security-institute) — 英國 AI 安全研究所官方網站。
+- [CSET — South Korea AI Framework Act Analysis (2025)](https://cset.georgetown.edu/publication/south-korea-ai-law-2025/) — 韓國人工智慧基本法深度地緣解析報告。
