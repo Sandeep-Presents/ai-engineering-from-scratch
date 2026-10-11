@@ -83,7 +83,7 @@ EAGLE-1 的革新：
 - 草稿架構 = 單層 transformer 解碼器（而非獨立的小型模型）。
 - 輸出 = 每個深度 K = 4 到 8 個候選的樹，深度為 4 到 6。
 
-EAGLE-2（2024 年）引入了動態樹拓撲結構：在草稿不確定處拓寬樹的分岔，在充滿信心處保持狹窄，在不增加驗證成本的前提下提高有效接受率 α_effective `α_effective`。
+EAGLE-2（2024 年）引入了動態樹拓撲結構：在草稿不確定處拓寬樹的分岔，在充滿信心處保持狹窄，在不增加驗證成本的前提下提高有效接受率 `α_effective`。
 
 EAGLE-3（Li 等人，2025 年，《EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test》）移除了固定的頂層特徵依賴，改以「測試期模擬（test-time simulation）」損失進行訓練——草稿模型是在匹配目標模型測試期分布的輸出上受訓，而非教師強制（teacher forcing）的訓練分布。接受率從 0.75（EAGLE-2）躍升至 0.82（EAGLE-3），平均每次驗證產出的 token 數從 3.0 個提升至 4.5 個。
 
