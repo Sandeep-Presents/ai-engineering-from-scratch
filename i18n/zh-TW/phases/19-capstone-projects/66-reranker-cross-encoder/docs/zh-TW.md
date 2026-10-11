@@ -29,19 +29,19 @@
 
 ```mermaid
 flowchart LR
-  Query[Query] --> Bi[Bi-Encoder Retriever]
-  Corpus[Corpus] --> Bi
-  Bi --> TopN[Top-N Candidates]
-  TopN --> Cross[Cross-Encoder]
+  Query[查詢] --> Bi[雙編碼器檢索器]
+  Corpus[語料庫] --> Bi
+  Bi --> TopN[前 N 名候選]
+  TopN --> Cross[交叉編碼器]
   Query --> Cross
-  Cross --> TopK[Top-K Reranked]
+  Cross --> TopK[前 K 名重排]
 ```
 
 ### 交叉編碼器的標準輸入結構
 
 工業界標準的打包格式為：`[CLS] query_tokens [SEP] document_tokens [SEP]`。提取最前端 CLS 位置的最終隱藏狀態向量，送入單層線性迴歸預測頭，輸出單一的相關性純量分數。某些實作採用對整個序列的平均池化（Mean-pooling）替代 CLS；兩者的實測差距微乎其微。核心在於：模型為每個「提問－文件」對精準產出一個連續純量分數。
 
-2200 萬參數規模(對標官方著名的 `ms-marco-MiniLM-L-6-v2` 權重等級)是極具性價比的工業落腳點。更小的模型在精度上的損失遠大於其節省的微弱延遲;而更大的模型（如 5.68 億參數的 `bge-reranker-v2-m3`）則通常專門用於離線批處理重排，或僅用於候選量極小的第一頁重排。
+2200 萬參數規模(對標官方著名的 `ms-marco-MiniLM-L-6-v2` 權重等級)是極具性價比的工業落腳點。更小的模型在精度上的損失遠大於其節省的微弱延遲;而更大的模型（如 5.68 億參數的 `bge-reranker-v2-m3`）則通常專門用於離線批處理重排，或僅用於K 很小的第一頁重排。
 
 ### 為何本課親手實作微型版本
 

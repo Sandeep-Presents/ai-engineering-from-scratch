@@ -52,7 +52,7 @@
 
 ## 技術堆疊
 
-- 執行環境執行環境：Bun 1.2 + Ink 5（React 終端機宣告式 TUI 框架）
+- 執行環境：Bun 1.2 + Ink 5（React 終端機宣告式 TUI 框架）
 - 模型存取抽象層：OpenRouter 統一 API，無縫對接 Claude Sonnet 4.7、GPT-5.4-Codex、Gemini 3 Pro 以及處理極端難題的 Opus 4.5
 - 工具通訊協定：Model Context Protocol StreamableHTTP（2026 年最新雙向串流協定）
 - 沙盒執行環境：E2B 雲端沙盒（JS SDK）或 Daytona devcontainer 容器

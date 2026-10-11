@@ -28,7 +28,7 @@
 
 ```mermaid
 flowchart TB
-  Model[已訓練的多模態模型] --> Embed[評測集上的 joint embedding]
+  Model[已訓練的多模態模型] --> Embed[評測集上的聯合 embedding]
   Embed --> Sim[相似度矩陣]
   Sim --> R1[R@1]
   Sim --> R5[R@5]

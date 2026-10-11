@@ -98,7 +98,7 @@ python3 code/main.py
 
 工業級生產框架在底層全體遵循完全相同的架構：
 
-- **DeepSpeed ZeRO**：業界權威原創實作。透過 `deepspeed_config.json` 靈活切換 Stage 1/2/3 與分區大小。
+- **DeepSpeed ZeRO**：參考實作。透過 `deepspeed_config.json` 靈活切換 Stage 1/2/3 與分區大小。
 - **PyTorch FSDP**：PyTorch 官方原生內建的同構框架。其 `ShardingStrategy.SHARD_GRAD_OP` 精確對標 ZeRO-2；而 `FULL_SHARD` 則對標 ZeRO-3。
 - **Hugging Face Accelerate**：在統一的配置檔案下無縫包裹並抹平了 DeepSpeed 與 FSDP 的呼叫細節。
 
