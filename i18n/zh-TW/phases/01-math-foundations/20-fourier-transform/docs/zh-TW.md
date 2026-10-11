@@ -22,7 +22,7 @@
 
 傅立葉轉換會將資料從時域轉換到頻域（frequency domain），把訊號分解成不同頻率的正弦波。每個正弦波都有振幅（amplitude，代表強度）和相位（phase，代表它從哪裡開始）。傅立葉轉換會同時告訴你這兩者。
 
-這對 ML 很重要，因為頻域思維無所不在。卷積神經網路（convolutional neural networks，CNN）會執行卷積，而卷積在頻域中等同於乘法。Transformer 的位置編碼會使用頻率分解來表示位置。音訊模型（語音辨識、音樂生成）會以頻譜圖（spectrogram）——聲音的頻率表示法——以頻譜圖作為輸入表示。時間序列（time series）模型會尋找週期模式。理解傅立葉轉換，就能掌握處理這些問題所需的詞彙。
+這對 ML 很重要，因為頻域思維無所不在。卷積神經網路（convolutional neural networks，CNN）會執行卷積，而卷積在頻域中等同於乘法。Transformer 的位置編碼會使用頻率分解來表示位置。音訊模型（語音辨識、音樂生成）會以頻譜圖（spectrogram）——聲音的頻率表示法——作為輸入表示。時間序列（time series）模型會尋找週期模式。理解傅立葉轉換，就能掌握處理這些問題所需的詞彙。
 
 ## The Concept｜核心概念
 
@@ -92,17 +92,17 @@ where E = DFT of even-indexed samples
 
 ```mermaid
 graph TD
-    subgraph "8-point FFT (Cooley-Tukey)"
-        X["x[0..7]<br/>8 samples"] -->|"split even/odd"| E["Even: x[0,2,4,6]"]
-        X -->|"split even/odd"| O["Odd: x[1,3,5,7]"]
+    subgraph "8 點 FFT（Cooley-Tukey）"
+        X["x[0..7]<br/>8 個樣本"] -->|"split even/odd"| E["偶數位置： x[0,2,4,6]"]
+        X -->|"split even/odd"| O["奇數位置： x[1,3,5,7]"]
         E -->|"4-pt FFT"| EK["E[0..3]"]
         O -->|"4-pt FFT"| OK["O[0..3]"]
         EK -->|"combine with twiddle factors"| XK["X[0..7]"]
         OK -->|"combine with twiddle factors"| XK
     end
-    subgraph "Complexity"
-        C1["DFT: O(N^2) = 64 multiplications"]
-        C2["FFT: O(N log N) = 24 multiplications"]
+    subgraph "複雜度"
+        C1["DFT：O(N^2) = 64 次乘法"]
+        C2["FFT：O(N log N) = 24 次乘法"]
     end
 ```
 
@@ -154,11 +154,11 @@ where * is convolution and . is element-wise multiplication
 
 ```mermaid
 graph LR
-    subgraph "Time Domain"
-        TA["Signal x[n]"] -->|"convolve (slow: O(NM))"| TC["Output y[n]"]
-        TB["Filter h[n]"] -->|"convolve"| TC
+    subgraph "時域"
+        TA["訊號 x[n]"] -->|"convolve (slow: O(NM))"| TC["輸出 y[n]"]
+        TB["濾波器 h[n]"] -->|"convolve"| TC
     end
-    subgraph "Frequency Domain"
+    subgraph "頻域"
         FA["FFT(x)"] -->|"multiply (fast: O(N))"| FC["FFT(x) * FFT(h)"]
         FB["FFT(h)"] -->|"multiply"| FC
         FC -->|"IFFT"| FD["y[n]"]
