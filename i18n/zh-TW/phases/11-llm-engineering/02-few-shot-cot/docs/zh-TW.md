@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 實作少樣本提示（few-shot prompting），透過挑選並格式化示範範例，將任務準確率最大化
+- 實作少樣本 prompting（few-shot prompting），透過挑選並格式化示範範例，將任務準確率最大化
 - 套用思維鏈（Chain-of-Thought, CoT）推理，以提升在多步驟問題（如數學應用題）上的準確率
 - 建構探索多條推理路徑並選出最佳路徑的思維樹（Tree-of-Thought）Prompt
 - 在標準基準測試上測量零樣本（zero-shot） vs 少樣本 vs CoT 所帶來的準確率提升
@@ -22,13 +22,13 @@
 
 這不是投機取巧的 hack，這是推理的本質。人類無法在單一思維跳躍中直接解出多步驟難題，Transformer 也同樣做不到。當你迫使模型生成中間 token 時，這些 token 便會成為生成下一個 token 的脈絡。每個推理步驟都會為下一步提供輸入。模型是在字面意義上「透過計算逐步走向答案」。
 
-但「一步一步思考」只是起點，而非終點。如果你抽樣 5 條推理路徑並進行多數決（majority vote）投票呢？如果你允許模型探索一棵可能性之樹，評估並剪除不具潛力的 branch呢？如果你將推理與工具呼叫（tool calling）交織進行呢？這些都不是憑空假設，它們是已有研究並以實驗驗證的技術，而你在本課中將會親手實作它們。
+但「一步一步思考」只是起點，而非終點。如果你抽樣 5 條推理路徑並進行多數決（majority vote）投票呢？如果你允許模型探索一棵可能性之樹，評估並剪除不具潛力的分岔路徑呢？如果你將推理與工具呼叫（tool calling）交織進行呢？這些都不是憑空假設，它們是已有研究並以實驗驗證的技術，而你在本課中將會親手實作它們。
 
 ## The Concept｜核心概念
 
 ### 零樣本 vs 少樣本：範例勝於純指令
 
-零樣本（Zero-shot）提示僅給予模型任務說明，不附帶任何範例。少樣本（Few-shot）提示則會先給出示範範例。
+零樣本（Zero-shot）prompting 僅給予模型任務說明，不附帶任何範例。少樣本（Few-shot）prompting 則會先給出示範範例。
 
 Wei 等人（2022）在 8 個基準測試上對此進行了測量。對於像情緒分類這樣的簡單任務，零樣本與少樣本文本表現差異在 2% 以內。而對於多步驟算術與符號推理等複雜任務，少樣本將準確率提升了 10% 到 25%。
 
@@ -36,10 +36,10 @@ Wei 等人（2022）在 8 個基準測試上對此進行了測量。對於像情
 
 ```mermaid
 graph TD
-    subgraph Comparison["Zero-Shot vs Few-Shot"]
+    subgraph Comparison["零樣本與少樣本"]
         direction LR
-        Z["Zero-Shot\n'Classify this review'\nModel guesses format\n78% on GSM8K"]
-        F["Few-Shot\n'Here are 3 examples...\nNow classify this review'\nModel matches pattern\n85% on GSM8K"]
+        Z["零樣本\n'將這則評論分類'\n模型自行猜測格式\nGSM8K 上為 78%"]
+        F["少樣本\n'以下是 3 個範例……\n現在請將這則評論分類'\n模型比照範例模式\nGSM8K 上為 85%"]
     end
 
     Z ~~~ F
@@ -64,16 +64,16 @@ graph TD
 
 ### 思維鏈：提供草稿空間
 
-思維鏈（CoT）提示由 Google Brain 的 Wei 等人（2022）提出。其核心概念非常純粹：與其只向模型索取最終答案，不如先要求它列出中間的推理步驟。
+思維鏈（CoT）prompting 由 Google Brain 的 Wei 等人（2022）提出。其核心概念非常純粹：與其只向模型索取最終答案，不如先要求它列出中間的推理步驟。
 
 ```mermaid
 graph LR
-    subgraph Standard["Standard Prompting"]
-        Q1["Q: Roger has 5 balls.\nHe buys 2 cans of 3.\nHow many balls?"] --> A1["A: 11"]
+    subgraph Standard["標準 prompting"]
+        Q1["問題：Roger 有 5 顆球。\n他買了 2 罐，每罐有 3 顆。\n現在有幾顆球？"] --> A1["答案：11"]
     end
 
-    subgraph CoT["Chain-of-Thought Prompting"]
-        Q2["Q: Roger has 5 balls.\nHe buys 2 cans of 3.\nHow many balls?"] --> R2["Roger starts with 5.\n2 cans of 3 = 6.\n5 + 6 = 11."] --> A2["A: 11"]
+    subgraph CoT["思維鏈 prompting"]
+        Q2["問題：Roger 有 5 顆球。\n他買了 2 罐，每罐有 3 顆。\n現在有幾顆球？"] --> R2["Roger 一開始有 5 顆。\n2 罐，每罐 3 顆 = 6 顆。\n5 + 6 = 11。"] --> A2["答案：11"]
     end
 
     style Q1 fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -113,15 +113,15 @@ Wang 等人（2023）提出了自洽性（Self-Consistency）。其深刻洞見�
 
 ```mermaid
 graph TD
-    P["Problem: 'A store has 48 apples.\nThey sell 1/3 on Monday\nand 1/4 of the rest on Tuesday.\nHow many are left?'"]
+    P["問題：「商店有 48 顆蘋果。\n星期一賣出 1/3，\n星期二再賣出剩下的 1/4。\n還剩下多少顆？」"]
 
-    P --> Path1["Path 1: 48 - 16 = 32\n32 - 8 = 24\nAnswer: 24"]
-    P --> Path2["Path 2: 1/3 of 48 = 16\nRemaining: 32\n1/4 of 32 = 8\n32 - 8 = 24\nAnswer: 24"]
-    P --> Path3["Path 3: 48/3 = 16 sold\n48 - 16 = 32\n32/4 = 8 sold\n32 - 8 = 24\nAnswer: 24"]
-    P --> Path4["Path 4: Sell 1/3: 48 - 12 = 36\nSell 1/4: 36 - 9 = 27\nAnswer: 27"]
-    P --> Path5["Path 5: Monday: 48 * 2/3 = 32\nTuesday: 32 * 3/4 = 24\nAnswer: 24"]
+    P --> Path1["路徑 1：48 - 16 = 32\n32 - 8 = 24\n答案：24"]
+    P --> Path2["路徑 2：48 的 1/3 = 16\n剩下：32\n32 的 1/4 = 8\n32 - 8 = 24\n答案：24"]
+    P --> Path3["路徑 3：48/3 = 賣出 16\n48 - 16 = 32\n32/4 = 賣出 8\n32 - 8 = 24\n答案：24"]
+    P --> Path4["路徑 4：賣出 1/3：48 - 12 = 36\n賣出 1/4：36 - 9 = 27\n答案：27"]
+    P --> Path5["路徑 5：星期一：48 * 2/3 = 32\n星期二：32 * 3/4 = 24\n答案：24"]
 
-    Path1 --> V["Majority Vote\n24: 4 votes\n27: 1 vote\nFinal: 24"]
+    Path1 --> V["多數決\n24：4 票\n27：1 票\n最終答案：24"]
     Path2 --> V
     Path3 --> V
     Path4 --> V
@@ -146,25 +146,25 @@ Yao 等人（2023）提出了思維樹（Tree-of-Thought, ToT）。CoT 遵循單
 
 ```mermaid
 graph TD
-    Root["Problem"] --> B1["Thought 1a"]
-    Root --> B2["Thought 1b"]
-    Root --> B3["Thought 1c"]
+    Root["問題"] --> B1["思路 1a"]
+    Root --> B2["思路 1b"]
+    Root --> B3["思路 1c"]
 
-    B1 --> E1["Eval: 0.8"]
-    B2 --> E2["Eval: 0.3"]
-    B3 --> E3["Eval: 0.9"]
+    B1 --> E1["評分：0.8"]
+    B2 --> E2["評分：0.3"]
+    B3 --> E3["評分：0.9"]
 
-    E1 -->|Continue| B1a["Thought 2a"]
-    E1 -->|Continue| B1b["Thought 2b"]
-    E3 -->|Continue| B3a["Thought 2a"]
-    E3 -->|Continue| B3b["Thought 2b"]
+    E1 -->|Continue| B1a["思路 2a"]
+    E1 -->|Continue| B1b["思路 2b"]
+    E3 -->|Continue| B3a["思路 2a"]
+    E3 -->|Continue| B3b["思路 2b"]
 
     E2 -->|Prune| X["X"]
 
-    B1a --> E4["Eval: 0.7"]
-    B3a --> E5["Eval: 0.95"]
+    B1a --> E4["評分：0.7"]
+    B3a --> E5["評分：0.95"]
 
-    E5 -->|Best path| Final["Solution"]
+    E5 -->|Best path| Final["解答"]
 
     style Root fill:#1a1a2e,stroke:#ffa500,color:#fff
     style E2 fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -189,7 +189,7 @@ ToT 包含三個核心模組：
 2. **狀態評估（State evaluation）**：為每個候選想法評分（亦可使用 LLM 本身作為評估器）
 3. **搜尋演算法（Search algorithm）**：在樹狀空間中使用 BFS 或 DFS 搜尋，並剪除低分路徑
 
-在 24 點遊戲（Game of 24，透過四則運算將 4 個數字湊成 24）任務中，GPT-4 使用標準提示僅能解出 7.3% 的問題。使用 CoT 時，正確率甚至掉到 4.0%（在此類寬廣搜尋空間下，單線 CoT 容易走進死胡同）。而使用 ToT，正確率飆升至 74%。
+在 24 點遊戲（Game of 24，透過四則運算將 4 個數字湊成 24）任務中，GPT-4 使用標準 prompting 僅能解出 7.3% 的問題。使用 CoT 時，正確率甚至掉到 4.0%（在此類寬廣搜尋空間下，單線 CoT 容易走進死胡同）。而使用 ToT，正確率飆升至 74%。
 
 ToT 的代價是昂貴的。樹上的每個節點（node）都需要一次獨立的 LLM 呼叫。一個分岔度為 3、深度為 3 的搜尋樹可能需要多達 39 次 LLM 呼叫。因此請僅在搜尋空間廣闊但步驟容易量化評估的場景下使用它——例如複雜規劃、謎題求解，或附帶多重約束的創意思考。
 
@@ -199,15 +199,15 @@ Yao 等人（2022）將推理軌跡與實際行動相互結合。模型在思考
 
 ```mermaid
 graph LR
-    Q["Question:\nWhat is the\npopulation of the\ncountry where\nthe Eiffel Tower\nis located?"]
-    T1["Thought: I need to\nfind which country\nhas the Eiffel Tower"]
-    A1["Action: search\n'Eiffel Tower location'"]
-    O1["Observation:\nParis, France"]
-    T2["Thought: Now I need\nFrance's population"]
-    A2["Action: search\n'France population 2024'"]
-    O2["Observation:\n68.4 million"]
-    T3["Thought: I have\nthe answer"]
-    F["Answer:\n68.4 million"]
+    Q["問題：\n艾菲爾鐵塔\n所在國家的\n人口是多少？"]
+    T1["思路：我需要\n找出艾菲爾鐵塔\n位於哪個國家"]
+    A1["動作：搜尋\n'艾菲爾鐵塔位置'"]
+    O1["觀察：\n法國巴黎"]
+    T2["思路：現在我需要\n法國的人口"]
+    A2["動作：搜尋\n'法國 2024 年人口'"]
+    O2["觀察：\n6,840 萬"]
+    T3["思路：我已經\n找到答案"]
+    F["答案：\n6,840 萬"]
 
     Q --> T1 --> A1 --> O1 --> T2 --> A2 --> O2 --> T3 --> F
 
@@ -226,7 +226,7 @@ graph LR
 
 ReAct 是現代 AI Agent 的基石。主流 Agent 框架（LangChain、CrewAI、AutoGen）皆實作了「思考—行動—觀察」（Thought-Action-Observation）迴圈的某種變體。你將在 Phase 14 實作完整的 Agent。本課聚焦於該模式的 Prompt 設計原理。
 
-### 結構化提示（structured prompting）：XML 標籤、分隔符號（delimiters）與標題
+### 結構化 prompting（structured prompting）：XML 標籤、分隔符號（delimiters）與標題
 
 隨著 Prompt 變得複雜，清晰的結構能防止模型混淆各個段落。三種實用方法：
 
@@ -284,12 +284,12 @@ Summarize the above in 3 bullet points.
 
 ```mermaid
 graph LR
-    I["Raw Input"] --> P1["Prompt 1:\nExtract\nkey facts"]
-    P1 --> O1["Facts"]
-    O1 --> P2["Prompt 2:\nAnalyze\nfacts"]
-    P2 --> O2["Analysis"]
-    O2 --> P3["Prompt 3:\nGenerate\nrecommendation"]
-    P3 --> F["Final Output"]
+    I["原始輸入"] --> P1["Prompt 1：\n擷取\n關鍵事實"]
+    P1 --> O1["事實"]
+    O1 --> P2["Prompt 2：\n分析\n事實"]
+    P2 --> O2["分析"]
+    O2 --> P3["Prompt 3：\n產生\n建議"]
+    P3 --> F["最終輸出"]
 
     style I fill:#1a1a2e,stroke:#808080,color:#fff
     style P1 fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -328,7 +328,7 @@ few-shot-curve
 
 ## Build It｜動手實作
 
-我們將建構一套數學解題器，將少樣本提示、思維鏈推理與自洽性投票整合為單一管線。接著，我們將為高難度難題加入思維樹探索機制。
+我們將建構一套數學解題器，將少樣本 prompting、思維鏈推理與自洽性投票整合為單一管線。接著，我們將為高難度難題加入思維樹探索機制。
 
 完整實作位於 `code/advanced_prompting.py`。以下為核心元件剖析。
 
@@ -495,7 +495,7 @@ selector = SemanticSimilarityExampleSelector.from_examples(
 
 ### 編譯式 Prompt
 
-DSPy 將提示策略視為可最佳化的程式模組。你無需手動撰寫 CoT Prompt，只需定義輸入輸出簽署（Signature），DSPy 會自動為你最佳化 Prompt：
+DSPy 將 prompting 策略視為可最佳化的程式模組。你無需手動撰寫 CoT Prompt，只需定義輸入輸出簽署（Signature），DSPy 會自動為你最佳化 Prompt：
 
 ```python
 import dspy
@@ -557,7 +557,7 @@ result = dspy.majority(
 
 | 術語 | 常見說法 | 實際意義 |
 |------|----------------|----------------------|
-| 少樣本提示（Few-shot prompting） | 「給它看幾個範例」 | 在 Prompt 中置入輸入—輸出示範範例，以定錨模型的輸出格式與行為風格 |
+| 少樣本 prompting（Few-shot prompting） | 「給它看幾個範例」 | 在 Prompt 中置入輸入—輸出示範範例，以定錨模型的輸出格式與行為風格 |
 | 思維鏈（Chain-of-Thought） | 「讓它一步一步想」 | 引導模型輸出中間推理 token，在產出最終答案前實質拓展其有效計算深度 |
 | 自洽性（Self-Consistency） | 「多跑幾次看哪個多」 | 在溫度大於 0 下抽樣 N 條多樣化推理路徑，並透過多數決投票選出出現頻率最高的答案 |
 | 思維樹（Tree-of-Thought） | 「讓它探索不同選項」 | 在推理路徑上進行結構化搜尋，評估每個部分解並僅對具備潛力的路徑進行展開 |
