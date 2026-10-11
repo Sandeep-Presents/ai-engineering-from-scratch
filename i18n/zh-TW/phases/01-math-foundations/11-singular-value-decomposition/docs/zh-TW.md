@@ -40,8 +40,8 @@ A = U * Sigma * V^T
 
 ```mermaid
 graph LR
-    A["Input space (n-dim)\nData cloud\n(arbitrary orientation)"] -->|"V^T\n(rotate)"| B["Scaled space\nAligned with axes\nthen scaled by Sigma"]
-    B -->|"U\n(rotate)"| C["Output space (m-dim)\nRotated to output\norientation"]
+    A["輸入空間（n 維）\n資料雲\n（任意方向）"] -->|"V^T\n(rotate)"| B["縮放後空間\n與座標軸對齊\n再由 Sigma 縮放"]
+    B -->|"U\n(rotate)"| C["輸出空間（m 維）\n旋轉至輸出\n方向"]
 ```
 
 可以這樣想：你把一個矩陣交給 SVD，它會告訴你：「這個矩陣先用 V^T 旋轉輸入球體，再透過 Sigma 把它拉成橢球，最後用 U 旋轉橢球。」奇異值就是橢球各軸的長度。
@@ -192,7 +192,7 @@ SVD with rank k:
   but visual quality degrades.
 ```
 
-關鍵是：自然影像的奇異值會快速遞減。前幾個奇異值捕捉整體結構（形狀、整體形狀與強度變化），後面的則捕捉細節與雜訊。截斷至秩 50，通常就能產生幾乎與原始影像相同的畫質，同時減少 85% 的儲存空間。
+關鍵是：自然影像的奇異值會快速遞減。前幾個奇異值捕捉整體結構（形狀與強度梯度），後面的則捕捉細節與雜訊。截斷至秩 50，通常就能產生幾乎與原始影像相同的畫質，同時減少 85% 的儲存空間。
 
 ### SVD 在推薦系統中的應用
 
@@ -273,10 +273,10 @@ LSA 是第一批能從原始文字中擷取語意相似度的成功方法之一�
 
 ```mermaid
 graph TD
-    A["All singular values"] --> B{"Clear gap?"}
-    B -->|"Above gap"| C["Signal: keep these (top k)"]
-    B -->|"Below gap"| D["Noise: discard these"]
-    C --> E["Reconstruct with A_k to get denoised version"]
+    A["所有奇異值"] --> B{"間隔明顯嗎？"}
+    B -->|"Above gap"| C["訊號：保留這些（前 k 個）"]
+    B -->|"Below gap"| D["雜訊：捨棄這些"]
+    C --> E["以 A_k 重建，取得去噪版本"]
 ```
 
 這種方法用於訊號處理（signal processing）、科學量測和資料清理。只要矩陣受到加成性雜訊污染，截斷 SVD 就是有原則的訊號與雜訊分離方法。
