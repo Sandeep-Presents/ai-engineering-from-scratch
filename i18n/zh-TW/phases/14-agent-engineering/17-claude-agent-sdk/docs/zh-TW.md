@@ -1,6 +1,6 @@
-# harness即函式庫——子 Agent 與工作階段儲存庫
+# harness 即函式庫——子 Agent 與工作階段儲存庫
 
-> 一套能直接透過 import 引用的harness框架：內建工具集、用於脈絡隔離的子 agent（Subagents）、生命週期鉤子、W3C 分散式追蹤脈絡傳播，以及工作階段持久化儲存庫。Claude Agent SDK 正是其代表性典範——它是 Claude Code harness架構的函式庫形態；而 Claude Managed Agents 則是面向長時間非同步工作的雲端全代管方案。
+> 一套能直接透過 import 引用的 harness 框架：內建工具集、用於脈絡隔離的子 agent（Subagents）、生命週期鉤子、W3C 分散式追蹤脈絡傳播，以及工作階段持久化儲存庫。Claude Agent SDK 正是其代表性典範——它是 Claude Code harness 架構的函式庫形態；而 Claude Managed Agents 則是面向長時間非同步工作的雲端全代管方案。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -9,14 +9,14 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入解釋 Anthropic 用戶端 SDK（底層原始 API）與 Claude Agent SDK（高階harness架構）的本質差異。
+- 深入解釋 Anthropic 用戶端 SDK（底層原始 API）與 Claude Agent SDK（高階 harness 架構）的本質差異。
 - 描述子 agent（Subagents）的兩大核心定位——平行化運算與脈絡隔離，並明確識別其適用時機。
 - 掌握 Python SDK 工作階段儲存庫的介面規範（`append`、`load`、`list_sessions`、`delete`、`list_subkeys`）以及 `--session-mirror` 旗標的運作原理。
-- 以純 Python 標準函式庫實作一套具備內建工具、具備獨立脈絡的子 agent 衍生機制、生命週期鉤子與工作階段儲存庫的完整harness。
+- 以純 Python 標準函式庫實作一套具備內建工具、具備獨立脈絡的子 agent 衍生機制、生命週期鉤子與工作階段儲存庫的完整 harness。
 
 ## The Problem｜問題
 
-直接呼叫原始大型語言模型（LLM）API 僅能完成單次網路往返。然而，一套成熟的生產級 agent 需要工具執行能力、MCP 伺服器連線、生命週期掛鉤、子 agent 動態衍生、工作階段持久化，以及全鏈路分散式追蹤傳播。Claude Agent SDK 將這套成熟的系統骨架直接打包為可引用的軟體函式庫——將 Claude Code 原生採用的同款harness，開放給開發者打造自訂 agent。
+直接呼叫原始大型語言模型（LLM）API 僅能完成單次網路往返。然而，一套成熟的生產級 agent 需要工具執行能力、MCP 伺服器連線、生命週期掛鉤、子 agent 動態衍生、工作階段持久化，以及全鏈路分散式追蹤傳播。Claude Agent SDK 將這套成熟的系統骨架直接打包為可引用的軟體函式庫——將 Claude Code 原生採用的同款 harness，開放給開發者打造自訂 agent。
 
 ## The Concept｜核心概念
 
@@ -101,9 +101,9 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-- **Claude Agent SDK**：適用於以 Claude 為核心、希望直接享用 Claude Code harness骨架的產品。
+- **Claude Agent SDK**：適用於以 Claude 為核心、希望直接享用 Claude Code harness 骨架的產品。
 - **Claude Managed Agents**：適用於需要雲端託管的長時段非同步背景任務。
-- **OpenAI Agents SDK**（第 16 課）：OpenAI 生態系中的對等harness方案。
+- **OpenAI Agents SDK**（第 16 課）：OpenAI 生態系中的對等 harness 方案。
 - **LangGraph + 自訂工具**：當需要將核心邏輯建模為顯式狀態機圖結構時使用。
 
 ## Ship It｜交付成果
@@ -122,12 +122,12 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Agent SDK | 「函式庫版的 Claude Code」 | 封裝工具執行、MCP 連線、鉤子、子 agent 與工作階段的harness架構 |
+| Agent SDK | 「函式庫版的 Claude Code」 | 封裝工具執行、MCP 連線、鉤子、子 agent 與工作階段的 harness 架構 |
 | Subagent | 「子 Agent」 | 具備獨立上下文視窗與專屬預算的子執行體；結果匯總回傳給協調者 |
 | Session store | 「對話歷史資料庫」 | 支援回合追加、載入、列舉與級聯刪除的持久化儲存設施 |
 | Hook | 「生命週期回呼函式」 | 於工具呼叫前後、工作階段起訖、輸入送出或壓縮前執行的自訂擴充點 |
 | W3C trace context | 「跨行程分散式追蹤」 | 父層 Span 透過標準標頭透明傳播至 CLI 子行程中的追蹤機制 |
-| Managed Agents | 「雲端代管harness」 | 由 Anthropic 官方託管維運、專門處理長時間非同步運算的雲端服務 |
+| Managed Agents | 「雲端代管 harness」 | 由 Anthropic 官方託管維運、專門處理長時間非同步運算的雲端服務 |
 | `--session-mirror` | 「對話即時轉存」 | 將工作階段對話在串流推播時即時寫入外部本機檔案的命令列旗標 |
 | MCP server | 「外部工具表面」 | 掛載於 agent 之下、對外提供工具與資源存取能力的外部服務 |
 

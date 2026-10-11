@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 指出 Anthropic 定義的五大工作流程模式：Prompt 鏈結（Prompt chaining）、意圖路由（Routing）、平行化（Parallelization）、協調者—工作者（Orchestrator-workers）與評估者—最佳化者（Evaluator-optimizer）。
+- 指出 Anthropic 定義的五大工作流程模式：Prompt 鏈結（Prompt chaining）、意圖路由（Routing）、平行化（Parallelization）、編排者—工作者（Orchestrator-workers）與評估者—最佳化者（Evaluator-optimizer）。
 - 深入闡明工作流程與自主 Agent 的本質差異，以及兩者各自的工程維運代價。
 - 準確識別在何種場景下應當優先選擇工作流程而非 Agent（反之亦然）。
 - 以純 Python 標準函式庫對照腳本化 LLM 完整實作這五大模式。
@@ -29,7 +29,7 @@
 
 ### 增強型大型語言模型（The Augmented LLM）
 
-所有五大模式的共同原子基石：單一 LLM 整合三大外圍能力——搜尋檢索（Retrieval）、工具呼叫（Actions）與記憶體（Persistence）。任何常規 API 呼叫皆能直接享用這些能力。
+所有五大模式的共同原子基石：單一 LLM 整合三大外圍能力——搜尋檢索（Retrieval）、工具呼叫（Actions）與記憶（Persistence）。任何常規 API 呼叫皆能直接享用這些能力。
 
 ### 五大核心架構模式
 
@@ -39,7 +39,7 @@
 
 3. **平行化（Parallelization）**：並發發起 N 個 LLM 呼叫，隨後聚合結果。包含兩種形態：**分段處理（Sectioning）**（分別處理不同區塊）與**投票表決（Voting）**（同一 Prompt 執行 N 次，取多數決或進行綜合提煉）。
 
-4. **協調者—工作者（Orchestrator-workers）**：由協調者 LLM 動態決定啟動哪些專業工作者（Worker LLMs），並綜合彙整其輸出產物。雖然類似 Agent 迴圈，但協調者絕不進行無休止的漫無目的循環。
+4. **編排者—工作者（Orchestrator-workers）**：由協調者 LLM 動態決定啟動哪些專業工作者（Worker LLMs），並綜合彙整其輸出產物。雖然類似 Agent 迴圈，但協調者絕不進行無休止的漫無目的循環。
 
 5. **評估者—最佳化者（Evaluator-optimizer）**：一個 LLM 產出方案初稿，另一個 LLM 進行獨立評估。交替迴圈直到評估者批准通過。這正是 Self-Refine（第 5 課）的通用化實踐。
 
@@ -105,11 +105,11 @@ python3 code/main.py
 |---|---|---|
 | Workflow | 「預定義工作流程」 | 由軟體工程師全權掌控的 LLM 與工具呼叫有向圖 |
 | Agent | 「自主 AI」 | 由模型全權掌控的動態呼叫圖；自主決定工具呼叫 |
-| Augmented LLM | 「帶工具的 LLM」 | 單一 LLM + 搜尋 + 工具 + 記憶體；系統最基礎的原子單元 |
+| Augmented LLM | 「帶工具的 LLM」 | 單一 LLM + 搜尋 + 工具 + 記憶；系統最基礎的原子單元 |
 | Prompt chaining | 「循序鏈結呼叫」 | 第 N 次呼叫的輸出直接作為第 N+1 次呼叫的輸入 |
 | Routing | 「分類器意圖分派」 | 依據輸入分類動態挑選最適當的下游鏈或模型處理 |
 | Parallelization | 「並發分流」 | 同時發起 N 次並行呼叫；透過分段（Sectioning）或投票（Voting）聚合 |
-| Orchestrator-workers | 「調度者—工作者」 | 協調者 LLM 動態指揮多個專業專家 LLM 協同工作 |
+| Orchestrator-workers | 「編排者—工作者」 | 協調者 LLM 動態指揮多個專業專家 LLM 協同工作 |
 | Evaluator-optimizer | 「提案者 + 審核者」 | 提案者與評估者交替循環直到評估通過；Self-Refine 的通用化模式 |
 
 ## Further Reading｜延伸閱讀
@@ -117,4 +117,4 @@ python3 code/main.py
 - [Anthropic, Building Effective Agents (Dec 2024)](https://www.anthropic.com/research/building-effective-agents) ——五大工作流程模式權威指南
 - [Anthropic, Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) ——脈絡工程的配套學科
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) ——何時狀態圖架構真正物有所值
-- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) ——協調者—工作者模式的產品化實踐
+- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) ——編排者—工作者模式的產品化實踐

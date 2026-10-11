@@ -1,6 +1,6 @@
-# 在挑選產出前先界定成效（Outcome Before Output）
+# 在挑選產出前先界定成效
 
-> 快速實作會加重選錯問題的代價。先塑造成效（Outcome），讓速度朝向正確的方向。
+> 快速實作會提高選錯問題的代價。先塑造成效（Outcome），讓速度朝向正確的方向。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -14,7 +14,7 @@
 - 明確寫出約束與非目標（Non-goals）。
 - 在解法外洩（Solution Leakage）變成範圍之前，及早偵測。
 
-## 產出不等於成效（Output Is Not Outcome）
+## 產出不等於成效
 
 「打造一個事故排查助手」只是在命名一項**產出（Output）**。它沒有說明誰需要它、什麼會變得更好，或什麼必須維持安全。
 
@@ -24,7 +24,7 @@
 
 這句話可以由軟體、一份應變手冊、一次資料修復，或一次較小的介面變更來達成。它讓團隊聚焦於結果，而非某人最先想到的產物。
 
-## 六部式框架（The Six-Part Frame）
+## 六部式框架
 
 | 組成維度 | 核心檢核問題 |
 |---|---|
@@ -44,7 +44,7 @@ flowchart LR
   N --> E[證據問題]
 ```
 
-## 找出解法外洩（Find Solution Leakage）
+## 找出解法外洩
 
 當成效描述包含尚未由證據支持的產品形態、介面、模型選擇、框架或架構時，就會發生「解法外洩」：
 
@@ -55,7 +55,7 @@ flowchart LR
 
 約束可以在相容性確實固定技術時提及該技術，並記錄它為何固定。
 
-## 約束守護成效（Constraints Protect the Outcome）
+## 約束守護成效
 
 約束不是實作細節，而是真實世界目標的一部分：
 
@@ -67,7 +67,7 @@ flowchart LR
 
 若一項建置是靠違反約束才達到成效，就不算達到成效。
 
-## 非目標劃定邊界（Non-Goals Create a Boundary）
+## 非目標劃定邊界
 
 非目標能防止有用的切片變成平台。好的非目標必須夠具體，才能拒絕無關的工作：
 
@@ -100,6 +100,6 @@ python3 -m unittest discover code/tests -v
 - [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——將真實世界目標視為軟體工作錨點的需求工程論文
 - [Dardenne, van Lamsweerde, and Fickas, Goal-Directed Requirements Acquisition](https://doi.org/10.1016/0167-6423(93)90021-G) ——將高層目標精煉為約束與操作需求的目標導向需求擷取方法
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/outcome-frame.json`。下一課會將它對照人們實際執行的工作流程加以檢驗。

@@ -16,7 +16,7 @@
 
 ## The Problem｜問題
 
-LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當工程團隊期望「在我現有的執行環境中，以快速執行純粹的 Agent 迴圈」時，往往會轉向 Agno（Python）或 Mastra（TypeScript）。兩者皆主動放棄了部分由框架包辦的封閉原語，換取了純粹的執行速度以及與現有技術堆疊更深度的整合性。
+LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當工程團隊期望「在我現有的執行環境中，以快速執行純粹的 Agent 迴圈」時，往往會轉向 Agno（Python）或 Mastra（TypeScript）。兩者皆主動放棄了部分由框架提供的原語，換取了純粹的執行速度以及與現有技術堆疊更深度的整合性。
 
 ## The Concept｜核心概念
 
@@ -35,7 +35,7 @@ LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當�
 - 原生 TypeScript 框架，建構於 Vercel AI SDK 基石之上。
 - 三大核心原語：**Agents**、**Tools**（基於 Zod 強型別約束）、**Workflows**。
 - 統一模型路由器（Unified Model Router）：跨 94 家服務供應商統一抽象接入 3,300+ 款模型（截至 2026 年 3 月）。
-- 複合式儲存（Composite storage）：記憶體、工作流程與可觀測性資料分別路由至不同的後端儲存；在大規模生產場景下推薦以 ClickHouse 承載可觀測性資料。
+- 複合式儲存（Composite storage）：記憶（memory）、工作流程與可觀測性資料分別路由至不同的後端儲存；在大規模生產場景下推薦以 ClickHouse 承載可觀測性資料。
 - 授權模式：核心採 Apache 2.0 開源協議；`ee/` 目錄則採用原始碼可用（Source-available）的商業企業授權。
 - 提供 Express、Hono、Fastify、Koa 等伺服器適配器；與 Next.js 及 Astro 原生深度整合。
 - 開箱即用內建 Mastra Studio（localhost:4111）互動除錯儀表板。
@@ -103,7 +103,7 @@ python3 code/main.py
 | Agno | 「極速 Python Agent」 | 專注於微秒級實例化、無狀態工作階段範疇的 Python Agent 執行環境 |
 | Mastra | 「Vercel 生態的 TS Agent」 | 基於 Vercel AI SDK 打造，整合 Agents + Tools + Workflows 的 TypeScript 框架 |
 | Unified Model Router | 「統一模型路由器」 | 單一用戶端統一接入 94 家服務供應商旗下 3,300+ 款模型的聚合路由層 |
-| Composite storage | 「複合式儲存」 | 將記憶體、工作流程與可觀測性資料分別指派至不同專業後端的架構 |
+| Composite storage | 「複合式儲存」 | 將記憶、工作流程與可觀測性資料分別指派至不同專業後端的架構 |
 | Mastra Studio | 「本機視覺化除錯器」 | 於 localhost:4111 執行的官方除錯儀表板 UI |
 | Source-available | 「原始碼可用」 | 允許閱讀原始碼、但對商業化二次包裝與分發實施嚴格限制的授權模式 |
 

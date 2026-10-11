@@ -1,4 +1,4 @@
-# 挑選能改變決策的最小切片（Smallest Testable Slice）
+# 挑選能改變決策的最小切片
 
 > 小只有在能證明重要的事情時才有用。一個無法改變下一個決策的微小建置，只是不完整。
 
@@ -14,17 +14,17 @@
 - 優先選擇可逆的證據，而非過早對正式環境做出承諾。
 - 拒絕省略工作流程中風險部分的切片。
 
-## 垂直切片意味著端到端的證據（Vertical Means Evidence End to End）
+## 垂直切片意味著端到端的證據
 
 一個有用的切片，必須涵蓋觀察成效所需的最小真實工作流程。它在使用者、資料、時長與能力上可以狹窄，但不應透過移除你需要測試的不確定性來變得狹窄。
 
 實用對照：
 
-- 對十起真實事故進行唯讀的日誌重播，可測試服務辨識與操作者的信任；
+- 對十起真實事故進行唯讀重播，可測試服務辨識與操作者的信任；
 - 以合成資料做出的精緻儀表板，或許能測試理解度，但無法測試資料可行性；
 - 直接在正式環境部署自動修復器，會一次測試所有東西，後果無法接受。
 
-## 優先定義必備驗證清單（Define Required Proof First）
+## 優先定義必備驗證清單
 
 將風險最高的未決假設轉為「必備驗證清單（Required Proof Set）」。候選切片只有涵蓋該清單，才有資格。
 
@@ -33,7 +33,7 @@
 | 評估維度 | 優劣方向 |
 |---|---|
 | Outcome value（成效價值） | 越高越好 |
-| Uncertainty reduced（消除的不確定性） | 越多越好 |
+| Uncertainty reduced（降低的不確定性） | 越多越好 |
 | Effort（投入精力） | 越少越好 |
 | Consequence（後果） | 越低越好 |
 | Reversibility（可逆性） | 越高越好 |
@@ -53,7 +53,7 @@ flowchart TD
   S --> B[建置一個切片]
 ```
 
-## 常見的偽「最小化」陷阱（Common False Minimums）
+## 常見的偽「最小化」陷阱
 
 - **只做 UI 的最小化**：移除了資料與營運面的不確定性。
 - **只做基礎設施的最小化**：證明技術可能性，卻沒有使用者價值。
@@ -61,7 +61,7 @@ flowchart TD
 - **只做 demo 的最小化**：產出一份有說服力的成品，卻沒有可重複的量測。
 - **過早平台化的最小化**：在一個工作流程證明其價值之前，就建置可重用的機制。
 
-## 加入停止規則（Add a Stop Rule）
+## 加入停止規則
 
 在實作前，寫下切片失敗時會發生什麼：
 
@@ -97,6 +97,6 @@ python3 -m unittest discover code/tests -v
 - [Barry Boehm, A Spiral Model of Software Development and Enhancement](https://dl.acm.org/doi/10.1145/12944.12948) ——讓每個開發循環對應其必須化解之風險的螺旋模型論文
 - [Lenarduzzi and Taibi, MVP Explained: A Systematic Mapping Study on the Definitions of Minimal Viable Product](https://arxiv.org/abs/1609.07592) ——探討軟體產品實務中「minimum」與「viable」語意模糊性的研究
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/slice-decision.json`。它記錄為何這個切片是能改變決策的最小切片。

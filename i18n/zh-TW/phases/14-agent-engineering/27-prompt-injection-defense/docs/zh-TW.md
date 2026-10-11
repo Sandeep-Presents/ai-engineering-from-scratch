@@ -1,6 +1,6 @@
 # Prompt 注入與 PVE 防禦架構
 
-> Greshake 等人（AISec 2023）確立了「間接 Prompt 注入（Indirect Prompt Injection）」作為 Agent 領域最具決定性的頭號資安威脅。攻擊者在 Agent 檢索讀取的外部資料中預埋惡意指令；一旦讀入，該指令便會篡奪並覆蓋開發者原本設定的系統 Prompt。在架構上，必須將所有外部檢索取得的內容，視為在工具呼叫介面上的潛在「任意程式碼執行」來嚴密防範。
+> Greshake 等人（AISec 2023）確立了「間接 Prompt 注入（Indirect Prompt Injection）」作為 Agent 領域最具決定性的頭號資安威脅。攻擊者在 Agent 檢索讀取的外部資料中預埋惡意指令；一旦讀入，該指令便會篡奪並覆蓋開發者原本設定的 developer prompt。在架構上，必須將所有外部檢索取得的內容，視為在工具呼叫介面上的潛在「任意程式碼執行」來嚴密防範。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -110,7 +110,7 @@ python3 code/main.py
 |---|---|---|
 | Indirect prompt injection | 「資料夾帶注入」 | 攻擊指令隱藏於 Agent 外部檢索取得的資料中，讀入時覆蓋系統設定 |
 | Direct prompt injection | 「越獄攻擊（Jailbreak）」 | 惡意使用者在直接輸入中繞過安全邊界 |
-| PVE | 「提示—驗證—執行」 | 在呼叫昂貴主模型前，先經由輕量驗證器審核的防禦架構模式 |
+| PVE | 「Prompt—驗證—執行」 | 在呼叫昂貴主模型前，先經由輕量驗證器審核的防禦架構模式 |
 | Source tag | 「內容出處標籤」 | 標註資料究竟源自使用者、工具還是外部檢索的來源中繼資料 |
 | Allowlist navigation | 「網址允許清單」 | 嚴格限制 Agent 獲准連線或存取的外部目標清單 |
 | Worming | 「蠕蟲自複製傳播」 | 注入指令指示 Agent 在後續輸出中攜帶自身惡意程式碼以感染其他系統 |

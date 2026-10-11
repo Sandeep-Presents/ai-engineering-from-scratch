@@ -14,7 +14,7 @@
 - 找出摩擦、交接點、權限與隱性狀態。
 - 讓不確定的主張保持可見，而不是把它們變成需求。
 
-## 從現有系統出發（Start with the Current System）
+## 從現有系統出發
 
 不要一開始就問大家想要什麼功能。先重建現在實際發生的事。
 
@@ -33,14 +33,14 @@
 
 工作流程比螢幕上看到的大。它包括等待、複製貼上、私下的溝通途徑、審批、錯誤復原，以及人們已不再注意的步驟。
 
-## 證據具備強弱階梯（Evidence Has Strength）
+## 證據具備強弱階梯
 
 採用簡單的證據階梯：
 
 1. **直接行為（Direct behavior）**：觀察、追蹤、錄影或系統事件。
 2. **產物（Artifact）**：工單、應變手冊、日誌、表單或已完成的輸出。
 3. **回報行為（Reported behavior）**：當事人描述他們做了什麼。
-4. **推論（Inference）**：團隊判斷可能會發生什麼。
+4. **推論（Inference）**：團隊推論實際流程可能如何進行。
 
 這四種都可能有用。只有前兩種能直接證明目前的行為。其餘的請標註出來，以免信心在不知不覺間被放大。
 
@@ -55,7 +55,7 @@ flowchart TD
   E3[回報行為] -.supports.-> A2
 ```
 
-## 重點探尋四大核心要素（Search for Four Things）
+## 重點探尋四大核心要素
 
 - **摩擦（Friction）**：重複的努力、延誤、重新輸入或復原。
 - **隱性狀態（Hidden state）**：存於記憶、聊天或個人筆記中的事實。
@@ -64,7 +64,7 @@ flowchart TD
 
 AI 功能常在交接與例外處失敗，因為設計時只塑造了順利的路徑。
 
-## 不要用「平均化」抹掉分歧（Do Not Average Away Disagreement）
+## 不要用「平均化」抹掉分歧
 
 兩位使用者可能因為正當理由而採用不同的工作流程。在你弄清楚這些變體代表什麼之前，請保留它們：
 
@@ -100,6 +100,6 @@ python3 -m unittest discover code/tests -v
 - [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——特別是其將需求擷取（elicitation）視為詮釋、建模與驗證，而非單純收集的論述
 - [Gotel and Finkelstein, An Analysis of the Requirements Traceability Problem](https://doi.org/10.1109/ICRE.1994.292398) ——探討保留需求與其來源之間關係之困難的論文
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/workflow-evidence.json`。它會在下一課轉化為假設地圖，把觀察到的摩擦與不確定性放在其中。

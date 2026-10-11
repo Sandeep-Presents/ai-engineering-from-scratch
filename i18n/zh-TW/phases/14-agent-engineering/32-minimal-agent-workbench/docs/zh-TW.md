@@ -44,7 +44,7 @@ flowchart LR
 
 任何更長的說明都應放在較深的專項文件中，只在需要時載入。冗長的操作手冊容易被忽略；精簡的路由器才會被遵循。
 
-### agent_state.json 是 System of Record
+### agent_state.json 是唯一事實來源
 
 狀態檔案包含：目前的任務 ID、已修改的檔案、所做的假設、遇到的阻礙，以及下一步行動。Agent 在每一回合都會讀取它；下一個工作階段則讀取它來接手，而不是重播對話。
 
@@ -125,7 +125,7 @@ python3 code/main.py
 ## Further Reading｜延伸閱讀
 
 - [agents.md — the open spec](https://agents.md/) ——獲 Cursor、Codex、Claude Code、Copilot、Gemini、OpenCode 共同採納的開放標準
-- [Augment Code, A good AGENTS.md is a model upgrade](https://www.augmentcode.com/blog/how-to-write-good-agents-dot-md-files) ——優秀設定檔帶來宛如模型升級的品質躍升實測
+- [Augment Code, A good AGENTS.md is a model upgrade. A bad one is worse than no docs at all](https://www.augmentcode.com/blog/how-to-write-good-agents-dot-md-files) ——優秀設定檔帶來宛如模型升級的品質躍升實測
 - [Blake Crosley, AGENTS.md Patterns: What Actually Changes Agent Behavior](https://blakecrosley.com/blog/agents-md-patterns) ——實證檢驗究竟哪些模式能實質改變行為
 - [Datadog Frontend, Steering AI Agents in Monorepos with AGENTS.md](https://dev.to/datadog-frontend-dev/steering-ai-agents-in-monorepos-with-agentsmd-13g0) ——大型 Monorepo 巢狀就近優先實踐
 - [Nx Blog, Teach Your AI Agent How to Work in a Monorepo](https://nx.dev/blog/nx-ai-agent-skills) ——跨六大工具的單一來源自動化配置

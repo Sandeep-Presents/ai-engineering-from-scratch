@@ -46,7 +46,7 @@
 
 ### 內容擷取策略（Content Capture）
 
-核心預設原則：**埋點函式庫在預設情況下絕不應當擷取輸入或輸出對話文字！**文字內容擷取必須採自主選擇性開啟（Opt-in）：
+核心預設原則：**埋點函式庫預設不應擷取輸入或輸出；若要擷取，須明確 opt-in：**
 
 - `gen_ai.system_instructions`
 - `gen_ai.input.messages`

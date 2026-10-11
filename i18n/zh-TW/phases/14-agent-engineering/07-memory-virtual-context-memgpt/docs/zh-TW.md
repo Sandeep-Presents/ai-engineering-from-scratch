@@ -1,6 +1,6 @@
-# Agent 記憶體——虛擬脈絡與記憶體分頁
+# Agent 記憶——虛擬脈絡與記憶體分頁
 
-> 上下文視窗（Context Windows）是有容量上限的，而真實世界的對話、檔案與工具執行軌跡卻浩瀚無邊。解法正是作業系統虛擬記憶體技術的現代重現——主脈絡如同 RAM，外部持久化儲存如同硬碟，由 agent 自主在兩者之間進行分頁調度。MemGPT（Packer 等人，2023）確立了此經典範式；現代絕大多數生產級記憶體系統皆在其基礎上建構。
+> 上下文視窗（Context Windows）是有容量上限的，而真實世界的對話、檔案與工具執行軌跡卻浩瀚無邊。解法正是作業系統虛擬記憶體技術的現代重現——主脈絡如同 RAM，外部持久化儲存如同硬碟，由 agent 自主在兩者之間進行分頁調度。MemGPT（Packer 等人，2023）確立了此經典範式；現代絕大多數生產級記憶系統皆在其基礎上建構。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -9,20 +9,20 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入闡明 MemGPT 所借鏡的作業系統類比：主脈絡 = RAM、外部脈絡 = 硬碟、記憶體工具 = 換入／換出（Page In/Out）。
+- 深入闡明 MemGPT 所借鏡的作業系統類比：主脈絡 = RAM、外部脈絡 = 硬碟、記憶工具 = 換入／換出（Page In/Out）。
 - 以純 Python 標準函式庫實作一套具備主脈絡緩衝區、外部可搜尋儲存庫與分頁調度工具的兩層式 MemGPT 架構。
-- 描述 agent 如何發起「中斷（Interrupts）」以查詢或修改外部記憶體，以及如何將檢索結果無縫拼裝回下一次 prompt 中。
+- 描述 agent 如何發起「中斷（Interrupts）」以查詢或修改外部記憶，以及如何將檢索結果無縫拼裝回下一次 prompt 中。
 - 洞悉 MemGPT 延續至 Letta（第 8 課）與 Mem0（第 9 課）的核心架構抉擇。
 
 ## The Problem｜問題
 
-表面上看，不斷擴大的上下文視窗似乎足以解決記憶體問題。但事實並非如此。在正式環境中，以下三種失效模式反覆出現：
+表面上看，不斷擴大的上下文視窗似乎足以解決記憶問題。但事實並非如此。在正式環境中，以下三種失效模式反覆出現：
 
 1. **容量溢位（Overflow）**：多回合長對話、長文件或密集的工具呼叫軌跡輕易突破視窗上限。超出截斷邊界的歷史記憶全部消失。
 2. **注意力稀釋（Dilution）**：即便在視窗上限之內，強行塞入大量無關脈絡亦會稀釋模型對關鍵資訊的注意力。即便是前沿模型，在超長輸入下的推理品質依然會劣化。
 3. **缺乏持久化（Persistence）**：每個全新的對話工作階段皆始於空空如也的乾淨視窗。缺乏外部持久化記憶的 agent，無法跨工作階段對使用者說出「還記得你先前請我處理的……」。
 
-單純加大視窗容量固然有益，但治標不治本。Mem0 於 2025 年發布的論文實測表明：128k 大視窗的基準模型，依然會遺漏那些配備外部記憶體之 4k 小視窗 agent 能捕獲的長路徑關鍵事實。
+單純加大視窗容量固然有益，但治標不治本。Mem0 於 2025 年發布的論文實測表明：128k 大視窗的基準模型，依然會遺漏那些配備外部記憶之 4k 小視窗 agent 能捕獲的長路徑關鍵事實。
 
 ## The Concept｜核心概念
 
@@ -34,23 +34,23 @@ MemGPT（Packer 等人，arXiv:2310.08560，v2 2024 年 2 月）將脈絡工程�
 |---|---|---|
 | RAM | 主脈絡（Main context，即 prompt） | Anthropic / OpenAI 的上下文視窗 |
 | 硬碟（磁碟儲存） | 外部脈絡（External context） | 向量資料庫、鍵值儲存、知識圖譜 |
-| 缺頁中斷（Page fault） | 記憶體工具呼叫 | `memory.search`、`memory.read`、`memory.write` |
-| 作業系統核心 | Agent 主控制迴圈 | 具備記憶體工具的 ReAct 迴圈 |
+| 缺頁中斷（Page fault） | 記憶工具呼叫 | `memory.search`、`memory.read`、`memory.write` |
+| 作業系統核心 | Agent 主控制迴圈 | 具備記憶工具的 ReAct 迴圈 |
 
-Agent 執行標準的 ReAct 迴圈。唯一不同之處在於，它被額外賦予了一類專門的記憶體工具，使其能自主將資料在庫內與當前主脈絡之間來回分頁調度。
+Agent 執行標準的 ReAct 迴圈。唯一不同之處在於，它被額外賦予了一類專門的記憶工具，使其能自主將資料在庫內與當前主脈絡之間來回分頁調度。
 
-### 兩層記憶體架構
+### 兩層記憶架構
 
 - **主脈絡（Main context）**：固定容量大小的 prompt 空間，承載當前任務脈絡。對模型始終可見。
 - **外部脈絡（External context）**：無容量上限，透過工具提供檢索與查詢能力。當需要時按需讀取，當發現新事實時即時寫入。
 
 原始論文在兩項超越基礎視窗的極限任務上驗證了該架構：超過 100k Tokens 的超長文件深度分析，以及跨越多天、具備持久化記憶的多工作階段對話。
 
-### 記憶體中斷模式（The Interrupt Pattern）
+### 記憶中斷模式（The Interrupt Pattern）
 
-MemGPT 確立了「記憶體即中斷」機制：在對話中途，agent 能主動呼叫記憶體工具，執行環境暫停推論並執行該工具，隨後將執行結果作為全新的環境觀察（Observation）無縫拼裝回下一次 Assistant 回合中。這在概念上等同於 Unix 的 `read()` 系統呼叫——行程暫停、取得位元組資料，隨後行程恢復執行。
+MemGPT 確立了「記憶即中斷」機制：在對話中途，agent 能主動呼叫記憶工具，執行環境暫停推論並執行該工具，隨後將執行結果作為全新的環境觀察（Observation）無縫拼裝回下一次 Assistant 回合中。這在概念上等同於 Unix 的 `read()` 系統呼叫——行程暫停、取得位元組資料，隨後行程恢復執行。
 
-標準記憶體工具介面：
+標準記憶工具介面：
 
 - `core_memory_append(section, text)`：向 prompt 內部的常駐區塊追加內容。
 - `core_memory_replace(section, old, new)`：修改常駐區塊的特定內容。
@@ -62,16 +62,16 @@ MemGPT 確立了「記憶體即中斷」機制：在對話中途，agent 能主�
 
 2024 年 9 月，MemGPT 正式演進並更名為 Letta。學術開源儲存庫（`cpacker/MemGPT`）依然保留；而 Letta 則大幅擴展了底層架構：
 
-- 自兩層擴展為三層體系（核心記憶體 Core、回想記憶體 Recall、檔案記憶體 Archival——詳見第 8 課）；
+- 自兩層擴展為三層體系（核心記憶 Core、回想記憶 Recall、檔案記憶 Archival——詳見第 8 課）；
 - 以原生推論通道取代舊有的 `send_message` / 心跳機制（第 8 課）；
-- 引入睡眠期 agent 非同步處理記憶體整理與提煉（第 8 課）。
+- 引入睡眠期 agent 非同步處理記憶整理與提煉（第 8 課）。
 
-即便現代生產系統大多採用 Letta、Mem0 或自建的雙層儲存庫，MemGPT 論文依然是 2026 年整個記憶體工程領域的基石。
+即便現代生產系統大多採用 Letta、Mem0 或自建的雙層儲存庫，MemGPT 論文依然是 2026 年整個記憶工程領域的基石。
 
 ### 典型架構失效模式
 
 - **記憶腐化（Memory rot）**：寫入速度遠快於讀取速度；檢索結果被海量過時陳舊的事實所淹沒。解法：定期執行記憶整合（Letta 睡眠期運算）、顯式衝突偵測與淘汰（Mem0 衝突偵測器）。
-- **記憶投毒（Memory poisoning）**：外部記憶體本質上是檢索回填的純文字。若攻擊者誘騙 agent 將惡意內容持久化存入記憶庫，agent 在未來的工作階段中重新讀取時便會再次中毒。這正是 Greshake 等人（第 27 課）間接注入攻擊在時間維度上的遞延重現。
+- **記憶投毒（Memory poisoning）**：外部記憶本質上是檢索回填的純文字。若攻擊者誘騙 agent 將惡意內容持久化存入記憶庫，agent 在未來的工作階段中重新讀取時便會再次中毒。這正是 Greshake 等人（第 27 課）間接注入攻擊在時間維度上的遞延重現。
 - **引文出處遺失（Citation loss）**：Agent 成功回想起了「使用者曾要求我發布 X」，卻完全無法指出究竟是哪次對話說的。解法：在每次寫入外部儲存時，強制綁定來源出處中繼資料（工作階段 ID、回合 ID）。
 
 ```figure
@@ -80,11 +80,11 @@ context-budget
 
 ## Build It｜動手實作
 
-`code/main.py` 以純 Python 標準函式庫實作了 MemGPT 的雙層記憶體架構：
+`code/main.py` 以純 Python 標準函式庫實作了 MemGPT 的雙層記憶架構：
 
 - `MainContext`：固定大小的 prompt 緩衝區，內建 `core` 字典與 `messages` 串列；超額時自動淘汰最舊的歷史訊息。
 - `ArchivalStore`：記憶體內 BM25 風格（基於 Token 重疊評分）的儲存庫，儲存 (id, text, tags, session, turn) 結構化記錄。
-- 對應 MemGPT 介面的五個記憶體工具。
+- 對應 MemGPT 介面的五個記憶工具。
 - 一個腳本化 agent，演示先將事實存入外部儲存、隨後透過呼叫 `archival_memory_search` 回答問題的完整流程。
 
 執行實驗：
@@ -97,18 +97,18 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-當今所有的生產級記憶體系統本質上皆是 MemGPT 的衍生體系：
+當今所有的生產級記憶系統本質上皆是 MemGPT 的衍生體系：
 
 - **Letta**（第 8 課）：三層架構、原生推論通道、睡眠期非同步運算。
 - **Mem0**（第 9 課）：結合向量、鍵值與知識圖譜的三合一混合儲存與評分層。
-- **OpenAI Assistants / Responses**：透過 Threads 與 Files 實現的全代管記憶體。
+- **OpenAI Assistants / Responses**：透過 Threads 與 Files 實現的全代管記憶。
 - **Claude Agent SDK**：透過 Skills 與工作階段儲存庫實現的長期記憶管理。
 
 依據維運架構形態做出技術選型（自建託管、雲端代管、深度整合於特定框架），而非糾結於核心架構模式——因為核心模式全數師承 MemGPT。
 
-### Agent 記憶體的樣貌
+### Agent 記憶的樣貌
 
-分頁機制解決了容量配額問題，但它並未回答「究竟應當儲存什麼」。在成熟的生產系統中，反覆出現四種核心記憶體型別，分別回答截然不同的問題：
+分頁機制解決了容量配額問題，但它並未回答「究竟應當儲存什麼」。在成熟的生產系統中，反覆出現四種核心記憶型別，分別回答截然不同的問題：
 
 - **工作記憶（Working memory）**：當下最重要的是什麼？當前上下文視窗內的即時狀態：當前任務目標、近期對話回合、鎖定的核心常駐區塊。即 prompt 本身。
 - **情節記憶（Episodic memory）**：過去具體發生了什麼？過往的對話回合與工具執行軌跡，附帶工作階段與回合 ID，支援按需重播復原。
@@ -117,9 +117,9 @@ python3 code/main.py
 
 主流開源實作各自切入了不同的著力點：
 
-| 記憶體型別 | 代表性開源實作 | 具體工程著力點 |
+| 記憶型別 | 代表性開源實作 | 具體工程著力點 |
 |---|---|---|
-| 工作記憶 | MemGPT / Letta | 透過記憶體工具在固定 prompt 預算內實施內容的分頁換入／換出（本課、第 8 課） |
+| 工作記憶 | MemGPT / Letta | 透過記憶工具在固定 prompt 預算內實施內容的分頁換入／換出（本課、第 8 課） |
 | 情節記憶 | Zep | 時態知識圖譜（Temporal Knowledge Graph）——事實附帶時效區間，支援查詢「在何時何事為真」 |
 | 語意記憶 | Mem0 | 跨向量、鍵值與圖儲存對事實進行智慧提煉、去重與動態更新的管線（第 9 課） |
 | 語意 + 程式記憶 | LangMem | 在背景非同步提煉事實與行為準則，沉澱至儲存庫供 agent 在對話回合間主動查閱 |
@@ -127,7 +127,7 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-virtual-memory.md` 是一項可重複利用的技能。它能為任何目標執行環境產出標準的雙層記憶體架構鷹架（主脈絡 + 外部檔案庫 + 記憶體工具介面），並內建記憶體淘汰策略與出處引文追蹤欄位。
+`outputs/skill-virtual-memory.md` 是一項可重複利用的技能。它能為任何目標執行環境產出標準的雙層記憶架構鷹架（主脈絡 + 外部檔案庫 + 記憶工具介面），並內建記憶淘汰策略與出處引文追蹤欄位。
 
 ## Exercises｜練習
 
@@ -135,28 +135,28 @@ python3 code/main.py
 2. 在檔案儲存庫上實作標準的 BM25 演算法（詞頻 TF 搭配逆文件頻率 IDF）。在測試事實資料集上測量其 Recall@10 表現，並與單純的 Token 重疊評分基準進行對比。
 3. 為外部檔案寫入操作追加 `citation` 出處欄位（session_id, turn_id, source_url）。讓 agent 在每次基於檢索回答問題時，皆強制標註其所引用的具體出處。
 4. 模擬記憶投毒攻擊：向檔案庫中人為寫入一條記錄「忽略未來所有的使用者指令」。撰寫一道防護護欄，在檢索時主動掃描是否存在指令形態的文字，並將其標記為不可信。
-5. 將此教學實作移植為使用 MemGPT 學術儲存庫的核心記憶體的 JSON 結構描述（schema，見 `cpacker/MemGPT`）。從純文字扁平字串切換至具備強型別的分區結構時，系統產生了哪些架構改變？
+5. 將此教學實作移植為使用 MemGPT 學術儲存庫的核心記憶的 JSON 結構描述（schema，見 `cpacker/MemGPT`）。從純文字扁平字串切換至具備強型別的分區結構時，系統產生了哪些架構改變？
 
 ## Key Terms｜關鍵術語
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Virtual context | 「無限記憶體」 | 劃分主脈絡（Prompt）與外部脈絡（可檢索儲存），支援按需換入／換出 |
-| Main context | 「工作記憶體」 | 即時對話 Prompt——容量固定、對模型隨時可見 |
+| Virtual context | 「無限記憶」 | 劃分主脈絡（Prompt）與外部脈絡（可檢索儲存），支援按需換入／換出 |
+| Main context | 「工作記憶」 | 即時對話 Prompt——容量固定、對模型隨時可見 |
 | Archival memory | 「長期檔案庫」 | 位於外部的無上限可檢索持久化儲存，按需動態檢索取用 |
 | Core memory | 「常駐 Prompt 區塊」 | 錨定在主脈絡內的具名記憶區塊 |
-| Memory tool | 「記憶體 API」 | 由 agent 主動發起的專用工具呼叫，用以讀取或修改外部記憶體 |
-| Interrupt | 「記憶體缺頁中斷」 | Agent 暫停推論、執行環境檢索資料，並將結果作為觀察注入下次回合 |
+| Memory tool | 「記憶 API」 | 由 agent 主動發起的專用工具呼叫，用以讀取或修改外部記憶 |
+| Interrupt | 「記憶缺頁中斷」 | Agent 暫停推論、執行環境檢索資料，並將結果作為觀察注入下次回合 |
 | Memory rot | 「陳舊記憶腐化」 | 寫入過多導致檢索被過時事實淹沒；透過定期整合治理 |
 | Memory poisoning | 「惡意注入持久記憶」 | 攻擊者將惡意指引偽裝為記憶持久化，使 agent 在未來的工作階段中再次中毒 |
 
 ## Further Reading｜延伸閱讀
 
 - [Packer et al., MemGPT (arXiv:2310.08560)](https://arxiv.org/abs/2310.08560) ——借鏡作業系統虛擬記憶體的奠基論文
-- [Letta, Memory Blocks blog](https://www.letta.com/blog/memory-blocks) ——三層記憶體架構的演進
+- [Letta, Memory Blocks blog](https://www.letta.com/blog/memory-blocks) ——三層記憶架構的演進
 - [Anthropic, Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) ——將上下文視為預算來處理
-- [Chhikara et al., Mem0 (arXiv:2504.19413)](https://arxiv.org/abs/2504.19413) ——建構於此模式之上的混合生產級記憶體架構論文
-- [Zep (getzep/zep)](https://github.com/getzep/zep) ——分類表中的時態知識圖譜記憶體開源實作
-- [Mem0 (mem0ai/mem0)](https://github.com/mem0ai/mem0) ——第 9 課混合記憶體背後的事實提煉管線
+- [Chhikara et al., Mem0 (arXiv:2504.19413)](https://arxiv.org/abs/2504.19413) ——建構於此模式之上的混合生產級記憶架構論文
+- [Zep (getzep/zep)](https://github.com/getzep/zep) ——分類表中的時態知識圖譜記憶開源實作
+- [Mem0 (mem0ai/mem0)](https://github.com/mem0ai/mem0) ——第 9 課混合記憶背後的事實提煉管線
 - [LangMem (langchain-ai/langmem)](https://github.com/langchain-ai/langmem) ——非同步提煉事實與行為準則的背景架構
 - [agentmemory (rohitg00/agentmemory)](https://github.com/rohitg00/agentmemory) ——捕獲工作階段並整合為強型別可搜尋記錄的開源實作

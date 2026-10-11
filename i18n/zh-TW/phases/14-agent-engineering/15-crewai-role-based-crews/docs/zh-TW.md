@@ -13,7 +13,7 @@
 - 深入區分循序模式（Sequential）、階層模式（Hierarchical）與正規劃中的共識模式（Consensus），並能為特定業務負載做出正確選型。
 - 區分 Crews（自主的角色協同）與 Flows（事件驅動的確定性工作流程），並闡明官方文件推薦以 Flow 作為生產基準的根本原因。
 - 透過 `@tool` 裝飾器與 `BaseTool` 子類別接入工具，並在強型別結構化輸出與自由文字之間權衡取捨。
-- 掌握 CrewAI 的四種記憶體型別（短期、長期、實體、脈絡）及其各自的投資報酬時機。
+- 掌握 CrewAI 的四種記憶（memory）類型（短期、長期、實體、脈絡）及其各自的投資報酬時機。
 - 以純 Python 標準函式庫實作三 Agent 團隊（研究員、撰寫者、編輯審稿），協同產出一份調研簡報。
 - 識別 CrewAI 的三大典型失效模式：Prompt 膨脹、經理模型 Token 稅，以及脆弱的輸出交接。
 
@@ -95,18 +95,18 @@ Agent 之間並非直接彼此感知。任務引用具體的 Agent；團隊依�
 
 強型別結構化輸出採用 Pydantic。在 Task 上配置 `output_pydantic=MyModel`。CrewAI 會對大型語言模型的回傳進行驗證，並在不符時自動轉型或觸發重試。務必搭配嚴格精準的 `expected_output` 描述字串。自由文字輸出適合初稿草案；而結構化輸出才是下游 Flow 能夠穩定可靠消費的資料契約。
 
-### 記憶體掛鉤
+### 記憶掛鉤
 
-CrewAI 開箱即用支援四種記憶體型別，且彼此可靈活疊加：
+CrewAI 開箱即用支援四種記憶型別，且彼此可靈活疊加：
 
-> **依據 CrewAI 0.86（2026-05）驗證**。近期版本已逐步透過統一的 `Memory` 系統將這四種儲存封裝收斂。底層心智模型依然成立，但新版公開 API 可能提供單一 `Memory` 入口；請查閱 [CrewAI 記憶體官方文件](https://docs.crewai.com/concepts/memory)。
+> **依據 CrewAI 0.86（2026-05）驗證**。近期版本已逐步透過統一的 `Memory` 系統將這四種儲存封裝收斂。底層心智模型依然成立，但新版公開 API 可能提供單一 `Memory` 入口；請查閱 [CrewAI 記憶官方文件](https://docs.crewai.com/concepts/memory)。
 
 - **短期記憶（Short-term）**：單次執行內部的對話歷史緩衝區，在執行結束後自動清空。
 - **長期記憶（Long-term）**：跨多次執行持久化保留。預設儲存於 Chroma 向量資料庫（可替換），依據與當前任務的語意相似度檢索召回。
 - **實體記憶（Entity）**：針對特定實體的事實記憶（例如「客戶 X 目前採用企業版授權方案」）。以實體名稱為索引鍵精準檢索，而非模糊相似度。跨多次執行持久化存續。
 - **脈絡記憶（Contextual）**：組裝階段的即時檢索。在 Agent 實質需要資料的當下動態召回相關記憶，而非提前無差別預載。
 
-在 Crew 上設定 `memory=True` 或進行細項配置即可啟用。底層依賴配置的 embedding 服務供應商（預設為 OpenAI，支援切換為本機模型）。記憶體是 CrewAI 相較於更輕量框架展現巨大優勢的亮點之一；在原生 LangGraph 中，你必須親手為每個環節手動寫程式碼對接。
+在 Crew 上設定 `memory=True` 或進行細項配置即可啟用。底層依賴配置的 embedding 服務供應商（預設為 OpenAI，支援切換為本機模型）。記憶是 CrewAI 相較於更輕量框架展現巨大優勢的亮點之一；在原生 LangGraph 中，你必須親手為每個環節手動寫程式碼對接。
 
 ### 基於角色的團隊最適合的情境
 
@@ -208,7 +208,7 @@ Crew 的執行是發散動態的（經理在理論上可重新排序）；而 Fl
 | `@tool` | 「函式工具裝飾器」 | 將純 Python 函式直接轉換為 Agent 可呼叫工具的輕量裝飾器 |
 | `BaseTool` | 「類別工具基底」 | 具備顯式參數結構描述、非同步支援與重試能力的物件導向工具類別 |
 | Entity memory | 「實體專屬記憶」 | 以客戶／帳號／工單等實體名稱為索引鍵精準檢索的事實儲存 |
-| Long-term memory | 「跨回合長效記憶」 | 基於向量資料庫、能在多次不同 kickoff 執行間持久化保留的記憶體 |
+| Long-term memory | 「跨回合長效記憶」 | 基於向量資料庫、能在多次不同 kickoff 執行間持久化保留的記憶 |
 | Contextual memory | 「即時組裝記憶」 | 在 Agent 實質需要資料的當下即時召回的動態記憶 |
 | Manager LLM | 「經理路由器」 | 在階層模式中負責評估進度並動態挑選下一個執行任務的專職大型語言模型 |
 | `expected_output` | 「任務交付契約」 | 明確指引 Agent（以及審計系統）預期回傳何種結構與規格的合規字串 |
@@ -218,6 +218,6 @@ Crew 的執行是發散動態的（經理在理論上可重新排序）；而 Fl
 - [CrewAI docs introduction](https://docs.crewai.com/en/introduction) ——核心概念與官方推薦的正式環境實踐路徑
 - [CrewAI Flows guide](https://docs.crewai.com/en/concepts/flows) ——事件驅動架構、`@start` 與 `@listen` 深度指南
 - [CrewAI tools reference](https://docs.crewai.com/en/concepts/tools) ——`@tool`、`BaseTool` 與內建工具庫參考手冊
-- [CrewAI memory](https://docs.crewai.com/en/concepts/memory) ——短期、長期、實體與脈絡記憶體官方解析
+- [CrewAI memory](https://docs.crewai.com/en/concepts/memory) ——短期、長期、實體與脈絡記憶官方解析
 - [Anthropic, Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) ——何時多 Agent 架構真正有用，何時純屬多餘負擔
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) ——狀態機架構的對照參考

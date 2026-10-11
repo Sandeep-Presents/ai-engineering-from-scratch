@@ -14,7 +14,7 @@
 - 依風險而非熱情選擇下一個實驗。
 - 以證據與決策取代已測試的假設。
 
-## 每次建置都包含賭注（Every Build Contains Bets）
+## 每次建置都包含賭注
 
 一個事故工具可能依賴以下所有前提皆為真：
 
@@ -26,7 +26,7 @@
 
 這些不是實作任務，而是建置要具備價值、可用、可行與安全所需的條件。
 
-## 五大假設分類（Assumption Classes）
+## 五大假設分類
 
 | 假設類別 | 回答的問題 |
 |---|---|
@@ -38,7 +38,7 @@
 
 將假設撰寫為具備**可證偽性（Falsifiable）**的精確陳述。「該功能有用」無法測試；而「十位值班工程師中有八位，能借助這個唯讀結果更快找出正確的服務」可以測試。
 
-## 風險絕非單一扁平數字（Risk Is Not One Number）
+## 風險絕非單一扁平數字
 
 實驗使用三個維度，每個從 1 到 5：
 
@@ -58,7 +58,7 @@ flowchart LR
   E -->|Rejects| R[重新定義或停止]
 ```
 
-## 設計實驗，而非確認儀式（Design an Experiment, Not a Confirmation Ritual）
+## 設計實驗，而非確認儀式
 
 有用的測試應具備：
 
@@ -70,9 +70,9 @@ flowchart LR
 
 避免只證明團隊能把點子做出來的測試。
 
-## 可逆性改變順序（Reversibility Changes Order）
+## 可逆性改變順序
 
-後果重大且不可逆的選擇，需要更早的證據。唯讀的日誌重播，可以先於正式環境整合；暫時的適配器可先於資料遷移；經人工核准的建議，可先於自動執行。
+後果重大且不可逆的選擇，需要更早的證據。唯讀重播，可以先於正式環境整合；暫時的適配器可先於資料遷移；經人工核准的建議，可先於自動執行。
 
 建置的形態應順應不確定性的形態。
 
@@ -100,6 +100,6 @@ python3 -m unittest discover code/tests -v
 - [Barry Boehm, A Spiral Model of Software Development and Enhancement](https://dl.acm.org/doi/10.1145/12944.12948) ——在更深投入之前先化解不確定性的風險導向開發循環
 - [Dardenne, van Lamsweerde, and Fickas, Goal-Directed Requirements Acquisition](https://doi.org/10.1016/0167-6423(93)90021-G) ——在精煉目標的同時浮現障礙與約束的論文
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/assumption-map.json`。下一課會用它來選出能產生決定性證據的最小切片。

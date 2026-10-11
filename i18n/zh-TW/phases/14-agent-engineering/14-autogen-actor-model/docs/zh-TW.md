@@ -52,7 +52,7 @@ AutoGen v0.4 將介面清晰劃分為三層：
 
 - **RoundRobinGroupChat（輪詢群聊）**：多個 Agent 依固定順序輪流發言。
 - **SelectorGroupChat（選擇器群聊）**：由專門的選擇器 Agent 依據上下文對話動態挑選下一個發言者。
-- **Magentic-One**：微軟官方發布的旗艦多 Agent 團隊，專職處理網頁瀏覽、程式碼執行與檔案分析。完全建構於 AgentChat 之上。
+- **Magentic-One**：多 Agent 參考團隊，負責網頁瀏覽、程式碼執行與檔案處理。完全建構於 AgentChat 之上。
 
 ### 可觀測性（Observability）
 

@@ -1,6 +1,6 @@
 # ReWOO 與 Plan-and-Execute：解耦規劃架構
 
-> ReAct 在單一資料流中將思考與行動交替穿插；而 ReWOO 則將兩者徹底解耦：先在前置階段一次性生成完整規劃，隨後平行執行。此設計節省了 5 倍的 Token 消耗、在 HotpotQA 上提升了 4% 的準確率，並允許將規劃能力蒸餾至 7B 輕量模型中。Plan-and-Execute 將其通用化，而 Plan-and-Act 則將此模式擴展至複雜的長路徑網頁導航任務。
+> ReAct 在單一資料流中將思考與行動交替穿插；而 ReWOO 則將兩者徹底解耦：先完整規劃，再執行；證據取得可平行。此設計節省了 5 倍的 Token 消耗、在 HotpotQA 上提升了 4% 的準確率，並允許將規劃能力蒸餾至 7B 輕量模型中。Plan-and-Execute 將其通用化，而 Plan-and-Act 則將此模式擴展至複雜的長路徑網頁導航任務。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -87,7 +87,7 @@ rewoo-plan
 python3 code/main.py
 ```
 
-輸出會先完整呈現全域規劃，隨後展示 Worker 的執行結果，最後由 Solver 完成整合。對比其 Token 消耗量（程式會印出粗略的字元統計）與 ReAct 風格的交替執行——在此類結構化任務中，ReWOO 在這類結構化任務中更有效率。
+輸出會先完整呈現全域規劃，隨後展示 Worker 的執行結果，最後由 Solver 完成整合。對比其 Token 消耗量（程式會印出粗略的字元統計）與 ReAct 風格的交替執行——在這類結構化任務中，ReWOO 更有效率。
 
 ## Use It｜實際應用
 

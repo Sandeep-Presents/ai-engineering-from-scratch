@@ -20,7 +20,7 @@
 
 Reflexion（Shinn 等人，arXiv:2303.11366）提出了一個顛覆性的反向思考：如果讓 agent 自己在腦海中復盤反思為何會失敗，並將這份思考注入下一次重試的 prompt 中呢？完全無需更新模型權重。不涉及反向傳播（backpropagation），也不需要計算梯度。純粹依賴在試驗回合之間持久化儲存的自然語言。
 
-結果令人震撼：在 ALFWorld 上，它超越了 ReAct 與其他未經 fine-tuning 的基準模型；在 HotpotQA 上優於純 ReAct；在程式碼生成任務（HumanEval/MBPP）上更創下了當時的最佳紀錄（SOTA）。而這一切，完全未更新任何一個梯度參數！
+結果令人震撼：在 ALFWorld 上，它超越了 ReAct 與其他未經 fine-tuning 的基準模型；在 HotpotQA 上優於純 ReAct；在程式碼生成任務（HumanEval/MBPP）上更創下了當時的最佳紀錄（SOTA）。而這一切，完全沒有執行任何梯度更新步驟！
 
 ## The Concept｜核心概念
 
@@ -42,7 +42,7 @@ Episodic memory: list of prior reflections, prepended to the next trial's prompt
 
 ### 三類評估器架構
 
-1. **純量評估器（Scalar）**：來自外部的二元明確信號。例如 ALFWorld 任務成功或失敗；HumanEval 單元測試全數通過或未通過。這是最簡潔、信號雜訊比最高的型別。
+1. **純量評估器（Scalar）**：來自外部的二元明確信號。例如 ALFWorld 任務成功或失敗；HumanEval 單元測試全數通過或未通過。這是最簡潔、訊號最明確的型別。
 2. **啟發式評估器（Heuristic）**：預先定義的失效特徵規則。例如「若 agent 連續兩次產生完全相同的動作，標記為卡死」；「若執行軌跡超過 50 步，標記為效率低下」。
 3. **模型自評估器（Self-evaluated）**：由 LLM 對自身軌跡進行自我審查評分。適用於缺乏真實標籤（Ground Truth）的開放性場景。信號相對較弱，通常與工具驗證相結合（詳見第 5 課——CRITIC）。
 

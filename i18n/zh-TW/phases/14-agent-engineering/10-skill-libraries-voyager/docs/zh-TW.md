@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 指出 Voyager 的三大核心元件——自動化課綱（Automatic Curriculum）、技能函式庫（Skill Library）、迭代式 Prompt 機制（Iterative Prompting）及其各自職責。
+- 指出 Voyager 的三大核心元件——自動課程規劃（Automatic Curriculum）、技能函式庫（Skill Library）、迭代式 Prompt 機制（Iterative Prompting）及其各自職責。
 - 深入闡明為何 Voyager 將動作空間直接抽象為可執行程式碼，而非單一底層基本指令。
 - 以純 Python 標準函式庫實作一套具備註冊、相似度檢索、拓撲相依組合與錯誤驅動精煉的技能函式庫。
 - 將 Voyager 範式精確對映至 2026 年的 Claude Agent SDK skills 與 skillkit 開發者生態。
@@ -30,7 +30,7 @@ Voyager 給出的經典解法：**將每項可重複利用的操作能力封裝�
 
 Voyager（arXiv:2305.16291）圍繞以下三大支柱建構 agent：
 
-1. **自動化課綱（Automatic curriculum）**：由好奇心驅動的任務提案模組，依據 agent 當前已掌握的技能清單與即時環境狀態，自主提出下一個學習目標。探索由底向上自主推進。
+1. **自動課程規劃（Automatic curriculum）**：由好奇心驅動的任務提案模組，依據 agent 當前已掌握的技能清單與即時環境狀態，自主提出下一個學習目標。探索由底向上自主推進。
 2. **技能函式庫（Skill library）**：每項技能皆為可執行的程式碼。當一項任務成功達成時，對應的程式碼被納入庫中。支援依「任務查詢—技能描述」的向量相似度進行動態檢索。
 3. **迭代式 Prompt 機制（Iterative prompting mechanism）**：當執行遭遇失敗時，agent 完整接收執行錯誤日誌、環境回饋與自我驗證輸出，隨後有針對性地改寫精煉該技能程式碼。
 
@@ -76,7 +76,7 @@ Voyager 的持續演進閉環：
 
 這正是將 Self-Refine（第 5 課）套用於程式碼生成，並結合環境事實錨定驗證的具體實踐。而 CRITIC（第 5 課）則是以外部工具作為驗證器的同一模式。
 
-### 探索課綱與能力拓展
+### 課程規劃與探索
 
 Voyager 的課綱模組會依據 agent 目前所擁有的資源與尚未解鎖的領域，主動提出如「在湖邊搭建一個庇護所」等探索目標。提案器結合即時環境狀態與技能庫存量，精準選取剛好略高於當前能力上限的任務——這正是系統學習的探索甜蜜點（exploration sweet spot）。
 

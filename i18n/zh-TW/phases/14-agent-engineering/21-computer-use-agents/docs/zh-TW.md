@@ -33,7 +33,7 @@
 - 基於 GPT-4o 變體，透過強化學習（RL）在大規模 GUI 互動環境下深度訓練。
 - 於 2025 年 7 月 17 日正式整併至 ChatGPT 的 Agent 模式中。
 - 發布時的基準表現：OSWorld 38.1%、WebArena 58.1%、WebVoyager 87%。
-- 開發者 API：透過 Responses API 提供 `computer-use-preview-2025-03-11` 端點。
+- 開發者可透過 Responses API 使用 `computer-use-preview-2025-03-11` 模型。
 
 ### Gemini 2.5 Computer Use（Google DeepMind，2025 年 10 月 7 日）
 

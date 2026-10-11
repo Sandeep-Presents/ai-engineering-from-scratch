@@ -1,6 +1,6 @@
-# 記憶體區塊與睡眠期運算
+# 記憶區塊與睡眠期運算
 
-> 讓模型能直接就地編輯離散的模組化記憶體區塊，並引入專門的睡眠期背景 agent 在主 agent 閒置時非同步整合梳理記憶。這兩大核心理念正是將記憶體能力擴展超越單一對話的關鍵之道。
+> 讓模型能直接就地編輯離散的模組化記憶區塊，並引入專門的睡眠期背景 agent 在主 agent 閒置時非同步整合梳理記憶。這兩大核心理念正是將記憶能力擴展超越單一對話的關鍵之道。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -9,24 +9,24 @@
 
 ## Learning Objectives｜學習目標
 
-- 指出 Letta 所劃分的三層記憶體架構（Core、Recall、Archival）及其各自的職責邊界。
-- 深入闡明記憶體區塊模式：將 Human 區塊、Persona 區塊以及使用者自訂區塊視為一等強型別物件。
+- 指出 Letta 所劃分的三層記憶架構（Core、Recall、Archival）及其各自的職責邊界。
+- 深入闡明記憶區塊模式：將 Human 區塊、Persona 區塊以及使用者自訂區塊視為一等強型別物件。
 - 描述睡眠期運算（Sleep-Time Compute）的運作機制、為何能徹底脫離關鍵路徑，以及為何能呼叫比主 agent 更強大的昂貴模型。
-- 以純 Python 標準函式庫實作雙 agent 協同迴圈：主 agent 快速回應使用者對話，睡眠期 agent 在對話回合之間非同步整合記憶體區塊。
+- 以純 Python 標準函式庫實作雙 agent 協同迴圈：主 agent 快速回應使用者對話，睡眠期 agent 在對話回合之間非同步整合記憶區塊。
 
 ## The Problem｜問題
 
 MemGPT（第 7 課）成功解決了虛擬記憶體的控制流程。然而在真實生產實踐中，浮現了三大全新維運瓶頸：
 
-1. **延遲代價（Latency）**：所有的記憶體維護操作皆位於使用者的即時關鍵路徑之上。若 agent 必須在使用者焦急等待時現場修剪、提煉摘要或調解記憶矛盾，尾端延遲將大幅上升。
+1. **延遲代價（Latency）**：所有的記憶維護操作皆位於使用者的即時關鍵路徑之上。若 agent 必須在使用者焦急等待時現場修剪、提煉摘要或調解記憶矛盾，尾端延遲將大幅上升。
 2. **記憶腐化（Memory rot）**：寫入累積遠快於讀取。相互矛盾的歷史事實未被清理。檢索結果被海量陳舊過時的資訊所淹沒。
 3. **結構流失（Structure loss）**：扁平純文字檔案庫無法表達結構化規則：「Human 區塊必須常駐於 prompt 中；Persona 區塊必須常駐於 prompt 中；而 Task 區塊則隨工作階段切換」。
 
-Letta（letta.com）是原 MemGPT 團隊於 2024 年推出的全新平台名稱（原始論文架構仍維持 MemGPT 名稱），而 2026 年的 Letta V1 重構則是後續的重大革新。記憶體區塊讓語義結構清晰明確；而睡眠期運算則將記憶整合徹底移出即時關鍵路徑。
+Letta（letta.com）是原 MemGPT 團隊於 2024 年推出的全新平台名稱（原始論文架構仍維持 MemGPT 名稱），而 2026 年的 Letta V1 重構則是後續的重大革新。記憶區塊讓語義結構清晰明確；而睡眠期運算則將記憶整合徹底移出即時關鍵路徑。
 
 ## The Concept｜核心概念
 
-### 三層記憶體架構
+### 三層記憶架構
 
 | 記憶層級 | 作用範疇 | 存放位置 | 寫入與維護者 |
 |---|---|---|---|
@@ -36,7 +36,7 @@ Letta（letta.com）是原 MemGPT 團隊於 2024 年推出的全新平台名稱�
 
 Core 承襲自 MemGPT 核心常駐區；Recall 是包含已淘汰尾端的對話歷史緩衝區；Archival 則是外部可檢索儲存庫。此切分理清了原本 MemGPT 雙層架構中的概念超載。
 
-### 記憶體區塊（Memory Blocks）
+### 記憶區塊
 
 一個區塊（Block）是 Core 核心層內部一段具備強型別、持久化且可編輯的文字區段。原始 MemGPT 論文定義了兩個核心區塊：
 
@@ -58,7 +58,7 @@ Letta 將其泛化為支援任意使用者自訂區塊：承載當前任務目�
 
 該架構自然帶來三項優勢：
 
-- **零延遲衝擊**：主線 agent 的即時回應絕不需要停下來等待耗時的記憶體整理。
+- **零延遲衝擊**：主線 agent 的即時回應絕不需要停下來等待耗時的記憶整理。
 - **獲准呼叫更強大的模型**：睡眠期 agent 不受即時延遲約束，因此可以使用成本較高、速度較慢但能力更強的模型。
 - **天然的記憶整合時間視窗**：在使用者未等待時，進行去重、提煉摘要，並將相互矛盾的事實標記為失效。
 
@@ -103,13 +103,13 @@ python3 code/main.py
 
 ## Ship It｜交付成果
 
-`outputs/skill-memory-blocks.md` 能為任何目標執行環境產出 Letta 風格的記憶體區塊系統架構與睡眠期掛鉤配置，內建安全防護規則與來源引文追蹤鏈結。
+`outputs/skill-memory-blocks.md` 能為任何目標執行環境產出 Letta 風格的記憶區塊系統架構與睡眠期掛鉤配置，內建安全防護規則與來源引文追蹤鏈結。
 
 ## Exercises｜練習
 
 1. 新增 `block_summarize` 工具：當 `near_limit` 回傳 true 時，自動呼叫模型產出的精簡摘要覆寫該區塊。哪個觸發閾值能在「最小化摘要呼叫次數」與「防範區塊溢位」之間取得最佳平衡？
 2. 實作睡眠期檔案庫去重：當兩筆記錄的文字 Token 重疊度超過 90% 時，將其自動合二為一。確保該去重運算嚴格僅在睡眠期執行，絕不拖累即時關鍵路徑。
-3. 為記憶體區塊導入版本控制。在每次寫入時記錄舊值與 Diff 變更。暴露 `block_history(label)` 介面，使維運人員能精準排查「為何 agent 遺忘了 X」。
+3. 為記憶區塊導入版本控制。在每次寫入時記錄舊值與 Diff 變更。暴露 `block_history(label)` 介面，使維運人員能精準排查「為何 agent 遺忘了 X」。
 4. 將睡眠期 agent 視為不可信的寫入者。當其企圖修改 Persona 或 Safety 等關鍵核心區塊時，強制要求第二個獨立 agent 進行交叉審核後方可確認生效。
 5. 將此教學範例移植為使用 Letta 官方 API（`letta_v1_agent`）。區塊結構描述（schema）產生了何種轉變？原生推論通道又是如何改變最終的日誌結構？
 
@@ -117,18 +117,18 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Memory block | 「可編輯的 Prompt 區段」 | 駐留於 Core 核心記憶體中、具備強型別且可由模型直接編輯的文字片段 |
+| Memory block | 「可編輯的 Prompt 區段」 | 駐留於 Core 核心記憶中、具備強型別且可由模型直接編輯的文字片段 |
 | Human block | 「使用者畫像記憶」 | 關於使用者的事實，常駐鎖定於 Core 核心層 |
 | Persona block | 「Agent 人設記憶」 | 自我身分、語氣設定與行為約束，常駐鎖定於 Core 核心層 |
-| Sleep-time compute | 「非同步記憶體整理」 | 脫離即時關鍵路徑在背景執行的第二個 agent，專職負責記憶提煉與整合 |
-| Core / Recall / Archival | 「三層記憶體體系」 | 隨時可見核心層／對話歷史回想層／外部海量檔案庫的三層架構劃分 |
+| Sleep-time compute | 「非同步記憶整理」 | 脫離即時關鍵路徑在背景執行的第二個 agent，專職負責記憶提煉與整合 |
+| Core / Recall / Archival | 「三層記憶架構」 | 隨時可見核心層／對話歷史回想層／外部海量檔案庫的三層架構劃分 |
 | Block limit | 「區塊長度配額」 | 為每個區塊設定的字元上限；達到時強制觸發提煉壓縮 |
 | Native reasoning | 「原生推論通道」 | 服務供應商底層專屬通道輸出的推論內容，而非 prompt 拼接的 `Thought:` 字串 |
 | Learned context | 「睡眠整理產物」 | 睡眠期 agent 在復盤後寫入共享區塊中的全新精煉事實 |
 
 ## Further Reading｜延伸閱讀
 
-- [Letta, Memory Blocks blog](https://www.letta.com/blog/memory-blocks) ——記憶體區塊的設計模式
+- [Letta, Memory Blocks blog](https://www.letta.com/blog/memory-blocks) ——記憶區塊的設計模式
 - [Letta, Sleep-time Compute blog](https://www.letta.com/blog/sleep-time-compute) ——非同步記憶整合架構解析
 - [Letta, Rearchitecting the Agent Loop](https://www.letta.com/blog/letta-v1-agent) ——擁抱原生推論通道的架構重構
 - [Packer et al., MemGPT (arXiv:2310.08560)](https://arxiv.org/abs/2310.08560) ——虛擬記憶體奠基論文

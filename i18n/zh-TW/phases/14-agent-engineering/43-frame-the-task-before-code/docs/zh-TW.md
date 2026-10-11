@@ -1,6 +1,6 @@
 # 讓 Agent 動手寫程式前先界定任務框架
 
-> 一款寫程式 Agent 能極速實作一個清晰明確的任務；它同樣能極速實作一個含糊不清的任務。兩者的執行速度完全相同；但背後所付出的代價卻有天壤之別。
+> 一款寫程式 Agent 能極速實作一個清晰明確的任務；它同樣能極速實作一個含糊不清的任務。兩者的執行速度完全相同；但背後所付出的代價卻不同。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -10,11 +10,11 @@
 ## Learning Objectives｜學習目標
 
 - 在動手編輯檔案前，將模糊的使用者請求轉化為邊界清晰的任務框架（Task Frame）。
-- 嚴格區分儲存庫客觀事實、主觀未驗證假設與未決問題。
+- 嚴格區分儲存庫（repository）客觀事實、主觀未驗證假設與未決問題。
 - 明確界定獲准修改的路徑、絕對禁止碰觸的路徑，以及最終驗收憑證。
 - 判斷何時已有足夠依據結束前期勘查並開始工作。
 
-## 代價高昂的失敗（The Expensive Failure）
+## 代價高昂的失敗
 
 「新增防範重複 Email 註冊功能」聽起來極其具體，但實質上充滿漏洞：唯一性校驗究竟應當置於 API 路由層、領域服務層還是資料庫唯一條件約束？字串比對是否區分大小寫？既有系統對外暴露的重複錯誤結構究竟長什麼樣？是否獲准執行資料庫遷移（Migration）？哪項測試負責證明這項新行為？
 
@@ -22,7 +22,7 @@
 
 因此，寫程式 Agent 展開工作的第一步，絕非直接動手改檔案。而是一份由儲存庫客觀事實所支撐的**任務框架（Task Frame）**。
 
-## 任務框架的核心構成（The Task Frame）
+## 任務框架的核心構成
 
 一份實用的任務框架嚴格包含六大欄位：
 
@@ -47,7 +47,7 @@ flowchart LR
   D -->|No| P[規劃變更]
 ```
 
-## 前期勘查是探尋邊界約束（Reconnaissance Is a Search for Constraints）
+## 前期勘查是探尋邊界約束
 
 切勿無差別通讀整個儲存庫。專注檢索約束該變更的核心表面：
 
@@ -56,11 +56,11 @@ flowchart LR
 3. 公開對外的資料契約或序列化結構；
 4. 約束該路徑的專案指引；
 5. 建置與驗收檢查指令；
-6. 過去完成的類似變更，從中借鏡本地編程範式。
+6. 過去完成的類似變更，從中借鏡本地程式設計範式。
 
 當所有預定的架構決策皆有證據支撐、已獲授權委派，或已被列為未決問題時，應立即停止閱讀。超出該臨界點的無休止閱讀，往往只是推遲開工的拖延藉口。
 
-## 未知決策並非系統失敗（Unknowns Are Not Failures）
+## 未知決策並非系統失敗
 
 未知決策（Unknown）是受控的空白。而假設（Assumption）則是對該空白未經證實的盲目主觀填充。
 
@@ -73,7 +73,7 @@ flowchart LR
 
 Agent 獲准在可探測與已授權的未知決策中自主推進。而在涉及人工介入的關鍵決策前，它必須在決策被程式碼掩埋之前主動暫停並請示人類。
 
-## 驗收標準先於具體實作（Acceptance Before Implementation）
+## 驗收標準先於具體實作
 
 在編寫修復補丁之前，先確立驗收證據。證據可以是：
 
@@ -98,7 +98,7 @@ python3 -m unittest discover code/tests -v
 
 嘗試在四個維度人為破壞該範例：移除目標描述、移除事實出處憑證、使允許路徑與禁止路徑產生重疊，以及移除驗收指令。校驗器應當針對每項破壞回報不同的拒絕原因。
 
-## 在真實儲存庫中實踐（Use It in a Real Repository）
+## 在真實儲存庫中實踐
 
 在要求 Agent 動手編輯檔案之前：
 
@@ -116,14 +116,14 @@ python3 -m unittest discover code/tests -v
 1. 在你不提出任何具體解決方案的前提下，為你儲存庫中的一個真實 Bug 建立標準任務框架。
 2. 找出框架中表面看似「事實」、實質純屬「假設」的一條宣告。用客觀證據替換它。
 3. 新增一項一旦做出選擇將實質改變公開 API 契約的人工介入未知決策（Human Unknown）。
-4. 將一條過度寬泛的允許路徑，精確收斂為最小安全的 Glob 集合。
+4. 將一條過度寬泛的允許路徑，精確收斂為最小安全的路徑集合。
 5. 在驗收憑證中，追加一項針對修改範疇的審計出處。
 
 ## Further Reading｜延伸閱讀
 
 - [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——將實作緊密錨定於真實世界目標與動態約束的經典需求工程論文
-- [Yang et al., SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering](https://arxiv.org/abs/2405.15793) ——證明 coding agent 的互動介面會影響其效果的實證研究
+- [Yang et al., SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering](https://arxiv.org/abs/2405.15793) ——提供證據顯示 coding agent 的互動介面會影響其效果的實證研究
 
-## 留存產物（What You Keep）
+## 留存產物
 
 妥善保留 `outputs/task-frame.md`。它是下一課的直接輸入依據，在下一課中，該框架將實質升級為具備客觀證據支撐的執行計畫。

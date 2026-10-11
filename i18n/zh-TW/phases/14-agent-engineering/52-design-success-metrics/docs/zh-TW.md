@@ -1,4 +1,4 @@
-# 在看到結果前預先設計成功指標
+# 在看到結果前預先設計成功指標（success metrics）
 
 > 量測應該回答決策，而不是裝飾儀表板。先從目標出發，推導出問題，再挑選能回答這些問題的最小指標集合。
 
@@ -14,7 +14,7 @@
 - 將成效指標與護欄指標及對衡指標（Counter-metrics）成對搭配。
 - 讓評估證據對應建置必須支持的決策。
 
-## 目標、問題、指標（Goal, Question, Metric）
+## 目標、問題、指標
 
 始於目標：
 
@@ -25,7 +25,7 @@
 - 系統多快能找出正確的服務？
 - 找出的服務有多常是正確的？
 - 診斷是否維持唯讀？
-- 這個工作流程是否會增加告警被忽略，或增加操作者的負擔？
+- 這個工作流程是否會增加告警被解除，或增加操作者的負擔？
 
 接著選擇能落實這些問題的指標。
 
@@ -39,7 +39,7 @@ flowchart LR
   M2 --> D
 ```
 
-## 指標需要契約（A Metric Needs a Contract）
+## 指標需要契約
 
 每項指標都需要：
 
@@ -55,7 +55,7 @@ flowchart LR
 
 沒有來源與時間窗，數字就無法重現。沒有門檻，它就無法驅動決策。
 
-## 成效指標、護欄指標與對衡指標（Outcome, Guardrail, and Counter-Metric）
+## 成效指標、護欄指標與對衡指標
 
 - **成效指標（Outcome metric）**：期望的狀態是否改善？
 - **護欄（Guardrail）**：某項固定約束是否仍然成立？
@@ -63,13 +63,13 @@ flowchart LR
 
 對事故流程而言，速度並不足夠。正確性、正式環境寫入、操作者負擔與遺漏的告警，能防止「快但不安全」的結果。
 
-## 離線證據與線上證據（Offline and Online Evidence）
+## 離線證據與線上證據
 
 離線回放有助於重現性與邊界覆蓋。有界限的試點（Pilot）有助於觀察真實行為、信任與工作流程的影響。兩者不能互相取代。
 
 使用能回答當前決策、成本最低的證據。不要只因為實作已完成，就讓真實使用者接觸系統。
 
-## 在量測前先確立決策路徑（Decide Before You Measure）
+## 在量測前先確立決策路徑
 
 在看到結果**之前**，先寫下通過、失敗與模糊的路徑。否則，團隊就會移動門檻來保護建置。
 
@@ -103,6 +103,6 @@ python3 -m unittest discover code/tests -v
 - [Basili, Software Modeling and Measurement: The Goal/Question/Metric Paradigm](https://drum.lib.umd.edu/items/8119803a-362b-42ec-b6ce-2311713e7236) ——從明確目標推導可操作度量的 GQM 典範論文
 - [Basili, Caldiera, and Rombach, The Goal Question Metric Approach](https://www.cs.toronto.edu/~sme/CSC444F/handouts/GQM-paper.pdf) ——說明如何把此方法應用為回饋與持續改進系統
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/measurement-report.json`。它定義原型、試點或正式上線階段的證據閘門。

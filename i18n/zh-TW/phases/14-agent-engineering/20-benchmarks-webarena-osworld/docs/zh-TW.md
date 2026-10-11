@@ -111,7 +111,7 @@ python3 code/main.py
 | GUI grounding | 「介面像素錨定」 | 模型將語意元素精確定位映射至 1920×1080 畫布上特定像素座標的能力 |
 | Operational knowledge | 「系統操作經驗」 | 具體設定位於哪個選單、對應哪組快捷鍵或控制台面板的深層經驗知識 |
 | OSWorld-G | 「純錨定評測集」 | 包含 564 個樣本的純介面定位測試集與專用訓練集 |
-| OSWorld-Human | 「專家黃金軌跡」 | 人工專家操作錄製的最小必要動作序列，用以衡量執行的額外步驟浪費 |
+| OSWorld-Human | 「專家黃金軌跡」 | 人工專家整理的黃金動作軌跡，用以衡量效率 |
 | Trajectory efficiency | 「軌跡執行效率」 | Agent 實際執行的步數除以人類專家的黃金步數之比值 |
 
 ## Further Reading｜延伸閱讀

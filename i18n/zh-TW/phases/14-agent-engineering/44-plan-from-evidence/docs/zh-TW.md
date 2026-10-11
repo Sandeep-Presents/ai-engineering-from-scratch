@@ -14,7 +14,7 @@
 - 在動手修改前，及早偵測缺漏的事實、未知的相依關係與循環相依。
 - 區分可並行的步驟與必須等待的步驟。
 
-## 為何 agent 的計畫會失敗（Why Agent Plans Fail）
+## 為何 agent 的計畫會失敗
 
 薄弱的計畫往往只是用未來式重述使用者的請求：
 
@@ -34,7 +34,7 @@
 | Dependencies（前置相依） | 在本項目啟動前，必須已確立為真的前置工作 |
 | Proof（完工證明） | 能證明該工作項目完成的精確檢查指令 |
 
-## 契約設計先於具體實作（Plan the Contract Before Its Implementations）
+## 契約設計先於具體實作
 
 當多個表面相依於相同的行為時，應先定義該行為。測試、實作、文件與整合便能共享同一份契約，而不必各自發明四個版本。
 
@@ -48,7 +48,7 @@ flowchart LR
 
 相依性圖清晰暴露了安全的並行機會：契約確定後，實作與文件即可同時進行。整合關卡須等待兩者完成。
 
-## 證據推動計畫動態演進（Evidence Changes the Plan）
+## 證據推動計畫動態演進
 
 儲存庫證據不是裝飾。它應當能改變工作：
 
@@ -59,7 +59,7 @@ flowchart LR
 
 若證據無法改變計畫，它大概就不是支持該決定的證據。
 
-## 為隨時中斷而設計（Design for Interruption）
+## 為隨時中斷而設計
 
 寫程式 agent 的工作階段會意外結束。可接續的計畫，其工作項目需足夠小，讓另一個工作階段能判定：
 
@@ -71,7 +71,7 @@ flowchart LR
 
 不要只把狀態記錄在聊天視窗裡的勾選框中。請把計畫持久化存放在工作旁。
 
-## 計畫的靜態校驗（Plan Validation）
+## 計畫驗證
 
 在執行前，若出現以下情況，就拒絕該計畫：
 
@@ -97,7 +97,7 @@ python3 -m unittest discover code/tests -v
 
 範例程式產出了三個執行波次：第一波次確立契約；第二波次同時並行實作與文件更新；第三波次由整合關卡執行。
 
-## 協同寫程式 agent 實踐（Use It with a Coding Agent）
+## 協同寫程式 agent 實踐
 
 在允許 agent 修改檔案前，要求它先產出執行計畫。請從以下三點審查該計畫：
 
@@ -117,9 +117,9 @@ python3 -m unittest discover code/tests -v
 
 ## Further Reading｜延伸閱讀
 
-- [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——說明目標、規格、協議與演進之間迭代關係的論文
+- [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——說明目標、規格、共識與演進之間迭代關係的論文
 - [Barry Boehm, A Spiral Model of Software Development and Enhancement](https://dl.acm.org/doi/10.1145/12944.12948) ——依風險化解而非固定線性順序安排開發的螺旋模型論文
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/evidence-plan.json`。它會成為下一課的委派契約。

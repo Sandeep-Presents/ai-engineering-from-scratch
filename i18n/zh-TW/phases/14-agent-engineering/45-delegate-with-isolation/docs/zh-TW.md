@@ -14,7 +14,7 @@
 - 依據相依關係計算出安全的執行波次（Execution Waves）。
 - 設計合併契約（Merge Contract），安全地整合 agent 的工作成果。
 
-## 並行性驗證（The Parallelism Test）
+## 並行性驗證
 
 不要因為有更多 agent 可用就委派。當以下至少一項成立時，才應委派：
 
@@ -25,7 +25,7 @@
 
 當 agent 需要相同的檔案、相同的未決決策，或相同的可變環境時，應**依序執行**。
 
-## 工作單元就是一份契約（A Work Unit Is a Contract）
+## 工作單元就是一份契約
 
 每個委派的工作單元都需要：
 
@@ -40,7 +40,7 @@
 
 「負責後端」不是工作單元；「在 `app/accounts.py` 中實作重複檢查，並以專注的帳號測試證明」才是。
 
-## 隔離有三層（Isolation Has Three Layers）
+## 隔離有三層
 
 1. **檔案系統隔離（Filesystem isolation）**：獨立的 Git Worktrees 或沙盒可防止意外的共享編輯。
 2. **所有權隔離（Ownership isolation）**：透過契約防止兩個 worker 有意地修改相同的路徑。
@@ -59,7 +59,7 @@ flowchart TD
   R --> G[完整驗證關卡]
 ```
 
-## 整合者不重寫工作（The Integrator Does Not Rebuild the Work）
+## 整合者不重寫工作
 
 整合者（Integrator）的職責是：
 
@@ -72,9 +72,9 @@ flowchart TD
 
 若整合需要重寫 worker 成果的大部分，代表原本的拆解有誤。
 
-## 人類與 agent 的角色邊界（Human and Agent Roles）
+## 人類與 agent 的角色邊界
 
-委派並不會取代人類的判斷。人類仍負責會改變對外公開行為、系統風險、權限或帶來不可逆成本的決策。agent 可以負責範圍明確的調查、功能實作、測試驗證與審查。
+委派並不會取代人類的判斷。人類仍負責會改變對外公開行為、系統風險、權限或帶來不可逆成本的決策。agent 可以負責範圍明確的調查、實作、驗證與審查。
 
 這正是**標定自主權（Calibrated autonomy）**的精髓：在證據充分、回滾能力強的領域，系統給予 agent 行動的自由；在後果嚴重的關鍵處，系統則要求設立人工檢查點。
 
@@ -104,6 +104,6 @@ python3 -m unittest discover code/tests -v
 - [Reid Smith, The Contract Net Protocol](https://doi.org/10.1109/TC.1980.1675516) ——早期對分散式任務分配與結果回報做正式處理的契約網協定論文
 - [Eric Horvitz, Principles of Mixed-Initiative User Interfaces](https://dl.acm.org/doi/10.1145/302979.303030) ——關於何時自動化應採取行動、何時應把控制權交還給人的混合主動介面原則
 
-## 留存產物（What You Keep）
+## 留存產物
 
 保留 `outputs/delegation-plan.json`。它記錄為何這次切分是安全的、誰擁有各個路徑，以及整合必須接收哪些證明。
