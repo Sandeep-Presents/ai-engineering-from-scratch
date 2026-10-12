@@ -1,6 +1,6 @@
 # 基準評測：WebArena 與 OSWorld
 
-> WebArena 橫跨四套本機私有部署的 Web 應用程式評測網頁 Agent 能力；OSWorld 則橫跨 Ubuntu、Windows 與 macOS 真實作業系統評測桌面端操作能力。在發布之初（2023–2024 年），兩者皆揭示了頂尖 Agent 與人類之間的巨大鴻溝。如今差距正在縮小，然而底層的核心失效模式卻從未改變。
+> WebArena 橫跨四套自行託管的 Web 應用程式評測網頁 Agent 能力；OSWorld 則橫跨 Ubuntu、Windows 與 macOS 真實作業系統評測桌面端操作能力。在發布之初（2023–2024 年），兩者皆揭示了頂尖 Agent 與人類之間的巨大鴻溝。如今差距正在縮小，然而底層的核心失效模式卻從未改變。
 
 **Type:** Learn
 **Languages:** Python (stdlib)
@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 描述 WebArena 的四套本機私有部署應用程式，以及為何「基於實際執行的評測（Execution-based evaluation）」至關重要。
+- 描述 WebArena 的四套自行託管應用程式，以及為何「基於實際執行的評測（Execution-based evaluation）」至關重要。
 - 深入解釋為何 OSWorld 堅持採用真實作業系統的 1920×1080 螢幕截圖，而非單純依賴無障礙輔助 API（Accessibility APIs）。
 - 指出 OSWorld 的兩大核心失效模式：GUI 像素錨定定位（GUI grounding）與系統操作經驗知識（Operational knowledge）。
 - 總結 OSWorld-G 與 OSWorld-Human 在基礎基準之上所額外賦予的關鍵評測維度。
@@ -22,12 +22,12 @@
 
 ### WebArena（Zhou 等人，ICLR 2024）
 
-- 涵蓋橫跨四套本機私有部署 Web 應用的 812 個長路徑任務：電商購物網站、技術論壇、類 GitLab 的開發協同工具、企業 CMS 內容管理系統。
+- 涵蓋橫跨四套自行託管的 Web 應用的 812 個長路徑任務：電商購物網站、技術論壇、類 GitLab 的開發協同工具、企業 CMS 內容管理系統。
 - 配套輔助工具：地圖、計算機、便籤記事本。
 - 評測採用基於 Gym API 的執行驗收——訂單是否確實被建立？Issue 是否確實被關閉？CMS 頁面是否確實被更新？
 - 發布時的實測結果：最強的 GPT-4 Agent 成功率僅為 14.41%，而人類為 78.24%。
 
-私有本機部署的架構設定至關重要——該基準不會因外部真實網站動態改版而引發偶發波動（Flakiness），所有目標應用程式皆版本鎖定且可重現。
+自行託管的架構設定至關重要——該基準不會因外部真實網站動態改版而引發偶發波動（Flakiness），所有目標應用程式皆版本鎖定且可重現。
 
 ### 延伸進階評測
 
@@ -49,7 +49,7 @@
 ### 後續重要衍生研究
 
 - **OSWorld-G**：包含 564 個樣本的專門錨定評測集 + Jedi 訓練集。將「介面定位」與「邏輯規劃」兩大能力解耦，便於分別獨立度量。
-- **OSWorld-Human**：人工整理的黃金標準動作軌跡（Gold Trajectories）。實測揭示了頂尖 Agent 往往耗費比人類多 1.4 至 2.7 倍的多餘步驟（暴露了軌跡執行效率的差距）。
+- **OSWorld-Human**：人工整理的黃金標準動作軌跡（Gold Trajectories）。實測顯示，頂尖 Agent 完成任務所用步數約為最低必要步數的 1.4 至 2.7 倍（暴露了軌跡執行效率的差距）。
 
 ### 為何這對工程實踐至關重要
 
@@ -58,8 +58,8 @@ Claude Computer Use、OpenAI CUA 以及 Gemini 2.5 Computer Use（第 21 課）�
 ### 評測實踐中的常見盲區
 
 - **僅依賴截圖評測的狹隘性**：OSWorld 由截圖驅動；若將依賴 DOM 樹或無障礙 API 的 Agent 放到 OSWorld 上評測，將錯失其定位挑戰。
-- **忽視軌跡執行步數**：僅看最終成功率，會掩蓋 OSWorld-Human 所揭露的 1.4 到 2.7 倍步驟膨脹浪費。
-- **私有部署應用版本漂移**：WebArena 的各項應用鎖定了特定版本；若在未經重新驗證的情況下擅自升級底層應用版本，將破壞橫向評測的基準可比性。
+- **忽視軌跡執行步數**：僅看最終成功率，會掩蓋 OSWorld-Human 所揭露的軌跡效率差距：Agent 所用步數約為最低必要步數的 1.4 至 2.7 倍。
+- **自行託管應用程式版本過舊**：WebArena 的各項應用鎖定了特定版本；若在未經重新驗證的情況下擅自升級底層應用版本，將破壞橫向評測的基準可比性。
 
 ```figure
 ae-agent-human-gap
@@ -69,7 +69,7 @@ ae-agent-human-gap
 
 `code/main.py` 以純 Python 標準函式庫實作了一套極簡的 Web Agent 測試框架：
 
-- 極簡「電商購物應用」狀態機：包含 list_items、add_to_cart、checkout 等狀態；
+- 極簡「電商購物應用」狀態機：包含 list_items、add_to_cart、checkout 等操作；
 - 3 個具體任務的黃金標準軌跡（Gold trajectories）；
 - 嘗試執行各項任務的腳本化 Agent；
 - 基於執行的驗收器（核驗最終狀態）與軌跡執行效率指標（步數 / 黃金步數）。
@@ -84,7 +84,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-- **WebArena Verified**：在企業內部私有叢集上本地部署，作為網頁 Agent 的持續評測。
+- **WebArena Verified**：在企業內部叢集上自行託管，作為網頁 Agent 的持續評測。
 - **OSWorld**：於專屬的虛擬機（VM）叢集中執行，專門評測桌面操作 Agent。
 - **Computer-Use 專用 Agent（第 21 課）**：Claude、OpenAI CUA、Gemini——全數在此類基準負載上完成訓練。
 - **企業自有業務流評測**：為你自家產品的前 20 項業務流程錄製黃金標準軌跡，每週對內部 Agent 進行自動化迴歸驗收。
@@ -105,7 +105,7 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| WebArena | 「網頁 Agent 基準」 | 橫跨 4 套本機私有部署 Web 應用的 812 個長路徑任務；Gym 風格狀態驗收 |
+| WebArena | 「網頁 Agent 基準」 | 橫跨 4 套自行託管的 Web 應用的 812 個長路徑任務；Gym 風格狀態驗收 |
 | VisualWebArena | 「視覺版 WebArena」 | 專注於視覺錨定的評測版本；螢幕截圖為第一等公民觀測資料 |
 | OSWorld | 「桌面 Agent 基準」 | 橫跨真實 Ubuntu / Windows / macOS 作業系統的 369 個操作任務 |
 | GUI grounding | 「介面像素錨定」 | 模型將語意元素精確定位映射至 1920×1080 畫布上特定像素座標的能力 |

@@ -279,7 +279,7 @@ python3 -m unittest discover -s code/tests -v
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Skill discovery | 「找到所有 SKILL.md」 | 檢索已配置的範疇、校驗套件合法性、附加來源出處並套用系統策略 |
+| Skill discovery | 「找到所有 SKILL.md」 | 檢索已配置的範疇、校驗套件合法性、附加溯源資訊並套用系統策略 |
 | Skill catalog | 「已安裝的 Skills 清單」 | 面向模型可見、用於意圖路由的精簡中繼資料索引 |
 | Collision policy | 「同名衝突誰勝出」 | 為來自不同來源的同名候選套件所預先宣告的仲裁規則 |
 | Progressive disclosure | 「延遲載入機制」 | 自目錄、正文至特定分流資源所實施的分段脈絡准入體系 |

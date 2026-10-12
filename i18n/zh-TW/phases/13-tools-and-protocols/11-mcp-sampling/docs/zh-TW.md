@@ -29,13 +29,13 @@
 
 這是當前的標準首選路線。伺服器自身全權擁有模型選型、憑證管理、呼叫配額預算、自動重試與全鏈路可觀測性。它向 MCP 用戶端回傳一次性的常規 `tools/call` 終態成果。
 
-當伺服器本身已經是託管雲端服務，或當可預測的模型行為與確定性品質高於「復用呼叫端宿主模型」時，果斷選用此方案。
+當伺服器本身已經是託管雲端服務，或當可預測的模型行為與確定性品質高於「重用宿主的模型」時，果斷選用此方案。
 
 ### 既有 Sampling 工作流：平滑遷移至 MRTR
 
 Sampling 依然處於其淘汰過渡期之內。宣告遵循 2026-07-28 規範的伺服器，無法再直接向用戶端傳送即時的 `sampling/createMessage` 逆向請求。取而代之的是將該請求安全封裝於 `InputRequiredResult` 中向外回傳。
 
-唯有當「深度利用呼叫端既有的模型憑證與配額」屬於強硬的產品業務需求時，方可選用此向下相容路徑。必須同步擬定長期的退場計畫，因為全新實作絕不應當盲目採納已廢棄的舊機制。
+唯有當「深度利用用戶端既有的模型憑證與配額」屬於強硬的產品業務需求時，方可選用此向下相容路徑。必須同步擬定長期的退場計畫，因為全新實作絕不應當盲目採納已廢棄的舊機制。
 
 ## 無狀態協定契約
 
@@ -65,12 +65,12 @@ Sampling 依然處於其淘汰過渡期之內。宣告遵循 2026-07-28 規範�
 
 不帶 JSON-RPC `id` 的信封代表單向通知。接收端可以默默處理它，但絕不可回傳成功或失敗回應。在 Streamable HTTP 傳輸層上，接收合法的單向通知時回傳空內文的 `202 Accepted`。
 
-伺服器同時必須強制實作 `server/discover` 介面，並在其中明確宣告 `supportedVersions`、能力清單、`ttlMs` 與 `cacheScope`，使呼叫端在正式呼叫工具前能夠探測並快取這份契約。由於服務發現宣告了 `tools` 能力，伺服器亦必須實作必備的 `tools/list`。其回傳的 `summarize_repo` 描述資訊中，必須包含合法的物件型別 `inputSchema`、`resultType: "complete"`、伺服器識別資訊中繼資料，以及公開的快取建議。
+伺服器同時必須強制實作 `server/discover` 介面，並在其中明確宣告 `supportedVersions`、能力清單、`ttlMs` 與 `cacheScope`，讓用戶端在正式呼叫工具前能夠探測並快取這份契約。由於服務發現宣告了 `tools` 能力，伺服器亦必須實作必備的 `tools/list`。其回傳的 `summarize_repo` 描述資訊中，必須包含合法的物件型別 `inputSchema`、`resultType: "complete"`、伺服器識別資訊中繼資料，以及公開的快取建議。
 
 現代成功回應最外層皆必須具備明確的鑑別欄位：
 
 - `resultType: "complete"`：代表全流程執行圓滿終止。
-- `resultType: "input_required"`：代表呼叫端必須先滿足內部嵌附的輸入請求，隨後發起重試。
+- `resultType: "input_required"`：代表用戶端必須先滿足內部嵌附的輸入請求，隨後發起重試。
 - 外部擴充功能亦可定義專屬的結果型別（例如 Tasks 擴充功能在第 13 課中將引入 `"task"`）。
 
 ## 單輪 MRTR 運作機制
@@ -167,7 +167,7 @@ MRTR 機制僅允許在 `tools/call`、`prompts/get` 與 `resources/read` 上運
 
 ## 模型偏好僅是提示
 
-`costPriority`（成本優先度）、`speedPriority`（速度優先度）以及 `intelligencePriority`（智力優先度）皆是互相獨立的建議提示。它們並非機率分布，數值總和完全不需要等於一。呼叫端完全可以忽略這些偏好，因為模型策略由用戶端宿主決定。
+`costPriority`（成本優先度）、`speedPriority`（速度優先度）以及 `intelligencePriority`（模型能力優先度）皆是互相獨立的建議提示。它們並非機率分布，數值總和完全不需要等於一。用戶端完全可以忽略這些偏好，因為模型策略由用戶端宿主決定。
 
 若你維護既有的 Sampling 流程，請將 `includeContext` 始終保持在 `"none"`。其他全域上下文模式會顯著加劇資料外洩風險，且自身亦已被標記為廢棄。請始終在請求中以顯式方式傳遞最小必要的精確上下文。
 
@@ -180,7 +180,7 @@ MRTR 機制僅允許在 `tools/call`、`prompts/get` 與 `resources/read` 上運
 - 在將取樣模型產出的字串用於檔案路徑、URL 位址或工具引數前，必須實施地毯式的格式校驗。
 - 限制單輪往返所允許消耗的位元組數與 token 上限。
 - 堅決拒絕執行任何未在當前用戶端能力宣告中顯式開放的輸入請求。
-- 嚴禁讓大模型的生成輸出直接左右核心授權決策。
+- 嚴禁讓模型輸出直接左右核心授權決策。
 - 記錄最初發起的方法名稱與輸入請求金鑰，嚴禁在紀錄中洩漏敏感的 Prompt 內文。
 
 `clientInfo` 與 `serverInfo` 僅供前端展示與診斷除錯之用，絕不可充當身分驗證憑證。
@@ -221,7 +221,7 @@ python3 -m unittest discover tests -v
 - 不帶 ID 的單向通知絕不回傳任何 JSON-RPC 回應。
 - 請求 ID 序列為 `[1, 2, 3]`，雄辯地證明了每一輪 MRTR 皆是完全獨立的全新請求。
 - 前兩次呼叫成果標註為 `input_required`。
-- 最終成果標註為 `complete`，且完整包含選定的檔案清單與高品質長文摘要。
+- 最終成果標註為 `complete`，且完整包含選定的檔案清單與長文摘要。
 - 刻意在重試時篡改原始引數，會精確觸發狀態防篡改校驗失敗。
 
 ## Ship It｜交付成果
@@ -243,7 +243,7 @@ python3 -m unittest discover tests -v
 | Sampling | 已廢棄特性；由伺服器向用戶端的模型請求文字補全的舊有機制 |
 | MRTR | 多輪往返請求（Multi Round-Trip Requests）；在需要用戶端輸入時採用的無狀態重試模式 |
 | `InputRequiredResult` | 標註有 `resultType: "input_required"` 的中間狀態成果 |
-| `inputRequests` | 伺服器指派的嵌附式詢問、取樣或根目錄輸入請求映射字典 |
+| `inputRequests` | 伺服器指派的內嵌 Elicitation（徵詢：向使用者請求輸入）、取樣或根目錄輸入請求映射字典 |
 | `inputResponses` | 用戶端在當前輪次回傳、以 `inputRequests` 對應鍵值索引的回應 |
 | `requestState` | 伺服器簽發的不透明狀態識別碼，由用戶端原樣回傳並由伺服器防篡改校驗 |
 | `resultType` | 標註於每個現代 MCP 成果外層的必備鑑別欄位 |

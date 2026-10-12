@@ -1,6 +1,6 @@
-# Reflexion：語言強化學習
+# Reflexion：自然語言回饋式強化學習（verbal reinforcement learning）
 
-> 基於梯度的傳統強化學習需要成千上萬次的試驗與龐大的 GPU 算力叢集才能修正單一失效模式。Reflexion（Shinn 等人，NeurIPS 2023）則完全在自然語言維度實現強化：在每次試驗失敗後，agent 自主撰寫一段反思總結、存入情節記憶中，並將該記憶作為下一次試驗的前置脈絡條件。這正是 Letta 睡眠期運算、Claude Code 的 CLAUDE.md 經驗沉澱，以及 pro-workflow 的 learn-rule 背後的底層架構模式。
+> 基於梯度的傳統強化學習需要成千上萬次的試驗與龐大的 GPU 算力叢集才能修正單一失效模式。Reflexion（Shinn 等人，NeurIPS 2023）則透過自然語言反思協助 agent 改進：在每次試驗失敗後，agent 自主撰寫一段反思總結、存入情節記憶中，並將該記憶作為下一次試驗的前置脈絡條件。這正是 Letta 睡眠期運算、Claude Code 的 CLAUDE.md 經驗沉澱，以及 pro-workflow 的 learn-rule 背後的底層架構模式。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -12,7 +12,7 @@
 - 指出 Reflexion 的三大核心元件——Actor（執行者）、Evaluator（評估器）、Self-Reflector（自我反思器），以及情節記憶（Episodic memory）的關鍵定位。
 - 以純 Python 標準函式庫實作一套包含二元評估器、反思緩衝區與全新重試機制的 Reflexion 迴圈。
 - 針對具體的工程任務，在純量（Scalar）、啟發式（Heuristic）與模型自評（Self-evaluated）三種回饋來源間做出正確選型。
-- 深入闡明為何語言強化學習能捕捉梯度式 RL 需要數千次試驗才能修正的錯誤。
+- 深入闡明為何自然語言回饋式強化學習能捕捉梯度式 RL 需要數千次試驗才能修正的錯誤。
 
 ## The Problem｜問題
 
@@ -104,7 +104,7 @@ LangGraph 將反思實作為標準的節點圖模式。Claude Code 的 `/memory`
 
 ## Ship It｜交付成果
 
-`outputs/skill-reflexion-buffer.md` 專門建立並維護具備反思捕獲、TTL 淘汰與語意去重能力的情節記憶緩衝區。給定任務類別與失敗現象，它能自動產出真正對下一次試驗具備實質指導意義的高品質反思（絕非空洞的「請更加謹慎」）。
+`outputs/skill-reflexion-buffer.md` 專門建立並維護具備反思捕獲、TTL 淘汰與去重能力的情節記憶緩衝區。給定任務類別與失敗現象，它能自動產出真正對下一次試驗具備實質指導意義的高品質反思（絕非空洞的「請更加謹慎」）。
 
 ## Exercises｜練習
 

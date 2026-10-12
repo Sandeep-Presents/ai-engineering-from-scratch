@@ -1,6 +1,6 @@
 # OpenTelemetry GenAI 語意約定
 
-> OpenTelemetry 的 GenAI 特殊興趣小組（SIG，於 2024 年 4 月成立）定義了 Agent 可觀測性遙測資料的標準結構描述（schema）。Span 名稱、屬性鍵值與內容擷取規則在各廠商間達成統一收斂，使同一份 Agent 追蹤鏈在 Datadog、Grafana、Jaeger 與 Honeycomb 中具有相同的標準語義。
+> OpenTelemetry 的 GenAI 特殊興趣小組（SIG，於 2024 年 4 月成立）定義了 Agent 可觀測性遙測資料的標準結構描述（schema）。Span 名稱、屬性鍵值與內容擷取規則在各廠商間達成統一收斂，使同一份 Agent 追蹤鏈在 Datadog、Grafana、Jaeger 與 Honeycomb 中具有相同的標準語意。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -67,7 +67,7 @@ Datadog v1.37+ 原生將這些 GenAI 屬性映射進其 LLM Observability 結構
 ### 典型架構失效模式
 
 - **在 Spans 中無節制記錄完整 Prompt 文字**：導致 PII 隱私資料、機密金鑰與客戶機密被直接暴露給全體維運人員。解法：強制實施外部儲存。
-- **遺漏 `gen_ai.provider.name`**：在多服務供應商混合架構中，缺少歸因標註會導致成本與延遲分析報表失效。
+- **遺漏 `gen_ai.provider.name`**：缺少歸因標註時，多服務供應商儀表板會失效。
 - **Span 遺失父子關聯邊**：產生了大量孤兒工具 Spans。必須確保脈絡嚴格向下傳播。
 - **未設定穩定性 Opt-in 旗標**：在後端升級時，屬性名稱可能被重新命名。
 
@@ -116,9 +116,9 @@ python3 code/main.py
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
 | GenAI SIG | 「OTel 生成式 AI 工作組」 | 負責制定 Agent 與 LLM 遙測資料標準結構描述的 OTel 工作小組 |
-| invoke_agent | 「Agent 執行 Span」 | 代表 Agent 執行過程的標準根 Span 名稱 |
+| invoke_agent | 「Agent 執行 Span」 | 代表 Agent 執行過程的 Span 名稱 |
 | CLIENT span | 「遠端服務呼叫」 | 標註呼叫遠端雲端代管 Agent 服務時所發射的 Span 類型 |
-| INTERNAL span | 「本機行程內部呼叫」 | 標註在本機行程內部執行之開源 Agent 框架時所發射的 Span 類型 |
+| INTERNAL span | 「本機行程內部呼叫」 | 標註在同一行程內執行的 Agent 框架時所發射的 Span 類型 |
 | gen_ai.provider.name | 「模型服務供應商標籤」 | 標準鍵名，標註 anthropic / openai / aws.bedrock / google.vertex |
 | gen_ai.data_source.id | 「RAG 資料來源 ID」 | 標註檢索操作究竟命中存取了哪個語料庫或資料庫 |
 | Content capture | 「Prompt 對話記錄」 | 對話內容的選擇性擷取；正式環境推薦採用外部儲存並留存 ID 參照 |

@@ -17,7 +17,7 @@
 
 ## The Problem｜問題
 
-假設你安裝了一套 `database-migration` 資料庫遷移 skill。使用者能透過指令名稱手動執行它；然而模型同樣能在目錄中看見其描述，並在有人提出一般的資料庫常識諮詢時，擅自選取了它。結果，該 skill 在使用者僅需要概念解答的對話中，突兀地產出了一份危險的資料庫架構變更腳本。
+假設你安裝了一套 `database-migration` 資料庫遷移 skill。使用者能透過指令名稱手動執行它；然而模型同樣能在目錄中看見其描述，並在有人提出一般的資料庫常識諮詢時，擅自選取了它。結果，該 skill 在使用者僅需要概念解答的對話中，突兀地提議變更資料庫架構。
 
 為了防止此類事故，你在設定中加入了 `user-invocable: false`，期望阻止人類使用者手動盲目執行。但在另一個執行環境中，該欄位被系統直接無視。你改為設定 `disable-model-invocation: true`，期望該 skill 徹底隱藏；但在理解該欄位的特定宿主中，人類使用者依然能透過顯式指令直接呼叫它。
 
@@ -66,11 +66,11 @@ skill-invocation-stages
 
 該矩陣是一套系統策略模型，而非通用的標準 YAML 欄位。
 
-當前某個主流宿主環境採用 `disable-model-invocation: true` 表達「僅限人類」列，採用 `user-invocable: false` 表達「僅限模型」列；預設則為兩者皆允許。另一個宿主環境則在 `agents/openai.yaml` 中配置 `allow_implicit_invocation: false`，用以在保留手動顯式呼叫的同時關閉模型的隱式自動選取。這些皆屬於執行環境配接器（Adapters）；未支援該特性的宿主可能會直接忽略它們。
+目前有一個宿主環境採用 `disable-model-invocation: true` 表達「僅限人類」列，採用 `user-invocable: false` 表達「僅限模型」列；預設則為兩者皆允許。另一個宿主環境則在 `agents/openai.yaml` 中配置 `allow_implicit_invocation: false`，用以在保留手動顯式呼叫的同時關閉模型的隱式自動選取。這些皆屬於執行環境配接器（Adapters）；未支援該特性的宿主可能會直接忽略它們。
 
 請務必釐清這些極易混淆的細節：`user-invocable: false` 絕非代表「模型不可使用此技能」，而是在定義該欄位的宿主中關閉了人類使用者的手動呼叫入口；`disable-model-invocation: true` 亦非代表「該技能已被徹底停用」，而是在關閉模型自主選取的同時、依然保留人類使用者的手動呼叫權限。
 
-### 顯式呼叫以「唯一身分」為優先
+### 顯式呼叫以身分識別為優先
 
 顯式呼叫直接出示具體的 skill 身分識別碼：
 
@@ -127,7 +127,7 @@ description: Inspect an already prepared release candidate and produce a readine
 score(s, x) = capability_match + trigger_match + context_match - exclusion_match - ambiguity_penalty
 ```
 
-實際評分決策可由輕量 LLM 推論完成，而非死板的算術相加。但其工程原則始終不變：最終選取必須同時跨過最低信任門檻，且顯著領先競爭候選者。當客觀證據不足時，系統應當果斷放棄選取（Abstain）。
+實際評分決策可由輕量 LLM 推論完成，而非死板的算術相加。但其工程原則始終不變：最終選取必須同時跨過最低信任門檻，且高於競爭 skill 的分數。當客觀證據不足時，系統應當果斷放棄選取（Abstain）。
 
 ```figure
 skill-routing-abstention
@@ -228,7 +228,7 @@ skill-host-adapter
 
 ### 脈絡生命週期取決於宿主實作
 
-在正式啟用後，skill 正文可能會長久保留於對話歷史中、在脈絡壓縮時被摘要提煉，亦可能執行於獨立委派的子環境中。工具執行授權可能僅持續單一回合，而操作指引卻長久有效。子 agent 可能接收到該 skill，卻完全不繼承父層的過往歷史記錄。
+在正式啟用後，skill 正文可能會長久保留於對話歷史中、在脈絡壓縮時被摘要提煉，亦可能執行於獨立委派的子環境中。工具執行授權可能僅持續單一回合，而操作指引卻長久有效。子 agent 可能接收到該 skill，但不一定會接收到父層的完整歷史記錄。
 
 切勿撰寫依賴於特定隱性生命週期假設的脆弱 skill。將持久化狀態保存至實體檔案或結構化儲存中、確保具備安全的重新進入機制，並明確規範中斷後復原時必須重新載入哪些資源：
 

@@ -12,7 +12,7 @@
 - 深入描述 LangGraph 的核心心智模型：具備強型別狀態、純函式節點、條件邊（Conditional edges）以及節點後自動檢查點的狀態機體系。
 - 指出官方文件所強調的四大核心能力：持久化執行（Durable execution）、即時串流（Streaming）、人在迴圈中（Human-in-the-loop）與完整記憶功能（Comprehensive memory）。
 - 闡明 LangGraph 支援的三大編排拓撲結構：監督者模式（Supervisor）、對等群集模式（Swarm / P2P）與階層式巢狀子圖模式（Hierarchical）。
-- 以純 Python 標準函式庫實作具備強型別狀態、條件邊與「檢查點儲存／復原執行」生命週期的狀態圖（State Graph）。
+- 以純 Python 標準函式庫實作具備強型別狀態、條件邊與「檢查點儲存／接續執行」生命週期的狀態圖（State Graph）。
 
 ## The Problem｜問題
 
@@ -41,11 +41,11 @@ LangGraph 官方文件將以下正式環境使用者列為該能力的重要案�
 
 ### 即時串流（Streaming）
 
-每個節點皆能即時產出局部增量輸出。狀態圖會向呼叫端即時推播逐節點的增量（Delta）事件，使前端 UI 能隨圖的執行即時流暢更新。
+每個節點皆可產生部分輸出。狀態圖會向呼叫端串流傳送逐節點增量事件，讓 UI 隨圖執行更新。
 
 ### 人在迴圈中（Human-in-the-Loop）
 
-在節點之間檢查並修改狀態。具體實作：在關鍵節點前暫停流程、向人類使用者呈現當前狀態、接收使用者的手動修改，隨後平滑復原執行。檢查點儲存器使此機制變得簡單，因為狀態已被序列化。
+在節點之間檢查並修改狀態。具體實作：在關鍵節點前暫停流程、向人類使用者呈現當前狀態、接收使用者的手動修改，隨後接續執行。檢查點儲存器使此機制變得簡單，因為狀態已被序列化。
 
 ### 記憶
 
@@ -73,7 +73,7 @@ langgraph-state
 
 - `State`：強型別字典，包含 `messages`、`step`、`route`、`output` 與 `human_approval`。
 - `Node`：接收 state 並回傳更新字典的可呼叫常式。
-- `StateGraph`：封裝節點、邊、條件邊、執行（run）與復原（resume）。
+- `StateGraph`：封裝節點、邊、條件邊、執行（run）與接續執行（resume）。
 - `SQLiteCheckpointer`（記憶體內模擬實作）：在每個節點後序列化狀態；`load(session_id)` 負責精確復原。
 - 演示圖結構：分類（classify）-> 條件分流（refund / bug / sales）-> 人工審核關卡（human gate）-> 發送（send）。
 
@@ -83,22 +83,22 @@ langgraph-state
 python3 code/main.py
 ```
 
-執行軌跡會清晰展示：初次執行在人工審核關卡處中止並完成持久化存檔，隨後透過 resume 復原執行並成功產出最終結果。
+執行軌跡會清晰展示：初次執行在人工審核關卡處中止並完成持久化存檔，隨後透過 resume 接續執行並成功產出最終結果。
 
 ## Use It｜實際應用
 
 - **LangGraph**：生產就緒的權威實作。可使用 `create_react_agent`、`create_supervisor`，或手動組裝專屬圖結構。
 - **AutoGen v0.4**（第 14 課）：高併發場景下的 Actor 模型替代方案。
-- **Claude Agent SDK**（第 17 課）：內建工作階段儲存庫的全代管執行環境架構。
+- **Claude Agent SDK**（第 17 課）：內建工作階段儲存庫的代管執行環境架構。
 - **自建狀態機**：適合需要對狀態資料結構或檢查點儲存後端實施精確控制的團隊。
 
 ## Ship It｜交付成果
 
-`outputs/skill-state-graph.md` 能為任何目標環境產出 LangGraph 風格的狀態圖鷹架，內建檢查點自動儲存與斷點復原機制。
+`outputs/skill-state-graph.md` 能為任何目標環境產出 LangGraph 風格的狀態圖鷹架，內建檢查點自動儲存與中斷後接續執行機制。
 
 ## Exercises｜練習
 
-1. 為 `classify` 節點新增條件邊：當分類信心度低於閾值時直接轉移至 `end`。在人工手動介入設定 `route` 後平滑復原執行。
+1. 為 `classify` 節點新增條件邊：當分類信心度低於閾值時直接轉移至 `end`。在人工手動介入設定 `route` 後接續執行。
 2. 將記憶體模擬替換為真實的本地 SQLite 檔案檢查點儲存器。實測每個步驟的序列化儲存延遲開銷。
 3. 實作平行邊（Parallel edges）：兩個節點並發同時執行，隨後由自訂的 Reducer 負責狀態合併。深入思考不可變狀態在此處帶來了何種架構優勢？
 4. 研讀 `langgraph-supervisor` 官方參考文件。將此教學玩具改寫為 `create_supervisor` 架構，並對比執行記錄結構差異。
@@ -109,11 +109,11 @@ python3 code/main.py
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
 | State graph | 「狀態圖」 | 強型別狀態 + 節點純函式 + 邊 + Reducers 所構成的狀態機體系 |
-| Checkpointer | 「檢查點儲存器」 | 在每個節點執行後自動序列化狀態的持久化後端；實現中斷復原的核心 |
+| Checkpointer | 「檢查點儲存器」 | 在每個節點執行後自動序列化狀態的持久化後端；支援中斷後接續執行 |
 | Reducer | 「狀態合併器」 | 定義如何將節點回傳的增量更新與現有全域狀態相合併的純函式 |
 | Conditional edge | 「條件轉移邊」 | 依據當前狀態動態選擇的邊 |
 | Subgraph | 「巢狀子圖」 | 作為另一個外部圖之內部節點執行的完整獨立狀態圖 |
-| Durable execution | 「持久化執行」 | 在遭遇故障崩潰後，能精準自最後一個成功節點原樣復原執行 |
+| Durable execution | 「持久化執行」 | 遭遇故障後，可從最後一個成功節點的精確狀態接續執行 |
 | Supervisor | 「中央調度者」 | 負責指揮各領域專業子 agent 的中央路由器 LLM |
 | Swarm | 「對等群集架構」 | Agent 之間透過共享工具介面直接交接控制權；無中央調度中心 |
 

@@ -1,6 +1,6 @@
 # OpenAI 準備度框架與 DeepMind 前沿安全框架（OpenAI Preparedness Framework and DeepMind Frontier Safety Framework）
 
-> OpenAI 準備度框架 v2（Preparedness Framework v2，2025 年 4 月發布）引入了與「受追蹤類別（Tracked Categories）」截然分立的「研究類別（Research Categories）」——涵蓋長程自主性（Long-range Autonomy）、蓄意裝笨（Sandbagging）、自主複製與適應，以及破壞安全防護機制。受追蹤類別會直接觸發能力報告與防護報告，並交由安全諮詢委員會（SAG）審查。DeepMind 的 FSF v3（2025 年 9 月發布，並於 2026 年 4 月 17 日追加了「受追蹤能力等級」（Tracked Capability Levels））則將自主性納入機器學習研發與網路安全兩大領域（機器學習研發自主性等級 1 定義為：以媲美「人類加 AI 工具」的具競爭力成本，全自動化 AI 研發管線）。FSF v3 明確承諾針對工具性推理（instrumental reasoning）遭濫用部署自動化監控以防禦欺騙性對齊。客觀的現實提醒：OpenAI PF v2 中的研究類別（包含長程自主性）並不會自動觸發任何強制緩解措施，政策用語僅為「潛在（potential）」措施；DeepMind 自身亦坦言：若工具性推理能力進一步增強，自動化監控「在長遠來看將不足以維持安全」。
+> OpenAI 準備度框架 v2（Preparedness Framework v2，2025 年 4 月發布）引入了與「受追蹤類別（Tracked Categories）」截然分立的「研究類別（Research Categories）」——涵蓋長程自主性（Long-range Autonomy）、蓄意裝笨（Sandbagging）、自主複製與適應，以及破壞安全防護機制。受追蹤類別會直接觸發能力報告與防護報告，並交由安全諮詢小組（SAG）審查。DeepMind 的 FSF v3（2025 年 9 月發布，並於 2026 年 4 月 17 日追加了「受追蹤能力等級」（Tracked Capability Levels））則將自主性納入機器學習研發與網路安全兩大領域（機器學習研發自主性等級 1 定義為：以媲美「人類加 AI 工具」的具競爭力成本，全自動化 AI 研發管線）。FSF v3 明確承諾針對工具性推理（instrumental reasoning）遭濫用部署自動化監控以防禦欺騙性對齊。客觀的現實提醒：OpenAI PF v2 中的研究類別（包含長程自主性）並不會自動觸發任何強制緩解措施，政策用語僅為「潛在（potential）」措施；DeepMind 自身亦坦言：若工具性推理能力進一步增強，自動化監控「在長遠來看將不足以維持安全」。
 
 **Type:** Learn
 **Languages:** Python (stdlib, three-framework decision-table diff tool)
@@ -11,7 +11,7 @@
 
 第 19 課深入剖析了 Anthropic 的擴展政策。本課則透過細讀 OpenAI 與 DeepMind 的同類架構，拼湊出完整的產業治理圖景。這三份核心文件本質上是相近的政策文件，共同回答同一個核心問題——尖端實驗室究竟該在何時暫停訓練或設定模型發布閘門。它們在少數核心類別上達成了高度共識，卻在至關重要的具體條款上產生了顯著分歧。
 
-共識之處：三家機構皆將「長程自主性」視為必須持續追蹤的重大能力類別；皆承認欺騙性行為（對齊造假、蓄意裝笨）屬於獨立且危險的風險類別；且內部皆設有專門的審查機構。分歧之處：OpenAI 將危害類別分為「受追蹤」（強制採取緩解防護）與「研究類別」（僅觀測而不自動觸發實質措施）；DeepMind 則選擇將自主性拆解並融入具體危害領域，而非將其單獨列為獨立維度。實驗室在命名上可能稱為「受追蹤 vs 研究」，或「嚴重 vs 中度」，亦或「第一級 vs 第二級」；然而某項能力被歸入哪一個分類桶中，在不同實驗室之間所引發的實質維運後果大相逕庭。
+共識之處：三家機構皆將「長程自主性」視為值得追蹤的能力類別；皆承認欺騙性行為（對齊造假、蓄意裝笨）屬於獨立且危險的風險類別；且內部皆設有專門的審查機構。分歧之處：OpenAI 將危害類別分為「受追蹤」（強制採取緩解防護）與「研究類別」（僅觀測而不自動觸發實質措施）；DeepMind 則選擇將自主性拆解並融入具體危害領域，而非將其單獨列為獨立維度。實驗室在命名上可能稱為「受追蹤 vs 研究」，或「嚴重 vs 中度」，亦或「第一級 vs 第二級」；然而某項能力被歸入哪一個分類桶中，在不同實驗室之間所引發的實質維運後果大相逕庭。
 
 將三者並列研讀是一項極具啟發性的工程演練。同一項前沿能力，在 Anthropic 可能屬於「強制防禦緩解」，在 OpenAI 可能屬於「受監控但不觸發動作」，在 DeepMind 則屬於「在特定領域中受追蹤」。背後的政策治理姿態至關重要。
 
@@ -21,7 +21,7 @@
 
 架構設計：
 
-- **受追蹤類別（Tracked Categories）**：直接觸發能力報告（說明模型能做到何種程度）與防護報告（說明已部署何種緩解防禦）。在模型部署前必須經過安全諮詢委員會（Safety Advisory Group, SAG）的嚴格審查。
+- **受追蹤類別（Tracked Categories）**：直接觸發能力報告（說明模型能做到何種程度）與防護報告（說明已部署何種緩解防禦）。部署前由安全諮詢小組（Safety Advisory Group, SAG）審查。
 - **研究類別（Research Categories）**：實驗室正在密切追蹤、但尚未做出明確強制緩解承諾的模型能力。包含長程自主性、蓄意裝笨、自主複製與適應，以及破壞安全防護機制。
 
 v2 版的關鍵核心定調：研究類別**不會**自動觸發任何強制緩解措施。政策文本中所使用的字眼是「潛在（potential）」緩解措施。這是研讀時必須緊盯的關鍵差異：一項能力被歸類在「受追蹤」還是「研究類別」，是決定該能力會遭遇「實質卡關」還是僅僅被「記錄觀察」的關鍵樞紐。
@@ -104,5 +104,5 @@ a5-tracked-vs-research
 - [OpenAI — Updating our Preparedness Framework](https://openai.com/index/updating-our-preparedness-framework/) — v2 公告。
 - [OpenAI — Preparedness Framework v2 PDF](https://cdn.openai.com/pdf/18a02b5d-6b67-4cec-ab64-68cdfbddebcd/preparedness-framework-v2.pdf) — 完整文件。
 - [DeepMind — Strengthening our Frontier Safety Framework](https://deepmind.google/blog/strengthening-our-frontier-safety-framework/) — FSF v3 公告。
-- [DeepMind — Updating the Frontier Safety Framework (April 2026)](https://deepmind.google/blog/updating-the-frontier-safety-framework/) — Tracked Capability Levels 新增內容。
+- [DeepMind — Updating the Frontier Safety Framework (April 2026)](https://deepmind.google/blog/updating-the-frontier-safety-framework/) —「受追蹤能力等級」（Tracked Capability Levels）新增內容。
 - [Gemini 3 Pro FSF Report](https://storage.googleapis.com/deepmind-media/gemini/gemini_3_pro_fsf_report.pdf) — FSF 格式的風險報告範例。

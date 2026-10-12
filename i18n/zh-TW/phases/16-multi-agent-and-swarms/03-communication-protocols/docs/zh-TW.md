@@ -22,7 +22,7 @@
 
 這正是通訊協定所要解決的核心難題。若缺乏一套關於 agent 如何交換資訊的共享契約，多 agent 系統將會十分脆弱、缺乏可稽核性，且無法擴展至超越你自己親手編寫的少數幾個 agent 之外。
 
-AI 生態系對此給出了四種標準協定作為回應，各自攻克該難題的特定切片：
+AI 生態系對此給出了四種協定作為回應，各自攻克該難題的特定切片：
 
 - **MCP** 專注於工具存取
 - **A2A** 專注於 Agent 之間的協同合作
@@ -280,7 +280,7 @@ ACP 是一套專為**企業級環境**量身打造的通訊協定。不同於許
 sequenceDiagram
     participant Client
     participant ACP as ACP Agent
-    participant Audit as 稽核日誌
+    participant Audit as 稽核記錄
 
     Client->>ACP: POST /runs (mode: sync)
     ACP->>ACP: Process request...
@@ -570,7 +570,7 @@ swarm-message-bus
 
 ### 步驟一：核心訊息型別定義
 
-任何多 agent 系統的起點皆始於訊息格式。我們定義了精準映射至工業級真實協定標準的型別：
+任何多 agent 系統的起點皆始於訊息格式。我們定義可對應實際協定用法的型別：
 ```typescript
 import crypto from "node:crypto";
 
@@ -616,7 +616,7 @@ function textMessage(role: MessageRole, text: string): AgentMessage {
   return createMessage(role, [{ text }]);
 }
 ```
-值得特別留意：`MessagePart` 是多模態的（文字、結構化資料、二進位檔案），完全對齊真實的 A2A 與 ACP 規範。如同 A2A 1.0 的設計，具體存在的欄位（`text`、`data` 或 `url`）直接宣告了該片段的型別本質；無需額外的 `kind` 標籤。`TrajectoryEntry` 則用於記錄完整的推理鏈條，精準契合 ACP 的 TrajectoryMetadata。
+值得特別留意：`MessagePart` 是多模態的（文字、結構化資料、檔案），完全對齊真實的 A2A 與 ACP 規範。如同 A2A 1.0 的設計，具體存在的欄位（`text`、`data` 或 `url`）直接宣告了該片段的型別本質；無需額外的 `kind` 標籤。`TrajectoryEntry` 則用於記錄完整的推理鏈條，精準契合 ACP 的 TrajectoryMetadata。
 
 ### 步驟二：A2A Agent Card 與註冊表
 
@@ -1443,7 +1443,7 @@ graph TD
 ## Ship It｜交付成果
 
 本課交付了以下具體成果：
-- `code/main.ts` —— 完整實作了四大通訊協定模式的工業級展示程式碼
+- `code/main.ts` —— 完整實作了四種通訊協定模式
 - `outputs/prompt-protocol-selector.md` —— 專門協助你為自身業務系統挑選最適通訊協定的決策 prompt
 
 ## Exercises｜練習
@@ -1456,7 +1456,7 @@ graph TD
 
 4. **動態協定協商（Protocol negotiation）。** 實作 ANP 的元協定理念。讓兩個 agent 透過交換 `protocolNegotiation` 訊息提議各自支援的格式（例如「我能講 JSON-RPC」對決「我偏好 REST」）。在最多 3 輪交涉內，雙方達成格式共識或宣告逾時。達成共識的格式將直接決定後續呼叫哪一個 `TaskManager` 或 `AuditableRunner`。
 
-5. **受限速的服務發現（Rate-limited discovery）。** 建構一個 `RateLimitedRegistry` 包裝層，以可配置的 TTL 快取 Agent Card 查詢結果，並嚴格限制每個 agent 每秒能發起的發現請求上限。模擬 100 個 agent 在啟動時同時互相探索的驚群效應，並量化測量快取與限速所帶來的顯著改善成效。
+5. **受限速的服務發現（Rate-limited discovery）。** 建構一個 `RateLimitedRegistry` 包裝層，以可配置的 TTL 快取 Agent Card 查詢結果，並嚴格限制每個 agent 每秒能發起的發現請求上限。模擬 100 個 agent 在啟動時同時互相探索的驚群效應，並量測差異。
 
 ## Key Terms｜關鍵術語
 

@@ -1,6 +1,6 @@
 # ReWOO 與 Plan-and-Execute：解耦規劃架構
 
-> ReAct 在單一資料流中將思考與行動交替穿插；而 ReWOO 則將兩者徹底解耦：先完整規劃，再執行。此設計節省了 5 倍的 Token 消耗、在 HotpotQA 上提升了 4% 的準確率，並允許將規劃能力蒸餾至 7B 輕量模型中。Plan-and-Execute 將其通用化，而 Plan-and-Act 則將此模式擴展至複雜的長路徑網頁導航任務。
+> ReAct 在單一資料流中將思考與行動交替穿插；而 ReWOO 則將兩者徹底解耦：先完整規劃，再執行。此設計讓 Token 用量降至約 1/5，並在 HotpotQA 上將準確率提升了 4 個百分點；此外，還可將規劃能力蒸餾至 7B 輕量模型中。Plan-and-Execute 將其通用化，而 Plan-and-Act 則將此模式擴展至複雜的長路徑網頁導航任務。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -11,7 +11,7 @@
 
 - 深入闡明為何 ReWOO 的 Planner / Worker / Solver 角色分工架構，相較於 ReAct 的交替迴圈能顯著節省 Token 並大幅提升系統穩健度。
 - 以純 Python 標準函式庫實作一套規劃有向無環圖（Plan DAG）、依相依性排序的拓撲執行器，以及負責綜合各工作者產物的求解器。
-- 參照 Anthropic 於 2026 年提出的「五大工作流程模式」架構，準確決策任務應採用「先規劃後執行」還是「交替式 ReAct」。
+- 依 Anthropic 的「五大工作流程模式」架構，判斷任務應採用「先規劃後執行」還是「交替式 ReAct」。
 - 識別在何種長路徑網頁或行動端任務中，必須採用 Plan-and-Act 的合成規劃資料方案。
 
 ## The Problem｜問題
@@ -32,11 +32,11 @@ Solver:   user_question, plan_dag, evidence -> final_answer
 
 Planner（規劃器）產出一張有向無環圖（DAG）。每個節點明確標註工具名稱、輸入參數，以及其所相依的先前節點輸出（例如 `#E1`、`#E2` 等參照）。Workers（工作者）依拓撲排序依序或平行執行各節點工具。Solver（求解器）負責將所有收集到的證據無縫拼裝為最終答案。
 
-### 節省 5 倍 Token 的根本原因
+### Token 用量降至約 1/5 的原因
 
 ReAct 的 prompt 長度會隨著執行步驟呈線性遞增。到了第 10 步，prompt 內部塞滿了「思考 1 + 行動 1 + 觀察 1 + 思考 2 + 行動 2 + 觀察 2……」的龐大歷史，且每個中繼步驟皆在冗餘重複包含原始 prompt。
 
-相對地，ReWOO 僅需支付：一次相對較大的規劃器 prompt、N 次輕量的獨立工作者工具呼叫（彼此完全無需承載先前的思維鏈），以及一次最終的求解器 prompt。在 HotpotQA 基準測試中，論文實測節省了約 5 倍的 Token 總消耗量，同時任務絕對準確率提升了 4 個百分點。
+相對地，ReWOO 僅需支付：一次相對較大的規劃器 prompt、N 次輕量的獨立工作者工具呼叫（彼此完全無需承載先前的思維鏈），以及一次最終的求解器 prompt。在 HotpotQA 基準測試中，論文實測 Token 用量約降至 1/5，同時任務絕對準確率提升了 4 個百分點。
 
 ### 顯著提升的系統穩健度
 
@@ -52,7 +52,7 @@ LangChain 團隊於 2023 年 8 月將 ReWOO 的核心理念提煉並定名為 Pl
 
 ### Plan-and-Act 範式（Erdogan 等人，arXiv:2503.09572，ICML 2025）
 
-Plan-and-Act 將該模式進一步推向長路徑的網頁與行動端 agent。其核心貢獻在於引入了合成規劃資料（Synthetic plan data）：利用標註軌跡產生器，主動產出帶有顯式規劃的訓練資料。這用於調校各類規劃器模型，使其在類似 WebArena 等超過 30–50 步的超長任務中依然能保持思維內聚力，而單一 ReAct 軌跡在這類長任務中容易失去連貫性。
+Plan-and-Act 將該模式進一步推向長路徑的網頁與行動端 agent。其核心貢獻在於引入了合成規劃資料（Synthetic plan data）：利用標註軌跡產生器，主動產出帶有顯式規劃的訓練資料。這用於 fine-tune 規劃器模型，使其在類似 WebArena 等超過 30–50 步的超長任務中依然能保持思維內聚力，而單一 ReAct 軌跡在這類長任務中容易失去連貫性。
 
 ### 架構選型決策標準
 
@@ -91,7 +91,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-LangGraph 將 Plan-and-Execute 作為標準配方提供（`create_react_agent` 用於 ReAct，自訂圖用於 plan-execute）。CrewAI 的 Flows 架構直接內建了此模式：你預先定義好各項任務，由 Flow DAG 自動按拓撲排程執行。Plan-and-Act 的合成資料方法目前主要見於學術前沿；而顯式規劃 DAG 的執行環境模式則已透過 LangGraph 與 CrewAI Flows 在正式環境廣泛落地。
+LangGraph 將 Plan-and-Execute 作為標準配方提供（`create_react_agent` 用於 ReAct，自訂圖用於 plan-execute）。CrewAI 的 Flows 架構直接內建了此模式：你預先定義好各項任務，由 Flow DAG 自動按拓撲排程執行。Plan-and-Act 的合成資料方法目前主要見於學術前沿；而顯式規劃 DAG 的執行環境模式則已透過 LangGraph 與 CrewAI Flows 在正式環境中提供。
 
 ## Ship It｜交付成果
 
@@ -114,7 +114,7 @@ LangGraph 將 Plan-and-Execute 作為標準配方提供（`create_react_agent` �
 | Plan-and-Act | 「規模化規劃執行」 | 引入合成規劃資料訓練專屬規劃器，專門處理長路徑任務的進階模式 |
 | Evidence reference | 「#E1, #E2, ...」 | 規劃節點內部的佔位符號，於執行分派時動態替換為先前 Worker 的輸出 |
 | Planner distillation | 「輕量規劃器 + 旗艦執行器」 | 利用大型教師模型產出的規劃軌跡，將規劃能力蒸餾至輕量模型中 |
-| Token efficiency | 「更少往返消耗」 | 在 HotpotQA 基準測試中，ReWOO 相較於 ReAct 實現了 5 倍的 Token 節省 |
+| Token efficiency | 「更少往返消耗」 | 在 HotpotQA 基準測試中，ReWOO 的 Token 用量約為 ReAct 的 1/5 |
 | DAG executor | 「拓撲調度器」 | 依相依關係嚴格依拓撲順序執行規劃節點，在同層級自動實施平行調度 |
 
 ## Further Reading｜延伸閱讀

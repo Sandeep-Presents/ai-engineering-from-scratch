@@ -41,8 +41,8 @@ Anthropic 的正式環境 Research 系統在內部科研評測中相較於單一
 
 三大致勝物理機制：
 
-1. **每位子 Agent 享有獨立純淨的上下文。** 負責深入調研「FIPA-ACL 歷史傳承」的工作者，完全不需要背負主導 Agent 在規劃階段所消耗的 40k token 雜訊。它享有完整的 200k 視窗，全心全意專注於解答這一個問題。
-2. **以 prompt 專門化角色。** 主導 Agent 的系統 prompt 聚焦於「拆解與綜述」，而非「調研細節」。每位工作者的 prompt 則高度精簡：「找出 X 領域的具體變化」。聚焦的 prompt 自然產出聚焦的高品質成果。
+1. **每位子 Agent 享有獨立純淨的上下文。** 負責深入調研「FIPA-ACL 歷史傳承」的工作者，不必承接主導 Agent 在規劃階段消耗的 40k token。它享有完整的 200k 視窗，全心全意專注於解答這一個問題。
+2. **以 prompt 專門化角色。** 主導 Agent 的系統 prompt 聚焦於「拆解與綜述」，而非「調研細節」。每位工作者的 prompt 則高度精簡：「找出 X 領域的具體變化」。聚焦的 prompt 自然產出聚焦的成果。
 3. **極致的平行加速。** 所有工作者並行運作。整體的端到端耗時近似於 `max(worker_times) + plan + synthesis`，而非各工作者耗時的無奈加總 `sum(worker_times)`。
 
 ### 來自正式環境的工程教訓（Anthropic 2025）
@@ -56,7 +56,7 @@ Anthropic 的技術文章總結了多項至今在 2026 年仍然適用的正式�
 
 ### 圖原生架構的演進轉向
 
-LangGraph 最初曾釋出名為 `langgraph-supervisor` 的高階輔助函式庫，封裝了 `create_supervisor` 等現成邏輯。到了 2025 年，LangChain 官方全面轉向推薦直接透過工具呼叫（tool-calling）來實作監督者模式，原因在於直接工具呼叫能賦予開發者更強大的控制權，能夠精準掌控*監督者究竟能看見哪些資訊*（上下文工程）。舊函式庫依然可用，但現代架構強烈建議採用原生工具呼叫形態。
+LangGraph 最初曾釋出名為 `langgraph-supervisor` 的高階輔助函式庫，封裝了 `create_supervisor` 等現成邏輯。到了 2025 年，LangChain 將推薦方向改為直接透過工具呼叫（tool-calling）實作監督者模式，原因在於直接工具呼叫能賦予開發者更強大的控制權，能夠精準掌控*監督者究竟能看見哪些資訊*（上下文工程）。舊函式庫依然可用，但文件現在建議採用原生工具呼叫方式。
 
 ### 典型的系統失效模式
 
@@ -100,10 +100,10 @@ python3 code/main.py
 
 在將監督者模式推向正式環境之前的自檢清單：
 
-- **模型高低配對（Model pairing）。** 主導 Agent 必須採用具備頂尖推理能力的旗艦模型（例如 Opus 級別、`o3` 級別）。工作者則應採用速度更快、成本更低廉的模型（例如 Sonnet、`o4-mini`）。
+- **模型高低配對（Model pairing）。** 主導 Agent 使用推理級模型（例如 Opus 級別、`o3` 級別）。工作者則使用速度更快、成本更低廉的模型（例如 Sonnet、`o4-mini`）。
 - **工作者逾時熔斷（Worker timeout）。** 任何執行時間超過中位數 2 倍的工作者必須被果斷強殺；主導 Agent 要麼以更窄的範圍重新派生工作者，要麼直接基於現有成果繼續前進。
 - **單一工作者 Token 配額上限。** 設定硬性上限（例如限制最多為預期綜述輸入的 10 倍），防止失控的無窮迴圈工作者燒乾團隊預算。
-- **全鏈路可觀測性。** 完整追蹤主導者的規劃、每位工作者的工具呼叫，以及最終的綜述鏈條。這是展開任何事後稽核與除錯的唯一依據。
+- **全鏈路可觀測性。** 追蹤主導者的規劃、每位工作者的工具呼叫，以及最終的綜述。這是事後除錯的基礎。
 - **彩虹滾動部署。** 具備深層長時程狀態的 agent 必須採用漸進式的版本排空與替換，堅決杜絕粗暴的熱切換。
 
 ## Exercises｜練習
@@ -112,7 +112,7 @@ python3 code/main.py
 2. 實作工作者逾時機制：強殺任何執行時間超過 0.5 秒的工作者，並讓主導 Agent 僅依據剩餘成果完成綜述。你需要記錄何種可觀測性指標才能讓維運者明確獲知某位工作者已被強制切斷？
 3. 為主導者的綜述步驟加入衝突偵測機制：若兩位工作者回傳了相互矛盾的答案，主導者應當主動在最終報告中凸顯該分歧，而非隨意挑選一方。在不呼叫額外 LLM 的前提下，你該如何實作矛盾偵測演算法？
 4. 閱讀 Anthropic 的 Research 系統工程技術文章。列出三項本玩具展示若要真正推向正式環境運作所必須補齊的工程實踐。
-5. 比較 LangGraph 舊版 `create_supervisor` 與當前官方推薦的原生工具呼叫架構。哪一種方案能賦予你對「監督者究竟能看到什麼」更強大的精準控制力？為什麼 Anthropic 明確規定僅將工作者的「子答案」傳入最終綜述，而堅決禁止將工作者原始的上下文細節全盤丟入？
+5. 比較 LangGraph 舊版 `create_supervisor` 與當前官方推薦的原生工具呼叫架構。哪一種方案能賦予你對「監督者究竟能看到什麼」更強大的精準控制力？為什麼 Anthropic 只將工作者的「子答案」傳入最終綜述，而不傳入工作者的原始上下文？
 
 ## Key Terms｜關鍵術語
 
@@ -130,6 +130,6 @@ python3 code/main.py
 ## Further Reading｜延伸閱讀
 
 - [Anthropic engineering — How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 監督者模式在工業級正式環境落地運作的最權威參考文獻。
-- [LangGraph workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 工具呼叫型監督者模式當前已成為官方唯一首選推薦形態。
-- [LangGraph supervisor reference](https://reference.langchain.com/python/langgraph-supervisor) — 傳統的高階輔助函式庫，在 2026 年既有系統中依然被廣泛維護。
+- [LangGraph workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents) — 工具呼叫型監督者模式是目前建議採用的形式。
+- [LangGraph supervisor reference](https://reference.langchain.com/python/langgraph-supervisor) — 傳統的高階輔助函式庫，2026 年仍在正式環境中使用。
 - [OpenAI cookbook — Orchestrating Agents: Routines and Handoffs](https://developers.openai.com/cookbook/examples/orchestrating_agents) — 基於交接機制的監督者模式實作變體。

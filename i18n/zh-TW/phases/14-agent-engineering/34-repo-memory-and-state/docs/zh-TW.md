@@ -16,9 +16,9 @@
 
 ## The Problem｜問題
 
-Agent 結束了一個對話工作階段，視窗隨之關閉。當下一個工作階段開啟並詢問「該從哪裡開始」時，模型往往表示「讓我先檢查檔案」，隨後讀取了過時的舊筆記，重新做了早已完工的工作。更糟糕的是，它甚至會自作主張重寫一個已完工的檔案——僅僅因為沒有任何記錄告訴它該檔案已經驗收通過。
+Agent 結束了一個對話工作階段，視窗隨之關閉。當下一個工作階段開啟並詢問「該從哪裡開始」時，模型往往表示「讓我先檢查檔案」，隨後讀取了過時的舊筆記，重新做了早已完工的工作。更糟糕的是，它甚至會自作主張重寫一個已完工的檔案——僅僅因為沒有任何記錄告訴它該檔案已經完成。
 
-工作台的解法是**儲存庫記憶（repo memory）**：狀態以 JSON 格式持久化存於儲存庫中，在嚴格的結構描述約束下進行原子寫入，且對 Git 程式碼審查高度友善。聊天對話僅是暫態的即時串流；而儲存庫才是唯一的最高事實來源（System of Record）。
+工作台的解法是**儲存庫記憶（repo memory）**：狀態以 JSON 格式持久化存於儲存庫中，在嚴格的結構描述約束下進行原子寫入，且對 Git 程式碼審查高度友善。聊天對話只是短暫的資訊流；而儲存庫才是記錄系統（System of Record）。
 
 ## The Concept｜核心概念
 
@@ -62,7 +62,7 @@ JSON Schema 是不可動搖的資料契約。若缺乏結構描述，每個 Agen
 
 ### 狀態版本遷移
 
-當結構描述版本變更時，必須同時附上遷移腳本。狀態檔案攜帶 `schema_version` 欄位；管理器若遇到無法自動遷移的未知舊版本，堅決拒絕讀取載入。
+當結構描述版本變更時，必須同時附上遷移腳本。狀態檔案攜帶 `schema_version` 欄位；管理器若遇到無法遷移的版本，堅決拒絕載入。
 
 ```figure
 wb-state-persist
@@ -89,13 +89,13 @@ python3 code/main.py
 
 四大實戰模式將教學玩具提升為足以承受多 Agent 大型 Monorepo 考驗的生產級架構：
 
-**原子性暫存覆寫（Temp-and-rename）絕非可選項目**：2026 年 3 月 Hive 專案的一起嚴重 Bug 報告清晰暴露了該失效模式：`state.json` 採用 `write_text()` 直接寫入且例外被中途吞沒。不完整的局部寫入導致後續工作階段在損壞的狀態下靜默復原，引發了災難性後果。唯一的正確解法始終是：在目標檔案的同一目錄下透過 `tempfile.mkstemp` 建立暫存檔、寫入內容、執行 `fsync` 刷盤，隨後呼叫 `os.replace`（在 POSIX 與 Windows 上皆具備原子覆寫保證）。本課的 `atomic_write` 正是完全依此實作。
+**原子性暫存覆寫（Temp-and-rename）絕非可選項目**：2026 年 3 月 Hive 專案的一起嚴重 Bug 報告清晰暴露了該失效模式：`state.json` 採用 `write_text()` 直接寫入且例外被中途吞沒。不完整的局部寫入導致後續工作階段在損壞的狀態下靜默復原，引發了災難性後果。修正方式始終是：在目標檔案的同一目錄下透過 `tempfile.mkstemp` 建立暫存檔、寫入內容、執行 `fsync` 刷盤，隨後呼叫 `os.replace`（在 POSIX 與 Windows 上皆具備原子覆寫保證）。本課的 `atomic_write` 正是完全依此實作。
 
 **為所有非冪等工具呼叫配置冪等鍵**：若 Agent 在呼叫工具後、但尚未完成檢查點存檔前夕遭遇系統崩潰，重啟後接續執行時會盲目重試該工具呼叫。對於讀取操作無害；但對於寄送郵件、資料庫寫入或檔案上傳則極其危險。標準模式：在執行工具前，先將工具呼叫 ID 記錄至 `pending_calls.jsonl` 中。在重試時檢查該 ID；若已存在，直接略過呼叫並使用快取的結果。Anthropic 與 LangChain 在 2026 年的指引中皆強調了此點；LangGraph 的檢查點亦基於完全相同的原因持久化保存待處理寫入。
 
-**將龐大產物從核心狀態中剝離**：切勿將 CSV 表格、長篇對話紀錄或生成的程式碼檔案塞入 `agent_state.json` 內部。應當將產物保存為獨立檔案（或上傳至物件儲存），而在狀態中僅保留其路徑字串。確保檢查點始終輕巧快速，而產物可獨立自然增長。
+**將龐大產物從核心狀態中剝離**：切勿將 CSV 表格、長篇對話紀錄或生成的檔案塞入 `agent_state.json` 內部。應當將產物保存為獨立檔案（或上傳至物件儲存），而在狀態中僅保留其路徑字串。確保檢查點始終輕巧快速，而產物可獨立自然增長。
 
-**審計採用事件溯源（Event Sourcing），復原採用快照（Snapshots）**：在每次狀態變更時追加寫入事件紀錄（`state.events.jsonl`）；定時將當前狀態快照存檔至 `state.json`。中斷復原時先讀取最新快照，隨後回放該快照時間戳記之後的所有事件。這會消耗稍微多一點的磁碟空間，但賦予了你逐字逐句重現 Agent 過往決策鏈的能力——在排查長路徑任務時不可或缺。這與 Postgres 底層 WAL 的運作原理完全一致。
+**稽核採用事件溯源（Event Sourcing），復原採用快照（Snapshots）**：在每次狀態變更時追加寫入事件紀錄（`state.events.jsonl`）；定時將當前狀態快照存檔至 `state.json`。中斷復原時先讀取最新快照，隨後回放該快照時間戳記之後的所有事件。這會消耗稍微多一點的磁碟空間，但賦予了你逐字逐句重現 Agent 過往決策鏈的能力——在排查長路徑任務時不可或缺。這與 Postgres 內部使用 WAL 的架構模式相同。
 
 **嚴格落實結構描述遷移，否則拒絕載入**：整數型的 `schema_version` 是核心契約。當管理器遇到無法辨識的未知版本時，堅決拒絕讀取。在結構描述升級時同步提供遷移腳本；確保 `tools/migrate_state.py` 在每次啟動時皆能冪等執行。
 
@@ -103,17 +103,17 @@ python3 code/main.py
 
 在正式環境中：
 
-- **LangGraph 檢查點儲存器**：相同的理念，不同的儲存實作。檢查點將圖狀態持久化至 SQLite、Postgres 或自訂後端。當檢查點儲存器失效且你需要手動查閱狀態時，本課的結構描述是唯一的標準依據。
+- **LangGraph 檢查點儲存器**：相同的理念，不同的儲存實作。檢查點將圖狀態持久化至 SQLite、Postgres 或自訂後端。當檢查點儲存器失效且你需要手動查閱狀態時，可以參照本課所教的結構描述。
 - **Letta 記憶區塊**：具結構描述的持久化區塊（Phase 14 · 08）。完全相同的嚴格規範，專門服務於長時效人設。
-- **OpenAI Agents SDK 工作階段儲存**：可插拔的後端架構，原生支援結構描述。本課的狀態檔案正是其本地檔案後端的標準形態。
+- **OpenAI Agents SDK 工作階段儲存**：可插拔的後端架構，具備結構描述感知能力。本課的狀態檔案正是其本地檔案後端的標準形態。
 
 ## Ship It｜交付成果
 
-`outputs/skill-state-schema.md` 能為特定專案產出成對的 JSON Schema 契約（狀態 + 看板）、內建原子寫入的 Python `StateManager`，以及標準的架構遷移鷹架，確保下一次結構描述升級不會損壞既有工作台。
+`outputs/skill-state-schema.md` 能為特定專案產出成對的 JSON Schema 契約（狀態 + 看板）、內建原子寫入的 Python `StateManager`，以及標準的結構描述遷移鷹架，確保下一次結構描述升級不會損壞既有工作台。
 
 ## Exercises｜練習
 
-1. 為系統新增 `last_human_touch` 人工編輯時間戳記。在人類工程師手動修改該檔案後的 5 秒內，堅決拒絕 Agent 的任何覆寫寫入。
+1. 為系統新增 `last_human_touch` 人工編輯時間戳記。有人編輯該檔案後的 5 秒內，堅決拒絕 Agent 的任何寫入。
 2. 擴充校驗器以支援 `oneOf`：使任務既可定義為建置任務，亦可定義為審核任務，且兩者具備截然不同的必填欄位。
 3. 新增 `schema_version` 欄位，並撰寫從 v1 升級至 v2 的遷移腳本（將 `blockers` 重新命名為 `risks`）。
 4. 將底層儲存後端自本地檔案遷移為 SQLite 資料庫，同時維持 `StateManager` 的外部呼叫介面完全不變。
@@ -126,7 +126,7 @@ python3 code/main.py
 | 儲存庫記憶（Repo memory） | 「筆記檔案」 | 儲存於儲存庫中、納入版本控制且受結構描述約束的實際狀態檔案 |
 | 結構描述優先（Schema-first） | 「校驗輸入」 | 在寫入程式碼前預先定義資料契約，拒絕資料結構漂移 |
 | 原子寫入（Atomic write） | 「直接覆寫改名」 | 先寫入暫存檔、fsync 刷盤、再原子重新命名，確保局部崩潰不損壞檔案 |
-| 遷移（Migration） | 「架構版本升級」 | 將 vN 版本狀態平滑轉換為 v(N+1) 版本的自動化遷移腳本 |
+| 遷移（Migration） | 「結構描述版本升級」 | 將 vN 版本狀態平滑轉換為 v(N+1) 版本的自動化遷移腳本 |
 | 記錄系統（System of record） | 「最高權威事實」 | 當聊天對話紀錄被截斷遺失時，工作台唯一視為權威依據的產物 |
 
 ## Further Reading｜延伸閱讀
@@ -137,7 +137,7 @@ python3 code/main.py
 - [Fast.io, AI Agent State Checkpointing: A Practical Guide](https://fast.io/resources/ai-agent-state-checkpointing/) ——以結構描述為先的狀態檢查點與冪等性實踐
 - [Fast.io, AI Agent Workflow State Persistence: Best Practices 2026](https://fast.io/resources/ai-agent-workflow-state-persistence/) ——並發控制、TTL 與事件溯源實戰
 - [Hive Issue #6263 — non-atomic state.json writes silently ignored](https://github.com/aden-hive/hive/issues/6263) ——真實開源專案中非原子寫入的血淋淋教訓
-- [eunomia, Checkpoint/Restore Systems in AI Agents](https://eunomia.dev/blog/2025/05/11/checkpointrestore-systems-evolution-techniques-and-applications-in-ai-agents/) ——借鏡作業系統檢查點復原機制的演進史
+- [eunomia, Checkpoint/Restore Systems: Evolution, Techniques, Applications](https://eunomia.dev/blog/2025/05/11/checkpointrestore-systems-evolution-techniques-and-applications-in-ai-agents/) ——借鏡作業系統檢查點復原機制的演進史
 - [Indium, 7 State Persistence Strategies for Long-Running AI Agents in 2026](https://www.indium.tech/blog/7-state-persistence-strategies-ai-agents-2026/) ——長任務狀態持久化七大策略
 - [Microsoft Agent Framework, Compaction](https://learn.microsoft.com/en-us/agent-framework/agents/conversations/compaction) ——微軟官方檢查點壓縮管理
 - Phase 14 · 08——記憶區塊與睡眠期運算架構

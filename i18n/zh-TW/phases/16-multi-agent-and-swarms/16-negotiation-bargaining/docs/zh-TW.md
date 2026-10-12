@@ -1,6 +1,6 @@
 # 協商與議價機制（Negotiation and Bargaining）
 
-> Agent 之間需要就有限資源、服務價格、任務分配以及合約條款展開協商。2026 年的基準測試結果很清楚：NegotiationArena（arXiv:2402.05863）證明 LLM 能透過人格操縱（如「絕望」）將自身收益提升約 20%；《Measuring Bargaining Abilities》（arXiv:2402.15813）指出 LLM 扮演買方角色比扮演賣方角色更困難，且擴大模型規模無濟於事——其提出的 **OG-Narrator**（確定性報價生成器 + LLM 敘述者）將成交率從 26.67% 提升至 88.88%；大規模自主協商競賽（arXiv:2503.06416）進行了約 18 萬次談判，發現：**隱匿思維鏈（CoT-concealing）** 的 Agent 透過對對手隱藏推理過程而獲勝；Bhattacharya 等人（2025 年）依哈佛談判專案（Harvard Negotiation Project）指標評估，發現 Llama-3 最有成效、Claude-3 最具侵略性，而 GPT-4 最公平。本課將實作合約網協定（FIPA 的前身，Phase 16 · 02）、建立 LLM 風格的買方與賣方、運作 OG-Narrator 式的分解，並量化各項結構選擇如何影響成交率。
+> Agent 之間需要就有限資源、服務價格、任務分配以及合約條款展開協商。2026 年的基準測試結果很清楚：NegotiationArena（arXiv:2402.05863）顯示 LLM 能透過人格操縱（如「絕望」）將自身收益提升約 20%；《Measuring Bargaining Abilities》（arXiv:2402.15813）指出 LLM 扮演買方角色比扮演賣方角色更困難，且擴大模型規模無濟於事——其提出的 **OG-Narrator**（確定性報價生成器 + LLM 敘述者）將成交率從 26.67% 提升至 88.88%；大規模自主協商競賽（arXiv:2503.06416）進行了約 18 萬次談判，發現：**隱匿思維鏈（CoT-concealing）** 的 Agent 透過對對手隱藏推理過程而獲勝；Bhattacharya 等人（2025 年）依哈佛談判專案（Harvard Negotiation Project）指標評估，發現 Llama-3 最有成效、Claude-3 最具侵略性，而 GPT-4 最公平。本課將實作合約網協定（FIPA 的前身，Phase 16 · 02）、建立 LLM 風格的買方與賣方、運作 OG-Narrator 式的分解，並量化各項結構選擇如何影響成交率。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)

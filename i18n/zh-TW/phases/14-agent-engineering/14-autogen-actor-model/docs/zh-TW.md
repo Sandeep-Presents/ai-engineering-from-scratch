@@ -11,7 +11,7 @@
 
 - 深入描述 Actor 模型：Agent 作為獨立 Actor、訊息作為唯一的行程間通訊（IPC）途徑、各 Actor 具備完全獨立的故障隔離邊界。
 - 指出 AutoGen v0.4 的三大 API 架構層——Core（核心層）、AgentChat（聊天層）、Extensions（擴充層）及其各自職責。
-- 闡明為何將「訊息投遞」與「訊息處理」解耦能帶來天然的高併發能力與系統容錯性。
+- 闡明為何將「訊息投遞」與「訊息處理」解耦能帶來天然的併發能力與系統容錯性。
 - 以純 Python 標準函式庫實作極簡的 Actor 執行環境，並在其上執行一套雙 Agent 程式碼審查協同流程。
 
 ## The Problem｜問題
@@ -27,7 +27,7 @@ AutoGen v0.4 給出的架構解答：**擁抱經典的 Actor 模型。**每個 A
 一個 Actor 具備以下特徵：
 
 - **私有狀態（Private state）**：外部絕無法直接讀寫；
-- **收件匣（Inbox）**：訊息排程佇列；
+- **收件匣（Inbox）**：訊息佇列；
 - **處理常式（Handler）**：`receive(message) -> effects`，其中副作用可以是「回覆」、「向其他 Actor 發送訊息」、「生成全新 Actor」、「更新自身狀態」或「終止自身」。
 
 兩個 Actor 之間**絕不共享記憶體**。它們只能透過發送訊息進行互動。
@@ -45,7 +45,7 @@ AutoGen v0.4 將介面清晰劃分為三層：
 在 v0.2 的舊模型中，呼叫 `agent_a.chat(agent_b)` 會同步阻塞 agent_a，直到 agent_b 執行完畢回傳。而在 v0.4 中，`send(agent_b, msg)` 僅將訊息放入 agent_b 的收件匣並立刻返回，由執行環境在背景非同步分派處理。這帶來了三項結果：
 
 - **故障隔離（Fault isolation）**：Agent B 崩潰不會拖垮 Agent A——執行環境會捕獲 B 的例外錯誤，並自主決定是重試、寫入記錄還是轉入死信佇列（Dead-letter Queue）。
-- **天然高併發（Natural concurrency）**：同時有多筆訊息在傳輸中；各 Actor 獨立並行消化自身的收件匣。
+- **天然併發（Natural concurrency）**：同時有多筆訊息在傳輸中；各 Actor 獨立並行消化自身的收件匣。
 - **天然的分散式擴展性（Distribution-ready）**：無論 Actor 是位於同一行程內，還是部署在跨網路的另一台伺服器上，收件匣 + 傳輸層的抽象完全保持一致。
 
 ### 常見編排拓撲

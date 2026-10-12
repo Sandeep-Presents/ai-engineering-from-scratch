@@ -117,4 +117,4 @@ python3 -m unittest discover code/tests -v
 
 ## 留存產物
 
-保留 `outputs/feedback-ratchet.json`。它是 Agent 輔助工程路線的持久終點，也是未來工作台變更的輸入。
+保留 `outputs/feedback-ratchet.json`。它是 Agent 輔助工程路線中可長期保留的最終成果，也是未來工作台變更的輸入。

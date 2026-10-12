@@ -1,6 +1,6 @@
 # 人在迴圈中：先提議後確認寫入（Human-in-the-Loop: Propose-Then-Commit）
 
-> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血緣（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆採用相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻記載的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
+> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會連同冪等性金鑰（idempotency key）存入持久化儲存區；帶著執行意圖、資料血緣（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確認外部副作用確實發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆採用相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。有文獻記載的緩解方式是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
 
 **Type:** Learn
 **Languages:** Python (stdlib, propose-then-commit state machine with idempotency)
@@ -19,7 +19,7 @@ Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是�
 
 ### 先提議後確認寫入的狀態機
 
-1. **提議（Propose）。** agent 生成擬議動作。該動作被持久化儲存至外部儲存庫（PostgreSQL、Redis 或 Durable Object）。包含：
+1. **提議（Propose）。** agent 生成擬議動作。該動作會持久化存入儲存區（PostgreSQL、Redis 或 Durable Object）。包含：
    - 意圖（intent，說明 agent 為何要執行此動作）
    - 資料血緣（data lineage，追溯導致此提議的具體資料來源）
    - 觸及權限（permissions touched，涉及哪些權限範圍、檔案或端點）
@@ -38,7 +38,7 @@ Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是�
 
 ### 持久化：為什麼審查狀態能超越行程生命週期
 
-審查等待室是一處 agent 本身絕對無法掌控的持久化狀態。工作流程在此刻暫停（第 12 課）。當人工確認到達時，工作流程能精準從該斷點接續運作。這正是為何 LangGraph 將 `interrupt()` 與 PostgreSQL 檢查點機制綁定，而非單純保存在記憶體中——即便核准指令在兩天之後才姍姍來遲，工作流程依然完整無損。
+審查等待室中的持久化狀態不歸 agent 所有。工作流程在此刻暫停（第 12 課）。當人工確認到達時，工作流程能精準從該斷點接續運作。這正是為何 LangGraph 將 `interrupt()` 與 PostgreSQL 檢查點機制綁定，而非單純保存在記憶體中——即便核准指令在兩天之後才姍姍來遲，工作流程依然完整無損。
 
 ### 橡皮圖章式核准與質詢應答緩解機制
 
@@ -54,17 +54,17 @@ HITL 預設的陽春介面（僅提供單純的「核准」／「拒絕」按鈕
 
 並非所有操作都需要大費周章地走先提議後確認寫入流程。2026 年的業界指導原則如下：
 
-- **具備實質後果的動作**（強制要求 HITL）：不可逆的寫入、金融轉帳交易、對外發布通訊、正式環境資料庫變更、毀滅性的檔案系統操作。
+- **具備實質後果的動作**（強制要求 HITL）：不可逆的寫入、金融交易、對外通訊、正式環境資料庫變更、毀滅性的檔案系統操作。
 - **可逆動作**（視情境評估是否引入 HITL）：本機程式碼檔案的修改、測試暫存環境的變更、具備極其清晰回滾機制的撤銷性寫入。
-- **純讀取與狀態檢視**（絕不需要 HITL）：讀取檔案、列出雲端資源、呼叫唯讀 API。
+- **純讀取與狀態檢視**（絕不需要 HITL）：讀取檔案、列出資源、呼叫唯讀 API。
 
 ### 動作後驗證（Post-Action Verification）
 
-「確認寫入指令已發出」並不等同於「外部副作用已確實正確生效」。網路分割與並行競爭可能導致工作流程誤以為操作已成功，而後端儲存層實際上根本未持久化該變更。驗證步驟會在 commit 後立即重新讀取目標資源以核實狀態。這與資料庫事務中附帶 `RETURNING` 子句，或在 AWS S3 中發起 `PutObject` 之後立即執行 `GetObject` 進行驗證的架構哲學完全一致。
+「確認寫入指令已發出」並不等同於「外部副作用確實發生」。網路分割與並行競爭可能導致工作流程誤以為操作已成功，而後端儲存層實際上根本未持久化該變更。驗證步驟會在 commit 後立即重新讀取目標資源以核實狀態。這與資料庫交易中附帶 `RETURNING` 子句，或在 AWS S3 中發起 `PutObject` 之後立即執行 `GetObject` 進行驗證的架構哲學完全一致。
 
 ### 歐盟 AI 法案第 14 條的法律要求
 
-歐盟《人工智慧法案》第 14 條明確規定，部署在歐盟的高風險 AI 系統必須配備「有效的人類監督」。法律條文中的「有效」絕非裝飾性詞彙。監管機構的具體指引明確排除了流於形式的橡皮圖章核准模式。在微軟 Agent 治理工具包的法規遵循文件中，附帶質詢應答機制的先提議後確認寫入模式，正是能從容通過第 14 條嚴格檢驗的架構模式。
+歐盟《人工智慧法案》第 14 條明確規定，部署在歐盟的高風險 AI 系統必須配備「有效的人類監督」。法律條文中的「有效」絕非裝飾性詞彙。法規用語明確排除了流於形式的橡皮圖章核准模式。在微軟 Agent 治理工具包的法規遵循文件中，附帶質詢應答機制的先提議後確認寫入模式，正是能從容通過第 14 條嚴格檢驗的架構模式。
 
 ```figure
 mx-propose-then-commit
@@ -72,7 +72,7 @@ mx-propose-then-commit
 
 ## Use It｜實際應用
 
-`code/main.py` 透過 Python 標準函式庫實作了一個先提議後確認寫入的狀態機。持久化儲存庫採用 JSON 檔案。冪等性金鑰由 (thread_id, action_signature) 的雜湊值派生。驅動程式模擬了三種經典情境：一次乾淨順暢的核准流程；一次在短暫故障後發起重試但保證不重複執行的流程；以及橡皮圖章式預設介面與質詢應答核對清單介面的實戰對比。
+`code/main.py` 透過 Python 標準函式庫實作了一個先提議後確認寫入的狀態機。持久化儲存區採用 JSON 檔案。冪等性金鑰由 (thread_id, action_signature) 的雜湊值派生。驅動程式模擬了三種經典情境：一次乾淨順暢的核准流程；一次在短暫故障後發起重試但保證不重複執行的流程；以及橡皮圖章式預設介面與質詢應答核對清單介面的實戰對比。
 
 ## Ship It｜交付成果
 
@@ -88,7 +88,7 @@ mx-propose-then-commit
 
 4. 為一項特定動作（例如「向公開的 Twitter 帳號發布貼文」）設計一套質詢應答核對清單。審查員必須回答哪三個問題？為什麼挑選這三個？
 
-5. 挑選一個只用同步「核准？」提示就已完全足夠（無需持久化儲存庫）的實際業務場景。說明背後的原因，並明確指出你在此情境下所甘願承擔的風險類別。
+5. 挑選一個只用同步「核准？」提示就已完全足夠（無需持久化儲存區）的實際業務場景。說明背後的原因，並明確指出你在此情境下所甘願承擔的風險類別。
 
 ## Key Terms｜關鍵術語
 
@@ -105,7 +105,7 @@ mx-propose-then-commit
 
 ## Further Reading｜延伸閱讀
 
-- [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — `RequestInfoEvent`, durable approvals.
+- [Microsoft Agent Framework — Human in the loop](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — `RequestInfoEvent`、持久化核准。
 - [Cloudflare Agents — Human in the loop](https://developers.cloudflare.com/agents/concepts/human-in-the-loop/) — `waitForApproval()` and Durable Objects.
 - [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 將 HITL 視為長時程風險的緩解措施。
 - [EU AI Act — Article 14: Human oversight](https://artificialintelligenceact.eu/article/14/) — 高風險系統的法規基準。

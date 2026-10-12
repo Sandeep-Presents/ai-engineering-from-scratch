@@ -163,7 +163,7 @@ canonical tool name
 
 ### 嚴禁伺服器主動發起逆向請求
 
-現代伺服器絕不允許自發發起獨立的 JSON-RPC 請求來要求模型取樣、進行人機問答引導或存取本機目錄。它們會回傳 `input_required`，由用戶端在本地滿足對應的輸入請求後，使用全新的請求 ID 重新發起最初的呼叫。
+現代伺服器絕不允許自發發起獨立的 JSON-RPC 請求來要求模型取樣、進行 Elicitation（徵詢：向使用者請求輸入）或存取本機目錄。它們會回傳 `input_required`，由用戶端在本地滿足對應的輸入請求後，使用全新的請求 ID 重新發起最初的呼叫。
 
 在處理輸入請求期間，切勿卡死對等端點的回應讀取執行緒。妥善維護關聯 ID，並為重試操作派發全新的 JSON-RPC 請求識別碼。
 
@@ -193,7 +193,7 @@ python3 -m unittest discover tests -v
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-mcp-client-harness.md`。它能產生現代用戶端的標準工程鷹架：涵蓋逐請求中繼資料壓印、stdio 時代動態協商、防碰撞命名空間合併、路由轉發，以及具備安全預設（Fail-closed）特性的傳統向下相容路徑。
+本課產出 `outputs/skill-mcp-client-harness.md`。它能產生現代用戶端的標準測試框架：涵蓋逐請求中繼資料壓印、stdio 時代動態協商、防碰撞命名空間合併、路由轉發，以及具備安全預設（Fail-closed）特性的傳統向下相容路徑。
 
 ## Exercises｜練習
 

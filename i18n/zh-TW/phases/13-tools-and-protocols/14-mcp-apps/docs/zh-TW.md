@@ -156,7 +156,7 @@ Mcp-Name: ui://notes/timeline.html
 
 HTTP 標頭數值必須與 JSON-RPC Request Body 內容完全相符。任何衝突矛盾皆屬於協定錯誤 `-32020`。
 
-回傳結果包含HTML 資源與相應的快取控制建議：
+回傳結果包含 HTML 資源與相應的快取控制建議：
 
 ```json
 {

@@ -22,7 +22,7 @@
 
 ### 用戶端 SDK vs Agent SDK
 
-- **用戶端 SDK（`anthropic`）**：暴露底層原始的 Messages API。工程師必須親手編寫控制迴圈、管理工具執行與維護全域狀態。
+- **用戶端 SDK（`anthropic`）**：暴露底層原始的 Messages API。工程師必須親手編寫控制迴圈、管理工具執行與維護狀態。
 - **Agent SDK（`claude-agent-sdk`）**：原生內建工具執行、MCP 連線管理、生命週期鉤子、子 agent 衍生與工作階段儲存庫。將 Claude Code 的核心迴圈直接封裝為高階函式庫。
 
 ### 原生內建工具集
@@ -33,8 +33,8 @@
 
 Anthropic 官方文件定義的兩大核心用途：
 
-1. **平行化運算（Parallelization）**：並發處理彼此獨立的工作任務。例如「在 20 個獨立模組中分別找尋對應的測試檔案」可直接分派為 20 個平行子 agent 任務。
-2. **脈絡隔離（Context isolation）**：子 agent 擁有各自獨立的上下文視窗；僅有最終產出結果會回傳給主協調者（Orchestrator）。這能讓主協調者的上下文 Token 預算得以保留。
+1. **平行化運算（Parallelization）**：讓彼此獨立的工作任務平行執行。例如「在 20 個獨立模組中分別找尋對應的測試檔案」可直接分派為 20 個平行子 agent 任務。
+2. **脈絡隔離（Context isolation）**：子 agent 擁有各自獨立的上下文視窗；僅有最終產出結果會回傳給主協調者（Orchestrator）。這能讓主協調者的脈絡預算得以保留。
 
 Python SDK 近期新增了 `list_subagents()` 與 `get_subagent_messages()` 介面，支援直接審查子 agent 的完整執行對話紀錄。
 
@@ -69,7 +69,7 @@ pro-workflow（Phase 14 課程參考）及類似系統正是透過這些鉤子�
 
 ### Claude 全託管 Agent（Claude Managed Agents）
 
-雲端全託管替代方案（Beta 標頭 `managed-agents-2026-04-01`）。專門處理長時段執行的非同步工作，原生內建 Prompt 快取與自動脈絡壓縮。以讓渡部分精細掌控權為代價，換取免維運的雲端基礎設施。
+雲端全託管替代方案（Beta 標頭 `managed-agents-2026-04-01`）。專門處理長時段執行的非同步工作，原生內建 Prompt 快取與自動脈絡壓縮。以讓渡部分精細掌控權為代價，換取雲端代管基礎設施。
 
 ### 典型架構失效模式
 
@@ -123,7 +123,7 @@ python3 code/main.py
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
 | Agent SDK | 「函式庫版的 Claude Code」 | 封裝工具執行、MCP 連線、鉤子、子 agent 與工作階段的執行環境架構 |
-| Subagent | 「子 Agent」 | 具備獨立上下文視窗與專屬預算的子執行體；結果匯總回傳給協調者 |
+| Subagent | 「子 Agent」 | 具備獨立上下文視窗與專屬預算的子 agent；結果匯總回傳給協調者 |
 | Session store | 「對話歷史資料庫」 | 支援回合追加、載入、列舉與級聯刪除的持久化儲存設施 |
 | Hook | 「生命週期回呼函式」 | 於工具呼叫前後、工作階段起訖、輸入送出或壓縮前執行的自訂擴充點 |
 | W3C trace context | 「跨行程分散式追蹤」 | 父層 Span 透過標準標頭透明傳播至 CLI 子行程中的追蹤機制 |

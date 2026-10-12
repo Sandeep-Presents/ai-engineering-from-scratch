@@ -1,6 +1,6 @@
 # Transfusion：自回歸文字加擴散影像於單一 Transformer（Transfusion: Autoregressive Text + Diffusion Image in One Transformer）
 
-> Chameleon 與 Emu3 將一切全盤押注在離散 token 之上。這套做法雖然能行，但量化資訊瓶頸顯而易見——其影像生成品質始終被壓制在連續空間擴散模型的水準之下。Transfusion（Meta，Zhou 等人，2024 年 8 月）採取了截然相反的技術路徑：徹底拋棄 VQ-VAE，維持影像特徵的連續性，並在單一 Transformer 骨幹上同時施加雙重損失函式進行聯合訓練。文字 token 遵循 next-token prediction；影像 patch 則計算流匹配（Flow Matching）與擴散損失。兩大目標在同一個權重空間中共同收斂。Stable Diffusion 3 底層的 MMDiT 架構正是其孿生兄弟。本課深入解構 Transfusion 的核心論證、手刻雙損失訓練器原型，並精確剖析讓單一 Transformer 同時兼顧雙重任務的關鍵注意力遮罩。
+> Chameleon 與 Emu3 將一切全盤押注在離散 token 之上。這套做法雖然能行，但量化資訊瓶頸顯而易見——其影像生成品質始終被壓制在連續空間擴散模型的水準之下。Transfusion（Meta，Zhou 等人，2024 年 8 月）採取了截然相反的技術路徑：徹底拋棄 VQ-VAE，維持影像特徵的連續性，並在單一 Transformer 骨幹上同時施加雙重損失函式進行聯合訓練。文字 token 遵循 next-token prediction；影像 patch 則計算流匹配（Flow Matching）／擴散損失。兩大目標在同一個權重空間中共同收斂。Stable Diffusion 3 底層的 MMDiT 架構與此相近。本課深入解構 Transfusion 的核心論證、手刻雙損失訓練器原型，並精確剖析讓單一 Transformer 同時兼顧雙重任務的關鍵注意力遮罩。
 
 **Type:** Build
 **Languages:** Python (stdlib, two-loss trainer on MNIST-scale toy)
@@ -62,7 +62,7 @@ M[i, j] = 1 if:
 其擴散損失採用標準公式：為影像 patch 添加噪聲，並要求模型預測噪聲（或等價地預測乾淨 patch）。Transfusion 實作中採用了流匹配（Flow Matching）——直接預測從噪聲流向清晰影像的速度場（velocity field）。
 
 訓練流程：
-1. 針對每個影像 patch x0，均勻隨機取樣時間步 t。
+1. 針對每個影像 patch x0，隨機取樣時間步 t。
 2. 取樣標準高斯噪聲 ε，計算線性插值 xt = (1-t) * x0 + t * ε。
 3. Transformer 預測速度場 v_theta(xt, t)；損失函式取均方誤差 MSE(v_theta(xt, t), ε - x0)。
 4. 與同序列中的文字 NTP 交叉熵損失相加後，執行聯合反向傳播。
@@ -91,7 +91,7 @@ MMDiT 的關鍵差異在於：
 - 無需預先耗時訓練離散 Tokenizer——其影像前端極度簡潔（僅需純線性層將像素投影至隱藏維度，與 ViT 輸入層無異）。
 - 在推論時，影像 patch 的去噪過程能在空間上高度平行運算，遠比逐一自回歸吐出數千個影像 token 更具吞吐優勢。
 
-客觀工程代價：Transfusion 是一個典型的雙損失系統，其訓練動態更具挑戰性。兩大損失項的權重比例極度敏感；NTP 與擴散損失在收斂節奏上的步調失配，容易引發其中一端被邊緣化的風險。
+客觀工程代價：Transfusion 是一個典型的雙損失系統，其訓練動態更具挑戰性。兩大損失項的權重需要調整；NTP 與擴散損失在收斂節奏上的步調失配，容易引發其中一端被邊緣化的風險。
 
 ### 後續演進技術版圖
 
@@ -107,11 +107,11 @@ cfg-guidance-scale
 
 `code/main.py` 在微型 MNIST 風格任務上實作了完整的 Transfusion 原型：
 
-- 文字描述為表徵數字（0-9）的簡短整數序列。
+- 圖片說明文字為描述數字（0-9）的簡短整數序列。
 - 影像為 4×4 的微型位元組網格。
 - 以一組共享權重的線性投影層作為 Transformer 的抽象代表；文字端計算 NTP 交叉熵損失，影像端計算噪聲 patch 的 MSE 均方誤差損失。
 - 訓練迴圈交替計算雙重損失，並嚴格實作了顯式區塊三角注意力遮罩。
-- 推論常式在單次前向調度中，無縫生成圖文並茂的連貫回應。
+- 生成時會在單次前向傳遞中產生圖片說明文字與 4x4 影像。
 
 Transformer 本身只是玩具；雙損失流程、注意力遮罩建構與推論迴圈才是真正的實作產物。
 
@@ -125,11 +125,11 @@ Transformer 本身只是玩具；雙損失流程、注意力遮罩建構與推�
 
 2. 為序列 `[T, T, <image>, P, P, P, P, </image>, T]` 實作二維區塊三角注意力遮罩矩陣。精確標註每一個座標項的值為 0 還是 1。
 
-3. MMDiT 引入了模態特化的 QKV 權重矩陣。相較於 Transfusion 完全共用權重的 Transformer，這額外增加了多少參數量？在 7B 規模下，這筆算力與記憶體開銷是否值得？
+3. MMDiT 引入了模態特化的 QKV 權重矩陣。相較於 Transfusion 完全共用權重的 Transformer，這額外增加了多少參數量？在 7B 規模下，這樣的參數量增加是否值得？
 
 4. 推論計算量評估：給定一段文字 prompt，模型先自回歸生成 50 個文字 token，隨後遇到 `<image>` 標籤，接著在 256 個 patch 上執行 20 步擴散去噪迴圈。總計需要執行多少次 Transformer 前向傳播？
 
-5. 閱讀 SD3 論文第 3 節。描述整流流（Rectified Flow）的直線性數學原理，並解釋為何它相較於傳統 DDPM 能在顯著更少的推論步長下迅速收斂。
+5. 閱讀 SD3 論文第 3 節。描述整流流（Rectified Flow）的直線性數學原理，並解釋為何它相較於傳統 DDPM 能以較少的推論步數收斂。
 
 ## Key Terms｜關鍵術語
 

@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 
 - 將事故、評估、使用者行為與修正轉化為有負責人的行動。
-- 將每個回饋信號路由到上下文、評估、政策、執行環境（runtime）或待辦清單。
+- 將每個回饋訊號路由到上下文、評估、政策、執行環境（runtime）或待辦清單。
 - 依嚴重性與頻率排定重複問題的優先順序。
 - 為每項控制設定退役條件。
 
@@ -20,7 +20,7 @@
 
 演進閉環：
 
-1. 觀察到具體的信號；
+1. 觀察到具體的訊號；
 2. 將它與成效、約束或假設關聯；
 3. 找出擁有該原因的最早系統層級；
 4. 建立一項有界限的變更；
@@ -29,24 +29,24 @@
 
 ## 路由到負責的層級
 
-| 信號 | 目的地 |
+| 訊號 | 目的地 |
 |---|---|
 | 偽陽性、回歸、錯誤結果 | 評估或測試 |
 | 缺少上下文、重複工作、過時事實 | 上下文來源或檢索路由 |
 | 不安全的動作或權限缺口 | 政策或權限邊界 |
 | 逾時、重試風暴、依賴不可用 | 執行環境控制 |
-| 新的產品需求或未解的取捨 | 整理過的待辦事項 |
+| 新的產品需求或未解的取捨 | 已具體化的待辦項目 |
 
 在最早有效的層級修復根本原因。若測試或權限可以讓故障不可能發生，就不要再加一段 prompt 文字。
 
 ```mermaid
 flowchart LR
-  S[Signal] --> O[Outcome or constraint]
-  O --> R[Root cause]
-  R --> D[Owning layer]
-  D --> C[Durable control]
-  C --> V[Verification]
-  V --> N[Next run]
+  S[訊號] --> O[成效或約束]
+  O --> R[根本原因]
+  R --> D[負責層級]
+  D --> C[持久控制]
+  C --> V[驗證]
+  V --> N[下一次執行]
   N --> S
 ```
 
@@ -80,34 +80,34 @@ flowchart LR
 
 - 產品證據會改變成效框架、假設、切片或量測計畫。
 - coding agent 的修正會改變測試、上下文、範圍、自動化或交接。
-- 事故可能同時改變產品邊界與 agent 工作環境。
+- 事故可能同時改變產品邊界與 agent 工作台。
 
 這就是為什麼「塑造建置」不是在寫程式之前結束的階段。它會延續到每一次被接受的變更。
 
 ## Build It｜動手實作
 
-實驗會分類信號、建立有負責人的棘輪行動、排定優先順序，並寫入 `outputs/feedback-backlog.json`。
+實驗會分類訊號、建立有負責人的棘輪行動、排定優先順序，並寫入 `outputs/feedback-backlog.json`。
 
 ```bash
 python3 code/main.py
 python3 -m unittest discover code/tests -v
 ```
 
-新增一個執行環境逾時信號，確認它路由到執行環境，而非一般待辦清單。
+新增一個執行環境逾時訊號，確認它路由到執行環境，而非一般待辦清單。
 
 ## Exercises｜練習
 
-1. 將一次真實事故與一則真實使用者投訴，分別轉化為具備明確負責人的棘輪行動。
+1. 將一起事故與一則使用者投訴轉化為棘輪行動。
 2. 指出能最先阻止這兩起問題重現的最早生效系統防護層。
-3. 為實驗輸出的待辦條目，追加具體的驗收檢驗指令或客觀觀測信號。
+3. 為實驗輸出的待辦條目，追加具體的驗收檢驗指令或客觀觀測訊號。
 4. 為一條政策規則定義明確的退役淘汰條件。
-5. 將一項已獲接納的人工糾偏，逆向追溯並注入下一個任務框架的邊界定義中。
+5. 追溯一項已接受的修正，並將它帶回下一個任務框架。
 
 ## Further Reading｜延伸閱讀
 
-- [Basili, Caldiera, and Rombach, The Goal Question Metric Approach](https://www.cs.toronto.edu/~sme/CSC444F/handouts/GQM-paper.pdf) ——透過目標導向度量推動組織級學習的經典 GQM 論文
-- [Fagerholm et al., Building Blocks for Continuous Experimentation](https://doi.org/10.1145/2601248.2601276) ——將客觀證據與持續產品開發無縫連接的技術與組織閉環
-- [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——將軟體需求視為貫穿整個生命週期動態演進的權威需求工程論文
+- [Basili, Caldiera, and Rombach, The Goal Question Metric Approach](https://www.cs.toronto.edu/~sme/CSC444F/handouts/GQM-paper.pdf) ——以目標導向量測促進組織學習
+- [Fagerholm et al., Building Blocks for Continuous Experimentation](https://doi.org/10.1145/2601248.2601276) ——連結證據與持續產品開發的技術與組織迴圈
+- [Nuseibeh and Easterbrook, Requirements Engineering: A Roadmap](https://www.cs.toronto.edu/~sme/papers/2000/ICSE2000.pdf) ——將需求視為會隨系統生命週期演進
 
 ## 留存產物
 

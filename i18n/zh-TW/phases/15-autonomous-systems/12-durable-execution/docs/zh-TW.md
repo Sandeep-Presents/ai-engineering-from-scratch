@@ -1,6 +1,6 @@
 # 長時間背景執行 Agent：持久化執行（Durable Execution）
 
-> 正式環境中的長時程 agent 絕不會跑在簡單的 `while True` 迴圈中。每一次 LLM 呼叫都會被封裝為一個具備檢查點（checkpoint）、重試機制與重播能力（replay）的活動（activity）。Temporal 與 OpenAI Agents SDK 的官方整合於 2026 年 3 月正式進入 GA 階段。Anthropic 推出的 Claude Code Routines 能夠在無需維持本地常駐行程的情況下，排程執行 Claude Code 呼叫。系統會在等待人類輸入時優雅暫停、安然度過服務重新部署，並從以 `thread_id` 為鍵的最新檢查點接續執行。在這套嶄新工程體驗的背後，實質上是一套成熟悠久的經典架構——工作流程編排（workflow orchestration）——外加一項全新特性：將 LLM 呼叫視為具備非確定性、但可在系統復原時依據歷史記錄確定性重播的活動。
+> 正式環境中的長時程 agent 絕不會跑在簡單的 `while True` 迴圈中。每一次 LLM 呼叫都會被封裝為一個具備檢查點（checkpoint）、重試機制與重播能力（replay）的活動（activity）。Temporal 與 OpenAI Agents SDK 的官方整合於 2026 年 3 月正式進入 GA 階段。Anthropic 推出的 Claude Code Routines 能夠在無需維持本地常駐行程的情況下，排程執行 Claude Code 呼叫。系統會在等待人類輸入時優雅暫停、安然度過服務重新部署，並從以 `thread_id` 為鍵的最新檢查點接續執行。這些操作上的新便利性背後，仍是既有的工作流程編排（workflow orchestration）模式，並新增一種輸入：將 LLM 呼叫視為具備非確定性、但可在系統復原時依據歷史記錄確定性重播的活動。
 
 **Type:** Learn
 **Languages:** Python (stdlib, minimal durable-execution state machine)
@@ -9,14 +9,14 @@
 
 ## The Problem｜問題
 
-設想一個需要連續執行四小時的 agent。它依序呼叫了三個工具、向使用者提出了兩次確認詢問，並發起了四十次 LLM 呼叫。運作到一半時，其所在的主機突然重新開機。此時會發生什麼事？
+設想一個需要連續執行四小時的 agent。它依序呼叫了三個工具、向使用者提問兩次，並發起了四十次 LLM 呼叫。運作到一半時，其所在的主機突然重新開機。此時會發生什麼事？
 
 - 在單純的 `while True` 迴圈中：一切狀態瞬間歸零。整個執行流程必須從頭重跑。那三個帶有實質外部副作用的工具呼叫會被重複執行。使用者會被迫重新確認他們早已核准過的事項。而那四十次昂貴的 LLM 呼叫也將被重新計費。
 - 在持久化執行架構中：執行流程會精確從最近一次的檢查點接續執行。早已順利完成的各項活動絕不會重複執行；它們的結果會直接從持久化記錄中重播。使用者無需重複審核已核准事項，且已完成的 LLM 呼叫絕不會產生重複帳單。
 
 這正是工作流程引擎（如 Temporal、Cadence、Uber Cherami）在過去十年間被廣泛驗證的成熟模式。當前的全新突破在於：LLM 呼叫本質上正是一種標準的活動——具備非確定性、耗費高昂成本且伴隨外部副作用——因而能與此架構模式自然契合。
 
-貫穿本課的核心主題：長時程的可靠度會隨時間嚴重衰減（METR 觀察到顯著的「35 分鐘效能衰退」現象——成功率大致隨時程呈二次方下降）。持久化執行讓系統具備了超越其原生可靠度極限的持續運作能力；這意味著如果架構設計得當，它能讓系統在安全邊界內優雅失效，但若設計失誤，則會引發更加嚴重的災難性後果。
+貫穿本課的核心主題：長時程的可靠度會隨時間嚴重衰減（METR 觀察到顯著的「35 分鐘可靠度衰退」現象——成功率大致隨時程呈二次方下降）。持久化執行讓系統具備了超越其原生可靠度極限的持續運作能力；這意味著如果架構設計得當，它能讓系統在安全邊界內優雅失效，但若設計失誤，則會導致不安全的失效。
 
 ## The Concept｜核心概念
 
@@ -24,7 +24,7 @@
 
 - **工作流程（Workflow）**：確定性的流程編排程式碼。負責定義各項活動的執行順序、條件分流路徑與等待事件。其邏輯必須具備嚴格的確定性，以便能精準依據事件記錄進行無歧義的狀態重播。
 - **活動（Activity）**：具備非確定性且隨時可能遭遇失敗的最小工作單元。例如 LLM 呼叫、工具呼叫、檔案寫入或發起 HTTP 請求。每個活動在啟動時會記錄其輸入參數，完成時則記錄其輸出結果。
-- **事件記錄（Event log）**：持久化的底層儲存庫。完整記錄每項活動的啟動、成功、失敗、重試，以及工作流程所做出的每一次決策轉折。
+- **事件記錄（Event log）**：持久化的底層儲存區。完整記錄每項活動的啟動、成功、失敗、重試，以及工作流程所做出的每一次決策轉折。
 - **重播機制（Replay）**：當系統從崩潰中復原時，工作流程程式碼會從最開頭重新執行；所有在歷史記錄中已標記完成的活動，會直接回傳記錄中的結果而無需重新執行。唯有尚未完成的活動才會真正被發送執行。
 
 這與 React 依賴虛擬 DOM（Virtual DOM）進行高效重新渲染，或 Git 依據 commit 歷史還原工作目錄有著異曲同工之妙。正是協同編排器的確定性，讓高可靠的持久化變得極其廉價。
@@ -41,9 +41,9 @@ LLM 呼叫具備以下典型特質：
 
 ### 以 `thread_id` 為鍵的檢查點機制
 
-LangGraph、微軟 Agent Framework、Cloudflare Durable Objects 與 Claude Code Routines 不約而同地收斂至相同的 API 設計：使用 `thread_id`（或等效鍵值）標識特定工作階段；每一次狀態躍遷都會被持久化儲存至後端儲存庫（正式環境預設採用 PostgreSQL，本機開發採用 SQLite，快取層採用 Redis）；系統重啟時則依鍵載入最新的檢查點。
+LangGraph、微軟 Agent Framework、Cloudflare Durable Objects 與 Claude Code Routines 不約而同地收斂至相同的 API 設計：使用 `thread_id`（或等效鍵值）標識特定工作階段；每一次狀態躍遷都會被持久化儲存至後端儲存區（正式環境預設採用 PostgreSQL，本機開發採用 SQLite，快取層採用 Redis）；系統重啟時則依鍵載入最新的檢查點。
 
-後端儲存庫的架構選型至關重要：
+後端儲存區的架構選型至關重要：
 
 - **PostgreSQL**：具備強持久化、支援富查詢、能安然承受服務重新部署。為 LangGraph 的預設選擇。
 - **SQLite**：僅適用於本機開發環境；無法在分散式多主機架構下保留資料。
@@ -54,7 +54,7 @@ LangGraph、微軟 Agent Framework、Cloudflare Durable Objects 與 Claude Code 
 
 先提議後確認寫入（第 15 課）模式高度依賴一個具備持久化特性的「等待人類確認」狀態。工作流程在此刻優雅休眠，外部佇列妥善保存待審核請求，一旦人工確認到達，系統便能從該斷點精準喚醒並接續運作。若缺乏持久化架構，這項能力僅能仰賴聽天由命的最佳努力（best-effort）；而配備了持久化執行後，即便核准指令在深夜到達，工作流程也能在隔天清晨完美接棒。
 
-### 35 分鐘效能退化規律
+### 35 分鐘可靠度衰退規律
 
 METR 的實測研究表明：在受測的所有 agent 類別中，連續運作約 35 分鐘後，可靠度就會開始衰退。任務時程每延長一倍，系統失敗率就會呈近似四倍的態勢暴增。持久化執行無法從本質上消除這項衰退規律；它所做的是讓系統得以運作超出其原生可靠度所能支撐的時間長度。標準的安全實踐，是將持久化執行與「在重新喚醒時強制要求人類重新審查（HITL）」以及「不管實際耗時多久皆嚴格限制總算力上限的預算斷路開關（第 13 課）」相結合。
 
@@ -113,4 +113,4 @@ memory-consolidation
 - [Microsoft — Agent Framework: human-in-the-loop and checkpointing](https://learn.microsoft.com/en-us/agent-framework/workflows/human-in-the-loop) — RequestInfoEvent 的資料結構。
 - [LangChain — The Runtime Behind Production Deep Agents](https://www.langchain.com/conceptual-guides/runtime-behind-production-deep-agents) — 具體的執行環境需求。
 - [OpenAI Agents SDK + Temporal integration (Trigger.dev announcement)](https://trigger.dev) — LLM 呼叫的 activity 結構。
-- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 35 分鐘效能衰退的參考資料。
+- [Anthropic — Measuring agent autonomy in practice](https://www.anthropic.com/research/measuring-agent-autonomy) — 35 分鐘可靠度衰退的參考資料。

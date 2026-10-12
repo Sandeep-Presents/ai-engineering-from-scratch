@@ -1,6 +1,6 @@
 # 生產級 Agent 執行環境——極速實例化與強型別工作流程
 
-> 生產級 Agent 執行環境著重最佳化那些原型驗證框架所忽略的關鍵維度：實例化開銷、強型別工作流程介面，以及具備高平行處理能力的生產級後端。2026 年的前沿雙雄：Agno（Python）追求微秒級的極速實例化與無狀態 FastAPI 後端；Mastra 則在 Vercel AI SDK 基底上，為 TypeScript 生態交付整合了 Agents、Tools、Workflows、統一模型路由與複合式儲存的一站式架構。
+> 生產級 Agent 執行環境著重最佳化那些原型驗證框架所忽略的關鍵維度：實例化開銷、強型別工作流程介面，以及可直接提供服務的後端。2026 年的組合：Agno（Python）追求微秒級的極速實例化與無狀態 FastAPI 後端；Mastra 則在 Vercel AI SDK 基底上，為 TypeScript 生態交付整合了 Agents、Tools、Workflows、統一模型路由與複合式儲存的一站式架構。
 
 **Type:** Learn
 **Languages:** Python, TypeScript
@@ -10,8 +10,8 @@
 ## Learning Objectives｜學習目標
 
 - 指出 Agno 的效能指標及其真正發揮價值的業務場景。
-- 掌握 Mastra 的三大核心原語——Agents、Tools、Workflows，以及其支援的主流伺服器適配器。
-- 深入解釋為何「無狀態工作階段範疇（Stateless session-scoped）的 FastAPI 後端」是 Agno 官方推薦的正式環境實踐路徑。
+- 掌握 Mastra 的三大核心原語——Agents、Tools、Workflows，以及其支援的主流伺服器轉接器。
+- 深入解釋為何「無狀態工作階段範疇（Stateless session-scoped）的 FastAPI 後端」是建議採用的 Agno 正式環境實踐路徑。
 - 依據團隊現有技術堆疊（Python 為核心 vs TypeScript 為核心），在 Agno 與 Mastra 之間做出精準架構選型。
 
 ## The Problem｜問題
@@ -28,7 +28,7 @@ LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當�
 - 官方生產路徑：無狀態、工作階段範疇的 FastAPI 後端。每個進來的 HTTP 請求皆啟動一個全新乾淨的 agent 實例；工作階段狀態持久化於外部資料庫中。
 - 原生支援多模態（multimodal）輸入（文字、圖片、音訊、影片、檔案）與 Agentic RAG。
 
-微秒級的實例化速度在「每秒需衍生數千個短生命週期 Agent」（例如大量聊天訊息的平行分流、大規模批次評測管線）時扮演著決定性角色。而當單一 Agent 本身就需要持續執行 10 分鐘時，該優勢則相對不顯著。
+微秒級的實例化速度在「每秒需衍生數千個短生命週期 Agent」（例如大量聊天流量匯入、大規模批次評測管線）時扮演著決定性角色。而當單一 Agent 本身就需要持續執行 10 分鐘時，該優勢則相對不顯著。
 
 ### Mastra
 
@@ -37,7 +37,7 @@ LangGraph、AutoGen 與 CrewAI 皆屬於功能龐雜厚重的上層框架。當�
 - 統一模型路由器（Unified Model Router）：跨 94 家服務供應商統一抽象接入 3,300+ 款模型（截至 2026 年 3 月）。
 - 複合式儲存（Composite storage）：記憶（memory）、工作流程與可觀測性資料分別路由至不同的後端儲存；在大規模生產場景下推薦以 ClickHouse 承載可觀測性資料。
 - 授權模式：核心採 Apache 2.0 開源協議；`ee/` 目錄則採用原始碼可用（Source-available）的商業企業授權。
-- 提供 Express、Hono、Fastify、Koa 等伺服器適配器；與 Next.js 及 Astro 原生深度整合。
+- 提供 Express、Hono、Fastify、Koa 等伺服器轉接器；與 Next.js 及 Astro 原生深度整合。
 - 開箱即用內建 Mastra Studio（localhost:4111）互動除錯儀表板。
 - 於 1.0 正式版（2026 年 1 月）達成 GitHub 22k+ Stars 與每週 300k+ npm 下載量。
 
@@ -110,6 +110,6 @@ python3 code/main.py
 ## Further Reading｜延伸閱讀
 
 - [Agno Agent Framework docs](https://www.agno.com/agent-framework) ——效能指標與 FastAPI 整合指引
-- [Mastra docs](https://mastra.ai/docs) ——核心原語、伺服器適配器與 Model Router 官方文件
+- [Mastra docs](https://mastra.ai/docs) ——核心原語、伺服器轉接器與 Model Router 官方文件
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) ——有狀態圖架構的對照參考
 - [Comet Opik](https://www.comet.com/site/products/opik/) ——Mastra 整合文件中引用的可觀測性平台比較

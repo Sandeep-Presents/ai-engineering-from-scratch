@@ -68,7 +68,7 @@ A2A 正是「讓跨框架的各類 agent 彼此交談」的通用通訊協定。
 
 ### 已簽署的 Agent Card
 
-一張 Agent Card 可攜帶 `signatures` 陣列。清單中的每個項目皆是依據 RFC 8785 標準將排除 `signatures` 欄位後的名片本體進行規範化 JSON 運算後產出的 JWS（RFC 7515）數位簽章。消費者端以相同演算法進行規範化並校驗簽名。此機制能徹底防止 agent 冒名頂替。
+一張 Agent Card 可攜帶 `signatures` 陣列。清單中的每個項目皆是依據 RFC 8785 標準將排除 `signatures` 欄位後的名片本體進行規範化 JSON 運算後產出的 JWS（RFC 7515）數位簽章。消費者端以相同演算法進行規範化並校驗簽名。此機制可協助防範 agent 冒名頂替。
 
 ### Task 生命週期
 
@@ -151,9 +151,9 @@ A2A-Version: 1.0
 
 ### 保持內部不透明性（Opacity Preservation）
 
-這是 A2A 最核心的架構設計原則：被呼叫 agent 的內部運作狀態對外保持完全不透明。呼叫端僅能觀察到任務狀態的推進與最終產物。被呼叫 agent 內部的思維鏈（Chain-of-thought）、工具呼叫細節、子 agent 委派層級——全數對外隱匿。這與 MCP 截然不同；在 MCP 中，所有的工具呼叫過程皆是完全透明公開的。
+這是 A2A 最核心的架構設計原則：被呼叫 agent 的內部運作狀態對外保持完全不透明。呼叫端僅能觀察到任務狀態的推進與最終產物。被呼叫 agent 內部的思維鏈（Chain-of-thought）、工具呼叫細節、子 agent 委派層級——全數對外隱匿。這與 MCP 截然不同；在 MCP 中，所有工具呼叫過程皆對呼叫端透明可見。
 
-設計初衷：A2A 讓相互競爭的商業組織或獨立服務能夠在不洩漏內部機密技術的情況下安心協作。A2A 可以單純是「呼叫這項外部客服 agent 服務」，呼叫端無從窺探對方底層究竟是如何實作該服務的。
+設計初衷：A2A 讓相互競爭的商業組織或獨立服務能夠在不洩漏內部資訊的情況下協作。A2A 可以單純是「呼叫這項外部客服 agent 服務」，呼叫端無從窺探對方底層究竟是如何實作該服務的。
 
 ### 發展時程
 
@@ -182,7 +182,7 @@ a2a-task-lifecycle
 
 ## Use It｜實際應用
 
-`code/main.py` 以純 Python 標準函式庫實作了一個最小可行的 A2A 測試 harness：寫作 agent 發布自身名片，研究 agent 向其發送包含 PDF 附件與文字指示的 `SendMessage` 請求，隨後任務依序推進 `TASK_STATE_WORKING` → `TASK_STATE_INPUT_REQUIRED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED`，最後回傳文字產物。全流程無外部相依性；透過記憶體內部傳輸層聚焦於訊息格式的精確封裝。
+`code/main.py` 以純 Python 標準函式庫實作了一個最小可行的 A2A 測試框架：寫作 agent 發布自身名片，研究 agent 向其發送包含 PDF 附件與文字指示的 `SendMessage` 請求，隨後任務依序推進 `TASK_STATE_WORKING` → `TASK_STATE_INPUT_REQUIRED` → `TASK_STATE_WORKING` → `TASK_STATE_COMPLETED`，最後回傳文字產物。全流程無外部相依性；透過記憶體內部傳輸層聚焦於訊息格式的精確封裝。
 
 核心觀察重點：
 

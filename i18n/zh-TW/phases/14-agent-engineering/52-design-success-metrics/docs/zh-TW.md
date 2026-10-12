@@ -22,12 +22,12 @@
 
 推導關鍵問題：
 
-- 系統多快能找出正確的服務？
+- 找出正確的服務要花多久？
 - 找出的服務有多常是正確的？
 - 診斷是否維持唯讀？
 - 這個工作流程是否會增加告警被解除，或增加操作者的負擔？
 
-接著選擇能落實這些問題的指標。
+接著將這些問題具體化為指標。
 
 ```mermaid
 flowchart LR
@@ -81,7 +81,7 @@ flowchart LR
 
 ## Build It｜動手實作
 
-實驗會驗證量測計畫、評估含端點的門檻、記錄缺失值，並寫入 `outputs/measurement-report.json`。
+實驗會驗證量測計畫、評估採含等號比較的門檻、記錄缺失值，並寫入 `outputs/measurement-report.json`。
 
 ```bash
 python3 code/main.py

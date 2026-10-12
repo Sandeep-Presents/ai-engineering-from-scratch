@@ -1,6 +1,6 @@
 # ColPali 與視覺原生文件 RAG（ColPali and Vision-Native Document RAG）
 
-> 傳統的 RAG 管線將 PDF 強制解析為純文字、切分為段落區塊（Chunks）、計算文字 embedding、最後存入向量資料庫。全鏈路的每一個環節都在大量丟失訊號：OCR 遺漏了統計圖表、文字切塊撕裂了表格行、文字 embedding 完全無視任何插圖幾何。ColPali（Faysse 等人，2024 年 7 月）提出了一個直擊靈魂的問題：為什麼一開始非得提取文字不可？直接透過 PaliGemma 將整頁影像編碼為高維向量，採用 ColBERT 風格的後期互動（Late Interaction）進行檢索，完整保留文件天然承載的版面、圖表、字型與所有排版訊號！已發表的基準測試結果顯示：在視覺豐富的文件上，其端到端準確度比傳統文字 RAG 高 20% 至 40%。ColQwen2、ColSmol 與 VisRAG 迅速推廣了這一全新範式。本課深入探討視覺原生 RAG 的核心原理，並動手建構微型的類 ColPali 檢索索引器。
+> 傳統的 RAG 管線將 PDF 強制解析為純文字、切分為段落區塊（Chunks）、計算文字 embedding、最後存入向量資料庫。全鏈路的每一個環節都在大量丟失訊號：OCR 遺漏了統計圖表、文字切塊撕裂了表格行、文字 embedding 完全無視任何插圖幾何。ColPali（Faysse 等人，2024 年 7 月）提出了一個直擊靈魂的問題：為什麼一開始非得提取文字不可？直接透過 PaliGemma 將整頁影像編碼為一組高維 patch embedding 向量，採用 ColBERT 風格的後期互動（Late Interaction）進行檢索，完整保留文件天然承載的版面、圖表、字型與所有排版訊號！已發表的基準測試結果顯示：在視覺豐富的文件上，其端到端準確度比傳統文字 RAG 高 20% 至 40%。ColQwen2、ColSmol 與 VisRAG 延伸了這一模式。本課深入探討視覺原生 RAG 的核心原理，並動手建構微型的類 ColPali 檢索索引器。
 
 **Type:** Build
 **Languages:** Python (stdlib, multi-vector indexer + MaxSim scorer)
@@ -53,15 +53,15 @@ ColPali（Faysse 等人，arXiv:2407.01449）極富創意地將 ColBERT 典範�
 - 相關性分數 = Σ_i max_j cos(q_i, p_j)，即在「查詢文字 token」與「文件頁面影像 patch」之間直接計算 MaxSim 矩陣！
 - 依據加總後的最終得分，高精確度召回 Top-k 個相關頁面。
 
-在文件知識庫入庫階段：以 PaliGemma 為每一頁 PDF 影像計算 embedding，並保存其所有 patch 向量集合。線上檢索階段：為使用者查詢生成向量，並針對所有儲存的頁面向量矩陣計算 MaxSim，迅速篩選出最佳候選頁面。
+在文件知識庫入庫階段：以 PaliGemma 為每一頁 PDF 影像計算 embedding，並保存其所有 patch 向量集合。線上檢索階段：為使用者查詢生成向量，並針對所有儲存的頁面向量矩陣計算 MaxSim，傳回得分最高的 Top-k 頁面。
 
-核心優勢：在高度依賴視覺排版的文件集上，其端到端表現比傳統文字 RAG 暴增 20% 至 40%！每一個 patch 向量皆完整承載了當地的局部排版幾何、色彩與文字訊號。
+核心優勢：在高度依賴視覺排版的文件集上，其端到端表現比傳統文字 RAG 暴增 20% 至 40%！每一個 patch 向量皆捕捉局部排版與內容。
 
 工程挑戰：每頁 N_p 個 patch × 4 位元組浮點數 × D 維度向量，儲存量增長迅速。實務上透過乘積量化（PQ）或最佳化乘積量化（OPQ）技術進行數倍壓縮。
 
 ### ColQwen2 與 ColSmol
 
-ColQwen2（illuin-tech，2024–2025 年）：將底層的 PaliGemma 視覺編碼器升級為更強悍的 Qwen2-VL。基礎表徵能力更優異，檢索召回準確率進一步提升。
+ColQwen2（illuin-tech，2024–2025 年）：以 Qwen2-VL 取代 PaliGemma。基礎編碼器表現更好，檢索召回率進一步提升。
 
 ColSmol 則是專為本地端與邊緣裝置打造的輕量化版本。參數量約 10 億（1B），可在消費級 GPU 上執行。
 
@@ -128,7 +128,7 @@ mm-maxsim
 
 1. 一份長達 200 頁的企業年度報告，在每頁 729 個 patch、128 維度 embedding、4 位元組單精度浮點數的設定下，精確計算其原始未壓縮的向量儲存大小，以及經過 8 倍 PQ 量化壓縮後的實際儲存空間。
 
-2. MaxSim 的數學公式為 Σ_i max_j cos(q_i, p_j)。請深入解釋：相較於將所有向量簡單取平均再計算餘弦相似度，MaxSim 額外捕捉到了何種至關重要的微觀語意資訊？
+2. MaxSim 的數學公式為 Σ_i max_j cos(q_i, p_j)。請深入解釋：相較於簡單的平均相似度，MaxSim 額外捕捉到了何種微觀語意資訊？
 
 3. ColPali 以影像 patch 作為最細粒度的索引單元。若我們仿照 ColBERT 的做法，改在 OCR 辨識出的單詞層級建立多向量索引，系統會產生何種得失權衡？
 
@@ -143,10 +143,10 @@ mm-maxsim
 | Late interaction | 「後期互動機制」 | 不將文件壓縮為單一向量，而是保留全量 token/patch 向量，在查詢時計算 MaxSim |
 | MaxSim | 「最大相似度求和」 | 針對查詢中的每個 token，在文件中尋找最相似的目標並加總；ColBERT 與 ColPali 的靈魂 |
 | Bi-encoder | 「雙編碼器單向量」 | 將整篇文件壓縮為單一向量的傳統做法；檢索極速但徹底丟失微觀細節 |
-| Multi-vector | 「多向量索引架構」 | 為每篇文件或頁面保存多個向量；儲存開銷提升數倍，但檢索準確率與召回率大幅提升 |
+| Multi-vector | 「多向量索引架構」 | 為每篇文件或頁面保存多個向量；儲存開銷提升數倍，但召回率提升 |
 | Patch embedding | 「影像切片特徵向量」 | VLM 視覺編碼器為每個空間 patch 產出的高維向量；以集合形式快取於向量庫中 |
 | ViDoRe | 「視覺文件檢索權威基準」 | ColPali 團隊推出的標準評測集，專門評估在富視覺版面文件上的跨模態檢索表現 |
-| PQ quantization | 「乘積量化壓縮」 | 在維持向量內積相似度保真度的前提下，將向量儲存開銷壓縮約 8 倍的高效演算法 |
+| PQ quantization | 「乘積量化壓縮」 | 在維持向量相似度的同時，將向量儲存開銷壓縮約 8 倍的高效演算法 |
 
 ## Further Reading｜延伸閱讀
 

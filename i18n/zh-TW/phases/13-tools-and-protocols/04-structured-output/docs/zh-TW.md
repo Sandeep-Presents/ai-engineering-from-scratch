@@ -1,6 +1,6 @@
 # 結構化輸出——JSON Schema、Pydantic、Zod 與語法約束解碼（Structured Output — JSON Schema, Pydantic, Zod, Constrained Decoding）
 
-> 「禮貌懇求大模型回傳 JSON」即使在最頂級旗艦模型上，依然存在 5% 至 15% 的失敗率。結構化輸出（Structured Outputs）透過約束解碼（Constrained Decoding）徹底抹平了這道鴻溝：在解碼階段，模型在數學上被完全禁止輸出任何會違反結構描述規範的 token。OpenAI 的嚴格模式（Strict Mode）、Anthropic 基於結構描述約束的工具使用、Gemini 的 `responseSchema`、Pydantic AI 的 `output_type` 以及 Zod 的 `.parse`，本質上皆是同一個底層概念的不同具體形態。本課將親手實作結構描述驗證器與嚴格模式契約，為每一條正式環境的資料擷取管線奠定堅不可摧的可靠基石。
+> 「禮貌懇求模型回傳 JSON」即使在最頂級旗艦模型上，依然存在 5% 至 15% 的失敗率。結構化輸出（Structured Outputs）透過約束解碼（Constrained Decoding）徹底抹平了這道鴻溝：在解碼階段，模型在數學上被完全禁止輸出任何會違反結構描述規範的 token。OpenAI 的嚴格模式（Strict Mode）、Anthropic 基於結構描述約束的工具使用、Gemini 的 `responseSchema`、Pydantic AI 的 `output_type` 以及 Zod 的 `.parse`，本質上皆是同一個底層概念的不同具體形態。本課將親手實作結構描述驗證器與嚴格模式契約，為每一條正式環境的資料擷取管線奠定堅不可摧的可靠基石。
 
 **Type:** Build
 **Languages:** Python (stdlib, JSON Schema 2020-12 subset)
@@ -27,7 +27,7 @@
 2026 年的所有主流前沿服務供應商，皆全面原生支援了方案三：
 
 - **OpenAI**：配置 `response_format: {type: "json_schema", strict: true}`；若模型拒絕執行，回應中會顯式回傳 `refusal` 欄位。
-- **Anthropic**：在 `tool_use` 輸入端強制實施嚴格結構描述約束；雖然沒有顯式的 `stop_reason: "refusal"` 停止原因，但若模型自發放棄呼叫，會輸出帶有純文字說明的 `end_turn`。
+- **Anthropic**：在 `tool_use` 輸入端強制實施嚴格結構描述約束；雖然沒有顯式的 `stop_reason: "refusal"` 停止原因，但若模型未發出工具呼叫而以 `end_turn` 結束，這就是訊號。
 - **Gemini**：在請求最外層配置 `responseSchema`；2026 年的 Gemini 已針對指定型別全面支援 token 等級的語法限制。
 - **Pydantic AI**：`output_type=InvoiceModel` 直接輸出強型別至 `InvoiceModel` 的 `RunResult` 物件。
 - **Zod（TypeScript）**：執行階段解析器，用 Zod 結構描述驗證服務供應商輸出；可搭配 OpenAI 的 `beta.chat.completions.parse` 使用。
@@ -69,14 +69,14 @@ Zod（`z.object({customer: z.string(), ...})`）是 TypeScript 生態的對等�
 
 ### 拒絕執行（Refusals）機制
 
-即使在嚴格模式下，我們也無法強迫大模型無中生有。若輸入內容本質上完全無法匹配目標結構描述（例如傳入的電子郵件是一首十四行詩，而非任何商業發票），模型會主動輸出 `refusal` 欄位並附帶拒絕理由。在工程程式碼中，必須將其視為一等公民的合規結果，而非程式崩潰例外。此外，拒絕機制亦是一道極佳的安全感測器：若使用者惡意要求模型從機密郵件中擷取信用卡號，模型會自發回傳附帶安全拒絕理由的 refusal 物件。
+即使在嚴格模式下，我們也無法強迫模型作答。若輸入內容本質上完全無法匹配目標結構描述（例如傳入的電子郵件是一首十四行詩，而非任何商業發票），模型會主動輸出 `refusal` 欄位並附帶拒絕理由。在工程程式碼中，必須將其視為一等公民的合規結果，而非程式崩潰例外。此外，拒絕機制亦是一道極佳的安全感測器：若使用者惡意要求模型從機密郵件中擷取信用卡號，模型會自發回傳附帶安全拒絕理由的 refusal 物件。
 
 ### 開源生態中的約束解碼實踐
 
 開源權重模型在本地端推論時，通常仰賴三種技術實作語法約束：
 
 1. **基於文法狀態機的受限解碼**（如 `outlines`、`guidance`、`lm-format-enforcer`）：將目標結構描述預先編譯為確定性有限狀態機（FSM）；在生成的每一個時間步，利用遮罩將所有會違反 FSM 狀態轉移的候選 token 的 logit 直接置為負無窮大。
-2. **結合 JSON 解析器的 Logit 動態遮蓋**：讓串流 JSON 解析器與大模型解碼器保持同步步進，在每一步動態計算當前允許出現的合法 token 候選集合。
+2. **結合 JSON 解析器的 Logit 動態遮蓋**：讓串流 JSON 解析器與模型解碼器保持同步步進，在每一步動態計算當前允許出現的合法 token 候選集合。
 3. **基於校驗器的投機解碼**：由輕量級草稿模型提出候選 token，再由嚴格校驗器強制套用 schema。
 
 商業服務供應商在雲端後台正是採用了上述機制之一。在 2026 年的技術條件下，對於簡短的結構化輸出，約束解碼的生成速度甚至快於無約束的自由文字生成；對於較長的輸出，兩者速度大致相同。
@@ -99,7 +99,7 @@ generate -> parse -> validate -> if fail, inject error and retry, max 3x
 
 ### 小尺寸模型的逆襲
 
-約束解碼對小尺寸模型具備立竿見影的點石成金效果。一個具備文法約束的 3B 開源模型，在結構化任務上的表現優於僅依賴自由 prompt 的 70B 模型。這正是結構化輸出在工業界的最核心價值：將系統的「結構確定性」與大模型的「參數量大小」徹底解耦。
+約束解碼對小尺寸模型具備立竿見影的點石成金效果。一個具備文法約束的 3B 開源模型，在結構化任務上的表現優於僅依賴自由 prompt 的 70B 模型。這正是結構化輸出在工業界的最核心價值：將系統的「結構確定性」與模型的「參數量大小」徹底解耦。
 
 ```figure
 constrained-decoding
@@ -117,7 +117,7 @@ constrained-decoding
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-structured-output-designer.md`。給定任意非結構化自由文字擷取目標（如商業發票、客服工單、求職履歷），該技能將產出一份具備嚴格模式相容性的標準 JSON Schema 2020-12 定義，以及一份完全對齊的 Pydantic 模型，並內建強型別拒答處理與自動重試機制的標準程式碼骨架。
+本課產出 `outputs/skill-structured-output-designer.md`。給定任意非結構化自由文字擷取目標（如商業發票、客服工單、求職履歷），該技能將產出一份具備嚴格模式相容性的標準 JSON Schema 2020-12 定義，以及一份完全對齊的 Pydantic 模型，並提供包含強型別拒答處理與重試處理 stub 的標準程式碼骨架。
 
 ## Exercises｜練習
 
@@ -127,7 +127,7 @@ constrained-decoding
 
 3. 將相同的 Invoice 結構描述以 Pydantic 的 BaseModel 重新實作，並比對 `model_json_schema()` 輸出的 JSON 與你手寫的結構描述。指出 Pydantic 預設自動生成、但手寫版本中通常會主動省略的某一個額外欄位。
 
-4. 測量模型真實拒絕率。構造十組本質上絕對無法被擷取的極端輸入文字（一首抒情歌詞、一段幾何數學證明、一封空白郵件），在嚴格模式下傳入真實大模型 API。統計模型輸出 refusal 與強行虛構幻覺的次數對比。這些結果是評估拒絕感知重試（refusal-aware retries）的真實標籤（ground truth）。
+4. 測量模型真實拒絕率。構造十組本質上絕對無法被擷取的極端輸入文字（一首抒情歌詞、一段幾何數學證明、一封空白郵件），在嚴格模式下傳入真實模型 API。統計模型輸出 refusal 與強行虛構幻覺的次數對比。這些結果是評估拒絕感知重試（refusal-aware retries）的真實標籤（ground truth）。
 
 5. 從頭到尾精讀 OpenAI 官方結構化輸出指南。找出在標準 JSON Schema 中完全合法、但在 OpenAI 嚴格模式中被明文明確禁止的某一項特定語法。設計一份在業務上本來非本質依賴該禁止語法的結構描述，並將其重構為完全符合嚴格模式相容標準的優雅規範。
 
@@ -135,7 +135,7 @@ constrained-decoding
 
 | 術語 | 常見俗稱 | 實際意義 |
 |------|----------------|------------------------|
-| JSON Schema 2020-12 | 「結構描述規範標準」 | 當前所有主流模型服務供應商共同遵循的 IETF 結構約束方言標準 |
+| JSON Schema 2020-12 | 「結構描述規範標準」 | 當前所有主流模型服務供應商都支援的 IETF 草案結構描述方言 |
 | Strict mode | 「保證嚴格合法」 | OpenAI 提供的專屬旗標，透過語法約束解碼強制模型輸出絕對符合宣告規範 |
 | Constrained decoding | 「Logit 遮罩約束」 | 在模型解碼的每一個時間步，動態將不符合語法的非法 token 機率直接清零的技術 |
 | Refusal | 「模型合規拒答」 | 當輸入內容完全無法填入目標結構時，模型輸出的強型別確定性拒絕執行物件 |

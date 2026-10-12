@@ -80,7 +80,7 @@ LLM -> final text answer
 
 ### 局部不完整 JSON 與提前解析陷阱
 
-在 `arguments` 引數完全傳輸完畢之前，絕對不可貿然嘗試解析。類似 `{"city": "Beng` 這樣的殘缺片段不是合法 JSON，強行解析必然拋出語法例外。唯一可靠的門控標記是廠商給出的「呼叫完成」事件：OpenAI 的 `finish_reason = "tool_calls"`、Anthropic 的 `content_block_stop`、或 Gemini 的串流結束事件。只有在收到該訊號後，方可發起 `json.loads`。更進階的做法是引入增量 JSON 解析器（Incremental JSON Parser），在結構逐步補齊時即時觸發下游事件；OpenAI 官方指南推薦此做法以在前端呈現即時的「思考中」視覺動畫。切勿依賴簡單的括號計數來判定完整性（字串內部包含大括號或跳脫符號時極易引發誤判），括號計數至多只能作為非正式的內部除錯啟發式參考。
+在 `arguments` 引數完全傳輸完畢之前，絕對不可貿然嘗試解析。類似 `{"city": "Beng` 這樣的殘缺片段不是合法 JSON，強行解析必然拋出語法例外。唯一可靠的門控標記是廠商給出的「呼叫完成」事件：OpenAI 的 `finish_reason = "tool_calls"`、Anthropic 的 `content_block_stop`、或 Gemini 的串流結束事件。只有在收到該訊號後，方可發起 `json.loads`。更進階的做法是引入增量 JSON 解析器（Incremental JSON Parser），在結構逐步補齊時即時觸發下游事件；OpenAI 官方指南推薦此做法以在前端呈現即時的「思考中」指示。切勿依賴簡單的括號計數來判定完整性（字串內部包含大括號或跳脫符號時極易引發誤判），括號計數至多只能作為非正式的內部除錯啟發式參考。
 
 ### 亂序完成時的處理協定
 
@@ -138,7 +138,7 @@ tp-parallel-fanout
 
 4. 挑選兩款絕不能並行發起的工具（例如先執行 `create_file` 再執行 `write_file`）。在工具註冊表中加入 `ordering_dependency` 相依性圖譜定義，並在並行扇出調度器中加入相依性防護閘門。這正是後續 Agent 工程學中依賴感知排程的最小核心原型。
 
-5. 精讀 OpenAI 的並行函式呼叫手冊與 Anthropic 的 `disable_parallel_tool_use` 文件。指出 Anthropic 官方強烈建議關閉並行呼叫的一種典型真實場景（提示：針對同一外部資源進行連續的破壞性寫入操作）。
+5. 精讀 OpenAI 的並行函式呼叫手冊與 Anthropic 的 `disable_parallel_tool_use` 文件。指出 Anthropic 建議停用並行呼叫的一種實際工具類型（提示：對同一外部資源進行影響重大的變更）。
 
 ## Key Terms｜關鍵術語
 

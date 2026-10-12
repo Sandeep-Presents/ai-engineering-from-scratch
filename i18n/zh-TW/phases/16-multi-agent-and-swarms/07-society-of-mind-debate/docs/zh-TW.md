@@ -1,6 +1,6 @@
 # 心智社會與多 Agent 辯論機制（Society of Mind and Multi-Agent Debate）
 
-> 閔斯基（Marvin Minsky）在 1986 年提出的深刻洞見——智慧本質上是一座由專家組成的社會——每隔十年就會被學界重新發現一次。2023 年，Du 等人將這項哲學構想具體化為嚴謹的演算法：多個 LLM 執行個體各自提出答案、互相閱讀對方的推理、展開交叉質疑並動態更新觀點。經過 N 輪辯論後，系統收斂出的群體共識在六項推理與事實性任務中，全面擊敗了零樣本思維鏈（CoT）與自我反思（Reflection）。兩項關鍵實證結論至關重要：**多個 Agent** 與**多輪交互**各自提供獨立的正向貢獻。群體協同勝過單一 Agent 的自言自語；而多輪交鋒則徹底超越了一次性的多數表決。
+> 閔斯基（Marvin Minsky）在 1986 年提出的深刻洞見——智慧本質上是一座由專家組成的社會——每隔十年就會被學界重新發現一次。2023 年，Du 等人將這項哲學構想具體化為嚴謹的演算法：多個 LLM 執行個體各自提出答案、互相閱讀對方的推理、展開交叉質疑並動態更新觀點。經過 N 輪辯論後，系統收斂出的群體共識在六項推理與事實性任務中的表現勝過零樣本思維鏈（CoT）與自我反思（Reflection）。兩項關鍵實證結論至關重要：**多個 Agent** 與**多輪交互**各自提供獨立的正向貢獻。群體協同勝過單一 Agent 的自言自語；而多輪交鋒則勝過一次性的多數表決。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -48,7 +48,7 @@ A-HMAD 及相關後續研究進一步在不同 agent 席位上採用了**完全�
 
 ### NLSOM——129 個 Agent 的超大規模社會擴展
 
-Zhuge 等人（《Mindstorms in Natural Language-Based Societies of Mind》，arXiv:2305.17066）將該理念大膽擴展至擁有 129 位成員的龐大 agent 社會。實證結果顯示：隨著群體規模的擴大，系統自然湧現出了自組織的分工協同架構，在視覺問答等高難度任務上的綜合表現顯著超越單一 Agent。
+Zhuge 等人（《Mindstorms in Natural Language-Based Societies of Mind》，arXiv:2305.17066）將該理念大膽擴展至擁有 129 位成員的龐大 agent 社會。實證結果顯示：隨著群體規模的擴大，系統自然湧現出了自組織的分工協同架構，在視覺問答等任務上的表現勝過單一 Agent。
 
 ### 典型的系統失效模式
 
@@ -77,7 +77,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-`outputs/skill-debate-configurator.md` 能為一項全新業務任務快速配置完整的辯論架構：涵蓋最適 agent 數量、最優交鋒輪次、異質性配比（同質模型 vs 混成模型）、角色分工策略（對稱同儕 vs 強制對抗者），並在實際執行前精確預估端到端 token 預算消耗。
+`outputs/skill-debate-configurator.md` 能為一項全新業務任務快速配置完整的辯論架構：涵蓋最適 agent 數量、最優交鋒輪次、異質性配比（同質模型 vs 混成模型）、角色分工策略（對稱同儕 vs 強制對抗者），並在實際執行前預估端到端 token 預算消耗。
 
 ## Ship It｜交付成果
 
@@ -86,7 +86,7 @@ python3 code/main.py
 - **嚴格將交鋒輪次限制在 3 輪以內。** Du 等人的研究證明 3 輪已能斬獲絕大部分的準確率收益。更多輪次只會帶來純粹的成本浪費，而無品質提升。
 - **最多只能安排 5 位 Agent。** 超過 5 位之後，上下文視窗膨脹與呼叫成本將徹底失控。
 - **預設採用異質混成模型。** 在候選池中至少配置兩種不同的底層基底模型。
-- **強制保留對抗性反方席位。** 至少安排一位 agent 的 prompt 鎖定在堅定反駁，以徹底斬斷盲目附和的諂媚級聯。
+- **強制保留對抗性反方席位。** 至少安排一位 agent 的 prompt 鎖定在堅定反駁，以打破盲目附和的諂媚級聯。
 - **完整落盤每一輪中間軌跡。** 隱藏中間辯論過程的系統將徹底喪失事後除錯與合規稽核的能力。
 
 ## Exercises｜練習
@@ -115,4 +115,4 @@ python3 code/main.py
 - [Du et al. — Improving Factuality and Reasoning in Language Models through Multiagent Debate](https://arxiv.org/abs/2305.14325) — ICML 2024 奠基論文。
 - [Zhuge et al. — Mindstorms in Natural Language-Based Societies of Mind](https://arxiv.org/abs/2305.17066) — 擴展至 129 個 agent 的 NLSOM 經典研究。
 - [Should we be going MAD? A Look at Multi-Agent Debate Strategies for LLMs](https://arxiv.org/abs/2311.17371) — 各類辯論拓撲變體的權威基準測試。
-- [Debate project page](https://composable-models.github.io/llm_debate/) — Du 等人官方開源程式碼庫、互動展示與消融實驗細節。
+- [Debate project page](https://composable-models.github.io/llm_debate/) — Du 等人的程式碼、展示與消融實驗細節。

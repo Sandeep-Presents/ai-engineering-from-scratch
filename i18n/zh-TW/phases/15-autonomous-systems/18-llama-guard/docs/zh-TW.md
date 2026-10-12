@@ -1,6 +1,6 @@
 # Llama Guard 與輸入／輸出分類器（Llama Guard and Input/Output Classification）
 
-> Llama Guard 3（Meta 以 Llama-3.1-8B 為基底進行內容安全 fine-tuning）能夠針對 MLCommons 定義的 13 類危害分類法，在 8 種語言環境下對 LLM 的輸入與輸出進行雙向分類。其 1B-INT4 量化變體在行動裝置 CPU 上能夠以每秒超過 30 個 token 的高速飛速運作。Llama Guard 4 則進一步邁向多模態（支援圖像 + 文字輸入），將分類範疇擴充至 S1–S14 類別集合（新增 S14 程式碼直譯器濫用（Code Interpreter Abuse）），且能直接無縫替換 Llama Guard 3 8B/11B。NVIDIA NeMo Guardrails v0.20.0（2026 年 1 月發布）在傳統的輸入與輸出護欄之上，額外引入了基於 Colang 的對話流程護欄。客觀的現實提醒：在《Bypassing Prompt Injection and Jailbreak Detection in LLM Guardrails》（Huang 等人，arXiv:2504.11168）的研究中，Emoji 走私攻擊（Emoji Smuggling）在六大主流防護系統上達到了 100% 的攻擊成功率；NeMo Guard Detect 在越獄測試集上的攻擊成功率亦高達 72.54%。分類器僅是深度防禦中的其中一道防線，並非完整解決方案。
+> Llama Guard 3（Meta 以 Llama-3.1-8B 為基底進行內容安全 fine-tuning）能夠針對 MLCommons 定義的 13 類危害分類法，在 8 種語言環境下對 LLM 的輸入與輸出進行雙向分類。其 1B-INT4 量化變體在行動裝置 CPU 上能以每秒超過 30 個 token 的速度運作。Llama Guard 4 則進一步邁向多模態（支援圖像 + 文字輸入），將分類範疇擴充至 S1–S14 類別集合（新增 S14 程式碼直譯器濫用（Code Interpreter Abuse）），且能直接無縫替換 Llama Guard 3 8B/11B。NVIDIA NeMo Guardrails v0.20.0（2026 年 1 月發布）在傳統的輸入與輸出護欄之上，額外引入了基於 Colang 的對話流程護欄。客觀的現實提醒：在《Bypassing Prompt Injection and Jailbreak Detection in LLM Guardrails》（Huang 等人，arXiv:2504.11168）的研究中，Emoji 走私攻擊（Emoji Smuggling）在六大主流防護系統上達到了 100% 的攻擊成功率；NeMo Guard Detect 在越獄測試集上的攻擊成功率亦高達 72.54%。分類器僅是深度防禦中的其中一道防線，並非完整解決方案。
 
 **Type:** Learn
 **Languages:** Python (stdlib, category-tagged classifier simulator)
@@ -34,14 +34,14 @@
 - 擴充危害分類集：升級為 S1–S14（新增了關鍵的 S14 程式碼直譯器濫用）
 - 針對 Llama Guard 3 8B/11B 提供完全向下相容的直接替換能力
 
-S14 類別對於本學習階段尤為關鍵。自主程式碼編寫 agent（第 9 課）必須在沙盒環境中實際執行程式碼（第 11 課）；專門針對程式碼直譯器濫用行為設立獨立的分類別，能夠精準捕獲早期分類體系從未明確定義的重大攻擊維度。
+S14 類別對於本學習階段尤為關鍵。自主程式碼編寫 agent（第 9 課）必須在沙盒環境中實際執行程式碼（第 11 課）；專門針對程式碼直譯器濫用行為設立獨立類別，能夠精準捕獲早期分類體系從未明確定義的重大攻擊維度。
 
 ### NeMo Guardrails（NVIDIA）
 
 - v0.20.0 於 2026 年 1 月正式釋出
 - 輸入護欄（Input rails）：在使用者對話輪次即時分類並執行攔截
 - 輸出護欄（Output rails）：在模型生成輪次即時分類並阻擋違規內容
-- 對話護欄（Dialog rails）：透過 Colang 定義全域對話流約束（例如「若使用者詢問 X，強制回覆 Y」）
+- 對話護欄（Dialog rails）：透過 Colang 定義對話流程約束（例如「若使用者詢問 X，強制回覆 Y」）
 - 原生整合 Llama Guard、Prompt Guard 以及客製化自訂分類器
 
 對話護欄層是其最大的差異化亮點。輸入與輸出護欄僅在單一輪次中孤立運作；而對話護欄則能跨輪次強制執行深層策略，例如「即便使用者變換三種不同方式持續探詢，客服機器人也絕對嚴禁涉入任何醫療診斷話題」。
@@ -56,7 +56,7 @@ S14 類別對於本學習階段尤為關鍵。自主程式碼編寫 agent（第 
 
 **語意改寫（Semantic paraphrase）**：使用新奇晦澀的詞彙重新包裝受禁請求。分類器的 fine-tuning 資料集永遠無法窮盡所有的自然語言表達方式。
 
-**NeMo Guard Detect 實測**：在 Huang 等人的論文中，該模組在越獄基準測試集上錄得了 72.54% 的攻擊成功率（ASR）。這是在攻擊者精心構造對抗樣本下的極限表現；隨意構造的越獄攻擊成功率雖然顯著更低，但其防禦天花板顯然絕非「零風險」。
+**NeMo Guard Detect 實測**：在 Huang 等人的論文中，該模組在越獄基準測試集上錄得了 72.54% 的攻擊成功率（ASR）。這是以精心設計的攻擊測得的結果；隨意構造的越獄攻擊成功率雖然顯著更低，但其防禦天花板顯然絕非「零風險」。
 
 ### 分類器防禦的致勝優勢
 
@@ -76,7 +76,7 @@ S14 類別對於本學習階段尤為關鍵。自主程式碼編寫 agent（第 
 
 分類器防線坐落於憲法防護層（第 17 課）之下、執行環境控制層（第 10、13、14 課）之上。整體立體協同體系如下：
 
-- **模型權重層**：透過憲法 AI 深度訓練的基底模型。預設在深層推理層面拒絕明目張膽的惡意意圖。
+- **模型權重層**：透過憲法 AI 訓練的模型；預設拒絕明顯的濫用行為。
 - **分類器層**：Llama Guard / NeMo Guardrails。負責以極低成本快速拒絕典型違規，並執行類別分流。
 - **執行環境層**：權限模式、預算上限、斷路開關、金絲雀誘餌。
 - **人工審查層**：針對具備實質後果的動作，強制執行先提議後確認寫入（HITL）。

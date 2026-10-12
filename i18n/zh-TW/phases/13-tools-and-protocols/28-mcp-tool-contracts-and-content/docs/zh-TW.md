@@ -117,7 +117,7 @@ mcp-contract-pipeline
 
 本課實作了一套刻意精簡的 JSON Schema 子集校驗器，完全立足於 Python 標準函式庫，以確保機制完全透明。它覆蓋了範例工具所涉及的核心機制：
 
-- 物件、陣列、字串、整數、浮點數、布林值與 null 等型別校驗；
+- 物件、陣列、字串、整數、數值型別、布林值與 null 等型別校驗；
 - 必填屬性檢查；
 - `additionalProperties: false` 封閉屬性約束；
 - 陣列元素項目型別約束；
@@ -170,13 +170,13 @@ Mcp-Param-Region: eu-west
 - 標頭名稱不得為空，且必須符合 HTTP 標頭欄位 Token 語法規範；
 - 標頭名稱不分大小寫必須全域唯一；
 - 宣告屬性型別嚴格僅限 string、integer 或 boolean；
-- **嚴禁使用** `number` 浮點數型別；
+- **嚴禁使用** `number` 數值型別；
 - 該標註僅允許出現在 `inputSchema.properties` 的頂層直屬成員上；
 - 整數數值必須嚴格維持在 `-9007199254740991` 至 `9007199254740991` 的 JavaScript 安全整數範圍內。
 
 該位置規則採語法方式判定，遇到不符合條件時即拒絕（fail-closed）。必須遍歷整個結構描述樹狀結構，而非只檢查校驗器支援的屬性。若標註出現在巢狀物件的 `properties`、`oneOf` branch、`items` 內、`$ref` 指向的定義中，或任何輸出結構描述內，都必須拒絕該描述元。解析參照不會讓被參照的節點成為頂層直屬屬性。
 
-本課進一步引入了生產部署安全策略：果斷拒絕任何企圖同步對映 `password`、`secret`、`token`、`api_key` 或 `authorization` 等敏感名稱的描述元。官方規範強烈建議伺服器作者切勿同步對映敏感參數；用戶端應當將該項建議直接升級為強制的准入安全紅線。
+本課進一步引入了生產部署安全策略：果斷拒絕任何企圖同步對映 `password`、`secret`、`token`、`api_key` 或 `authorization` 等敏感名稱的描述元。官方規範建議伺服器作者切勿同步對映敏感參數；用戶端應當將該項建議直接升級為強制的准入安全紅線。
 
 稽核紀錄中僅記錄標頭名稱，不記錄參數值。範例程式碼只記錄 `Mcp-Param-Region`，不會將 `eu-west` 寫入稽核事件。
 
@@ -260,7 +260,7 @@ if not result.get("nextCursor"):
 
 回傳結果至多包含 100 筆建議，並可附帶 `total` 與 `hasMore` 旗標。
 
-必須強制套用與目標 Prompt 或資源完全相同的授權邊界。在範例中，分析師角色僅能收到 `development` 與 `staging` 建議；唯有運維工程師才有權取得 `production` 選項。
+必須強制套用與目標 Prompt 或資源完全相同的授權邊界。在範例中，分析師角色僅能收到 `development` 與 `staging` 建議；唯有維運工程師才有權取得 `production` 選項。
 
 生產級補全機制亦需要：
 

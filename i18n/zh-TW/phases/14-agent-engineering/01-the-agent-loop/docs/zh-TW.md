@@ -1,6 +1,6 @@
 # Agent 迴圈：觀察、思考與行動
 
-> 2026 年的所有 agent 本質上皆是 2022 年 ReAct 迴圈的衍生變體——包含 Claude Code、Cursor、Devin 與 Operator 概莫能外。模型在推論 Token、工具呼叫與環境觀察之間不斷交替迭代，直到觸發終止條件為止。在接觸任何上層框架之前，務必將此底層迴圈徹底融會貫通。
+> 2026 年的所有 agent 本質上皆是 2022 年 ReAct 迴圈的衍生變體——Claude Code、Cursor、Devin 與 Operator 也都包括在內。模型在推論 Token、工具呼叫與環境觀察之間不斷交替迭代，直到觸發終止條件為止。在接觸任何上層框架之前，務必將此底層迴圈徹底融會貫通。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -12,7 +12,7 @@
 - 指出 ReAct 迴圈的三大核心支柱——Thought（思考）、Action（行動）、Observation（觀察），並闡述為何每部分皆不可或缺。
 - 以純 Python 標準函式庫在 200 行程式碼內實作一套包含玩具模型、工具註冊表與終止條件的 agent 迴圈。
 - 洞悉 2026 年自基於 prompt 的思維 Token 轉向模型原生推論通道（Responses API、跨服務供應商加密推論透傳）的架構演進。
-- 深入解釋為何主流現代框架（Claude Agent SDK、OpenAI Agents SDK、LangGraph、AutoGen v0.4）在底層依然全數建構於此基礎迴圈之上。
+- 說明為何現代 agent 執行環境（Claude Agent SDK、OpenAI Agents SDK、LangGraph、AutoGen v0.4）的底層仍建構於此迴圈之上。
 
 ## The Problem｜問題
 
@@ -38,7 +38,7 @@ Action: finish("Paris")
 
 - ALFWorld：在僅提供 1–2 個上下文範例的前提下，絕對任務成功率大幅提升了 34 個百分點。
 - WebShop：相較於模仿學習與搜尋基準線，表現高出 10 分。
-- Hotpot QA：ReAct 透過將每一步錨定於檢索結果，避免幻覺（hallucination）。
+- Hotpot QA：ReAct 透過將每一步錨定於檢索結果，從幻覺中復原（hallucination）。
 
 推論追蹤鏈（Reasoning Traces）達成了單純僅靠「行動提示（Action-only prompting）」所無法企及的三大能力：歸納產出規劃、跨多個步驟追蹤規劃進度，以及在某個行動回傳非預期觀察時優雅處理異常。
 

@@ -1,6 +1,6 @@
 # A2A——Agent 間互聯通訊協定（A2A — The Agent-to-Agent Protocol）
 
-> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得 150 多個組織支持。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分驗證。在當代正式環境系統中，將 MCP 與 A2A 複合搭配已成為標準實踐。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
+> Google 於 2025 年 4 月正式發布 A2A 協定；截至 2026 年 4 月，其官方規範已推進至 https://a2a-protocol.org/latest/specification/ 並獲得 150 多個組織支持。A2A 是 MCP（第 13 課）在水平維度上的完美互補：若說 MCP 專注於垂直維度（Agent ↔ 各類工具），A2A 則專攻對等橫向協同（Agent ↔ Agent）。它標準化定義了 Agent Card（服務發現）、附帶多模態工件（文字、結構化資料、影片）的任務模型、黑箱式不透明任務生命週期，以及安全身分驗證。在正式環境系統中，MCP 與 A2A 的搭配愈來愈常見。Google Cloud 亦在 2025 至 2026 年間將 A2A 深度整合進 Vertex AI Agent Builder 之中。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib, `http.server`, `json`)
@@ -95,7 +95,7 @@ sequenceDiagram
 
 ### 身分驗證架構
 
-A2A 原生支援三種業界標準安全模式：
+A2A 支援三種常見模式：
 
 - **Bearer Token**：基於 OAuth2 或自訂的不透明權杖（`httpAuthSecurityScheme` 或 `oauth2SecurityScheme`）。
 - **雙向 mTLS**：雙向 TLS 握手；企業組織之間藉此向彼此提供不可偽造的身分證明（`mtlsSecurityScheme`）。
@@ -105,14 +105,14 @@ A2A 原生支援三種業界標準安全模式：
 
 ### 截至 2026 年 4 月，A2A 獲 150 多個組織支持
 
-企業級的規模化採用推動了 A2A 的高速普及。最核心的戰略意義：A2A 已實質成為跨越不同企業信任邊界開展 Agent 協同的通用業界標準。Google Cloud 正式釋出了 Vertex AI Agent Builder 對 A2A 的原生支援；微軟 Agent Framework 亦原生相容；絕大多數主流開源框架（LangGraph、CrewAI、AutoGen）皆已標配相應的 A2A 適配器。
+企業級的規模化採用推動了 A2A 的高速普及。最核心的戰略意義：A2A 已成為企業 Agent 系統跨越信任邊界的常用方式。Google Cloud 正式釋出了 Vertex AI Agent Builder 對 A2A 的原生支援；微軟 Agent Framework 亦原生相容；絕大多數主流開源框架（LangGraph、CrewAI、AutoGen）皆已標配相應的 A2A 適配器。
 
 ### A2A 的致勝優勢場景
 
 - **跨組織企業互聯。** 公司 A 的 Agent 呼叫公司 B 的 Agent。若缺乏 A2A，任何兩家企業之間的對接皆必須從零編寫專屬介面契約。
-- **異質多框架混編。** LangGraph 驅動的 Agent 呼叫 CrewAI 打造的 Agent，後者再進一步呼叫純 Python 編寫的自研 Agent。A2A 抹平了底層所有的技術堆疊差異。
-- **天然支援富多模態工件。** 影片分析成果、結構化 JSON、高傳真音訊——全部皆為原生一等公民。
-- **跨越數小時的長時程任務。** 黑箱生命週期搭配可靠的輪詢與事件機制，讓長達數小時的跨系統非同步工作流變得極度穩健。
+- **異質多框架混編。** LangGraph 驅動的 Agent 呼叫 CrewAI 打造的 Agent，後者再進一步呼叫純 Python 編寫的自研 Agent。A2A 可將異質框架間的呼叫標準化。
+- **天然支援富多模態工件。** 影片分析成果、結構化 JSON、音訊——全部皆為原生一等公民。
+- **跨越數小時的長時程任務。** 黑箱生命週期搭配輪詢，讓長達數小時的跨系統非同步工作流變得容易處理。
 
 ### A2A 遭遇瓶頸的場景
 
@@ -167,10 +167,10 @@ python3 code/main.py
 將 A2A 服務推向正式環境前的必備檢查清單：
 
 - **強制鎖定協定規格版本。** A2A 仍在高速演進中；在 `supportedInterfaces` 的每個條目中皆必須明確宣告其 `protocolVersion`，且用戶端發起請求時必須強制攜帶 `A2A-Version: 1.0` 標頭。
-- **保證任務建立的嚴格冪等性。** 網路重試引發的重複送出必須精準收斂為同一個任務。依據用戶端傳入的 `messageId` 進行全域去重。
-- **嚴格驗證工件結構描述。** 明確宣告 Agent 回傳的工件形狀；消費方必須對接收到的資料結構進行嚴密驗證。
+- **保證任務建立的嚴格冪等性。** 網路重試引發的重複送出必須精準收斂為同一個任務。依據用戶端傳入的 `messageId` 去重。
+- **嚴格驗證工件結構描述。** 明確宣告 Agent 回傳的工件形狀；消費方應驗證接收到的資料結構。
 - **配備速率限制與身分驗證。** A2A 本質上面向公開網路；必須嚴格套用現代 Web 級別的資安防禦。
-- **為失敗任務建立死信佇列（Dead-letter）。** 長期監控並分析失敗任務的錯誤模式，以便精準捕捉底層循環出現的架構瑕疵。
+- **為失敗任務建立死信佇列（Dead-letter）。** 長期觀察失敗任務的模式，找出重複出現的失敗類型。
 
 ## Exercises｜練習
 

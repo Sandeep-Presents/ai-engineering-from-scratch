@@ -1,6 +1,6 @@
-# 生成式 Agent 與湧現式社會模擬（Generative Agents and Emergent Simulation）
+# 生成式 Agent 與湧現式模擬（Generative Agents and Emergent Simulation）
 
-> Park 等人於 2023 年（UIST '23，arXiv:2304.03442）在名為 **Smallville** 的沙盒中部署了 25 個 Agent，採用三部分架構：**記憶流（Memory stream）**（自然語言事件紀錄）、**反思（Reflection）**（Agent 針對自身記憶流生成的高階綜合認知）以及**規劃（Plan）**（先規劃一天，再細分為子計畫）。研究的里程碑成果是「情人節派對」的湧現：只對單一 Agent 植入「想舉辦情人節派對」的種子，沒有額外腳本，邀請便在群體中擴散、各 Agent 協調日期，最後派對舉行；其他 24 個 Agent 起初並不知道這場派對。消融實驗顯示三個元件對擬真度缺一不可。文獻記錄的失效主要是空間社會常規錯誤（闖入已關門的店、多人擠進單人廁所）。這套架構是 2026 年 Agent 模擬與多 Agent 社會行為評估的參考架構。
+> Park 等人於 2023 年（UIST '23，arXiv:2304.03442）在名為 **Smallville** 的沙盒中部署了 25 個 Agent，採用三部分架構：**記憶流（Memory stream）**（自然語言事件紀錄）、**反思（Reflection）**（Agent 針對自身記憶流生成的高階綜合認知）以及**規劃（Plan）**（先規劃一天，再細分為子計畫）。研究的里程碑成果是「情人節派對」的湧現：只對單一 Agent 植入「想舉辦情人節派對」的種子，沒有額外腳本，邀請便在群體中擴散、各 Agent 協調日期，最後派對舉行；其他 24 個 Agent 起初並不知道這場派對。消融實驗顯示三個元件對擬真度缺一不可。文獻記錄的失效主要是空間社會常規錯誤（闖入已關門的店、共用單人廁所）。這套架構是 2026 年 Agent 模擬與多 Agent 社會行為評估的參考架構。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
