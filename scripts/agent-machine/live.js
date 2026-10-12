@@ -610,6 +610,11 @@ let frame = 0;
 let last = 0;
 let visible = true;
 function tick(now) {
+  if (state.recording) {
+    frame = 0;
+    last = 0;
+    return;
+  }
   const dt = last ? Math.min((now - last) / 1000, 1 / 20) : 1 / 60;
   last = now;
   if (state.playing) advance(dt * state.speed * (still.matches ? 40 : 1));
@@ -837,7 +842,8 @@ $$("[data-am-speed]").forEach((button) =>
 $$("[data-am-scenario]").forEach((button) =>
   button.addEventListener("click", () => {
     load({ ...M.DEFAULTS, ...JSON.parse(button.dataset.amScenario) }, { autoplay: true });
-    stage.scrollIntoView({ behavior: still.matches ? "auto" : "smooth", block: "center" });
+    $$("[data-am-scenario]").forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
+    showTab("run");
   }),
 );
 $("[data-am-share]").addEventListener("click", async () => {
@@ -848,6 +854,26 @@ $("[data-am-share]").addEventListener("click", async () => {
   } catch (error) {
     flash(url);
   }
+});
+
+function showTab(name) {
+  $$("[data-am-tab]").forEach((tab) => {
+    const on = tab.dataset.amTab === name;
+    tab.setAttribute("aria-selected", String(on));
+    tab.tabIndex = on ? 0 : -1;
+  });
+  $$("[data-am-panel]").forEach((panel) => (panel.hidden = panel.dataset.amPanel !== name));
+}
+$$("[data-am-tab]").forEach((tab, index, tabs) => {
+  tab.addEventListener("click", () => showTab(tab.dataset.amTab));
+  tab.addEventListener("keydown", (event) => {
+    const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    event.preventDefault();
+    const next = tabs[(index + step + tabs.length) % tabs.length];
+    showTab(next.dataset.amTab);
+    next.focus();
+  });
 });
 
 function inspect(asm) {
@@ -878,7 +904,7 @@ layer.addEventListener("click", (event) => {
   const asm = meta[node.dataset.i].asm;
   if (!D.INFO[asm]) return;
   inspect(state.selected === asm ? null : asm);
-  $("[data-am-inspect]").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  showTab("inspect");
 });
 stage.addEventListener("keydown", (event) => {
   if (event.target !== stage) return;
@@ -903,7 +929,10 @@ function showTour(index) {
   $("[data-am-tour-text]").textContent = item.text;
   $("[data-am-tour-prev]").disabled = tourAt === 0;
   $("[data-am-tour-next]").textContent = tourAt === TOUR.length - 1 ? "Done" : "Next";
-  if (item.part) inspect(item.part);
+  if (item.part) {
+    inspect(item.part);
+    showTab("inspect");
+  }
   if (item.config) load({ ...M.DEFAULTS, ...item.config }, { autoplay: true });
 }
 $("[data-am-tour-start]").addEventListener("click", () => {

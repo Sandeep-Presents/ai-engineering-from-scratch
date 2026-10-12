@@ -144,6 +144,7 @@ test('the page carries every control, readout and social tag', () => {
     assert.ok(html.includes(hook), hook);
   }
   assert.match(html, /This is a simulation\./);
+  assert.ok(!html.includes('GifWriter') && !html.includes('data-am-export=') && !html.includes('MediaRecorder'), 'export tools stay out of the public page');
   assert.match(html, /<meta property="og:image" content="https:\/\/aiengineeringfromscratch\.com\/og\/page\/inside-an-ai-agent\.png">/);
   assert.match(html, /role="img" aria-label="A card-processing machine/);
   assert.ok(fs.existsSync(path.join(__dirname, 'anatomy', 'inside-an-ai-agent-og.png')));

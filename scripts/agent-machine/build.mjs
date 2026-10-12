@@ -1,13 +1,15 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import * as k from "./kit/iso-kit.mjs";
 import * as Gm from "./geometry.mjs";
 import { CONCEPT, INFO, PART_ORDER, SCENARIOS, TOUR } from "./content.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
-const OUT = join(ROOT, "site", "inside-an-ai-agent.html");
+const STUDIO = process.argv.includes("--studio");
+const OUT = STUDIO ? process.argv[process.argv.indexOf("--studio") + 1] : join(ROOT, "site", "inside-an-ai-agent.html");
+if (STUDIO && !OUT) throw new Error("usage: node build.mjs --studio <output.html>");
 const ORIGIN = "https://aiengineeringfromscratch.com";
 
 const exportsOf = (source) => [...source.matchAll(/^export (?:const|function|let) ([A-Za-z_$][\w$]*)/gm)].map((match) => match[1]);
@@ -46,6 +48,9 @@ const DATA = {
   items,
   INFO,
   CONCEPT,
+  W: Gm.W,
+  H: Gm.H,
+  CSS: k.ISO_CSS + readFileSync(join(HERE, "page.css"), "utf8").split("\n").filter((line) => line.startsWith(".am-svg [data-hot]")).join(""),
   TOUR,
 };
 DATA.STOPS.verifier = round(Gm.STOPS.verifier);
@@ -55,6 +60,7 @@ const script = [
   module("model.mjs", "M"),
   `const D = ${JSON.stringify(DATA)};`,
   readFileSync(join(HERE, "live.js"), "utf8"),
+  ...(STUDIO ? [readFileSync(join(HERE, "export.js"), "utf8")] : []),
 ].join("\n");
 const wrapped = `(() => {\n${script}\n})();`;
 
@@ -65,6 +71,16 @@ const SUB = "Run a request. Remove a component. Watch what fails.";
 const DESCRIPTION = "An interactive machine that shows how an AI agent turns a request into a grounded, tool-using, verified answer. Switch off retrieval, tools or the verifier and watch the same request fail.";
 
 const kitCss = k.ISO_CSS;
+const STUDIO_PANEL = `          <p class="am-label am-label--gap">Download</p>
+          <div class="am-export">
+            <button type="button" class="am-btn" data-am-export="gif">GIF of this run</button>
+            <button type="button" class="am-btn" data-am-export="video">Video of this run</button>
+            <button type="button" class="am-btn" data-am-export="tour">Video of the tour</button>
+            <button type="button" class="am-btn" data-am-export="png">PNG of this frame</button>
+            <a class="am-btn" href="anatomy/inside-an-ai-agent-poster.png" download>Poster</a>
+          </div>
+          <p class="am-export-status" data-am-export-status aria-live="polite">Exports are made in your browser from the same simulation. Video and GIF use the switches set above.</p>
+          <button type="button" class="am-btn" data-am-export-cancel hidden>Cancel export</button>`;
 const css = readFileSync(join(HERE, "page.css"), "utf8");
 
 const parts = PART_ORDER.map((asm, i) => `<button type="button" class="am-part" data-am-part="${asm}" aria-pressed="false"><span class="am-part-n">${String(i + 1).padStart(2, "0")}</span><strong>${escape(CONCEPT[asm])}</strong><span class="am-part-s">${escape(INFO[asm].name)}</span></button>`).join("");
@@ -81,7 +97,7 @@ const plate = k.plateHtml({
 const html = `<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8">${STUDIO ? `\n  <base href="${pathToFileURL(join(ROOT, "site")).href}/">\n  <meta name="robots" content="noindex">` : ""}
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${TITLE} - AI Engineering from Scratch</title>
   <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -135,16 +151,17 @@ const html = `<!DOCTYPE html>
   </header>
 
   <main id="main" class="am">
-    <section class="am-hero container">
+    <div class="am-screen">
+    <section class="am-hero">
       <p class="am-eyebrow">FIG_AGT · An interactive simulation</p>
-      <h1>${TITLE}</h1>
-      <p class="am-hook">${escape(HOOK)}</p>
-      <p class="am-sub">${escape(SUB)}</p>
+      <div class="am-hero-row">
+        <h1>${TITLE}</h1>
+        <p class="am-hook">${escape(HOOK)} <span class="am-sub">${escape(SUB)}</span></p>
+      </div>
     </section>
 
-    <section class="am-bench container" aria-label="The machine">
-      <div class="am-figure iso">${plate}</div>
-      <div class="am-console" role="group" aria-label="Machine controls">
+    <section class="am-app" aria-label="The machine">
+      <div class="am-toolbar" role="group" aria-label="Machine controls">
         <div class="am-buttons">
           <button type="button" class="am-btn am-btn--primary" data-am-run aria-pressed="false">Run</button>
           <button type="button" class="am-btn" data-am-step>Step</button>
@@ -173,39 +190,12 @@ const html = `<!DOCTYPE html>
             <button type="button" data-am-speed="4" aria-pressed="false">4×</button>
           </div>
         </div>
-        <p class="am-flash" data-am-flash aria-live="polite"></p>
         <p class="am-sr" data-am-live aria-live="polite"></p>
       </div>
 
-      <div class="am-readouts" aria-label="Live readouts">
-        <div class="am-readout am-readout--wide"><span>Stage</span><strong data-am-stage-name>Ready</strong></div>
-        <div class="am-readout"><span>Evidence</span><strong data-am-evidence>none</strong></div>
-        <div class="am-readout"><span>Tool calls</span><strong data-am-calls>0 calls</strong></div>
-        <div class="am-readout"><span>Verification</span><strong data-am-verdict>not run yet</strong></div>
-        <div class="am-readout"><span>Steps</span><strong data-am-steps>0</strong></div>
-        <div class="am-readout"><span>Simulated time</span><strong data-am-clock>0.00 s</strong></div>
-      </div>
-
-      <div class="am-io">
-        <div class="am-card">
-          <p class="am-label">Request</p>
-          <p class="am-request">Compare our April and May cloud invoices. How much did spending increase?</p>
-          <p class="am-label">In context now</p>
-          <ul class="am-context" data-am-context><li>empty</li></ul>
-        </div>
-        <div class="am-card">
-          <p class="am-label">Output <span class="am-status" data-am-status data-status="idle">waiting</span></p>
-          <p class="am-output" data-am-output>No answer yet.</p>
-          <p class="am-truth" data-am-truth></p>
-        </div>
-      </div>
-      <p class="am-honest">This is a simulation. The model step is a fixed script that reads the cards on the carriage and picks the next move. No model runs in your browser. The invoices, the arithmetic and every check are real. Times are fixed costs set by the simulation, not measurements.</p>
-    </section>
-
-    <section class="am-learn container">
-      <div class="am-col">
+      <aside class="am-left" aria-label="Scenarios">
         <h2>Try to break it</h2>
-        <p class="am-muted">Each button sets the switches and replays the same request.</p>
+        <p class="am-muted">Each one sets the switches and replays the same request.</p>
         <div class="am-scenarios">${scenarios}</div>
         <div class="am-tourbox">
           <button type="button" class="am-btn am-btn--primary" data-am-tour-start>Take the 60-second tour</button>
@@ -216,28 +206,56 @@ const html = `<!DOCTYPE html>
             <div class="am-tour-nav"><button type="button" class="am-btn" data-am-tour-prev>Back</button><button type="button" class="am-btn am-btn--primary" data-am-tour-next>Next</button></div>
           </div>
         </div>
+      </aside>
+
+      <div class="am-center">
+        <div class="am-figure iso">${plate}</div>
+        <p class="am-flash" data-am-flash aria-live="polite"></p>
+        <div class="am-readouts" aria-label="Live readouts">
+          <div class="am-readout am-readout--wide"><span>Stage</span><strong data-am-stage-name>Ready</strong></div>
+          <div class="am-readout"><span>Evidence</span><strong data-am-evidence>none</strong></div>
+          <div class="am-readout"><span>Tool calls</span><strong data-am-calls>0 calls</strong></div>
+          <div class="am-readout"><span>Verification</span><strong data-am-verdict>not run yet</strong></div>
+          <div class="am-readout"><span>Steps</span><strong data-am-steps>0</strong></div>
+          <div class="am-readout"><span>Simulated time</span><strong data-am-clock>0.00 s</strong></div>
+        </div>
       </div>
-      <div class="am-col">
-        <div class="am-inspect-head">
-          <h2>Inspect a part</h2>
+
+      <aside class="am-right" aria-label="Run details">
+        <div class="am-tabs" role="tablist" aria-label="Details">
+          <button type="button" role="tab" id="am-tab-run" aria-controls="am-panel-run" aria-selected="true" data-am-tab="run">Run</button>
+          <button type="button" role="tab" id="am-tab-inspect" aria-controls="am-panel-inspect" aria-selected="false" tabindex="-1" data-am-tab="inspect">Inspect</button>
+          <button type="button" role="tab" id="am-tab-trace" aria-controls="am-panel-trace" aria-selected="false" tabindex="-1" data-am-tab="trace">Trace</button>
+        </div>
+        <div class="am-panel" id="am-panel-run" role="tabpanel" aria-labelledby="am-tab-run" data-am-panel="run">
+          <p class="am-label">Request</p>
+          <p class="am-request">Compare our April and May cloud invoices. How much did spending increase?</p>
+          <p class="am-label">In context now</p>
+          <ul class="am-context" data-am-context><li>empty</li></ul>
+          <p class="am-label">Output <span class="am-status" data-am-status data-status="idle">waiting</span></p>
+          <p class="am-output" data-am-output>No answer yet.</p>
+          <p class="am-truth" data-am-truth></p>
+          <p class="am-honest">This is a simulation. The model step is a fixed script that reads the cards on the carriage and picks the next move. No model runs in your browser. The invoices, the arithmetic and every check are real. Times are fixed costs set by the simulation, not measurements.</p>
+          <div class="am-share">
+            <button type="button" class="am-btn" data-am-share>Copy link to this setup</button>
+          </div>
+${STUDIO ? STUDIO_PANEL : `          <a class="am-btn am-poster" href="anatomy/inside-an-ai-agent-poster.png" download>Download poster</a>`}
+        </div>
+        <div class="am-panel" id="am-panel-inspect" role="tabpanel" aria-labelledby="am-tab-inspect" data-am-panel="inspect" hidden>
           <div class="am-depth" role="group" aria-label="Detail level">
             <button type="button" data-am-depth="intro" aria-pressed="true">Beginner</button>
             <button type="button" data-am-depth="deep" aria-pressed="false">Engineer</button>
           </div>
+          <div class="am-parts">${parts}</div>
+          <div class="am-inspect" data-am-inspect aria-live="polite"><p class="am-muted">Click a part of the machine, or pick one from the list, to see what it stands for in a real agent.</p></div>
         </div>
-        <div class="am-parts">${parts}</div>
-        <div class="am-inspect" data-am-inspect aria-live="polite"><p class="am-muted">Select a part of the machine, or pick one from the list, to see what it stands for in a real agent.</p></div>
-      </div>
-      <div class="am-col am-col--trace">
-        <h2>Execution trace</h2>
-        <p class="am-muted">The printer on the bench writes the same lines on its tape.</p>
-        <ol class="am-trace" data-am-trace></ol>
-        <div class="am-share">
-          <button type="button" class="am-btn" data-am-share>Copy link to this setup</button>
-          <a class="am-btn" href="anatomy/inside-an-ai-agent-poster.png" download>Download poster</a>
+        <div class="am-panel" id="am-panel-trace" role="tabpanel" aria-labelledby="am-tab-trace" data-am-panel="trace" hidden>
+          <p class="am-muted">The printer on the bench writes the same lines on its tape.</p>
+          <ol class="am-trace" data-am-trace></ol>
         </div>
-      </div>
+      </aside>
     </section>
+    </div>
 
     <section class="am-why container">
       <h2>What the machine shows</h2>
