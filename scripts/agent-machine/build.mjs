@@ -128,7 +128,7 @@ const html = `<!DOCTYPE html>
       var stored = '';
       try { stored = localStorage.getItem('theme') || ''; } catch (_) {}
       root.setAttribute('data-theme', stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-      if (/[?&]poster\\b/.test(location.search)) root.setAttribute('data-poster', '');
+      var poster = /[?&]poster(?:=([a-z0-9]))?\\b/.exec(location.search); if (poster) root.setAttribute('data-poster', poster[1] || '1');
     })();
   </script>
   <style>${kitCss}${css}</style>
