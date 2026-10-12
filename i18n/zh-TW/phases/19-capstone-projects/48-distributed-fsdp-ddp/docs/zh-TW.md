@@ -72,7 +72,7 @@ flowchart LR
 
 ### CPU 與 gloo 通訊後端
 
-雖然 CUDA 與 NCCL 是正式環境的標配，但相同的 API 在 CPU 上完全對等存在。`gloo` 是專門針對 CPU 設計的分散式集合通訊函式庫。雖然其絕對頻寬無法與 GPU 上的 `nccl` 相比，但其對外暴露的 API 抽象完全同一。本課使用 `backend="gloo"` 初始化行程組，並透過 `torch.multiprocessing` 派生子行程，而非 `torchrun`；其在底層呼叫的皆是標準的 `torch.distributed` 原語。在多卡 GPU 節點上，只需改用 `backend="nccl"`、裝置張量，並以 `torchrun` 啟動即可。
+雖然 CUDA 與 NCCL 是正式環境的標配，但相同的 API 在 CPU 上完全對等存在。gloo 是專門針對 CPU 設計的分散式集合通訊函式庫。在 GPU 上，`gloo` 的速度比 `nccl` 慢好幾個數量級，但兩者對外暴露的 API 抽象完全相同。本課使用 `backend="gloo"` 初始化行程組，並透過 `torch.multiprocessing` 派生子行程，而非 `torchrun`；其在底層呼叫的皆是標準的 `torch.distributed` 原語。在多卡 GPU 節點上，只需改用 `backend="nccl"`、裝置張量，並以 `torchrun` 啟動即可。
 
 ```figure
 cg-allreduce-ring
@@ -115,7 +115,7 @@ def all_reduce_grads_(module, world_size):
 
 ### 第五步：FSDP 參數分片與重構往返
 
-`fsdp_round_trip_sketch` 將每個參數張量展平為一維向量、對齊填充至 `world_size` 的整數倍、切分為局部切片、調用 all_gather 重構全量張量，並剝離填充項。每個 Rank 重構出的張量與原始張量 100% 精確吻合。這就是 FSDP 的動態解分片步驟；而其逆向操作（在計算完畢後立即丟棄全量張量、僅保留本地切片）則僅僅是一次記憶體切片釋放。
+`fsdp_round_trip_sketch` 將每個參數張量展平為一維向量、對齊填充至 `world_size` 的整數倍、切分為局部切片、調用 all_gather 重構全量張量，並剝離填充項。每個 Rank 重構出的張量與原始張量 100% 精確吻合。這就是 FSDP 的動態解分片步驟；而其逆向操作（前向計算後重新分片）只是從 all_gather 得到的張量切出一個切片。
 
 執行測試：
 
@@ -158,6 +158,6 @@ PyTorch 官方的 FSDP 則追加了：將多個參數展平為連續大緩衝區
 
 - PyTorch 官方技術文件之 `torch.distributed` 專題：深入掌握本課所依託的各類底層集合通訊原語規格。
 - `gloo` 開源通訊函式庫集合通訊清單：其 API 抽象與 NVIDIA GPU 專屬的 `nccl` 完全對稱映射。
-- 第 19 階段第 46 課：回顧利用 `no_sync` 將 DDP 集合通訊開銷進行極限壓縮的梯度累加技術。
-- 第 19 階段第 47 課：回顧能夠原生相容 DDP 與 FSDP 多節點拓撲的分散式檢查點儲存架構。
-- PyTorch FSDP 官方技術手冊：深入透視工業級完全分片資料平行的底層記憶體管理與通訊管線實現。
+- 第 19 階段第 46 課：回顧利用 `no_sync` 將 DDP 集合通訊開銷進行極限壓縮的梯度累積技術。
+- 第 19 階段第 47 課：回顧能夠原生相容 DDP 與 FSDP 多節點拓撲的分散式 model checkpoint 儲存架構。
+- PyTorch FSDP 官方技術手冊：深入了解工業級完全分片資料平行的底層記憶體管理與通訊管線實作。

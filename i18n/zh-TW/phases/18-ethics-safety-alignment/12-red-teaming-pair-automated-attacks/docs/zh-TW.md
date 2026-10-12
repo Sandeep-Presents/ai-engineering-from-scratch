@@ -1,6 +1,6 @@
 # 紅隊演練：PAIR 與自動化攻擊（Red-Teaming: PAIR and Automated Attacks）
 
-> Chao、Robey、Dobriban、Hassani、Pappas 與 Wong（NeurIPS 2023，arXiv:2310.08419）。PAIR——Prompt 自動迭代精煉演算法（Prompt Automatic Iterative Refinement）——是常用的自動化黑盒越獄基準。一個配備了專屬紅隊系統 Prompt 的攻擊者 LLM，透過反覆向受測目標 LLM 提出越獄試探，並將歷史的所有嘗試與目標回應累加進自身的對話歷史中，作為上下文內反饋（In-context feedback）即時學習。PAIR 通常在 20 次查詢內即可成功，其收斂效率比 GCG（Zou 等人提出的 Token 級梯度搜尋演算法）高出數個數量級，且完全無需存取模型的白盒權重與梯度。PAIR 現已成為 JailbreakBench（arXiv:2404.01318）與 HarmBench 中的常用基準，並與 GCG、AutoDAN、TAP 及說服性對抗 Prompt（PAP）並列。
+> Chao、Robey、Dobriban、Hassani、Pappas 與 Wong（NeurIPS 2023，arXiv:2310.08419）。PAIR——Prompt 自動迭代精煉演算法（Prompt Automatic Iterative Refinement）——是典型的自動化黑盒越獄攻擊方法。一個配備了專屬紅隊系統 Prompt 的攻擊者 LLM，透過反覆向受測目標 LLM 提出越獄試探，並將歷史的所有嘗試與目標回應累加進自身的對話歷史中，作為上下文內回饋（In-context feedback）即時學習。PAIR 通常在 20 次查詢內即可成功，其收斂效率比 GCG（Zou 等人提出的 Token 級梯度搜尋演算法）高出數個數量級，且完全無需存取模型的白盒權重與梯度。PAIR 現已成為 JailbreakBench（arXiv:2404.01318）與 HarmBench 中的常用基準，並與 GCG、AutoDAN、TAP 及說服性對抗 Prompt（PAP）並列。
 
 **Type:** Build
 **Languages:** Python (stdlib, mock PAIR loop against a toy target)
@@ -9,8 +9,8 @@
 
 ## Learning Objectives｜學習目標
 
-- 深入描述 PAIR 演算法的完整執行流程：攻擊者系統 Prompt、迭代自適應精煉、上下文內歷史反饋。
-- 深刻解釋為何在面對純黑盒 API 目標時，PAIR 的攻擊收斂效率嚴格碾壓傳統 GCG 演算法。
+- 深入描述 PAIR 演算法的完整執行流程：攻擊者系統 Prompt、迭代自適應精煉、上下文內歷史回饋。
+- 深刻解釋為何面對黑盒目標時，PAIR 的效率高於 GCG。
 - 梳理另外四種主流自動化攻擊基準（GCG、AutoDAN、TAP、PAP），並分別指出每一種攻擊的核心差異化特徵。
 - 詳述 JailbreakBench 與 HarmBench 的標準化評測規範，並明確界定在各自體系下「攻擊成功率（ASR）」的嚴密定義。
 
@@ -23,18 +23,18 @@
 ### PAIR 演算法全貌（PAIR algorithm）
 
 演算法標準輸入變數：
-- 目標大模型 T（Target LLM，我們試圖攻擊防禦的對象）。
-- 裁判大模型 J（Judge LLM，客觀評判目標回應是否已構成越獄）。
-- 攻擊者大模型 A（Attacker LLM，充當紅隊最佳化器）。
+- 目標 LLM T（Target LLM，我們試圖攻擊防禦的對象）。
+- 裁判 LLM J（Judge LLM，評估目標回應是否已構成越獄）。
+- 攻擊者 LLM A（Attacker LLM，充當紅隊最佳化器）。
 - 惡意目標字串 G：例如「回應[有害指示]」。
 - 查詢預算上限 K（通常設定為 20 次查詢）。
 
 核心循環迴圈，當步長 k 處於 1..K 區間時：
 1. 為攻擊者 A 注入惡意目標 G 以及截至目前為止的所有歷史（Prompt, 回應）對話記錄。
-2. 攻擊者 A 總結前期被拒絕的教訓，生成一條全新的候選越獄 Prompt p_k。
+2. 攻擊者 A 生成一條全新的候選越獄 Prompt p_k。
 3. 將 p_k 送交目標模型 T；接收其輸出的原始回應 r_k。
 4. 由裁判 J 評估回應是否達成攻擊目標 G，並為 (p_k, r_k) 評分。
-5. 若評分大於等於預設判定閾值，演算法立即終止——宣告成功找到越獄越權 Prompt。
+5. 若評分大於等於預設判定閾值，演算法立即終止——宣告找到越獄 Prompt。
 6. 否則，將 (p_k, r_k) 完整追加進攻擊者 A 的上下文歷史中；繼續推進下一輪迭代。
 
 NeurIPS 2023 實測結論：在攻擊 GPT-3.5-turbo 與 Llama-2-7B-chat 時，攻擊成功率超過 50%；且平均成功查詢數約為 10–20 次。
@@ -45,7 +45,7 @@ GCG（Zou 等人，2023）透過梯度搜尋對抗性 token 後綴；它需要�
 
 ### 相關的主流自動化攻擊演算法（Related automated attacks）
 
-- **GCG（Zou 等人，2023，arXiv:2307.15043）**：針對對抗性後綴進行 Token 級梯度投影搜尋。白盒架構、具備跨模型遷移性、產出亂碼字串。
+- **GCG（Zou 等人，2023，arXiv:2307.15043）**：針對對抗性後綴進行 Token 級梯度搜尋。白盒架構、具備跨模型遷移性、產出亂碼字串。
 - **AutoDAN（Liu 等人，2023）**：在分層目標引導下，對自然語言 Prompt 展開遺傳演化搜尋（Evolutionary search）。
 - **TAP（Mehrotra 等人，2024）**：帶有修剪的攻擊樹演算法（Tree-of-attacks with pruning）——同時平行展開多條 PAIR 風格的搜尋路徑，並動態剪去無望的分岔。
 - **PAP（Zeng 等人，2024）**：說服性對抗 Prompt（Persuasive Adversarial Prompts）——將人類說服技巧編碼為 prompt 範本。
@@ -61,7 +61,7 @@ GCG（Zou 等人，2023）透過梯度搜尋對抗性 token 後綴；它需要�
 
 ### 為何這在 2026 年是正式環境的必修課（Reason it matters for 2026 deployments）
 
-如今每個前沿實驗室都會在發布前用 PAIR 與 TAP 測試 production models。ASR 軌跡會出現在模型卡（第 26 節）與安全案例附錄（第 18 節）中。這種攻擊並不罕見，而是標準基礎設施。
+如今每個前沿實驗室都會在發布前用 PAIR 與 TAP 測試 production models。ASR 軌跡會出現在模型卡（第 26 節）與安全論證附錄（第 18 節）中。這種攻擊並不罕見，而是標準基礎設施。
 
 ### 該研究在第 18 階段中的宏觀座標（Where this fits in Phase 18）
 
@@ -82,9 +82,9 @@ al-pair-loop
 ## Exercises｜練習
 
 1. 執行 `code/main.py`。分別測量內建的三種攻擊者策略（同義改寫、角色扮演、編碼偽裝）達到成功所需的平均查詢次數。深刻剖析每一種策略各自利用了目標防禦的哪一項脆弱假設？
-2. 在腳本中動手實作第四種攻擊者策略（例如翻譯為另一種語言、或進行 Base64 編碼包裝）。呈報該全新策略在面對「關鍵字過濾目標」與「語義理解過濾目標」時的實測表現。
-3. 仔細研讀 Chao 等人（2023）原著論文圖 5（PAIR vs GCG 橫向對比）。指出在具備哪些特定先決條件時，儘管 PAIR 在效率上大幅領先，資安專家依然會優先選用 GCG 展開防護驗收？
-4. JailbreakBench 僅僅呈報針對固定目標集的總體 ASR。設計一項額外的新指標，用以專門度量成功攻擊 Prompt 內部的「多樣性（Diversity，語義變異數）」。深入論證為何多樣性度量對於評估防禦系統的真實韌性至關重要。
+2. 在腳本中動手實作第四種攻擊者策略（例如翻譯為另一種語言、或進行 Base64 編碼包裝）。報告該新策略在面對「關鍵字過濾目標」與「語意過濾目標」時，平均需要幾次查詢才能成功。
+3. 仔細研讀 Chao 等人（2023）原著論文圖 5（PAIR vs GCG 橫向對比）。說明兩種儘管 PAIR 較有效率、仍會優先選用 GCG 的情境。
+4. JailbreakBench 僅僅呈報針對固定目標集的總體 ASR。設計一項額外的新指標，用以專門度量成功攻擊 Prompt 內部的「多樣性（Diversity，成功 prompts 的變異情形）」。深入論證為何多樣性度量對於評估防禦系統的真實韌性至關重要。
 5. TAP 演算法（Mehrotra 等人，2024）透過引入分岔探索與動態修剪對 PAIR 進行了重大擴展。為 `code/main.py` 構思一套 TAP 風格的架構擴充偽程式碼，並詳述其在運算成本與攻擊成功率之間的工程取捨。
 
 ## Key Terms｜關鍵術語
@@ -103,5 +103,5 @@ al-pair-loop
 
 - [Chao et al. — Jailbreaking Black Box LLMs in Twenty Queries (arXiv:2310.08419)](https://arxiv.org/abs/2310.08419) — PAIR 奠基論文，NeurIPS 2023。
 - [Zou et al. — Universal and Transferable Adversarial Attacks on Aligned LLMs (arXiv:2307.15043)](https://arxiv.org/abs/2307.15043) — GCG 梯度攻擊原創經典。
-- [Chao et al. — JailbreakBench (arXiv:2404.01318)](https://arxiv.org/abs/2404.01318) — 標準化越獄評測聯盟手冊。
+- [Chao et al. — JailbreakBench (arXiv:2404.01318)](https://arxiv.org/abs/2404.01318) — 標準化評測。
 - [Mazeika et al. — HarmBench (ICML 2024)](https://arxiv.org/abs/2402.04249) — 覆蓋 510 項行為的全球宏大安全評測集。

@@ -1,6 +1,6 @@
 # HDF5 二進位 tokenized 語料庫
 
-> 下載完成的海量語料，必須以訓練器能夠在網卡／磁碟線速下順暢串流讀取的格式進行物理儲存。磁碟上的原始 JSONL 文字檔案根本無法承受 16 個 DataLoader Worker 執行緒的高併發隨機讀取；而具備動態可擴展、分塊整數儲存特性的 HDF5 格式則能輕鬆勝任。本課將親手打造：將文字串流經 tokenization 後寫入可擴展 HDF5 資料集、跨多個實體檔案的分片並行寫入、訓練執行時期的記憶體映射（Memory-Mapped）極速讀取，以及產出固定長度序列與精確填充的滑動視窗 DataLoader。
+> 下載完成的海量語料，必須以訓練器能夠在網卡／磁碟線速下順暢串流讀取的格式進行物理儲存。磁碟上的原始 JSONL 文字檔案根本無法承受 16 個 DataLoader worker；而具備動態可擴展、分塊整數儲存特性的 HDF5 格式則能輕鬆勝任。本課將親手打造：將文字串流經 tokenization 後寫入可擴展 HDF5 資料集、跨多個實體檔案的分片並行寫入、訓練執行時期的記憶體映射（Memory-Mapped）極速讀取，以及產出固定長度序列與精確填充的滑動視窗 DataLoader。
 
 **Type:** Build
 **Languages:** Python
@@ -16,9 +16,9 @@
 
 ## The Problem｜問題
 
-一個現代大語言模型預訓練任務，在數十個背景 Worker 的驅動下，往往需要以每秒數十萬個樣本的驚人頻寬吞吐 Token。儲存在磁碟上的 JSONL 文字檔案在遭遇第一次冷快取分頁缺失（Page Fault）時就會當場崩潰：JSON 解析器極其緩慢、文件邊界無法被二進位隨機定址，且若想跳轉讀取「第 4,217,884 個樣本」，系統不得不從檔案第 0 行開始全量掃描。即便是在壓縮率上表現優異的 Parquet 格式此處同樣難以勝任，因為訓練器不需要複雜的列式資料庫特徵，它所渴望的本質上是一整條支援 O(1) 常數級隨機存取的扁平 Token 串流。
+一個現代語言模型訓練作業，在數十個背景 Worker 的驅動下，往往需要以每秒數十萬個樣本的驚人頻寬吞吐 Token。儲存在磁碟上的 JSONL 文字檔案在遭遇第一次冷快取分頁缺失（Page Fault）時就會當場崩潰：JSON 解析器極其緩慢、文件邊界無法被二進位隨機定址，且若想跳轉讀取「第 4,217,884 個樣本」，系統不得不從檔案第 0 行開始全量掃描。即便是在壓縮率上表現優異的 Parquet 格式此處同樣難以勝任，因為訓練器不需要複雜的列式資料庫特徵，它所渴望的本質上是一整條支援 O(1) 常數級隨機存取的扁平 Token 串流。
 
-HDF5 完美契合了該極端負載需求：它提供具備分塊（Chunked）、動態擴展（Resizable）的純整數資料集，其在磁碟上的物理佈局對作業系統的 Page Cache 極度友好。當訓練器請求 `tokens[3,200,000 : 3,200,8192]` 的切片時，HDF5 直接將請求的資料選取區域（hyperslab）從 Linux Page Cache 記憶體中複製進新分配的 NumPy 陣列中。每個 Worker 僅需維持一個開啟的檔案句柄以及一個分塊大小的 Page Cache 記憶體開銷，相較於解碼文字 JSONL 的沉重負擔，該代價微乎其微。
+HDF5 完美契合了該極端負載需求：它提供具備分塊（Chunked）、動態擴展（Resizable）的純整數資料集，其在磁碟上的物理佈局對作業系統的 Page Cache 極度友好。當訓練器請求 `tokens[3,200,000 : 3,200,8192]` 的切片時，HDF5 直接將請求的資料選取區域（hyperslab）從 Page Cache 中複製進新分配的 NumPy 陣列中。每個 Worker 僅需維持一個開啟的檔案句柄以及一個分塊大小的 Page Cache 記憶體開銷，相較於解碼文字 JSONL 的沉重負擔，該代價微乎其微。
 
 整個建構過程中最考驗工程功力的是寫入端的嚴謹紀律。可動態擴展的資料集極易被錯誤濫用：若每處理一篇文件就執行一次資料集擴容寫入，HDF5 檔案將產生嚴重的碎片化直至無法讀取；若將所有文件全部在記憶體中快取並在最後一次擴容寫入，一旦行程意外崩潰將丟失整批資料。唯一正確的工程準則是：**先緩衝再擴容（Buffer-then-extend）**，將緩衝區大小精確設定為 HDF5 的分塊大小（Chunk Size），並採用跨檔案分片寫入，確保任何單點崩潰最多只會損失單一分片。
 
@@ -50,11 +50,11 @@ flowchart TD
 
 ### 基於記憶體映射的高效讀取
 
-在模型訓練執行時期，每個背景 Worker 執行緒以 `swmr=True`（單寫多讀）模式打開其分配到的 HDF5 分片，發起 `tokens[start:stop]` 的切片請求。HDF5 的 Chunk 排布使得一旦某個分塊被命中，後續的讀取由作業系統 Page Cache 支援。Worker 永遠不需要在記憶體中全量載入整個檔案：切片資料被快速拷貝至 DataLoader 的批次緩衝區中，隨後 DataLoader 在組裝 Batch 時將其拷貝至釘選記憶體（Pinned Memory）訓練張量中。在訓練熱點路徑上，跨越 Chunk 分塊邊界時僅需發起一次系統呼叫；其餘時間全是在記憶體中進行極速讀取。
+在模型訓練執行時期，每個 Worker 以 `swmr=True`（單寫多讀）模式打開其分配到的 HDF5 分片，發起 `tokens[start:stop]` 的切片請求。HDF5 的 Chunk 排布使得一旦某個分塊被命中，後續的讀取由作業系統 Page Cache 支援。Worker 永遠不需要在記憶體中全量載入整個檔案：切片資料被快速拷貝至 DataLoader 的批次緩衝區中，隨後 DataLoader 在組裝 Batch 時將其拷貝至釘選記憶體（Pinned Memory）訓練張量中。在訓練熱點路徑上，跨越 Chunk 分塊邊界時僅需發起一次系統呼叫；其餘時間全是在記憶體中進行極速讀取。
 
 ### 滑動視窗 DataLoader
 
-DataLoader 是整套體系中唯一知曉訓練序列長度（Context Window）的元件。它在全局 Token 串流中均勻隨機選取一個起始索引，連續讀取 `window_size + 1` 個 Token，並回傳 `(input, target) = (tokens[:-1], tokens[1:])`。該讀取不受單篇文件的實體邊界限制：視窗可能跨越兩篇文件，中間會有明確的 `boundary_token_id`，讓模型學會使用分隔符。這是標準的資料打包規則；初學者也常忘記這項規則，結果語料中 8% 是訓練邊界 Token，92% 是自然文字。
+DataLoader 是整套體系中唯一知曉訓練序列長度（Context Window）的元件。它在全局 Token 串流中隨機選取一個起始索引，連續讀取 `window_size + 1` 個 Token，並回傳 `(input, target) = (tokens[:-1], tokens[1:])`。該讀取不受單篇文件的實體邊界限制：視窗可能跨越兩篇文件，中間會有明確的 `boundary_token_id`，讓模型學會使用分隔符。這是標準的資料打包規則；初學者也常忘記這項規則，結果語料中 8% 是訓練邊界 Token，92% 是自然文字。
 
 ```figure
 cc-hdf5-corpus
@@ -64,7 +64,7 @@ cc-hdf5-corpus
 
 `code/main.py` 實作了以下核心模組：
 
-- `Tokenizer`：位元組級確定性 tokenizer，暴露 `encode(text) -> list[int]` 與 `vocab_size` 屬性。
+- `Tokenizer`：位元組級確定性 tokenizer，足以應付本課示範。介面為 `encode(text) -> list[int]` 與 `vocab_size`。
 - `HDF5ShardWriter`：建立可擴展整數資料集、在記憶體中以 Chunk 大小為單位快取 Token、按固定步長實施擴容與寫入，並在關閉時將真實 `token_count` 與 `sha256` 寫入 HDF5 屬性中。
 - `ShardedTokenizationPipeline`：遍歷輸入文件、分發路由至對應寫入器，並輸出最終的 `shards.json` 索引清單。
 - `MmapTokenStore`：以記憶體映射模式打開多個分片檔案、計算全局定址偏移量，並暴露統一的 `get_slice(start, stop)` 切片讀取介面。
@@ -82,7 +82,7 @@ python3 code/main.py
 
 ## 工業級正式環境落地模式
 
-四大實戰工程考量，確保資料管線能完美抗住上百台 GPU 節點的高併發壓榨：
+有四種模式可將本課擴展至真實訓練作業。
 
 **Chunk 大小必須與典型讀取視窗成整數倍對齊**：訓練器每次抽樣精確讀取 `window_size + 1` 個 Token。將 HDF5 的 Chunk 大小設定為 `window_size` 的整數倍，能保證每次讀取在作業系統 Page Cache 邊界上完美對齊。若 Chunk 大小與視窗長度不匹配，每次抽樣皆會被迫跨越兩個實體分塊，導致磁碟 I/O 吞吐直接折半暴跌。
 
@@ -96,17 +96,17 @@ python3 code/main.py
 
 正式環境實務模式：
 
-- **一個來源分塊對應一個 HDF5 檔案**：第 42 課的下載器針對每個 URL 產出一個文字分塊；本課的 tokenization 管線針對每個文字分塊產出一個 HDF5 檔案。這套 1:1 的嚴密映射使得斷點續傳與局部故障恢復變得無比簡單。
+- **一個來源分塊對應一個 HDF5 檔案**：第 42 課的下載器針對每個 URL 產出一個文字分塊；本課的 tokenization 管線針對每個文字分塊產出一個 HDF5 檔案。這套 1:1 的嚴密映射讓續傳與部分故障復原都很簡單。
 - **文件邊界隔離標籤**：邊界 Token 是 tokenizer 詞表的一部分，亦是 DataLoader 唯一被允許主動注入的特殊標記。若希望模型忽略文件交界，訓練損失函數會主動遮罩該標籤；否則模型將自然學會將其作為文件終止符號使用。
 - **`shards.json` 作為唯一事實標準**：在語料庫中追加新分塊意味著生成新的 HDF5、計算其雜湊值，並向 shards.json 追加一行記錄。訓練器在啟動時僅讀取該索引檔案一次，而絕不浪費時間去遍歷浩瀚的磁碟目錄。
 
 ## Ship It｜交付成果
 
-在真實商業專案中，交付的 `outputs/skill-hdf5-tokenized-corpus.md` 將詳細記錄：對接該管線的 tokenizer 版本、與訓練視窗完美對齊的 Chunk 大小規格、`shards.json` 在版本控制中的錨定位置，以及多個 DataLoader Worker 執行緒如何在檔案層級實施分片負載均衡。本課直接交付了該高性能儲存引擎的完整原始碼。
+在真實商業專案中，交付的 `outputs/skill-hdf5-tokenized-corpus.md` 將詳細記錄：對接該管線的 tokenizer 版本、與訓練視窗完美對齊的 Chunk 大小規格、`shards.json` 在版本控制中的錨定位置，以及多個 DataLoader worker 如何在檔案層級實施分片負載均衡。本課直接交付了該高效能儲存引擎的完整原始碼。
 
 ## Exercises｜練習
 
-1. 為 HDF5 寫入器追加 `--compression gzip` 參數，在演示語料庫上客觀度量引入壓縮對讀取吞吐量帶來的具體效能損耗。為預設關閉壓縮的選型給出架構抗辯。
+1. 為 HDF5 寫入器新增 `--compression gzip` 旗標，測量演示語料庫上的吞吐成本，並為選定的預設值辯護。
 2. 為滑動視窗 DataLoader 引入確定性隨機種子，嚴格斷言使用相同種子運作的兩次獨立任務所產出的 Batch 張量完全二進位一致。
 3. 實作 `--validate` 快速驗證模式：循序讀取每個分片，在記憶體中重新計算所有 Token 的 SHA256 雜湊，並與 `shards.json` 中的記錄進行比對。CI 管線在啟動預訓練前必須強制跑通該檢查。
 4. 針對「Chunk 大小等於視窗長度」、「Chunk 大小為視窗長度一半」以及「Chunk 大小為視窗長度兩倍」三種情境展開極限壓測。出具詳細的 Page Cache 命中率分析報告。
@@ -124,8 +124,8 @@ python3 code/main.py
 ## Further Reading｜延伸閱讀
 
 - [HDF5 chunking documentation](https://support.hdfgroup.org/documentation/hdf5/latest/hdf5_chunking.html) — 本課所採用的 HDF5 動態分塊資料集物理儲存規格。
-- [h5py user guide](https://docs.h5py.org/en/stable/) — Python 呼叫 HDF5 底層 C 函式庫的官方驅動手冊。
-- [NumPy memory mapping](https://numpy.org/doc/stable/reference/generated/numpy.memmap.html) — HDF5 在讀取端所依託的作業系統記憶體映射底層原語。
+- [h5py user guide](https://docs.h5py.org/en/stable/) — HDF5 的 Python 繫結。
+- [NumPy memory mapping](https://numpy.org/doc/stable/reference/generated/numpy.memmap.html) — HDF5 透過 h5py 暴露的讀取端記憶體映射基礎功能。
 - 第 19 階段第 42 課：深入了解為本課提供原始輸入語料的海量下載器架構。
 - 第 19 階段第 44 課：學習直接消費該 DataLoader 輸出串流的餘弦退火學習率排程架構。
 - 第 19 階段第 45 課：學習包裹單步訓練、結合混合精度 AMP 的極限吞吐控制迴圈。

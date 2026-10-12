@@ -10,13 +10,13 @@
 ## Learning Objectives｜學習目標
 
 - 指出三大市場區塊（專屬客製晶片、GPU 平台、API 優先型市集），並將各家廠商精準歸類。
-- 深刻解釋為何「按 Token 計費（Per-token）」的 API 定價模型，會不可避免地被壓縮並貼齊推論服務引擎的成本曲線，而非單純的底層硬體成本。
-- 計算跨至少三家廠商的單次請求實質成本，並指出何時按分鐘計費（Baseten、Modal）會碾壓按 Token 計費。
-- 依據給定的具體負載特徵（無伺服器突發流量、平穩高吞吐量、fine-tuning 定制衍生版本、多模態），精準挑選預設最適平台。
+- 深刻解釋為何「按 Token 計費（Per-token）」的 API 定價模型會朝推論服務引擎的成本曲線壓縮，而非朝硬體成本曲線壓縮。
+- 計算跨至少三家廠商的單次請求實質成本，並指出何時按分鐘計費（Baseten、Modal）勝過按 Token 計費。
+- 依據給定的具體負載特徵（無伺服器突發流量、平穩高吞吐量、fine-tuning 客製化變體、多模態），精準挑選預設最適平台。
 
 ## The Problem｜問題
 
-你評估過各大超大規模雲端平台後，得出結論：你需要更聚焦、推論延遲更低的專業服務商——追求極致延遲選 Fireworks、追求全模型覆蓋選 Together、部署自研 fine-tuning 模型選 Baseten。然而當你面對六家真實廠商的定價頁面時，卻發現維度完全無法對齊：各家定價頁的標示單位分別為：Fireworks 以 $/M tokens; Baseten shows $/minute；Modal 以 $/second; Replicate shows $/prediction。 在不對真實負載建立數學模型的前提下，你根本無法將它們放在同一個基準上橫向對比。
+你評估過各大超大規模雲端平台後，得出結論：你需要更聚焦、推論延遲更低的專業服務商——追求極致延遲選 Fireworks、追求全模型覆蓋選 Together、部署經過 fine-tuning 的客製模型選 Baseten。然而當你面對六家真實廠商的定價頁面時，卻發現維度完全無法對齊：各家定價頁採用的計價單位分別為：Fireworks shows $/M tokens; Baseten shows $/minute; Modal shows $/second; Replicate shows $/prediction。在不對真實負載建立數學模型的前提下，你根本無法將它們放在同一個基準上橫向對比。
 
 更棘手的是，每份定價頁面背後的商業邏輯截然不同。Fireworks 在共享 GPU 上運作自研的 FireAttention 專屬推論引擎，其每 Token 費率直接反映了其算力利用率曲線；Baseten 提供 Truss 打包框架與獨佔專屬 GPU，其按分鐘計費反映的是資源專有權；Modal 則是徹底的 Python 無伺服器（Serverless）架構——提供按秒計費與亞秒級的冷啟動體驗。產出完全相同的文字（一段 LLM 回應），背後卻對應三種本質迥異的成本函數。
 
@@ -28,28 +28,28 @@
 
 **專屬客製化晶片（Custom silicon）**——Groq（LPU）、Cerebras（WSE）、SambaNova（RDU）。在相同模型下，解碼速度通常比基於常規 GPU 的叢集快 5 至 10 倍。雖然每 Token 單價相對較高（2025 年底 Groq 在 Llama-70B 上的報價為 ~$0.99/M），但在延遲極度敏感的場景下具備無可爭議的統治地位。Groq 是目前語音 Agent 與即時語意翻譯領域的正式環境首選。
 
-**GPU 算力平台（GPU platforms）**——Baseten、Together、Fireworks、Modal、Anyscale。基於 NVIDIA（2026 年廣泛部署 H100、H200、B200）或部分 AMD GPU 運作。它們是介於「純裸金屬 GPU 租賃（RunPod、Lambda）」與「超大廠託管服務（Bedrock）」之間的黃金經濟層。
+**GPU 算力平台（GPU platforms）**——Baseten、Together、Fireworks、Modal、Anyscale。基於 NVIDIA（2026 年的 H100、H200、B200）或部分 AMD GPU 運作。它們是介於「純裸金屬 GPU 租賃（RunPod、Lambda）」與「超大廠託管服務（Bedrock）」之間的黃金經濟層。
 
 **API 優先型市集（API-first marketplaces）**——Replicate、DeepInfra、OpenRouter、Fal。擁有極致廣泛的模型型錄，支援按次預測或按秒計費，將開發者「從註冊到首次呼叫成功耗時」的最佳化推向極致。
 
 ### Fireworks——延遲最佳化型 GPU 平台（Fireworks — latency-optimized GPU platform）
 
-- 核心搭載自研 FireAttention 引擎；官方宣稱在相同硬體配置下延遲比 vLLM 低 4 倍。
+- 核心搭載自研 FireAttention 引擎；官方宣稱在等效組態下延遲比 vLLM 低 4 倍。
 - 針對非即時互動型背景任務，提供費率僅為無伺服器模式約 50% 的 Batch 批次層級。
 - 託管 fine-tuning 模型的收費標準與基礎 Base 模型完全一致——相較於對掛載 LoRA 額外加收溢價的同行，這是極其厚道的關鍵差異化優勢。
-- 2026 年中動態：自 2026 年 5 月 1 日起，隨需 GPU 租賃費率每小時上調 1 美元。超大規模客戶可專案協商階梯折扣。
+- 2026 年中動態：自 2026 年 5 月 1 日起，隨需 GPU 租賃費率每小時上調 1 美元。大量採購可協商價格。
 - 財務里程碑：估值突破 40 億美元，日均處理 Token 總量突破 10 兆大關。
 
 ### Together——廣度最佳化型（Together — breadth-optimized）
 
 - 涵蓋 200 多款主流模型，開源社群最新成果發布數天內即可全面上線。
 - 在同等 LLM 模型上，費率比 Replicate 便宜 50% 至 70%——其「AI 原生雲」的戰略定位核心在於以吞吐量規模與海量型錄制勝。
-- 在單一統一 API 內部無縫整合推論、fine-tuning 與底層預訓練。
+- 在單一統一 API 內部無縫整合推論、fine-tuning 與訓練。
 
 ### Baseten——企業級成熟度最佳化（Baseten — enterprise-polish-optimized）
 
 - 推出 Truss 框架：在單一宣告式資訊清單內部完整封裝模型相依套件、機密憑證與 Serving 配置。
-- 硬體覆蓋從 T4 直至 B200。按分鐘計費，並具備優秀的冷啟動抑制機制。
+- 硬體覆蓋從 T4 直至 B200。按分鐘計費，並具備合理的冷啟動緩解機制。
 - 全面通過 SOC 2 Type II 認證，已做好符合 HIPAA 要求的準備。是金融科技與醫療領域的熱門首選。
 - 估值達 50 億美元，2026 年 1 月完成 3 億美元 E 輪融資（由 CapitalG、IVP 與 NVIDIA 聯合注資）。
 
@@ -79,12 +79,12 @@
 
 ### 自研專屬推論引擎是真正的護城河（Custom engine is the real moat）
 
-市面上凡是位階高於原生 vLLM 與 SGLang 的平台，皆一致宣稱旗下具備強大的自研推論引擎：FireAttention、RayTurbo、Baseten 的私有推論堆疊。自研引擎的宣傳往往帶有些許市場包裝色彩——客觀冷靜的產業現狀是：vLLM 與 SGLang 構成了當前開源正式環境推論約 80% 的堅實基石，而各商業平台層之間真正的勝負分水嶺，更多取決於開發者體驗、帳單歸因粒度與企業級 SLA 承諾。
+市面上凡是建構在 vLLM 與 SGLang 之上的平台，皆一致宣稱旗下具備強大的自研推論引擎：FireAttention、RayTurbo、Baseten 的私有推論堆疊。自研引擎的宣傳往往帶有些許市場包裝色彩——客觀冷靜的產業現狀是：vLLM 與 SGLang 構成了當前開源正式環境推論約 80% 的堅實基石，而各商業平台層之間真正的勝負分水嶺，更多取決於開發者體驗、帳單歸因粒度與企業級 SLA 承諾。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
 - Fireworks 隨需 GPU 租賃費率：自 2026 年 5 月 1 日起每小時上調 1 美元。
-- Fireworks 官方宣稱指標：在等價硬體配置下延遲比 vLLM 降低 4 倍。
+- Fireworks 官方宣稱指標：在等效組態下延遲比 vLLM 降低 4 倍。
 - Together 價格優勢：在 LLM 模型上比 Replicate 便宜 50% 至 70%。
 - Baseten 估值：50 億美元（2026 年 1 月 E 輪融資 3 億美元）。
 - Modal 估值：11 億美元（2025 年 B 輪融資）。
@@ -96,7 +96,7 @@ cost-per-token
 
 ## Use It｜實際應用
 
-`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出 $/day and effective $/M tokens。 執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
+`code/main.py` 在跨越各類計費模式的模擬業務負載下，對這六家廠商展開全方位財務演算。輸出 $/day and effective $/M tokens。執行該腳本，精準定位你自身業務在按 Token 與按分鐘計費之間的損益平衡交會點。
 
 ## Ship It｜交付成果
 
@@ -131,5 +131,5 @@ cost-per-token
 - [Modal Pricing](https://modal.com/pricing) — 按秒計費 GPU 矩陣與免費額度政策。
 - [Together AI Pricing](https://www.together.ai/pricing) — 完整模型型錄與每 Token 費率對照表。
 - [Anyscale Pricing](https://www.anyscale.com/pricing) — RayTurbo 推論引擎與全託管 Ray 服務計費標準。
-- [Northflank — Fireworks AI Alternatives](https://northflank.com/blog/7-best-fireworks-ai-alternatives-for-inference) — 全球頂尖推論服務商深度橫向評測。
+- [Northflank — Fireworks AI Alternatives](https://northflank.com/blog/7-best-fireworks-ai-alternatives-for-inference) — 推論服務商的比較評估。
 - [Infrabase — AI Inference API Providers 2026](https://infrabase.ai/blog/ai-inference-api-providers-compared) — 2026 年最新推論服務版圖演進報告。

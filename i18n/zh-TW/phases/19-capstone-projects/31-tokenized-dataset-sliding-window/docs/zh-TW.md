@@ -10,7 +10,7 @@
 ## Learning Objectives｜學習目標
 - 透過單次呼叫 tokenizer，將原始文字語料庫全量轉化為連續的 Token ID 串流。
 - 使用可配置的重疊步長（Stride），將 ID 串流精確切割為固定長度的滑動視窗。
-- 建構標準的 PyTorch Dataset，為次詞預測（Next-Token Prediction）產出輸入與目標張量對。
+- 建構標準的 PyTorch Dataset，為 next-token prediction 產出輸入與目標張量對。
 - 使用 DataLoader 封裝資料集，並為每個 Epoch 注入鎖定隨機種子的確定性洗牌（Deterministic Shuffle）機制。
 - 深刻理解步長大小、資料冗餘度與有效資料集容量之間的工程權衡。
 
@@ -44,7 +44,7 @@ flowchart LR
     J --> K[分割為輸入與目標]
 ```
 
-視窗切割器絕不跨越語料庫的物理邊界。如果最後一個視窗湊不齊 `T+1` 個 Token，切割器直接將其捨棄。使用 `<|pad|>` 填充末尾同樣是合法的工業選擇，但這會讓損失函數的遮罩計算變得繁複。在本課的教學實作中，我們選擇直接捨棄殘餘尾部。
+視窗切割器絕不跨越語料庫的物理邊界。如果最後一個視窗湊不齊 `T+1` 個 Token，切割器直接將其捨棄。使用 `<|pad|>` 填充末尾同樣是有效的選擇，但這會讓損失函數的遮罩計算變得繁複。在本課的教學實作中，我們選擇直接捨棄殘餘尾部。
 
 ## 為何採用滑動視窗
 
@@ -54,7 +54,7 @@ flowchart LR
 
 ## PyTorch Dataset 類別
 
-標準 PyTorch Dataset 必須實作兩個核心方法：`__len__` 回傳總樣本數；`__getitem__` 回傳指定索引的一對張量樣本。我們的 Dataset 內部僅持有編碼後的 ID 陣列與步長整數。索引訪問時即時動態計算視窗的起始偏移量，因此無論步長將資料集擴展為多少樣本，其在記憶體中的物理開銷永遠只有一份原始 ID 陣列。
+標準 PyTorch Dataset 必須實作兩個核心方法：`__len__` 回傳總樣本數；`__getitem__` 回傳指定索引的一對張量樣本。我們的 Dataset 內部僅持有編碼後的 ID 陣列與步長整數。索引存取時即時動態計算視窗的起始偏移量，因此無論步長將資料集擴展為多少樣本，其在記憶體中的物理開銷永遠只有一份原始 ID 陣列。
 
 ```mermaid
 sequenceDiagram
@@ -71,7 +71,7 @@ sequenceDiagram
     Note over Tokenizer,Dataset: tokenizer.encode runs once at build time
 ```
 
-錯位平移操作在 `__getitem__` 內部優雅完成。Dataset 回傳 `(input, target)` 元組，其中 `input = window[:-1]`，`target = window[1:]`。兩者皆為 PyTorch long 整數張量。訓練迴圈將它們直接作為 Ground Truth 進行前向計算。
+錯位平移操作在 `__getitem__` 內部優雅完成。Dataset 回傳 `(input, target)` 元組，其中 `input = window[:-1]`，`target = window[1:]`。兩者皆為 PyTorch long 整數張量。訓練迴圈將它們直接作為 Ground Truth。
 
 ## 確定性洗牌
 
@@ -97,6 +97,6 @@ PyTorch 的預設取樣器在不放回抽樣模式下均勻隨機抽取索引。
 
 ## 程式碼導讀
 
-`main.py` 定義了兩個核心類別與一個輔助函式：`SlidingWindowDataset` 實作標準 PyTorch Dataset；`make_dataloader` 回傳配置好確定性隨機產生器的 DataLoader；`_encode_corpus_to_ids` 執行單次 tokenizer 編碼。底部演示程式在行程內訓練一個微型 tokenizer、對內建語料進行編碼、建構資料集與資料載入器、印出單個批次的張量形狀，並嚴格斷言輸出合約。`code/tests/test_dataset.py` 單元測試鎖定了視窗計數公式、錯位平移性質、確定性洗牌一致性以及步長權衡。
+`main.py` 定義了兩個核心類別與一個輔助函式：`SlidingWindowDataset` 實作標準 PyTorch Dataset；`make_dataloader` 回傳配置好確定性隨機產生器的 DataLoader；`_encode_corpus_to_ids` 執行單次 tokenizer 編碼。底部演示程式在行程內訓練一個微型 tokenizer、對內建語料進行編碼、建構資料集與資料載入器、印出一個批次，並嚴格斷言輸出合約。`code/tests/test_dataset.py` 單元測試鎖定了視窗計數公式、錯位平移性質、確定性洗牌一致性以及步長權衡。
 
 運作演示程式。嘗試將上下文長度從 16 擴大至 32，親眼觀察每個 Epoch 的有效樣本數量是如何成倍下降的。那個數字，正是你單個 Epoch 的總訓練步數預算。

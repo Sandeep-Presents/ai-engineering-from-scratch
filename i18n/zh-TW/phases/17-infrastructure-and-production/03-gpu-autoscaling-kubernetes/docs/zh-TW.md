@@ -12,11 +12,11 @@
 - 繪製三大自動擴縮架構層次（節點動態佈建、Gang 排程、應用程式層級訊號），並精確指出每一層所使用的核心工具。
 - 深刻解釋為何 `DCGM_FI_DEV_GPU_UTIL` 是設定 vLLM HPA 的錯誤訊號，並列出兩項黃金替代指標（排隊深度、KV 快取利用率）。
 - 詳述 Gang 原子排程的工作原理，以及 KAI Scheduler 如何阻止致命的部分分配失效模式（8 張 GPU 中 7 張被迫空轉）。
-- 指出 Karpenter 會在中途暴力終止運作中 GPU 任務的特定整併政策（`WhenEmptyOrUnderutilized`），並給出 2026 年安全合規的標準配置。
+- 指出 Karpenter 會在中途暴力終止運作中 GPU 任務的特定整併政策（`WhenEmptyOrUnderutilized`），並說明 2026 年安全的替代方案。
 
 ## The Problem｜問題
 
-你的團隊在 Kubernetes 上交付了一套 LLM 推論服務。你配置了以 `DCGM_FI_DEV_GPU_UTIL` 作為監控訊號的常規 HPA。在正常上班時間內，GPU 利用率死死卡在 100%。然而 HPA 卻從不自動擴容——因為它誤以為目前容量已經飽和剛好。當你手動強行新增一個 Pod 副本時，TTFT 首字延遲下降；然而 HPA 依然紋絲不動。這個監控訊號從頭到尾都在向你說謊。
+你的團隊在 Kubernetes 上交付了一套 LLM 推論服務。你配置了以 `DCGM_FI_DEV_GPU_UTIL` 作為監控訊號的常規 HPA。在正常上班時間內，GPU 利用率死死卡在 100%。然而 HPA 卻從不自動擴容——因為它誤以為目前容量已經飽和剛好。當你手動強行新增一個 Pod 副本時，TTFT（第一個 token 延遲）下降；然而 HPA 依然紋絲不動。這個監控訊號從頭到尾都在向你說謊。
 
 在另一個維度，你使用傳統的 Cluster Autoscaler 來管理底層節點。半夜 2 點突然湧入一段 100 萬 Token 的巨型 Prompt 請求；叢集耗費了整整 3 分鐘才將底層 GPU 節點佈建完成，用戶端的請求早已超時中斷。
 
@@ -48,15 +48,15 @@ KAI Scheduler（早期專案代號為 Karp，後正式定名）專門補足預�
 
 **Gang 原子排程（Gang scheduling）**——要麼全量調度、要麼全部延遲（All-or-nothing）。針對需要 8 張 GPU 的分散式推論 Pod，要麼 8 張同時就緒並同步啟動，要麼一個都不啟動。若無此機制，必然觸發「部分分配陷阱」：8 個 Pod 中有 7 個搶先啟動，隨後陷入無窮盡的等待，空耗寶貴算力。
 
-**硬體拓撲感知（Topology awareness）**——精確洞悉哪些 GPU 共享極速 NVLink、哪些 GPU 位處同一個機架、哪些節點之間具備 InfiniBand 直連。據此精準指派 Pod。例如 DeepSeek-V3 67B 模型的張量平行（Tensor Parallelism）運算必須留在同一個 NVLink 網域內；KAI Scheduler 能從底層嚴格保障這項拓撲約束。
+**硬體拓撲感知（Topology awareness）**——精確洞悉哪些 GPU 共享極速 NVLink、哪些 GPU 位處同一個機架、哪些節點之間具備 InfiniBand 直連。據此精準指派 Pod。例如 DeepSeek-V3 67B 模型的張量平行（Tensor Parallelism）運算必須留在同一個 NVLink 網域內；KAI Scheduler 會遵守這項拓撲約束。
 
-**階層化優先權佇列（Hierarchical queues）**——多個業務團隊依據優先權配額共享同一個實體 GPU 資源池。只有在明確的優先權規則允許下，團隊 A 的正式環境尖峰流量才能搶佔團隊 B 的離線訓練任務。
+**階層化優先權佇列（Hierarchical queues）**——多個業務團隊依據優先權配額共享同一個實體 GPU 資源池。只有在優先權規則允許時，團隊 B 的訓練工作才能搶佔團隊 A 的正式環境尖峰負載。
 
 KAI 通常作為輔助排程器與原生 kube-scheduler 並行部署；你只需在 Workload 的 Annotation 中指定使用它即可。Ray 與 vLLM production stack 也有整合。
 
 ### 第 3 層——應用程式層級特徵訊號（Application-level signals）
 
-**傳統 HPA 監控指標的致命盲區**：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比（Duty-cycle）度量——它度量的是在特定採樣間隔內 GPU 是否正在執行指令。100% 的利用率可能意味著當前有 10 個並行請求，也可能意味著有 100 個；在這兩種情況下 GPU 皆處於滿載運算狀態。依據佔空比進行擴縮容，無異於盲人摸象。
+**傳統 HPA 監控指標的致命盲區**：`DCGM_FI_DEV_GPU_UTIL` 僅是一項佔空比（Duty-cycle）度量——它度量的是在特定採樣間隔內 GPU 是否正在執行指令。100% 的利用率可能意味著當前有 10 個並行請求，也可能意味著有 100 個；這兩種情況下 GPU 都處於忙碌狀態。依據佔空比進行擴縮，無異於盲人摸象。
 
 更棘手的是，vLLM 等推論引擎會預先分配 KV 快取記憶體，配置量受 `--gpu-memory-utilization` 限制。因此即便僅有 1 個請求流入，記憶體佔用率依然高掛在 90% 附近。基於記憶體使用率的傳統 HPA 永遠無法觸發自動縮容。
 
@@ -64,7 +64,7 @@ KAI 通常作為輔助排程器與原生 kube-scheduler 並行部署；你只需
 
 - 排隊深度（Queue depth，等待進入 Prefill 階段的請求總數）。
 - KV 快取實際利用率（當前已分配給活躍序列的實體 Block 區塊佔比）。
-- 單個 Replica 副本的 P99 TTFT 首字延遲（直接反映 SLA 的核心訊號）。
+- 單個 Replica 副本的 P99 TTFT（第一個 token 延遲，直接反映 SLA）。
 - Goodput（每秒嚴格滿足全部 SLO 目標的合格請求數）。
 
 NVIDIA Dynamo Planner 與 llm-d Workload Variant Autoscaler 直接監聽並消費上述推論專屬訊號，精準調控 Replica 副本數。在現代 LLM 服務架構中，它們已全面取代傳統 HPA。
@@ -81,18 +81,18 @@ NVIDIA Dynamo Planner 與 llm-d Workload Variant Autoscaler 直接監聽並消�
 
 ### Prefill 與 Decode 拆解架構使一切更具挑戰（Disaggregated prefill/decode complicates everything）
 
-若你導入了 Prefill 與 Decode 拆解架構（第 17 課第 17 節），系統中將存在兩類截然不同的 Pod 類別，且各自擁有不同的擴縮容觸發機制：Prefill 節點依據排隊深度進行擴充，而 Decode 節點則依據 KV 快取的顯示記憶體壓力進行擴充。llm-d 將它們抽象為獨立的 `Services`，並分別綁定專屬的 HPA 策略。切忌試圖在兩者前方掛載單一且未經區分的 HPA。
+若你導入了 Prefill 與 Decode 拆解架構（第 17 課第 17 節），系統中將存在兩類截然不同的 Pod 類別，且各自擁有不同的自動擴縮觸發機制：Prefill 節點依據排隊深度進行擴充，而 Decode 節點則依據 KV 快取的顯示記憶體壓力進行擴充。llm-d 將它們抽象為獨立的 `Services`，並分別綁定專屬的 HPA 策略。切忌試圖在兩者前方掛載單一且未經區分的 HPA。
 
 ### 冷啟動延遲在此同樣關鍵（Cold start matters here too）
 
-冷啟動抑制機制（第 17 課第 10 節）決定了節點佈建耗時是否會直接傳導為使用者肉眼可見的卡頓。Karpenter 耗費 45 至 60 秒開闢節點，加上拉取並載入 20GB 模型權重，再加上推論引擎的初始化，意味著從零啟動一個全新請求將耗時 2 至 5 分鐘。在對 SLO 極度敏感的核心鏈路上，可保留 warm pool（`min_workers=1`），或在應用層使用 Modal 風格的 checkpointing。
+冷啟動抑制機制（第 17 課第 10 節）決定了節點佈建耗時是否會直接傳導為使用者肉眼可見的卡頓。Karpenter 耗費 45 至 60 秒開闢節點，加上載入 20GB 模型權重，再加上推論引擎的初始化，意味著從零啟動一個全新請求將耗時 2 至 5 分鐘。在對 SLO 極度敏感的核心鏈路上，可保留 warm pool（`min_workers=1`），或在應用層使用 Modal 風格的快照機制。
 
 ### 務必銘記的核心數字指標（Numbers you should remember）
 
 - Karpenter 節點動態佈建耗時：GPU 節點約 45-60 秒，傳統 Cluster Autoscaler 約 90-120 秒。
 - KAI Scheduler 能徹底消滅「8 張中 7 張空等」的部分分配浪費。
 - 將 `DCGM_FI_DEV_GPU_UTIL` 作為 HPA 擴縮訊號本質上已失效；改採排隊深度或 KV 快取利用率。
-- Karpenter 的 `WhenEmptyOrUnderutilized` 會中途暴力中斷運作中 GPU 任務；推論服務必須強制鎖定 `WhenEmpty + consolidateAfter: 1h`。
+- Karpenter 的 `WhenEmptyOrUnderutilized` 會中途暴力中斷運作中 GPU 任務；推論服務應使用 `WhenEmpty + consolidateAfter: 1h`。
 
 ```figure
 autoscaling

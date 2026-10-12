@@ -16,7 +16,7 @@
 - 建構確定性、具備快取感知能力的工具發現機制。
 - 為每一次工具呼叫強制落實簽發者（Issuer）、受眾（Audience）、範圍（Scope）與人工作業審批策略。
 - 部署完全不依賴會話黏性（Session Affinity）的 Streamable HTTP。
-- 在網路傳輸線路、授權驗證、策略引擎、註冊中心與審計日誌五大邊界處提供嚴格行為證據鏈。
+- 在網路傳輸線路、授權驗證、策略引擎、註冊中心與稽核紀錄五大邊界處提供嚴格行為證據鏈。
 
 ## MCP 前置深度課程路徑
 
@@ -25,7 +25,7 @@
 1. [第 28 課](../../../13-tools-and-protocols/28-mcp-tool-contracts-and-content/docs/en.md) 定義了本伺服器必須對外暴露的工具、Schema、內容格式、分頁、自動補全、動態路由與錯誤處理合約。
 2. [第 29 課](../../../13-tools-and-protocols/29-mcp-reliability-cancellation-and-flow-control/docs/en.md) 定義了取消競態、死線超時、冪等性、背壓流控、失敗重試以及斷線重連行為。
 3. [第 30 課](../../../13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/docs/en.md) 定義了命名空間、來源出處、准入鎖定 Pin、註冊中心狀態、配置漂移、分散式帳本與回滾證據。
-4. [第 31 課](../../../13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md) 定義了黃金與負向對抗測試日誌、嚴格版本劃分年代、跨 SDK 差異校驗、代理穿透證明、敏感資訊脫敏、健康檢查與版本發布門禁。
+4. [第 31 課](../../../13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md) 定義了黃金與負向對抗測試紀錄、嚴格版本劃分年代、跨 SDK 差異校驗、代理穿透證明、敏感資訊脫敏、健康檢查與版本發布門禁。
 
 本專案實戰是上述各項工業資產的綜合集成，絕不允許使用一個簡單的單一 SDK 冒煙測試取而代之。
 
@@ -42,7 +42,7 @@
 5. 策略引擎精確裁決本次具體操作是否被允許在線上執行。
 6. 審計證據在絕不洩漏金鑰憑證或機密資料的前提下，完整記錄跨越邊界的每一項事實。
 
-若上述任意一項事實發生漂移，平台將面臨災難性後果：列出一個根本無法連線的殭屍伺服器、將流量路由至不相容的用戶端、接受為其他資源簽發的冒充權杖，或在缺乏人工審批的情況下意外暴露高破壞性變更操作。
+若上述任意一項事實發生漂移，平台可能會列出一個根本無法連線的殭屍伺服器、將流量路由至不相容的用戶端、接受為其他資源簽發的冒充權杖，或在缺乏人工審批的情況下意外暴露高破壞性變更操作。
 
 ## 兩大發現層級
 
@@ -50,7 +50,7 @@
 
 | 層級 | 合約表面 | 負責解答的核心問題 |
 |---|---|---|
-| 發布層（Publication） | `server.json` 與 Registry API | 這是一個什麼伺服器、其套件發布位址或遠端端點在何處、該如何進行初始化配置？ |
+| 發布層（Publication） | `server.json` 與 Registry API | 這是一個什麼伺服器、其套件發布位址或遠端端點在何處、該如何設定？ |
 | 執行環境層（Runtime） | `server/discover` | 當前線上行程真正支援哪些通訊協定版本、擴充能力、擴充功能以及伺服器身分標識？ |
 
 官方 Registry 使用帶有版本控制的 `server.json` Schema。一個遠端端點條目可聲明一個 Streamable HTTP 位址：
@@ -227,7 +227,7 @@ Python 參考實作對規範化排序 Key 的標準 JSON 計算雜湊摘要，�
 
 ### 9. 驗證水平擴展能力
 
-在負載平衡器後方部署兩個完全對等的無狀態複本節點。發起至少 100 次高併發請求。嚴格證明系統的正確性完全不依賴 Session 黏性分發。若某個業務工具確實需要跨呼叫共享狀態，必須生成顯式的非透明控制代號（Opaque Handle）並將狀態儲存在共享持久化叢集中。
+在負載平衡器後方部署兩個完全對等的無狀態複本節點。發起至少 100 次高併發請求。嚴格證明系統的正確性完全不依賴 Session 黏性分發。若某個業務工具確實需要跨呼叫共享狀態，必須產生明確的共用識別值（opaque handle），並將狀態儲存在共用持久化系統中。
 
 ### 10. 跨越真實實體網路測試
 
@@ -242,8 +242,8 @@ Python 參考實作對規範化排序 Key 的標準 JSON 計算雜湊摘要，�
 | 線路傳輸（Wire） | 針對黃金正確路徑與負向對抗測試，提供已脫敏的真實原始 HTTP 標頭與 JSON-RPC 報文，涵蓋中繼資料型別錯誤、標頭不符、不支援版本、遺失或未知 `resultType`、通知無回應以及響應 ID 配對校驗 | [第 31 課](../../../13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md) |
 | 代理穿透（Proxy） | 針對同一穩定案例，分別直連與透過線上代理中繼器執行，對比 Ingress、Origin 與 Egress 的狀態碼與報文雜湊摘要；證明協定層錯誤絕未被粗暴折疊為通用的 500 錯誤，且串流資料未被中間件意外緩衝 | [第 29 課](../../../13-tools-and-protocols/29-mcp-reliability-cancellation-and-flow-control/docs/en.md) 與 [第 31 課](../../../13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md) |
 | 准入審查（Admission） | 已認證的發布者命名空間、不可篡改的 Registry 記錄雜湊摘要、產物或遠端端點來源出處、線上 `server/discover` 身分與能力實測記錄、描述符鎖定 Pin、當前 Registry 狀態以及准入帳本事件 | [第 30 課](../../../13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/docs/en.md) |
-| 重試機制（Retry） | 任務取消 vs 完成的極限競態、顯式逾時、安全讀取重試、變更操作冪等鍵、斷線重連重新拉取，以及證明「單次 HTTP 請求的取消絕不會被靜默演變為持久長程任務的直接中斷」 | [第 29 課](../../../13-tools-and-protocols/29-mcp-reliability-cancellation-and-flow-control/docs/en.md) |
-| 回滾機制（Rollback） | 精確的前一穩定版本號、准入與產物雜湊摘要、描述符鎖定 Pin、活躍 Registry 狀態、當前健康檢查窗口、路由恢復驗證結果以及已脫敏的決策證據 | [第 30 課](../../../13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/docs/en.md) 與 [第 31 課](../../../13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md) |
+| 重試機制（Retry） | 任務取消 vs 完成的極限競態、顯式逾時、安全讀取重試、變更操作冪等鍵、斷線重連後重新擷取，以及證明「單次 HTTP 請求的取消絕不會被靜默演變為持久長程任務的直接中斷」 | [第 29 課](../../../13-tools-and-protocols/29-mcp-reliability-cancellation-and-flow-control/docs/en.md) |
+| 回滾機制（Rollback） | 精確的前一穩定版本號、准入與產物雜湊摘要、描述符鎖定 Pin、活躍 Registry 狀態、當前健康檢查窗口、路由復原結果以及已脫敏的決策證據 | [第 30 課](../../../13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/docs/en.md) 與 [第 31 課](../../../13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/docs/en.md) |
 
 在發布版本時，必須隨版本一同存檔該已脫敏證據包的雜湊摘要。若遺漏任意一類證據，必須立即熔斷暫停發布。絕對嚴禁從行程內調度器去空想網路代理行為、從 Registry 條目的存在去假想安全准入、從產生了新的 JSON-RPC ID 去盲信重試安全性，或從「上次好像部署成功過」去臆斷系統具備隨時回滾的能力。
 
@@ -311,7 +311,7 @@ Authorization: Bearer REDACTED
 - 整合完善的授權校驗與人工審批體系；
 - 一個 Registry 發布工具或私有 Registry API 適配器；
 - 嚴密的策略定義檔案與操作綁定之審批記錄；
-- 已脫敏的審計日誌輸出與分散式 Trace 傳播鏈路；
+- 已脫敏的稽核紀錄輸出與分散式 Trace 傳播鏈路；
 - 線路傳輸層與代理穿透層的失敗測試證據鏈；
 - 准入、重試、健康檢查與回滾證據，並附帶已脫敏證據審查包的雜湊校驗摘要。
 
@@ -322,7 +322,7 @@ Authorization: Bearer REDACTED
 | 15 | 註冊中心資料一致性 | 合法的 `server.json`、真實發布記錄、線上即時探測，以及配置漂移報告的精準性 |
 | 15 | 策略門禁與安全審查 | Allow、Deny、畸形報文、過期審批攔截，以及機密敏感資料脫敏測試全綠通過 |
 | 15 | 彈性擴展與系統韌性 | 兩個複本節點負載均衡分發、完全不依賴 Session 黏性、取消競態、超時與自癒復原 |
-| 10 | 審計可信度與追蹤 | 接收端已脫敏的審計日誌與全鏈路 Trace 分散式傳播證據鏈完備度 |
+| 10 | 審計可信度與追蹤 | 接收端已脫敏的稽核紀錄與全鏈路 Trace 分散式傳播證據鏈完備度 |
 
 ## Exercises｜練習
 
@@ -331,8 +331,8 @@ Authorization: Bearer REDACTED
 3. 發送一個主體內容完全合法的請求，但故意在 HTTP 頭部攜帶一個相互矛盾的 `MCP-Protocol-Version` 標頭。驗證伺服器能精確返回 `-32020` 錯誤，且絕對未在底層喚醒任何策略引擎或業務工具。
 4. 為唯讀伺服器簽發一枚合法的 JWT Token，並嘗試持該 Token 存取寫入變更伺服器。證明受眾（Audience）校驗機制能在業務處理器執行前精準攔截該未授權請求。
 5. 將一份審批記錄與特定操作的規範化參數雜湊摘要進行綁定。嘗試修改其中任意一個微小欄位，證明該審批記錄無法被惡意重放。
-6. 將連續的用戶端請求交替輪流路由至兩個不同的後端複本節點。證明當業務工作流需要保持持久狀態時，系統全面採用顯式的共享控制代號，而完全不依賴任何隱密的行程本地記憶體。
-7. 主動切斷一個請求層級的 SSE 長連線，並攜帶一個全新的 JSON-RPC 請求 ID 重新發起重試。確認系統在任何情況下皆未調用基於 `Last-Event-ID` 的舊式恢復通道。
+6. 將連續的用戶端請求交替輪流路由至兩個不同的後端複本節點。證明當業務工作流需要保持持久狀態時，系統全面採用明確的共用識別值，而完全不依賴任何隱密的行程本地記憶體。
+7. 主動切斷一個請求層級的 SSE 長連線，並攜帶一個全新的 JSON-RPC 請求 ID 重新發起重試。確認系統在任何情況下皆未調用基於 `Last-Event-ID` 的舊式復原路徑。
 
 ## Key Terms｜關鍵術語
 

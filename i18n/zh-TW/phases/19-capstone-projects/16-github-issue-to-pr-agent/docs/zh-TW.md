@@ -1,6 +1,6 @@
 # 專案實戰 16——GitHub Issue 自動轉 PR 自主 Agent（Capstone 16 — GitHub Issue-to-PR Autonomous Agent）
 
-> 為 Issue 打上一枚標籤，自動收穫一個綠燈 PR——這正是 2026 年自主程式設計 Agent 的標準商業產品形態：在雲端沙盒中非同步啟動 Agent、跑通全套單元測試、自動發起可供審查的 PR，並在 PR 正文中附上修復理由。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版以及 Google Jules 皆遵循此模式。最艱鉅的工程挑戰在於：如何在無快取的乾淨環境下全自動精準還原程式碼儲存庫的建置環境、杜絕金鑰憑證外洩、嚴格落實每個儲存庫每日預算封頂，並確保 Agent 絕對無法進行危險的強制推播（Force-Push）。本專案實戰要求你私有化自建該系統，並在修復成功率與推論成本維度上直接對標各大商業競品。
+> 為 Issue 打上一枚標籤，自動收穫一個綠燈 PR——這正是 2026 年自主程式設計 Agent 的標準商業產品形態：在雲端沙盒中非同步啟動 Agent、跑通全套單元測試、自動發起可供審查的 PR，並在 PR 正文中附上修復理由。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版以及 Google Jules 皆遵循此模式。最艱鉅的工程挑戰在於：如何在無快取的乾淨環境下全自動精準還原程式碼儲存庫的建置環境、杜絕金鑰憑證外洩、嚴格落實每個儲存庫每日預算封頂，並確保 Agent 絕對無法進行危險的 force-push。本專案實戰要求你私有化自建該系統，並在修復成功率與推論成本維度上直接對標各大商業競品。
 
 **Type:** Capstone
 **Languages:** Python (agent), TypeScript (GitHub App), YAML (Actions)
@@ -10,17 +10,17 @@
 
 ## Problem｜問題
 
-非同步雲端程式設計 Agent（Async Cloud Coding Agent）與終端機互動式程式設計 Agent（專案實戰 01）代表了截然不同的產品形態。其使用者體驗完全寄生於 GitHub 標籤（Labels）之上：工程師在 GitHub Issue 上打上 `@agent fix this` 標籤，背景排程器隨即在雲端沙盒中喚醒一個 Worker 容器、克隆儲存庫、執行測試套件、編輯程式碼、驗證測試翻綠，並最終自動發布一個附上修復理由的 PR。全流程完全無人值守，無需本地終端機介入。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版、Google Jules 以及 Factory Droids 皆全面收斂於此架構。
+非同步雲端程式設計 Agent（Async Cloud Coding Agent）與終端機互動式程式設計 Agent（專案實戰 01）代表了截然不同的產品形態。其使用者體驗完全寄生於 GitHub 標籤（Labels）之上：工程師在 GitHub Issue 上打上 `@agent fix this` 標籤，背景排程器隨即在雲端沙盒中喚醒一個 Worker 容器、複製儲存庫、執行測試套件、編輯程式碼、驗證測試翻綠，並最終自動發布一個附上修復理由的 PR。全流程完全無人值守，無需本地終端機介入。AWS Remote SWE Agents、Cursor Background Agents、OpenAI Codex 雲端版、Google Jules 以及 Factory Droids 皆全面收斂於此架構。
 
-真正的工程難題極其具體：環境自動還原（Agent 必須在完全沒有預先快取特定開發環境的前提下，從零自適應建置程式碼儲存庫）、不穩定測試（Flaky Tests，必須進行多輪重試或動態隔離）、憑證權限控制（GitHub App 必須採用極致收斂的細粒度權限）、每個儲存庫每日成本配額封頂，以及物理層面的防強制推播（No-force-push）資安防禦。本專案實戰將全面量化該自建系統相較於全託管商業競品的修復成功率、單任務成本與安全防禦指標。
+真正的工程難題極其具體：環境自動還原（Agent 必須在完全沒有預先快取特定開發環境的前提下，從零自適應建置程式碼儲存庫）、不穩定測試（Flaky Tests，必須進行多輪重試或動態隔離）、憑證權限控制（GitHub App 必須採用極致收斂的細粒度權限）、每個儲存庫每日成本配額封頂，以及物理層面的防止 force-push（No-force-push）資安防禦。本專案實戰將全面量化該自建系統相較於全託管商業競品的修復成功率、單任務成本與安全防禦指標。
 
 ## Concept｜核心概念
 
-整個系統的觸發源自 GitHub Webhook（Issue 打上標籤或 PR 出現評論）。分發器（Dispatcher）將任務推送至 AWS SQS 訊息佇列，隨後調度 ECS Fargate 任務或 Lambda。Worker 容器將目標儲存庫克隆至 Daytona 或 E2B 隔離沙盒中，並依據儲存庫結構自動推導出的通用 Dockerfile（自動辨析程式語言與套件管理工具）動態配置執行環境。Agent 調用 mini-swe-agent 或 SWE-agent v2 控制迴圈，後台掛載 Claude Opus 4.7 或 GPT-5.4-Codex。展開自動化循環：精讀程式碼、起草修復補丁、應用修改、執行測試。
+整個系統的觸發源自 GitHub Webhook（Issue 打上標籤或 PR 出現評論）。分發器（Dispatcher）將任務送入 AWS SQS 訊息佇列，隨後調度 ECS Fargate 任務或 Lambda。Worker 容器將目標儲存庫複製至 Daytona 或 E2B 隔離沙盒中，並依據儲存庫結構自動推導出的通用 Dockerfile（自動辨析程式語言與套件管理工具）動態配置執行環境。Agent 調用 mini-swe-agent 或 SWE-agent v2 控制迴圈，後台掛載 Claude Opus 4.7 或 GPT-5.4-Codex。展開自動化循環：精讀程式碼、起草修復補丁、應用修改、執行測試。
 
 在沙盒中驗證 CI 全綠是發起 PR 的必備硬性門禁。在正式開啟 PR 前，沙盒內部的全套 CI 測試必須 100% 通過。系統自動比對測試覆蓋率變動 Delta；若覆蓋率出現異常下滑但所有測試依然全過，PR 仍會開啟但會被強制打上 `needs-review` 標籤。Agent 將完整的修復論證闡述在 PR 正文中，並在 PR 內部建立一個 `@agent` 討論串，供人類審查員隨時發布追問與修改要求。
 
-系統安全性透過 GitHub 兩大不同表面進行立體防禦：GitHub App 簽發短期有效的安裝權杖，僅具備 `workflows: read` 以及極其狹窄的儲存庫內容與 PR 讀寫權限；branch protection 規則（而非單純依賴 App 權限）在伺服器端強制封殺「向 `main` branch直接推送」與「Git Force-Push 強制覆蓋」——且該 GitHub App 絕對嚴禁被加入繞過白名單中。由於 GitHub App 權限不支援基於路徑的細粒度控制，Worker 在程式碼層面必須主動攔截任何企圖修改 `.github/workflows` 目錄的危險補丁。每個儲存庫每日預算天花板在分發器端嚴格落實（例如：每個儲存庫每日最多觸發 5 個 PR，單個 PR 推論成本封頂 20 美元）。
+系統安全性透過 GitHub 兩大不同表面進行立體防禦：GitHub App 簽發短期有效的安裝權杖，僅具備 `workflows: read` 以及極其狹窄的儲存庫內容與 PR 讀寫權限；branch protection 規則（而非單純依賴 App 權限）在伺服器端強制封殺「直接 push 至 `main`」與「force-push」——且該 GitHub App 絕對嚴禁被加入繞過白名單中。由於 GitHub App 權限不支援基於路徑的細粒度控制，Worker 在程式碼層面必須主動攔截任何企圖修改 `.github/workflows` 目錄的危險補丁。每個儲存庫每日預算天花板在分發器端嚴格落實（例如：每個儲存庫每日最多觸發 5 個 PR，單個 PR 推論成本封頂 20 美元）。
 
 ## 系統架構
 
@@ -71,7 +71,7 @@ cf-issue-to-pr
 
 ## Build It｜動手實作
 
-1. **GitHub App 細粒度權限配置**。簽發短期安裝權杖：issues: read+write、pull_requests: write、contents: read+write、workflows: read。在 GitHub 儲存庫設定branch protection 規則（唯一具備強制力的控制點），嚴禁任何直接推送到 `main` 或強制推播行為；該 App 絕不出現在白名單中。在 Worker 程式碼中實施白名單檢查：堅決攔截任何對 `.github/workflows` 目錄下檔案的修改企圖。
+1. **GitHub App 細粒度權限配置**。簽發短期安裝權杖：issues: read+write、pull_requests: write、contents: read+write、workflows: read。在 GitHub 儲存庫設定branch protection 規則（唯一具備強制力的控制點），禁止直接 push 到 `main` 或 force-push；該 App 絕不出現在白名單中。在 Worker 程式碼中實施白名單檢查：堅決攔截任何對 `.github/workflows` 目錄下檔案的修改企圖。
 
 2. **Webhook 接收微服務**。開發 Lambda 函式接收 GitHub 的 Issue 標籤與 PR 評論事件。過濾包含 `@agent fix this` 的特定標籤。將合法任務即時寫入 SQS 佇列。
 
@@ -83,9 +83,9 @@ cf-issue-to-pr
 
 6. **沙盒全量測試驗收**。在 Agent 宣告修復完成後，強制在沙盒中啟動完整測試套件。調用 jacoco 或 coverage.py 計算覆蓋率變動 Delta。若 CI 測試失敗：立即終止，絕對嚴禁發起 PR；若測試全過但覆蓋率下滑超過 2%：開啟 PR 但強制附帶 `needs-review` 標籤。
 
-7. **自動發布 Pull Request**。將修改推播至全新的 Agent branch。呼叫 GitHub REST API 建立正式 PR，自動填入：PR 標題、核心修復論證思路、Diff 變更摘要、Langfuse Trace 網址、推論花費、對話輪數。
+7. **自動發布 Pull Request**。將修改 push 至全新的 Agent branch。呼叫 GitHub REST API 建立正式 PR，自動填入：PR 標題、核心修復論證思路、Diff 變更摘要、Langfuse Trace 網址、推論花費、對話輪數。
 
-8. **憑證安全與敏感資訊脫敏**。Worker 容器全程僅持有短期有效的臨時 GitHub App Installation Token。封存終端日誌前先清除其中的秘密。
+8. **憑證安全與敏感資訊脫敏**。Worker 容器全程僅持有短期有效的臨時 GitHub App Installation Token。封存終端紀錄前先清除其中的秘密。
 
 9. **全維度橫向評測**。準備 30 道難度各異的真實內部 Issue。客觀度量修復成功率、PR 品質（Diff 行數精簡度、風格吻合度、覆蓋率保存情況）、單題花費與端到端耗時。在完全相同的測試集上，與 Cursor Background Agents 以及 AWS Remote SWE Agents 展開同台較量。
 
@@ -112,7 +112,7 @@ cf-issue-to-pr
 | 25 | 30 道真實 Issue 修復成功率 | 端到端全自動修復率（沙盒 CI 全綠 + 測試覆蓋率未嚴重退化） |
 | 20 | 產出 PR 的工程品質 | Git Diff 的行數精簡度、覆蓋率保存率、程式碼風格合規度 |
 | 20 | 單 Issue 平均耗費與延遲 | 成功修復單個 Issue 的平均推論花費（$）與端到端物理耗時 |
-| 20 | 系統安全性與權限控制 | 權限最小化臨時權杖、每個儲存庫每日預算熔斷、強制推播物理阻斷、日誌無憑證洩漏 |
+| 20 | 系統安全性與權限控制 | 權限最小化臨時權杖、每個儲存庫每日預算熔斷、禁止 force-push、紀錄中不含憑證 |
 | 15 | 人工工程師審閱體驗 | PR 正文修復思路論證的清晰度、失敗重試機制、評論區 @agent 二次互動體驗 |
 | **100** | | |
 

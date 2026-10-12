@@ -12,20 +12,20 @@
 - 建構完全符合 OpenTelemetry GenAI 語意約定標準形態的 Span 資料類別。
 - 實作 JSONL 匯出器（Exporter），以每行一個獨立自包含 Span 的形式進行落盤持久化。
 - 建構支援多標籤（Labels）維度的計數器與直方圖，並實作符合 Prometheus 純文字格式的指標暴露規範。
-- 將任意可調用函式優雅封裝進 Span 上下文管理器中，自動記錄執行耗時、狀態碼與異常調用堆疊。
+- 將任意可呼叫函式封裝進 Span 上下文管理器中，記錄執行時間、狀態與例外。
 - 驗證輸出的 Span 能完美透過 `json.loads` 反序列化回溯，並符合規格所定的欄位形狀。
 
 ## The Problem｜問題
 
-一個在正式環境中持續運作的程式開發 agent，在每一輪對話中皆會產生三類關鍵產物：一次大模型 API 呼叫、一次實體工具調用，以及一次驗證閘門的安全裁決。若缺乏結構化的遙測追蹤，這些產物將變得毫無排查價值。
+一個在正式環境中持續運作的程式開發 agent，在每一輪對話中皆會產生三類關鍵產物：一次模型呼叫、一次實體工具呼叫，以及一次驗證閘門的安全裁決。若缺乏結構化的遙測追蹤，這些產物將變得毫無排查價值。
 
-第一類經典故障是**鏈路追蹤完全缺失**。週二線上發生了嚴重事故，但留下的唯一線索只有一段長達 500 行的原始終端對話文字。完全無法查證底層究竟調用了哪一個工具、耗費了多少毫秒、Prompt 到底塞入了多少 Token，或者安全閘門是否曾攔截過任何請求。Agent 開發者只能在迷霧中盲猜。
+第一類經典故障是**鏈路追蹤完全缺失**。週二出了問題，但留下的唯一線索只有一段長達 500 行的原始終端對話文字。完全無法查證底層究竟呼叫了哪個工具、耗費了多少毫秒、Prompt 到底塞入了多少 Token，或者安全閘門是否曾攔截過任何請求。Agent 開發者只能在迷霧中盲猜。
 
 第二類經典故障是**鏈路格式無法解析**。執行環境雖然在背景記錄了 Span，但內部充斥著開發者隨手捏造的臨時欄位名稱。Grafana、Honeycomb、Jaeger 或本機 CLI 工具完全無法讀懂這些自定義格式。整個工程團隊現有的可觀測性基礎設施直接作廢，僅僅因為這些 Span 未遵循工業標準。
 
-第三類經典故障是**指標完全缺乏聚合**。你在追蹤日誌中固然能偶爾看到某一次很慢的工具調用，但你根本無法回答核心架構提問：「在過去一個小時內，read_file 工具調用的 p95 延遲究竟是多少？」，因為系統只有雜亂的離散 Trace，而沒有度量指標（Metrics）。
+第三類經典故障是**指標完全缺乏聚合**。你在追蹤資料中固然能偶爾看到某次緩慢的工具呼叫，但你根本無法回答核心架構提問：「在過去一個小時內，read_file 工具呼叫的 p95 延遲究竟是多少？」，因為系統只有雜亂的離散 Trace，而沒有度量指標（Metrics）。
 
-OpenTelemetry GenAI 語意約定正是為了終結上述混亂而生。它定義了一套跨所有主流 LLM 框架通用的標準屬性集合。只要你的執行環境輸出符合這些標準約定，業界所有相容 OTel 的分析平台皆能開箱即用完成解析。
+OpenTelemetry GenAI 語意約定正是為了終結上述混亂而生。它定義了一套跨所有主流 LLM 框架通用的標準屬性集合。只要你的執行環境輸出這些屬性，OTel 相容的後端就能讀取它們。
 
 ## The Concept｜核心概念
 
@@ -39,13 +39,13 @@ flowchart TD
   Metrics --> Prom[/metrics 指標文字/]
 ```
 
-執行環境內部的每一次具體操作皆會產出一個專屬的 Span。一個標準的 Span 包含：Trace ID（標記整個 Agent 任務呼叫鏈）、Span ID（標記本次單一具體操作）、名稱（如 `gen_ai.chat`、`gen_ai.tool.execution`）、遵循 GenAI 約定的標準屬性、起始與終止時間戳記，以及執行狀態碼。
+執行環境內部的每一次具體操作皆會產出一個專屬的 Span。一個標準的 Span 包含：Trace ID（標記整個 Agent 任務呼叫鏈）、Span ID（標記本次單一具體操作）、名稱（如 `gen_ai.chat`、`gen_ai.tool.execution`）、遵循 GenAI 約定的標準屬性、起始與終止時間戳記，以及狀態。
 
-GenAI 語意約定標準化了以下核心屬性 Key：`gen_ai.system`（標明底層供應商，如 `anthropic`、`openai`）、`gen_ai.request.model`（請求模型 ID）、`gen_ai.request.max_tokens`、`gen_ai.usage.input_tokens`、`gen_ai.usage.output_tokens`、`gen_ai.response.model`、`gen_ai.response.id`、`gen_ai.operation.name`，以及專屬於工具調用的 `gen_ai.tool.name` 與 `gen_ai.tool.call.id`。
+GenAI 語意約定標準化了以下核心屬性 Key：`gen_ai.system`（標明服務供應商，如 `anthropic`、`openai`）、`gen_ai.request.model`（請求模型 ID）、`gen_ai.request.max_tokens`、`gen_ai.usage.input_tokens`、`gen_ai.usage.output_tokens`、`gen_ai.response.model`、`gen_ai.response.id`、`gen_ai.operation.name`，以及專屬於工具呼叫的 `gen_ai.tool.name` 與 `gen_ai.tool.call.id`。
 
 匯出器將追蹤資料寫入 JSONL 檔案。每行一個標準的 JSON 物件。這是下游串流工具、grep 命令列以及資料倉儲最容易消費、過濾與匯入的極簡工業格式。在真實正式環境中匯出器通常透過 OTLP gRPC 協定發送；而在本課中，本地 JSONL 匯出器提供了完全對等的離線替代，在任何個人工作站上皆可零依賴完美運行。
 
-指標模組與鏈路追蹤並肩運作。每次工具調用觸發計數器遞增：`tools_called_total{tool="read_file"}`。直方圖則負責採樣記錄物理延遲分佈：`tool_latency_ms{tool="read_file"}`。兩者皆支援序列化為 Prometheus 純文字暴露格式（Prometheus Text Exposition Format）——這是當今基於拉取模式（Pull-based）的監控體系中實際上的標準。
+指標模組與鏈路追蹤並肩運作。每次工具呼叫會讓計數器遞增：`tools_called_total{tool="read_file"}`。直方圖則負責採樣記錄物理延遲分佈：`tool_latency_ms{tool="read_file"}`。兩者皆支援序列化為 Prometheus 純文字暴露格式（Prometheus Text Exposition Format）——這是目前監控系統以主動擷取方式收集指標時的業界事實標準。
 
 ```figure
 trace-spans
@@ -83,13 +83,13 @@ Span ID 與 Trace ID 皆為 16 位元組（128-bit）的十六進位字串，由
 
 ## 為何親手實作而非盲目引入 SDK
 
-完整的 OpenTelemetry Python SDK 是一個極其龐大繁雜的重型第三方依賴。它包含數千行程式碼、需要額外啟動獨立行程處理 OTLP 匯出，其執行時期開銷甚至會直接壓垮微型教學沙盒。親手從零打造一套輕量實作，能讓你直接透視底層真實的網路報文格式。在真實正式環境中，你只需將完全相同的這套屬性字典填入官方的標準 SDK 中，即可無縫享有現成的 OTLP 匯出器、背景批次打包與雲端資源自動探測能力。
+完整的 OpenTelemetry Python SDK 是一個極其龐大繁雜的重型第三方依賴。它包含數千行程式碼，OTLP 匯出器涉及多個行程，且執行時期成本會耗盡課程預算。親手打造這套輕量實作，能讓你直接了解底層的傳輸格式。在真實正式環境中，你只需將完全相同的這套屬性字典填入官方的標準 SDK 中，即可無縫享有現成的 OTLP 匯出器、背景批次打包與資源偵測能力。
 
-語意約定本身高度穩定。本課所輸出的報文格式即使到了 2030 年依然能被解析軟體正常消費，因為 OTel 官方在語意約定上嚴格承諾向前相容：GenAI 屬性名稱一旦確立便絕不破壞，只會持續追加新的擴展欄位。
+語意約定相當穩定。本課輸出的格式到了 2030 年仍能被解析，因為 OTel 不會破壞既有的 GenAI 屬性名稱，只會新增名稱。
 
 ## 與 Track A 其餘模組的協同
 
-第二十五課打造了驗證閘門鏈；第二十六課打造了安全沙盒；第二十七課打造了自動化評測套件。第二十八課則讓前述三大模組全部獲得全鏈路透視的可觀測性。第二十九課的端到端大演示，將為受測 Agent 的每一個運作步驟套上標準 Span，並在最終以 Prometheus 純文字格式完整印出全流程的指標稽核報告。
+第二十五課打造了驗證閘門鏈；第二十六課打造了安全沙盒；第二十七課打造了自動化評測套件。第二十八課則讓前述三大模組全部獲得全鏈路透視的可觀測性。第二十九課的端到端大演示，將為受測 Agent 的每一個運作步驟套上標準 Span，並在最後以 Prometheus 純文字格式印出指標。
 
 ## 執行驗證
 
@@ -99,4 +99,4 @@ python3 code/main.py
 python3 -m pytest code/tests/ -v
 ```
 
-演示程式將在目前目錄下生成一個 `traces.jsonl` 追蹤日誌（並在結束時自動安全清理），隨後在終端機印出包含 3 個具體 Span 的 JSON 範例，並輸出計數器與直方圖的 Prometheus 標準格式文字。單元測試全面驗證：Span 能正確進行 JSON 雙向反序列化回溯、標準 GenAI 屬性完整無遺漏、計數器能精準遞增，且直方圖在暴露指標時包含正確的區間桶分佈。
+演示程式將在目前目錄下生成一個 `traces.jsonl` 檔案（並在結束時清理），隨後在終端機印出包含 3 個具體 Span 的 JSON 範例，並輸出計數器與直方圖的 Prometheus 標準格式文字。單元測試全面驗證：Span 能正確進行 JSON 雙向反序列化回溯、標準 GenAI 屬性完整無遺漏、計數器能精準遞增，且直方圖在暴露指標時包含正確的區間桶分佈。

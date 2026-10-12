@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 精確定義 TTFT、TPOT、ITL、E2E、吞吐量（Throughput）與有效吞吐量（Goodput），並指出各指標衡量的組成部分。
+- 精確定義 TTFT、TPOT、ITL、E2E、吞吐量（Throughput）與Goodput，並指出各指標衡量的組成部分。
 - 深刻解釋為何平均值是評估 LLM 推論服務的錯誤統計度量，並學會解讀 P50、P90 與 P99 百分位數背後的真實系統狀態。
 - 建構多維度複合 SLO 約束條件（例如 TTFT<500 ms AND TPOT<15 ms AND E2E<2 s），並精確計算對應的 Goodput 履約率。
 - 指出兩款在相同測試下對 TPOT 計算產生嚴重分歧的業界主流壓測工具，並剖析背後的定義差異根因。
@@ -18,7 +18,7 @@
 
 「我們推論叢集的總吞吐量高達每秒 15,000 個 Token。」那又如何？若其中有 40% 的使用者請求端到端耗時突破了 2 秒大關，終端使用者早已失去耐心關閉頁面。單純的吞吐量數字絲毫無法告訴你這套系統在業務層面是否真正可用。
 
-LLM 推論存在多個完全正交的延遲維度，且各維度所對應的系統失效模式截然不同。Prefill 階段受限於運算力，延遲隨 Prompt 長度增加；Decode 階段受限於記憶體頻寬，延遲隨批次並行規模顯著拉長；排隊延遲是營運層面的問題；而網路傳輸延遲則取決於實體地理距離。你必須為每個維度分別建立獨立的度量體系，必須全面監控百分位數分佈，更必須將它們提煉為單一複合指標：「使用者究竟有沒有在合規時限內拿到滿意結果」——這正是 Goodput。
+LLM 推論存在多個不同的延遲面向，且各維度所對應的系統失效模式截然不同。Prefill 階段受限於運算力，延遲隨 Prompt 長度增加；Decode 階段受限於記憶體頻寬，延遲隨批次並行規模顯著拉長；排隊延遲是營運層面的問題；而網路傳輸延遲則取決於實體地理距離。你必須為每個維度分別建立獨立的度量體系，必須全面監控百分位數分佈，更必須將它們提煉為單一複合指標：「使用者究竟有沒有在合規時限內拿到滿意結果」——這正是 Goodput。
 
 ## The Concept｜核心概念
 
@@ -34,7 +34,7 @@ LLM 推論存在多個完全正交的延遲維度，且各維度所對應的系�
 
 `TPOT = (decode_forward_time + scheduler_overhead) / tokens_produced`
 
-在配備了分塊 Prefill 的相同 Llama-3.3-70B H100 堆疊上，TPOT 平均值約為 7 ms。然而若未啟用分塊 Prefill，當鄰近序列突然湧入一段超長 Prefill 時，TPOT 會瞬間產生長達 50 ms 的劇烈卡頓抖動。監控時必須緊盯 P99，而非平均值。
+在配備了分塊 Prefill 的相同 Llama-3.3-70B H100 堆疊上，TPOT 平均值約為 7 ms。然而若未啟用分塊 Prefill，當鄰近序列突然湧入一段超長 Prefill 時，TPOT 可能飆升至 50 ms。監控時必須緊盯 P99，而非平均值。
 
 ### E2E 端到端總延遲（E2E latency）
 
@@ -46,19 +46,19 @@ LLM 推論存在多個完全正交的延遲維度，且各維度所對應的系�
 
 `throughput = total_output_tokens / elapsed_time`
 
-這是一項全域聚合指標。它衡量的是整座 GPU 叢集的整體運算利用效率。它絲毫無法反映個別使用者的真實體驗是否健康。
+這是一項全域聚合指標。它衡量的是整體推論服務資源的效率。它絲毫無法反映個別使用者的真實體驗是否健康。
 
 ### Goodput——你唯一真正在意的核心指標（Goodput — the metric you actually care about）
 
 `goodput = fraction of requests meeting (TTFT <= a) AND (TPOT <= b) AND (E2E <= c)`
 
-SLO 是一項多維度的邏輯「且」複合約束。單一請求唯有在同時滿足每一項延遲上限時，才被判定為「合格（Good）」。Goodput 即是合格請求佔總請求數的百分比。以 60% 的 Goodput 換取超高吞吐量本質上是災難性的失敗；以較低吞吐量維持 99% Goodput 是目標。
+SLO 是一項多維度的邏輯「且」複合約束。單一請求唯有在同時滿足每一項延遲上限時，才被判定為「合格（Good）」。Goodput 即是合格請求佔總請求數的百分比。以 60% 的 Goodput 換取高吞吐量本質上是失敗；以較低吞吐量維持 99% Goodput 是目標。
 
-在 2026 年，Goodput 是 MLPerf Inference v6.0 submissions 及 AI 平台供應商內部 SLA 追蹤所使用的指標。
+在 2026 年，Goodput 是 MLPerf Inference v6.0 的參測結果及 AI 平台供應商內部 SLA 追蹤所使用的指標。
 
-### 為何平均值是最危險的統計度量（Why mean is the wrong statistic）
+### 為何平均值是錯誤的統計量（Why mean is the wrong statistic）
 
-大模型推論的延遲分佈呈現嚴重的右偏態（Right-skewed）長尾特徵。一個解碼批次中若混入了一個超長 Prefill 的鄰居，可能導致前 500 個 Token 的 TPOT 穩定在 7 ms，但中途有 20 個 Token 的 TPOT 暴增至 60 ms。此時算術平均 TPOT 僅為看似健康的 9 ms；然而 P99 TPOT 卻高達 65 ms。真實使用者會頻繁遭遇這 65 ms 的肉眼可見停頓——這正是導致使用者流失的元兇。
+大模型推論的延遲分佈呈現嚴重的右偏態（Right-skewed）長尾特徵。一個解碼批次中若混入了一個超長 Prefill 的鄰居，可能導致前 500 個 Token 的 TPOT 穩定在 7 ms，但中途有 20 個 Token 的 TPOT 暴增至 60 ms。此時算術平均 TPOT 僅為看似健康的 9 ms；然而 P99 TPOT 卻高達 65 ms。使用者會頻繁碰到 65 ms 的 P99 延遲，這也是他們離開的原因。
 
 在任何架構審查會議中，必須強制呈報 (P50, P90, P99) 黃金三元組。就使用者體驗而言，P99 是應最佳化的指標。
 
@@ -84,11 +84,11 @@ SLO 是一項多維度的邏輯「且」複合約束。單一請求唯有在同�
 
 ### 如何嚴謹建構一套 SLO（Constructing an SLO）
 
-2026 年針對 70B 對話模型的標準消費端產品級 SLO 範例：
+2026 年面向一般使用者的 70B 對話模型合理 SLO 範例：
 
 - TTFT P99 <= 800 ms。
 - TPOT P99 <= 25 ms。
-- 針對 300 Token 以內的短文字生成，E2E P99 <= 3 s。
+- 針對少於 300 Token 的短文字生成，E2E P99 <= 3 s。
 - Goodput 綜合履約率目標 >= 99%。
 
 在企業級內部 API 場景下，通常會將 TTFT 門檻進一步收緊至 200-400 ms，並適度放寬 E2E。核心在於將各維度白紙黑字寫死，持續監控這三者，並追蹤 Goodput 作為綜合指標。
@@ -106,11 +106,11 @@ throughput-latency
 
 ## Use It｜實際應用
 
-`code/main.py` 實作了一套微型 Goodput 計算引擎。自動生成帶有長尾特徵的擬真延遲分佈，注入多維度 SLO 約束，並即時計算出系統的淨 Goodput。同時在完全相同的日誌軌跡上動態展示 GenAI-Perf 與 LLMPerf 對於 TPOT 計算的顯著數值偏差。
+`code/main.py` 實作了一套微型 Goodput 計算引擎。自動產生合成延遲分布，套用多維度 SLO 約束，並即時計算系統的 Goodput。同時在完全相同的追蹤資料上動態展示 GenAI-Perf 與 LLMPerf 對於 TPOT 計算的顯著數值偏差。
 
 ## Ship It｜交付成果
 
-本課交付標準實戰產物 `outputs/skill-slo-goodput-gate.md`。輸入具體的業務負載特徵與延遲預算，該 Skill 將自動產出可直接整合進 CI/CD 自動化管線的效能評測配置，強制以 Goodput 而非吞吐量作為部署閘門。
+本課交付標準實戰產物 `outputs/skill-slo-goodput-gate.md`。輸入具體的業務負載與 SLO，該 Skill 將自動產出可直接整合進 CI/CD 自動化管線的效能評測配置，強制以 Goodput 而非吞吐量作為部署閘門。
 
 ## Exercises｜練習
 
@@ -124,7 +124,7 @@ throughput-latency
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |------|----------------|------------------------|
-| TTFT | 「首個 token 的時間」 | 佇列、網路與 Prefill 時間的總和；長 Prompt 下主要由 Prefill 決定 |
+| TTFT | 「第一個 token 延遲」 | 佇列、網路與 Prefill 時間的總和；長 Prompt 下主要由 Prefill 決定 |
 | TPOT | 「每個輸出 token 的時間」 | 首個 token 之後，每個 token 的記憶體頻寬受限解碼成本 |
 | ITL | 「token 間延遲」 | 多數工具中與 TPOT 相同（但並非全部，見 GenAI-Perf） |
 | E2E | 「端到端」 | TTFT + TPOT * output_len，再加上回應端網路時間 |
@@ -140,5 +140,5 @@ throughput-latency
 - [Anyscale — LLM Serving Benchmarking Metrics](https://docs.anyscale.com/llm/serving/benchmarking/metrics) — 業界替代定義與量測實踐指南。
 - [BentoML — LLM Inference Metrics](https://bentoml.com/llm/inference-optimization/llm-inference-metrics) — 真實正式環境部署中的指標量測實戰。
 - [LLMPerf](https://github.com/ray-project/llmperf) — 基於 Ray 打造的開源壓測工具儲存庫。
-- [GenAI-Perf](https://github.com/triton-inference-server/perf_analyzer/blob/main/genai-perf/README.md) — NVIDIA Triton 官方出品的高性能推論評測工具。
+- [GenAI-Perf](https://github.com/triton-inference-server/perf_analyzer/blob/main/genai-perf/README.md) — NVIDIA Triton 官方出品的高效能推論評測工具。
 - [MLPerf Inference](https://mlcommons.org/benchmarks/inference-datacenter/) — 廣泛採用 Goodput 作為驗收標準的全球產業聯盟基準測試。

@@ -1,6 +1,6 @@
 # 託管式 LLM 平台——Bedrock、Vertex AI、Azure OpenAI（Managed LLM Platforms — Bedrock, Vertex AI, Azure OpenAI）
 
-> 三大超大規模雲端供應商（Hyperscaler），三種涇渭分明的戰略路徑。AWS Bedrock 是一座模型市集——將 Claude、Llama、Titan、Stability 與 Cohere 統一整合於單一 API 後方。Azure OpenAI 是 OpenAI 的獨家深度合作夥伴，並提供用於專屬容量的預置吞吐量單元（PTU）。Vertex AI 則是 Gemini 優先，擁有最強悍的超長上下文與多模態敘事能力。2026 年 Artificial Analysis 實測指出，在等價的 Llama 3.1 405B 等級部署上，Azure OpenAI 的首字延遲中位數約為 50 ms，而 Bedrock 則約為 75 ms——PTU 的專屬容量有助解釋這項差距，因為專屬容量通常比共享隨需容量有較低的延遲。決策鐵律絕非「哪家最快」，而是「哪家的模型型錄與 FinOps 成本歸因面能精準貼合你的產品需求」。本課教你拋開主觀感覺，基於白紙黑字的工程權衡做出冷靜選型。
+> 三大超大規模雲端供應商（Hyperscaler），三種涇渭分明的戰略路徑。AWS Bedrock 是一座模型市集——將 Claude、Llama、Titan、Stability 與 Cohere 統一整合於單一 API 後方。Azure OpenAI 是 OpenAI 的獨家深度合作夥伴，並提供用於專屬容量的預置吞吐量單元（PTU）。Vertex AI 則是 Gemini 優先，擁有最強悍的超長上下文與多模態敘事能力。2026 年 Artificial Analysis 實測指出，在等價的 Llama 3.1 405B 等級部署上，Azure OpenAI 的第一個 token 延遲中位數約為 50 ms，而 Bedrock 則約為 75 ms——PTU 的專屬容量有助解釋這項差距，因為專屬容量通常比共享隨需容量有較低的延遲。決策鐵律絕非「哪家最快」，而是「哪家的模型型錄與 FinOps 成本歸因面能精準貼合你的產品需求」。本課教你拋開主觀感覺，基於白紙黑字的工程權衡做出冷靜選型。
 
 **Type:** Learn
 **Languages:** Python (stdlib, toy cost-and-latency comparator)
@@ -10,13 +10,13 @@
 ## Learning Objectives｜學習目標
 
 - 指出三大平台戰略（市集型 vs 獨家型 vs Gemini 優先型），並將各自精準映射至合適的產品應用場景。
-- 深入解釋 Azure OpenAI 的預置吞吐量單元（Provisioned Throughput Units, PTU）究竟為你購買了什麼，以及為何隨需的 Bedrock 在 405B 規模下首字延遲通常慢約 25 ms。
+- 深入解釋 Azure OpenAI 的預置吞吐量單元（Provisioned Throughput Units, PTU）究竟為你購買了什麼，以及為何隨需的 Bedrock 在 405B 規模下第一個 token 延遲通常慢約 25 ms。
 - 繪製三大平台的 FinOps 成本歸因架構圖（Bedrock 的 Application Inference Profiles vs Vertex 的專案即團隊模式 vs Azure 的範圍作用域與 PTU 預留）。
-- 撰寫並落實「至少雙供應商（Two-provider minimum）」政策，深刻理解為何在 2026 年單一供應商鎖定是一項代價高昂的致命錯誤。
+- 撰寫「至少雙供應商（Two-provider minimum）」政策，並說明為何在 2026 年單一供應商鎖定是代價高昂的錯誤。
 
 ## The Problem｜問題
 
-你為產品選定了 Claude 3.7 Sonnet。現在你需要對外提供服務。你可以直接呼叫 Anthropic 官方 API，也可以透過 AWS Bedrock 存取，或者在前端架構一層專屬 Gateway。直連官方 API 最為簡潔；Bedrock 則額外賦予了 BAA 醫療合規協議、VPC 私有端點、IAM 權限控管與 CloudWatch 細粒度計費歸因。而 Gateway 則能在跨供應商之間實現自動容錯移轉、統一帳單以及全域速率限制（Rate limiting）。
+你為產品選定了 Claude 3.7 Sonnet。現在你需要對外提供服務。你可以直接呼叫 Anthropic 官方 API，也可以透過 AWS Bedrock 存取，或者在前端架構一層專屬 Gateway。直連官方 API 最為簡潔；Bedrock 則額外賦予了 BAA 商業夥伴協議、VPC 私有端點、IAM 權限控管與 CloudWatch 細粒度計費歸因。而 Gateway 則能在跨供應商之間提供自動容錯移轉、統一帳單以及全域速率限制（Rate limiting）。
 
 更深層的核心課題在於模型型錄。若你的產品同時需要 Claude、Llama 與 Gemini，你根本無法從單一廠商處買齊全部能力——除非你同時擁抱 Bedrock、Vertex 與 Azure OpenAI。各大超大規模雲端廠商絕非彼此同質的替代品——它們在「究竟誰該擁有底層模型層」這項世紀賭注上，各自押下了截然不同的籌碼。
 
@@ -34,9 +34,9 @@
 
 ### 規模化下的延遲落差（Latency gap at scale）
 
-權威獨立評測機構 Artificial Analysis 執行不間斷的自動化實測。在等價的 Llama 3.1 405B 共享隨需部署下，Azure OpenAI 的首字延遲（Time-to-First-Token, TTFT）中位數約為 50 ms；而 Bedrock 則落在約 75 ms 附近。這項差距絕非 AWS 底層技術落後——而是源於容量售賣模式的根本差異。Azure 主打販售 PTU（預置吞吐量單元），直接為你的租戶獨家預留實體 GPU 算力；Bedrock 雖亦有名為 Provisioned Throughput 的類似機制，但每單元每小時起跳價高達 21 美元，絕大多數客戶預設皆採用共享隨需模式。
+Artificial Analysis 持續執行基準測試。在等價的 Llama 3.1 405B 共享隨需部署下，Azure OpenAI 的第一個 token 延遲（Time-to-First-Token, TTFT）中位數約為 50 ms；而 Bedrock 則落在約 75 ms 附近。這項差距絕非 AWS 底層技術落後——而是源於容量售賣模式的根本差異。Azure 主打販售 PTU（預置吞吐量單元），直接為你的租戶獨家預留實體 GPU 算力；Bedrock 雖亦有名為 Provisioned Throughput 的類似機制，但每單元每小時起跳價高達 21 美元，絕大多數客戶預設皆採用共享隨需模式。
 
-隨需共享容量意味著你必須與全球所有其他租戶的突發流量共同爭奪 GPU。而專屬預留容量則完全與雜訊隔離。若你產品的服務等級協定（SLA）嚴格要求 P99 TTFT 必須小於 100 ms，你要麼在 Azure 上採購 PTU，要麼在 Bedrock 上購買預置吞吐量，要麼就必須默默承受隨需模式的高波動變異數。
+隨需共享容量意味著你必須與全球所有其他租戶的突發流量共同爭奪 GPU。而專屬容量則不會與其他客戶流量競爭。若你產品的服務等級協定（SLA）嚴格要求 P99 TTFT 必須小於 100 ms，你要麼在 Azure 上採購 PTU，要麼在 Bedrock 上購買預置吞吐量，要麼就必須默默承受隨需模式的高波動變異數。
 
 ### 預置吞吐量經濟學（Provisioned Throughput economics）
 
@@ -58,17 +58,17 @@ Vertex 的預置容量則按特定 Gemini SKU 進行販售；定價因模型與�
 
 ### 供應商鎖定是 2026 年的最大風險（Lock-in is the 2026 risk）
 
-在單一模型獨步天下的舊時代，將籌碼全押在單一超大廠上無可厚非。然而到了 2026 年，技術前沿每個月都在劇烈洗牌——某個季度 Claude 3.7 技壓群雄，下個季度 Gemini 2.5 逆襲奪冠，再下個季度 GPT-5 又重回王座。若將系統死鎖在單一平台上，等同於主動將自己隔絕在三分之二的全球尖端智力之外。
+在單一模型獨步天下的舊時代，將籌碼全押在單一超大廠上無可厚非。然而到了 2026 年，技術前沿每個月都在劇烈洗牌——某個季度是 Claude 3.7，下個季度是 Gemini 2.5，再下個季度是 GPT-5。若將系統死鎖在單一平台上，等同於主動將自己隔絕在三分之二的全球尖端智力之外。
 
-成熟團隊目前普遍落實的架構模式：任何產品關鍵鏈路上的 LLM 呼叫，必須嚴格維持**至少雙供應商（Two-provider minimum）**。Bedrock 搭配 Azure OpenAI 是目前業界最常見的黃金組合——由前者供應 Claude，後者供應 GPT，前端部署同一套 Gateway 實現容錯移轉。由於 Gateway 路由最佳，總成本增幅微乎其微；而在遭遇雲端服務中斷時（例如 Azure OpenAI 2025 年 1 月事件，或是 AWS us-east-1 事故），此架構所展現出的系統高可用性是決定性的。
+成熟團隊採用的模式：任何產品關鍵 LLM 呼叫都至少採用**雙供應商（Two-provider minimum）**。Bedrock 搭配 Azure OpenAI 是常見組合——由前者供應 Claude、後者供應 GPT，並透過同一套 Gateway 在兩者間容錯移轉。由於 Gateway 會選擇最佳路由，成本增幅可忽略不計；服務中斷時（例如 Azure OpenAI 2025 年 1 月事件或 AWS us-east-1 中斷），可用性提升則具決定性。
 
 ### 資料落地、BAA 與強監管產業（Data residency, BAAs, and regulated industries）
 
-Bedrock：在全球絕大多數主要區域皆支援簽署 BAA 醫療隱私協議；提供全私有 VPC 端點與原生 Guardrails 防護欄。是金融科技領域極受歡迎的預設選擇。
+Bedrock：在全球絕大多數主要區域皆支援簽署 BAA（商業夥伴協議）；提供全私有 VPC 端點與原生 Guardrails 防護欄。是金融科技領域極受歡迎的預設選擇。
 Azure OpenAI：通過 HIPAA、SOC 2、ISO 27001 認證；提供嚴格的歐盟境內資料落地保護；是傳統大型跨國企業與高度監管行業的首選預設。
 Vertex：符合 HIPAA、GDPR 標準，支援各區域資料本機落地；繼承 Google Cloud 完整的合規技術堆疊。
 
-三大平台皆能滿足常規的企業合規勾選框。實質差異往往藏在細節中：資料保留週期政策、日誌存儲與銷毀機制，以及底層的防濫用審查（Abuse monitoring）是否會擅自讀取你的業務資料流量（多數預設開啟，但企業級方案皆提供申請 Opt-out 豁免的途徑）。
+三大平台皆能滿足常規的企業合規勾選框。實質差異往往藏在細節中：資料保留週期政策、記錄留存與銷毀機制，以及底層的防濫用審查（Abuse monitoring）是否會讀取你的業務資料流量（多數預設開啟，但企業級方案皆提供申請 Opt-out 豁免的途徑）。
 
 ### 務必銘記的核心關鍵數字（Numbers you should remember）
 
@@ -110,7 +110,7 @@ i4-platform-lanes
 | Model Garden | 「Vertex 型錄」 | Vertex AI 中獨立於 Gemini 的第三方模型區段 |
 | Two-provider minimum | 「LLM 備援」 | 要求每條關鍵 LLM 路徑跨至少兩家超大規模雲端供應商運作的政策 |
 | BAA | 「HIPAA 法規文件」 | 商業夥伴協議；PHI 相關流程所需，三家皆提供 |
-| Abuse monitoring | 「日誌監看」 | 供應商端對 prompt 與輸出內容執行的安全掃描；企業方案可選擇退出 |
+| Abuse monitoring | 「記錄監看」 | 供應商端對 prompt 與輸出內容執行的安全掃描；企業方案可選擇退出 |
 
 ## Further Reading｜延伸閱讀
 
