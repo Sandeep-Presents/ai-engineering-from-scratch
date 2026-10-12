@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as k from "./kit/iso-kit.mjs";
 import * as Gm from "./geometry.mjs";
-import { INFO, PART_ORDER, SCENARIOS, TOUR } from "./content.mjs";
+import { CONCEPT, INFO, PART_ORDER, SCENARIOS, TOUR } from "./content.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
@@ -45,6 +45,7 @@ const DATA = {
   ASSEMBLIES: Gm.ASSEMBLIES,
   items,
   INFO,
+  CONCEPT,
   TOUR,
 };
 DATA.STOPS.verifier = round(Gm.STOPS.verifier);
@@ -66,7 +67,7 @@ const DESCRIPTION = "An interactive machine that shows how an AI agent turns a r
 const kitCss = k.ISO_CSS;
 const css = readFileSync(join(HERE, "page.css"), "utf8");
 
-const parts = PART_ORDER.map((asm, i) => `<button type="button" class="am-part" data-am-part="${asm}" aria-pressed="false"><span class="am-part-n">${String(i + 1).padStart(2, "0")}</span>${escape(INFO[asm].name)}</button>`).join("");
+const parts = PART_ORDER.map((asm, i) => `<button type="button" class="am-part" data-am-part="${asm}" aria-pressed="false"><span class="am-part-n">${String(i + 1).padStart(2, "0")}</span><strong>${escape(CONCEPT[asm])}</strong><span class="am-part-s">${escape(INFO[asm].name)}</span></button>`).join("");
 const scenarios = SCENARIOS.map((item) => `<button type="button" class="am-scenario" data-am-scenario='${escape(JSON.stringify(item.config))}'><strong>${escape(item.label)}</strong><span>${escape(item.note)}</span></button>`).join("");
 
 const plate = k.plateHtml({

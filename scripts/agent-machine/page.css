@@ -103,6 +103,8 @@
 .am-parts { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
 .am-part { display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 4px 10px; border: 1px solid var(--rule-soft); background: var(--bg); color: var(--ink); font-family: var(--font-mono); font-size: 0.76rem; cursor: pointer; }
 .am-part-n { color: var(--ink-mute); }
+.am-part strong { font-weight: 500; letter-spacing: 0.06em; }
+.am-part-s { color: var(--ink-soft); }
 .am-part[aria-pressed="true"] { border-color: var(--blueprint); color: var(--blueprint); }
 .am-inspect { border-top: 1px solid var(--rule-soft); padding-top: 12px; }
 .am-kicker { font-size: 1rem; margin: 0 0 10px; color: var(--ink-soft); }

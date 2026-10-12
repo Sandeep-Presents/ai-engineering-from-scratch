@@ -1,3 +1,16 @@
+export const CONCEPT = {
+  carriage: "CONTEXT",
+  intake: "REQUEST",
+  memory: "MEMORY",
+  retrieval: "RETRIEVAL",
+  model: "MODEL",
+  tools: "TOOLS",
+  verifier: "VERIFIER",
+  exit: "OUTPUT",
+  printer: "TRACE",
+  controller: "RUNTIME · LOOP",
+};
+
 const lesson = (path, title) => ({ href: `/lesson?path=${encodeURIComponent(path)}`, title });
 
 export const INFO = {

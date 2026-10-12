@@ -46,7 +46,7 @@ const SLOT = D.slots;
 const TRAY_AT = [0, D.TRAY.y + D.TRAY.d / 2, D.TRAY.z];
 const HOME_Y = D.TRACK.y;
 const GH = D.GRIP_HOME;
-const CARRY = 53;
+const CARRY = 56;
 const SLIP_CARRY = 46;
 const CARD_HANG = D.RACK.h + 1.2;
 
@@ -546,6 +546,7 @@ function draw() {
 
   const hot = new Set(pose.hot);
   if (state.selected) D.items.forEach((item) => item.asm === state.selected && hot.add(item.id));
+  for (const id of Array.from(hot)) if (meta[id] && nodes[`tag-${meta[id].asm}`]) hot.add(`tag-${meta[id].asm}`);
   for (const item of D.items) {
     const on = hot.has(item.id);
     const node = nodes[item.id];
@@ -860,7 +861,7 @@ function inspect(asm) {
     return;
   }
   const deep = document.body.dataset.amDepth === "deep";
-  panel.innerHTML = `<h3>${info.name}</h3><p class="am-kicker">${info.is}</p><dl><dt>What it does</dt><dd>${info.does}</dd><dt>Why you need it</dt><dd>${info.why}</dd><dt>Without it</dt><dd>${info.without}</dd>${deep ? `<dt>In code</dt><dd>${info.code}</dd>` : ""}</dl><a class="am-lesson" href="${info.lesson.href}">Lesson: ${info.lesson.title} →</a>`;
+  panel.innerHTML = `<p class="am-label">${D.CONCEPT[asm]}</p><h3>${info.name}</h3><p class="am-kicker">${info.is}</p><dl><dt>What it does</dt><dd>${info.does}</dd><dt>Why you need it</dt><dd>${info.why}</dd><dt>Without it</dt><dd>${info.without}</dd>${deep ? `<dt>In code</dt><dd>${info.code}</dd>` : ""}</dl><a class="am-lesson" href="${info.lesson.href}">Lesson: ${info.lesson.title} →</a>`;
   kick();
 }
 $$("[data-am-part]").forEach((button) => button.addEventListener("click", () => inspect(state.selected === button.dataset.amPart ? null : button.dataset.amPart)));

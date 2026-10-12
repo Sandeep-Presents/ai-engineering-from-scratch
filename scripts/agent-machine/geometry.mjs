@@ -1,5 +1,6 @@
 import * as k from "./kit/iso-kit.mjs";
 import * as G from "./kit/lathe.mjs";
+import { CONCEPT } from "./content.mjs";
 
 export const W = 960;
 export const H = 640;
@@ -133,7 +134,7 @@ function basePlate() {
   const ticks = k.topTicks(strip.x + 4, strip.x + strip.w - 4, 4, 5, strip.y, 0.6, [1.8, 3.4], P);
   out.push(Ln(ticks.minor, { tone: "lo" }), Ln(ticks.major, { tone: "mid" }));
   out.push(screws([[strip.x + 2, strip.y + 3, 0.6], [strip.x + strip.w - 2, strip.y + 3, 0.6]], 0.4));
-  const label = { x: 12, y: PLATE.y + PLATE.d - 26, w: 40, d: 15, r: 1.4 };
+  const label = { x: 68, y: PLATE.y + PLATE.d - 26, w: 40, d: 15, r: 1.4 };
   out.push(S(k.slabOf(label, 0, 0.8, P, 4), { tone: "lo" }));
   out.push(Ln(k.planOutline(k.insetPlan(label, 1.6), 0.8, P, 4), { tone: "faint" }));
   out.push(faceText("top", [label.x + 4, label.y + 6.6, 0.8], "AGENT RUNTIME", 3.2, "mid"));
@@ -319,9 +320,6 @@ function model() {
     out.push(post(px - 4, py, 1.4, 63.4, 66.4, { tone: "mid" }, 12));
     out.push(post(px + 4, py, 1.4, 63.4, 66.4, { tone: "mid" }, 12));
   }
-  const plate = { x: x - 12, y: faceY, z0: 50, z1: 56 };
-  out.push(box(plate.x, faceY, plate.z0, plate.x + 24, faceY + 0.6, plate.z1, { tone: "lo" }, { r: 0, steps: 1 }));
-  out.push(faceText("front", [plate.x + 12, faceY + 0.65, 54.2], "MODEL", 3.2, "mid", "middle"));
   const ribs = [];
   for (let i = 0; i < 4; i++) ribs.push(k.segment([hs.x + 8 + i * 15, faceY, 8.4], [hs.x + 8 + i * 15, faceY, 22], P));
   out.push(Ln(ribs.join(""), { tone: "faint" }));
@@ -581,7 +579,8 @@ function memory() {
   const base = { x: -192, y: y - 18, w: 58, d: 30, r: 3 };
   out.push(`<path class="iso-halo" d="${k.haloOf(base, 0, 4, P)}"/>`);
   out.push(stationBase(k.insetPlan(base, -2)));
-  for (const px of [-186, -164]) out.push(box(px, y - 14, 2.4, px + 2.4, y - 8, 30, { tone: "mid" }, { r: 0.4 }));
+  for (const px of [-186, -164]) out.push(box(px, y - 14, 2.4, px + 2.4, y - 8, 44, { tone: "mid" }, { r: 0.4 }));
+  out.push(box(-187, y - 12.6, 34, -160.6, y - 8.6, 44.4, { tone: "mid" }, { r: 0.4, bevel: 0.3 }));
   const drum = G.frameAlong([-183.6, y - 11, 24], [1, 0, 0]);
   out.push(S(G.disc(-1.2, 0, 9.4, drum, P), { tone: "mid" }));
   out.push(S(G.disc(0, 19.6, 8, drum, P, { steps: 56 }), { tone: "hi", inner: k.fadedSvg(G.ribsOf(drum, 0, 19.6, 8, 36, P, { fade: [0.1, 0.55], seams: true }), { tone: "lo" }) }));
@@ -659,12 +658,59 @@ function carriage() {
   for (const sx of [RACK.x - 1.6, RACK.x + RACK.w + 0.8]) {
     out.push(S(k.slabOf({ x: sx, y: RACK.y0 - 0.6, w: 0.8, d: RACK.pitch * RACK.slots + 0.6, r: 0 }, PUCK.z + PUCK.h, 3.4, P, 1), { tone: "mid" }));
   }
+  const sign = { y: RACK.y0 - 1.8, z0: PUCK.z + PUCK.h, z1: 42 };
+  out.push(box(-11, sign.y, sign.z0, 11, sign.y + 0.8, sign.z1, { tone: "mid" }, { r: 0.3, steps: 2 }));
+  out.push(screws([[-9.8, sign.y + 0.8, 40], [9.8, sign.y + 0.8, 40]], 0.4));
+  out.push(faceText("front", [0, sign.y + 0.85, baseline(36, 42, 4.4)], CONCEPT.carriage, 4.4, "hi", "middle"));
   out.push(S(k.slabOf({ x: TRAY.x, y: TRAY.y, w: TRAY.w, d: TRAY.d, r: 0.5 }, PUCK.z + PUCK.h, 0.01, P, 2), { tone: "lo", crease: "none" }));
   out.push(box(TRAY.x - 0.6, TRAY.y + TRAY.d, PUCK.z + PUCK.h, TRAY.x + TRAY.w + 0.6, TRAY.y + TRAY.d + 0.9, PUCK.z + PUCK.h + 1.4, { tone: "mid" }, { r: 0.3, steps: 2 }));
   return out.join("");
 }
 
 export const RIG = {};
+
+const plateWidth = (text, size) => text.length * size * 0.62 + size * 1.8;
+const baseline = (z0, z1, size) => (z0 + z1) / 2 - size * 0.36;
+function plateFront(asm, cx, y, z0, z1, text, size) {
+  const w = plateWidth(text, size);
+  const svg = box(cx - w / 2, y, z0, cx + w / 2, y + 0.7, z1, { tone: "mid" }, { r: 0.3, steps: 2 })
+    + screws([[cx - w / 2 + 1.2, y + 0.7, (z0 + z1) / 2], [cx + w / 2 - 1.2, y + 0.7, (z0 + z1) / 2]], 0.4)
+    + faceText("front", [cx, y + 0.75, baseline(z0, z1, size)], text, size, "hi", "middle");
+  put(`tag-${asm}`, asm, [cx, y + 1, (z0 + z1) / 2], svg, { bias: 1.5 });
+}
+function plateSide(asm, x, cy, z0, z1, text, size) {
+  const w = plateWidth(text, size);
+  const svg = box(x, cy - w / 2, z0, x + 0.7, cy + w / 2, z1, { tone: "mid" }, { r: 0.3, steps: 2 })
+    + screws([[x + 0.7, cy - w / 2 + 1.2, (z0 + z1) / 2], [x + 0.7, cy + w / 2 - 1.2, (z0 + z1) / 2]], 0.4)
+    + faceText("side", [x + 0.75, cy, baseline(z0, z1, size)], text, size, "hi", "middle");
+  put(`tag-${asm}`, asm, [x + 1, cy, (z0 + z1) / 2], svg, { bias: 1.5 });
+}
+function standingTag(asm, cx, y, text, size) {
+  const w = plateWidth(text, size);
+  const svg = box(cx - w / 2 - 1, y - 2.4, 0, cx + w / 2 + 1, y + 1, 1.2, { tone: "lo" }, { r: 0.6, steps: 2 })
+    + box(cx - w / 2, y - 1.6, 1.2, cx + w / 2, y, 11, { tone: "mid" }, { r: 0.4, steps: 2, bevel: 0.3 })
+    + faceText("front", [cx, y + 0.05, baseline(1.2, 11, size)], text, size, "hi", "middle");
+  put(`tag-${asm}`, asm, [cx, y, 6], svg, { bias: 1.5 });
+}
+function nameplates() {
+  const iy = trackPoint(STOPS.intake)[1];
+  standingTag("intake", -160, iy + 26, CONCEPT.intake, 5.6);
+  const my = trackPoint(STOPS.memory)[1];
+  plateFront("memory", -173.8, my - 8.6, 35, 43.4, CONCEPT.memory, 5);
+  plateSide("retrieval", RIG.retrieval.cab.x + RIG.retrieval.cab.w, RIG.retrieval.cab.y + RIG.retrieval.cab.d / 2, 43, 53, CONCEPT.retrieval, 6);
+  const mx = RIG.model.x;
+  const sy = RIG.model.faceY - 9;
+  put("model-sign-feet", "model", [mx, sy - 1, 64], box(mx - 13, sy - 2.4, 63.4, mx - 10, sy + 0.4, 66, { tone: "mid" }, { r: 0.3 }) + box(mx + 10, sy - 2.4, 63.4, mx + 13, sy + 0.4, 66, { tone: "mid" }, { r: 0.3 }), { bias: 1 });
+  const w = plateWidth(CONCEPT.model, 7);
+  put("tag-model", "model", [mx, sy, 70], box(mx - w / 2, sy - 1.2, 66, mx + w / 2, sy, 76, { tone: "mid" }, { r: 0.4, steps: 2, bevel: 0.3 }) + faceText("front", [mx, sy + 0.05, baseline(66, 76, 7)], CONCEPT.model, 7, "hi", "middle"), { bias: 1.5 });
+  plateFront("tools", RIG.tools.x + 20, -98, 3.4, 9.8, CONCEPT.tools, 5.2);
+  const vy = RIG.verifier.y;
+  plateFront("verifier", 155, vy + 26, 3.2, 9, CONCEPT.verifier, 4.8);
+  plateFront("printer", RIG.printer.px, 84 + 10, 3.4, 9.8, CONCEPT.printer, 5.2);
+  plateFront("controller", -12, 23, 7, 14, CONCEPT.controller, 5.2);
+  const { ex, ey } = RIG.exit;
+  put("tag-exit", "exit", [ex, ey + 46, 3], faceText("top", [ex, ey + 47, 3], CONCEPT.exit, 6, "hi", "middle"), { bias: 0.5 });
+}
 
 export function build() {
   items.length = 0;
@@ -679,6 +725,7 @@ export function build() {
   memory();
   RIG.exit = exitUnit();
   printer();
+  nameplates();
   put("carriage", "carriage", [0, 0, 8], `<g data-live="carriage">${carriage()}</g>`, { live: "carriage", bias: -20 });
   for (let i = 0; i < RACK.slots; i++) {
     const { y, z } = slotOf(i);
