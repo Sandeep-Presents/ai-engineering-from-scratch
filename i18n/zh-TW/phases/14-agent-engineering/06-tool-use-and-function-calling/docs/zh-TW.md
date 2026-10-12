@@ -69,7 +69,7 @@ Anthropic 直接使用 `input_schema`；OpenAI 則使用 `function.parameters`�
 
 ### 並行工具呼叫（Parallel Tool Calls）
 
-現代模型支援在單次 Assistant 回合中並行輸出多個工具呼叫。處理流程：
+現代服務供應商支援在單次 Assistant 回合中並行輸出多個工具呼叫。處理流程：
 
 1. 模型發送 3 個工具呼叫，各自附帶唯一的 `tool_use_id`。
 2. 執行環境並行分派執行（若彼此互不相依）。
@@ -87,7 +87,7 @@ tool-routing
 
 ## Build It｜動手實作
 
-`code/main.py` 以純 Python 標準函式庫實作了一套生產級工具註冊表：
+`code/main.py` 以純 Python 標準函式庫實作了一套具備正式環境形態的工具註冊表：
 
 - 輕量 JSON Schema 子集驗證器；
 - 支援宣告功能描述、輸入結構描述、執行超時與執行常式的工具註冊機制；
@@ -105,7 +105,7 @@ python3 code/main.py
 
 ## Use It｜實際應用
 
-各服務供應商皆維護專屬的工具結構描述——Anthropic、OpenAI、Gemini、Bedrock。若需跨多服務供應商部署，請引入抽象轉譯層（OpenAI Agents SDK、Vercel AI SDK、LangChain 工具適配器）。BFCL 是參考基準——若工具呼叫是你產品的核心支柱，在正式發布前務必將你的 agent 接入 BFCL 進行完整基準評測。
+各服務供應商皆維護專屬的工具結構描述——Anthropic、OpenAI、Gemini、Bedrock。若需跨多服務供應商部署，請引入抽象轉譯層（OpenAI Agents SDK、Vercel AI SDK、LangChain 工具適配器）。BFCL 是參考基準——若工具使用是產品核心，可在發布前用 BFCL 評測 agent。
 
 ## Ship It｜交付成果
 

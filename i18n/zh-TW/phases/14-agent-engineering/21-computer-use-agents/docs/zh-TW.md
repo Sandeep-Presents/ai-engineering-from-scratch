@@ -30,7 +30,7 @@
 
 ### OpenAI CUA / Operator（2025 年 1 月）
 
-- 基於 GPT-4o 變體，透過強化學習（RL）在大規模 GUI 互動環境下深度訓練。
+- 基於 GPT-4o 變體，以 RL 在 GUI 互動上訓練。
 - 於 2025 年 7 月 17 日正式整併至 ChatGPT 的 Agent 模式中。
 - 發布時的基準表現：OSWorld 38.1%、WebArena 58.1%、WebVoyager 87%。
 - 開發者可透過 Responses API 使用 `computer-use-preview-2025-03-11` 模型。
@@ -86,7 +86,7 @@ computer-use-cursor
 - `Screen`：封裝各介面元素及其像素座標位置；
 - 模擬 Agent：能發射 `click(x, y)` 點選與 `type(text)` 輸入動作；
 - 逐步驟安全分類器：果斷拒絕允許清單區域外的點選，攔截包含注入特徵的輸入字串；
-- 具備敏感動作人工確認卡點的完整追蹤日誌。
+- 具備敏感動作人工確認卡點的追蹤記錄。
 
 執行實驗：
 

@@ -25,7 +25,7 @@
 - 基於 Python 的訊框式管線框架。
 - 核心處理鏈：`Frame` → `FrameProcessor`。
 - 兩大雙向流動通道：
-  - **下行通道（DOWNSTREAM）**：來源 → 接收端（音訊輸入、LLM 思考、TTS 語音輸出）；
+  - **下行通道（DOWNSTREAM）**：來源 → 接收端（音訊輸入、TTS 語音輸出）；
   - **上行通道（UPSTREAM）**：控制與即時回饋（任務取消、效能指標回報、打斷插話 Barge-in）。
 - `PipelineTask` 管理整體生命週期，內建生命週期事件（`on_pipeline_started`、`on_pipeline_finished`、`on_idle_timeout`）與針對指標／追蹤／RTVI 的觀測器。
 
@@ -65,7 +65,7 @@ Vapi（頂級最佳化堆疊下可達約 450–600ms 延遲）與 Retell（跨 1
 ### 2026 年典型延遲預算分布
 
 - VAD 語音活動偵測：20–60ms
-- STT 片段語音識別：100–250ms
+- STT 片段語音辨識：100–250ms
 - LLM 首字生成延遲（TTFT）：150–400ms
 - TTS 首音訊訊框產出：100–200ms
 - 網路傳輸往返延遲（RTT）：30–80ms
@@ -91,7 +91,7 @@ voice-pipeline
 python3 code/main.py
 ```
 
-日誌會清晰展示標準的正向下行流，以及使用者開口插話時發射的上行取消信號如何即時阻斷中途的 TTS 朗讀輸出。
+追蹤記錄會呈現標準的正向下行流，以及使用者開口插話時發射的上行取消信號如何即時阻斷中途的 TTS 朗讀輸出。
 
 ## Use It｜實際應用
 

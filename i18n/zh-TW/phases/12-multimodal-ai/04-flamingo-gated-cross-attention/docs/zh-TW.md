@@ -1,6 +1,6 @@
 # Flamingo 與少樣本 VLM 的門控交叉注意力（Flamingo and Gated Cross-Attention for Few-Shot VLMs）
 
-> DeepMind 的 Flamingo（2022）率先達成了兩項開創性壯舉：其一，證明了單一模型能夠處理影像、影片與文字任意交錯的超長序列；其二，展示了多模態模型（VLM）同樣具備強大的上下文內學習（in-context learning）能力——只需在 prompt 中給出三組（影像, 圖片說明）範例，模型便能在完全不更新任何梯度的情況下，精確為全新的影像生成圖片說明。其關鍵機制為：在凍結 LLM 的既有層之間插入門控交叉注意力（gated cross-attention）層，並搭配一個初始值為零的可學習 tanh 門控，確保模型在初始化之初能完美保留原 LLM 的強大文字能力。本課將深入剖析 Flamingo 的 Perceiver 重取樣器與門控交叉注意力架構——這正是 Gemini 交錯輸入與 Idefics2 視覺 token 的技術先祖。
+> DeepMind 的 Flamingo（2022）率先達成了兩項開創性壯舉：其一，證明了單一模型能夠處理影像、影片與文字任意交錯的超長序列；其二，展示了多模態模型（VLM）同樣具備強大的上下文內學習（in-context learning）能力——只需在 prompt 中給出三組（影像, 圖片說明）範例，模型便能在完全不更新任何梯度的情況下，為全新的影像生成圖片說明。其關鍵機制為：在凍結 LLM 的既有層之間插入門控交叉注意力（gated cross-attention）層，並搭配一個初始值為零的可學習 tanh 門控，確保模型在初始化之初能完美保留原 LLM 的強大文字能力。本課將深入剖析 Flamingo 的 Perceiver 重取樣器與門控交叉注意力架構——這正是 Gemini 交錯輸入與 Idefics2 視覺 token 的技術先祖。
 
 **Type:** Learn
 **Languages:** Python (stdlib, gated cross-attention + Perceiver resampler demo)

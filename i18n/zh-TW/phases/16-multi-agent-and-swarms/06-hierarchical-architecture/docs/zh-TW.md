@@ -59,7 +59,7 @@ CrewAI 的 `Process.hierarchical` 透過一個全域經理 LLM 統籌管轄多�
 - 嚴格評估各團隊的產出品質，
 - 裁定是直接接受成果、重新委派，還是打回進行下一輪迭代。
 
-官方文件：https://docs.crewai.com/en/introduction (look for "Hierarchical Process" under Core Concepts)。
+官方文件：https://docs.crewai.com/en/introduction （請在 Core Concepts 下方尋找「Hierarchical Process」）。
 
 ### 基於圖結構框架的實作（LangGraph）
 
@@ -87,7 +87,7 @@ swarm-hierarchy-token
 python3 code/main.py
 ```
 
-輸出將並列展現兩條路徑的完整執行日誌，讓「使用者到底問了什麼」與「系統最終交出了什麼」形成強烈而震撼的對比。
+輸出將並列展現兩條路徑的完整執行紀錄，讓「使用者到底問了什麼」與「系統最終交出了什麼」形成強烈而震撼的對比。
 
 ## Use It｜實際應用
 
@@ -99,7 +99,7 @@ python3 code/main.py
 
 - **嚴格將樹的深度限制在 2 層以內。** 三層以上會讓多數錯誤難以從可觀測性中發現。
 - **配置明確硬性的協商輪次預算。** 設定頂層經理強制輸出最終結論的最大輪次上限。通常為 2 輪。
-- **每一次綜述皆必須強制附帶資料溯源鏈條（Provenance）。** 每個非葉節點的總結報告中，必須明確標註該結論具體源自底層哪些葉節點的輸出。
+- **每一次綜述皆必須強制附帶來源追溯鏈條（Provenance）。** 每個非葉節點的總結報告中，必須明確標註該結論具體源自底層哪些葉節點的輸出。
 - **針對任務拆解漂移設定即時告警。** 在每一步記錄經理的任務拆解；自動對照原始使用者查詢進行語意比對。一旦發現拆解結果已經無法覆蓋原始查詢，立即引爆告警。
 
 ## Exercises｜練習

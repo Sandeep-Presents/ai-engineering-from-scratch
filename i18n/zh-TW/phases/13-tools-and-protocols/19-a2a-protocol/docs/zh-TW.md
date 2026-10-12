@@ -64,7 +64,7 @@ A2A 正是「讓跨框架的各類 agent 彼此交談」的通用通訊協定。
 }
 ```
 
-服務發現基於標準 URL：先拉取該名片，在 `supportedInterfaces` 清單中選取第一個你的用戶端所支援的 `protocolBinding` 介面，隨後列舉其具備的 skills。輸入與輸出模式皆採用標準 MIME 媒體類型（Media Types）。
+服務發現基於標準 URL：先取得該名片，在 `supportedInterfaces` 清單中選取第一個你的用戶端所支援的 `protocolBinding` 介面，隨後列舉其具備的 skills。輸入與輸出模式皆採用標準 MIME 媒體類型（Media Types）。
 
 ### 已簽署的 Agent Card
 
@@ -200,19 +200,19 @@ a2a-task-lifecycle
 
 1. 執行 `code/main.py`。端到端追蹤完整的 Task 生命週期，特別觀察被呼叫 agent 遇到疑問要求進一步釐清時所觸發的 `TASK_STATE_INPUT_REQUIRED` 中斷暫停。
 
-2. 為 Agent Card 實作數位簽名。在 `signatures` 清單中新增一個 `alg` 為 `HS256` 的 JWS 項目，對排除 `signatures` 欄位後的標準規範化名片 JSON 進行簽名。編寫校驗常式，驗證其在名片內容遭篡改時能精準攔截。
+2. 為 Agent Card 實作數位簽名。在 `signatures` 清單中新增一個 `alg` 為 `HS256` 的 JWS 項目，對排除 `signatures` 欄位後的標準規範化名片 JSON 簽署。編寫校驗常式，驗證其在名片內容遭篡改時能精準攔截。
 
-3. 運用 `SendStreamingMessage` 實作任務串流傳輸：寫作 agent 依序推送 `task` 狀態、三個 `artifactUpdate` 分塊資料，以及帶有 `TASK_STATE_COMPLETED` 的 `statusUpdate`，隨後安全關閉連線。呼叫端負責將所有分塊平滑拼接。
+3. 運用 `SendStreamingMessage` 實作任務串流傳輸：寫作 agent 依序送出 `task` 狀態、三個 `artifactUpdate` 分塊資料，以及帶有 `TASK_STATE_COMPLETED` 的 `statusUpdate`，隨後安全關閉連線。呼叫端負責將所有分塊平滑拼接。
 
 4. 設計一個封裝 MCP 伺服器的 A2A agent。將底層的每個 MCP 工具一對一對應為 A2A skill。深入思考該架構下的權衡代價——哪些原生的不透明性因而喪失？
 
-5. 研讀 A2A v1.0 官方發布公告，找出截至 2026 年 4 月為止尚未有任何主流框架實作的一項前瞻功能。（提示：與多跳多層級任務委派機制相關。）
+5. 研讀 A2A v1.0 官方發布公告，找出截至 2026 年 4 月為止尚未有任何框架實作的一項前瞻功能。（提示：與多跳多層級任務委派機制相關。）
 
 ## Key Terms｜關鍵術語
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |------|---------|-------------|
-| A2A | 「Agent 到 Agent 協定」 | 讓不透明 agent 實現跨框架協同作業的開放通訊協定 |
+| A2A | 「Agent 到 Agent 協定」 | 供不透明 agent 協作使用的開放通訊協定 |
 | Agent Card | 「`/.well-known/agent-card.json`」 | 對外公開發布的中繼資料名片，詳述 agent 的 skills 與 `supportedInterfaces` |
 | Skill | 「可呼叫單元」 | agent 支援的具名作業能力（對標於 MCP 中的 tool） |
 | Task | 「委派任務單元」 | 具備完整生命週期與最終產出產物的工作項目 |

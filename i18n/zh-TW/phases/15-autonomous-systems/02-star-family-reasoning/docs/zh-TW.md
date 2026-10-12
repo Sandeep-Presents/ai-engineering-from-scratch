@@ -1,6 +1,6 @@
 # STaR、V-STaR、Quiet-STaR——自我教學推理（Self-Taught Reasoning）
 
-> 最小可行的自我改進迴圈就存在於推理過程（rationale）之中。模型生成一條思維鏈（chain of thought），保留那些推導出正確答案的軌跡，並以這些資料做 fine-tuning。這就是 STaR。V-STaR 額外加入了驗證器（verifier），使推論時期的選取品質更佳。Quiet-STaR 則將推理過程下沉到每一個 token。這三種方法都確實有效。但它們絕非魔法——這個迴圈同時也會保留任何剛好碰巧得出正確答案的捷徑推理。
+> 最小可行的自我改進迴圈就存在於推理過程（rationale）之中。模型生成一條思維鏈（chain of thought），保留那些推導出正確答案的軌跡，並以這些資料做 fine-tuning。這就是 STaR。V-STaR 額外加入了驗證器（verifier），使推論時的選取品質更佳。Quiet-STaR 則將推理過程下沉到每一個 token。這三種方法都確實有效。但它們絕非魔法——這個迴圈同時也會保留任何剛好碰巧得出正確答案的捷徑推理。
 
 **Type:** Learn
 **Languages:** Python (stdlib, bootstrap-loop simulator)
@@ -32,9 +32,9 @@ STaR（Self-Taught Reasoner，Zelikman 等人，2022 年）提出了一個問題
 
 ### V-STaR：利用 DPO 訓練驗證器
 
-STaR 會直接丟棄錯誤的推理過程。Hosseini 等人（2024 年）觀察到這些錯誤軌跡其實也是寶貴的資料：每一對（推理過程，「是否正確」）都可以用來訓練驗證器。他們在正確與錯誤的解法上使用直接偏好最佳化（Direct Preference Optimization, DPO）來建構排序器。在推論時期，取樣 N 個推理過程，並挑選驗證器給出最高評分的選項。
+STaR 會直接丟棄錯誤的推理過程。Hosseini 等人（2024 年）觀察到這些錯誤軌跡其實也是寶貴的資料：每一對（推理過程，「是否正確」）都可以用來訓練驗證器。他們在正確與錯誤的解法上使用直接偏好最佳化（Direct Preference Optimization, DPO）來建構排序器。在推論時，取樣 N 個推理過程，並挑選驗證器給出最高評分的選項。
 
-實測增幅：相較於先前的自我改進基準線，在 GSM8K 與 MATH 上獲得了 +4 到 +17 個百分點的提升，其中大部分的收益來自於在推論時期使用驗證器做選取，而非來自對生成器的額外 fine-tuning。
+實測增幅：相較於先前的自我改進基準線，在 GSM8K 與 MATH 上獲得了 +4 到 +17 個百分點的提升，其中大部分的收益來自於在推論時使用驗證器做選取，而非來自對生成器的額外 fine-tuning。
 
 ### Quiet-STaR：逐 token 的內部推理
 
@@ -97,7 +97,7 @@ reflection-loop
 |---|---|---|
 | STaR | "Self-Taught Reasoner" | 以模型生成、能得出正確答案的推理過程做 fine-tuning，並重複此流程 |
 | 合理化 | 「提示重試」 | 針對基底模型解不出的題目，注入正確答案並重新 prompt，以取得推理過程 |
-| V-STaR | 「驗證器 STaR」 | 在正確與錯誤的推理過程上以 DPO 訓練驗證器，並用於推論時期的選取 |
+| V-STaR | 「驗證器 STaR」 | 在正確與錯誤的推理過程上以 DPO 訓練驗證器，並用於推論時的選取 |
 | Quiet-STaR | 「逐 token 推理過程」 | 在每個 token 位置生成隱藏思考，並與基準預測混合 |
 | 以答案為條件的梯度 | 「以結果為準的訊號」 | 訓練迴圈獎勵的是最終答案，而非推理步驟 |
 | 過程獎勵模型 | 「步驟層級驗證器」 | 以每一步的正確性（而非最終結果）訓練的獎勵模型，與 STaR 形成對比 |
@@ -106,7 +106,7 @@ reflection-loop
 ## Further Reading｜延伸閱讀
 
 - [Zelikman et al. (2022). STaR: Bootstrapping Reasoning With Reasoning](https://arxiv.org/abs/2203.14465) — 原始論文。
-- [Hosseini et al. (2024). V-STaR: Training Verifiers for Self-Taught Reasoners](https://arxiv.org/abs/2402.06457) — 加入用於推論時期選取的 DPO 驗證器。
+- [Hosseini et al. (2024). V-STaR: Training Verifiers for Self-Taught Reasoners](https://arxiv.org/abs/2402.06457) — 加入用於推論時選取的 DPO 驗證器。
 - [Zelikman et al. (2024). Quiet-STaR: Language Models Can Teach Themselves to Think Before Speaking](https://arxiv.org/abs/2403.09629) — 逐 token 的內部推理。
 - [Lightman et al. (2023). Let's Verify Step by Step](https://arxiv.org/abs/2305.20050) — 過程獎勵模型，另一種梯度訊號。
 - [DeepSeek-R1 paper (arXiv:2501.12948)](https://arxiv.org/abs/2501.12948) — 可驗證任務上的 RL，將 STaR 擴展至尖端模型訓練。

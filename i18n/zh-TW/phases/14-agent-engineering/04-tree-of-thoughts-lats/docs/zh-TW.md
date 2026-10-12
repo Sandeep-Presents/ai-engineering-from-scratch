@@ -42,7 +42,7 @@ LATS 在蒙地卡羅樹搜尋（MCTS）體系下，將 ToT、ReAct 與 Reflexion
 
 - **策略（Policy）**：主動提出候選的下一步動作（ReAct 風格）。
 - **價值函數（Value function）**：對局部軌跡進行評分（ToT 風格的自我評估）。
-- **自我反思器（Self-reflector）**：遭遇失敗時，撰寫自然語言反思總結（Reflexion 風格），並用以引導後續的推演擴展。
+- **自我反思器（Self-reflector）**：遭遇失敗時，撰寫自然語言反思總結（Reflexion 風格），並據此重新設定後續推演的起點。
 
 真實環境的回饋（觀察結果）會即時融入價值函數中，使樹搜尋能建立在真實工具執行的客觀事實之上，而非純粹依賴模型的主觀意見。論文發表時的實測成果：GPT-4 在 HumanEval 上的 pass@1 達到 92.7%（創下當時 SOTA）；GPT-3.5 在 WebShop 上取得 75.9 的平均分（逼近基於梯度的 fine-tuning 表現）。
 

@@ -65,7 +65,7 @@
 
 - **委派乒乓迴圈（Handoff drift）**：Agent A 委派給 Agent B，而 Agent B 又反手委派回 Agent A。解法：強制加入跳數計數器（Hop counter）限制最大移交次數。
 - **護欄防護盲區**：工具護欄僅對函式工具生效；內建工具（如檔案讀取、網頁檢索）需要配置獨立的安全策略。
-- **追蹤日誌過度記錄**：將敏感機密直接記錄至 Spans 中。務必結合第 23 課的 OTel GenAI 內容擷取規則——在外部安全儲存，於 Trace 中僅保留 ID 參照。
+- **過度追蹤**：將敏感機密直接記錄至 Spans 中。務必結合第 23 課的 OTel GenAI 內容擷取規則——在外部安全儲存，於 Trace 中僅保留 ID 參照。
 
 ```figure
 ae-agent-handoff
@@ -86,7 +86,7 @@ ae-agent-handoff
 python3 code/main.py
 ```
 
-日誌會展示兩次成功的委派移交、一次被成功攔截的輸入護欄警報，以及對應真實 SDK 結構的 Span 呼叫樹。
+追蹤記錄會呈現兩次成功的委派移交、一次被成功攔截的輸入護欄警報，以及對應真實 SDK 結構的 Span 呼叫樹。
 
 ## Use It｜實際應用
 

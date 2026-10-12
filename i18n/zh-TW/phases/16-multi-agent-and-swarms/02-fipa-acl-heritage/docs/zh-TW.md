@@ -116,7 +116,7 @@ Liu 等人於 2025 年發布的綜述（《A Survey of Agent Interoperability Pr
 FIPA 規範定義了大約 15 種經典互動協定。其中有三種模式極具實踐價值，值得繼承至當代的 LLM 多 agent 系統中：
 
 1. **合約網協定（Contract Net Protocol, CNP）。** 管理者廣播發布 `cfp`（招標提議呼叫）；競標者回覆 `propose` 報價；管理者最終做出接受或拒絕裁定。這是最經典的任務市場運作架構（Phase 16 · 16 協商談判機制）。
-2. **訂閱／通知協定（Subscribe/Notify）。** 訂閱者發送 `subscribe`；每當特定主題狀態變更時，發布者主動推送 `inform`。這正是 2026 年各類事件匯流排的標準架構原型。
+2. **訂閱／通知協定（Subscribe/Notify）。** 訂閱者發送 `subscribe`；每當特定主題狀態變更時，發布者主動通知 `inform`。這正是 2026 年各類事件匯流排的標準架構原型。
 3. **條件請求協定（Request-When）。** 「當條件 Y 成立時，執行動作 X」。一種帶有前置條件約束的延時執行機制。在 2026 年的現代對應，正是持久化工作流程引擎中的延遲任務排程（Phase 16 · 22 正式環境擴展架構）。
 
 每一種模式都能清楚地對應到現代訊息佇列、HTTP 輪詢或 SSE 串流通道。
@@ -138,7 +138,7 @@ FIPA 規範定義了大約 15 種經典互動協定。其中有三種模式極�
 | MCP `tools/call` | `request` | 明確意圖、關聯識別碼 | 形式語意學、本體論 |
 | MCP `resources/read` | `query-ref` | 明確意圖、關聯識別碼 | 形式語意學 |
 | A2A 任務生命週期 | contract-net + request-when | 非同步生命週期、狀態轉換 | 形式完整性保證 |
-| A2A 串流事件 | subscribe/notify | 非同步推送 | 具型別述詞的訂閱 |
+| A2A 串流事件 | subscribe/notify | 非同步推播 | 具型別述詞的訂閱 |
 | CA-MCP 共享上下文 | 黑板（Hayes-Roth，1985） | 多寫入者共享記憶 | 邏輯一致性模型 |
 | NLIP | 自然語言內容 | 原生支援 LLM | 結構描述 |
 

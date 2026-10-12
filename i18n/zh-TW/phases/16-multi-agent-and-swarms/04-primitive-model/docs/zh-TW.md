@@ -98,7 +98,7 @@ Orchestrator = ({state, last_speaker}) -> next_agent
 - **靜態編排（Static）**——執行圖在建置時期便已被硬性固定（LangGraph 確定性圖、CrewAI 循序流程 Sequential）。
 - **LLM 動態選取（LLM-selected）**——由 LLM 通讀訊息池並動態挑選下一位說話人（AutoGen、CrewAI 階層式流程 Hierarchical）。
 - **交接驅動（Handoff-driven）**——由當前執行的 agent 透過直接呼叫交接工具來決定下一棒（Swarm）。
-- **佇列驅動（Queue-driven）**——所有工作者自發從共享佇列中拉取任務；不存在顯式的「下一位說話人」（群體架構、Matrix 網路）。
+- **佇列驅動（Queue-driven）**——所有工作者自發從共享佇列中領取任務；不存在顯式的「下一位說話人」（群體架構、Matrix 網路）。
 
 ### 框架之間的實質差異
 
@@ -149,7 +149,7 @@ python3 code/main.py
 ## Exercises｜練習
 
 1. 執行 `code/main.py` 三次，每次配置不同的 agent 行為原則。仔細觀察編排器的選型如何直接改變了最終被喚醒執行的 agent 集合。
-2. 實作第四種編排器類型：建構一個由佇列驅動的編排器，讓各 agent 自主從共享狀態中輪詢拉取任務。思考在何種邊界條件下會發生死結，以及你該如何設計偵測機制？
+2. 實作第四種編排器類型：建構一個由佇列驅動的編排器，讓各 agent 自主輪詢共享狀態以領取任務。思考在何種邊界條件下會發生死結，以及你該如何設計偵測機制？
 3. 閱讀 LangGraph 快速上手文件 (https://docs.langchain.com/oss/python/langgraph/workflows-agents)，並嘗試將其完整還原為本課的四大原語。指出 LangGraph 的哪些抽象概念與原語是一對一精準對齊的，哪些純粹屬於便利性的包裝層？
 4. 閱讀 OpenAI Swarm 實戰手冊 (https://developers.openai.com/cookbook/examples/orchestrating_agents)。指出 Swarm 將四大原語中的哪一項封裝得最為優雅親切，又將哪一項粗暴推給了外層呼叫者自行承擔？
 5. 在本課的對比表格中找出一個完全隱藏了共享狀態的框架。深入分析當 agent 需要跨越多輪交接協同運作、且不被允許重新通讀全部歷史時，系統會在哪個環節徹底瓦解？

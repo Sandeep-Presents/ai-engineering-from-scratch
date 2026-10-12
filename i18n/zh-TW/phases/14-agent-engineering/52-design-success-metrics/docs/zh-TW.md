@@ -49,7 +49,7 @@ flowchart LR
 | Direction（方向） | at most（不大於） |
 | Threshold（門檻） | 120 |
 | Window（時間視窗） | 十次事故回放 |
-| Source（資料來源） | 回放事件日誌 |
+| Source（資料來源） | 回放事件紀錄 |
 | Population（目標群體） | 參與試點的值班工程師 |
 | Kind（指標型別） | outcome（成效）或 guardrail（護欄） |
 

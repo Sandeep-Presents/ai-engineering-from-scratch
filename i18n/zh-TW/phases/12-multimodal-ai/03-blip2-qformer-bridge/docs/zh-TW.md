@@ -1,6 +1,6 @@
 # 從 CLIP 到 BLIP-2——作為模態橋樑的 Q-Former（From CLIP to BLIP-2 — Q-Former as Modality Bridge）
 
-> CLIP 能夠對齊影像與文字，卻無法自主生成圖片說明、回答問題或進行多輪對話。BLIP-2（Salesforce，2023）透過一座小巧且可訓練的模態橋樑解決了這個難題：32 個可學習的 query 向量透過交叉注意力（cross-attention）凝視並萃取凍結 ViT 的特徵，隨後直接注入凍結 LLM 的輸入串流中。僅憑 1.88 億參數的橋樑，便成功將 110 億參數的 LLM 與 ViT-g/14 緊密串接。直至 2026 年，所有基於 adapter 的 VLM——MiniGPT-4、InstructBLIP 以及 LLaVA 家族——皆為其直系後裔。本課將深入剖析 Q-Former 的架構原理，詳解其兩階段預訓練機制，並以純 Python 標準函式庫手刻一個將視覺 token 注入凍結文字解碼器的原型系統。
+> CLIP 能夠對齊影像與文字，卻無法自主生成圖片說明、回答問題或進行多輪對話。BLIP-2（Salesforce，2023）透過一座小巧且可訓練的模態橋樑解決了這個難題：32 個可學習的 query 向量透過交叉注意力（cross-attention）凝視並萃取凍結 ViT 的特徵，隨後直接注入凍結 LLM 的輸入串流中。僅憑 1.88 億參數的橋樑，便成功將 110 億參數的 LLM 與 ViT-g/14 緊密串接。直至 2026 年，所有基於 adapter 的 VLM——MiniGPT-4、InstructBLIP 以及 LLaVA 家族——皆是相關衍生模型。本課將深入剖析 Q-Former 的架構原理，詳解其兩階段預訓練機制，並以純 Python 標準函式庫手刻一個將視覺 token 注入凍結文字解碼器的原型系統。
 
 **Type:** Build
 **Languages:** Python (stdlib, cross-attention + learnable-query demo)

@@ -1,6 +1,6 @@
 # 角色專門化分工——規劃者、審查者、執行者與驗證者（Role Specialization — Planner, Critic, Executor, Verifier）
 
-> 2026 年最為普及的多 Agent 任務拆解典範：一人專職規劃、一人專注執行、一人負責批判審查或客觀驗證。MetaGPT（arXiv:2308.00352）將此架構形式化為深植於角色 prompt 中的標準作業程式（SOP）——涵蓋產品經理、架構師、專案經理、工程師與 QA 測試工程師——恪守 `Code = SOP(Team)` 的核心公式。ChatDev（arXiv:2307.07924）則透過「對話鏈」將設計師、程式設計師、審查員與測試員串聯在一起，並引入了「通訊去幻覺（communicative dehallucination）」機制（各 agent 在遭遇細節缺失時主動向上游索取而非盲目臆造）。其中，驗證者的存在至關重要：Cemri 等人（MAST 失效分類研究，arXiv:2503.13657）證明，每一個多 agent 系統的失敗都可追溯至驗證機制缺失或失效。PwC 的正式環境實測更指出，在 CrewAI 中僅僅引入結構化驗證迴圈，就讓系統任務準確率獲得了高達 7 倍的飛躍（從 10% 暴增至 70%）。
+> 2026 年最為普及的多 Agent 任務拆解典範：一人專職規劃、一人專注執行、一人負責批判審查或客觀驗證。MetaGPT（arXiv:2308.00352）將此架構形式化為深植於角色 prompt 中的標準作業程式（SOP）——涵蓋產品經理、架構師、專案經理、工程師與 QA 測試工程師——恪守 `Code = SOP(Team)` 的核心公式。ChatDev（arXiv:2307.07924）則透過「對話鏈」將設計師、程式設計師、審查員與測試員串聯在一起，並引入了「溝通式去幻覺（communicative dehallucination）」機制（各 agent 在遭遇細節缺失時主動向上游索取而非盲目臆造）。其中，驗證者的存在至關重要：Cemri 等人（MAST 失效分類研究，arXiv:2503.13657）證明，每一個多 agent 系統的失敗都可追溯至驗證機制缺失或失效。PwC 的正式環境實測更指出，在 CrewAI 中僅僅引入結構化驗證迴圈，就讓系統任務準確率獲得了高達 7 倍的飛躍（從 10% 暴增至 70%）。
 
 **Type:** Learn + Build
 **Languages:** Python (stdlib)
@@ -39,7 +39,7 @@ MetaGPT（arXiv:2308.00352）將軟體工程領域的標準作業程式（SOP）
 
 每個角色都有嚴格的輸入／輸出結構描述。角色 prompt 清楚界定了該角色「是什麼」以及「必須產出什麼」。這正是 `Code = SOP(Team)` 的深層哲學——確定性的 SOP 能將一群容易發散的 LLM 馴服為高度可預測的高效生產管線。
 
-### ChatDev 的通訊去幻覺機制（Communicative Dehallucination）
+### ChatDev 的溝通式去幻覺機制（Communicative Dehallucination）
 
 ChatDev 引入了一項極具啟發性的關鍵架構：當執行者在實作中發現需要某些規劃中未曾提及的具體細節時，它會主動向上游的設計師發起明確詢問，確認細節後才繼續前進。這徹底遏止了 LLM 習慣性編造看似合理但漏洞百出細節的經典幻覺。
 
@@ -100,16 +100,16 @@ python3 code/main.py
 
 - **至少配備一位確定性的客觀驗證者。** 絕不允許全員皆為純 LLM。
 - **每個角色具備明確的 I/O 結構描述。** 規劃者必須回傳結構化規格而非自然語言散文；執行者直接依據該結構描述解析。
-- **落實通訊去幻覺機制。** 執行者在遭遇資訊缺失時必須強制向上游反問；嚴禁私自憑空捏造。
+- **落實溝通式去幻覺機制。** 執行者在遭遇資訊缺失時必須強制向上游反問；嚴禁私自憑空捏造。
 - **審查者與驗證者的嚴格執行順序。** 先跑審查者（成本低廉，快速揪出宏觀設計缺陷），後跑驗證者（耗時較長，精準捕捉執行階段的深層 bug）。
 - **嚴格限制修訂迴圈預算。** 審查者與執行者之間的迭代修訂最多允許進行 2 輪，超出後必須果斷上報人工介入。
 
 ## Exercises｜練習
 
 1. 執行 `code/main.py` 並仔細觀察驗證者是如何精準揪出審查者所漏掉的潛在 bug。為系統追加一個靜態分析檢查步驟（例如統計 `return` 關鍵字的出現次數）作為輔助驗證者。思考它能捕捉到哪些執行階段測試可能會遺漏的結構問題？
-2. 在體系中追加第五個角色：「需求分析師」，負責將使用者的模糊願望轉化為規劃者可直接消費的技術規格。在此架構下，哪些類型的通訊去幻覺請求應當反向流向該角色？
+2. 在體系中追加第五個角色：「需求分析師」，負責將使用者的模糊願望轉化為規劃者可直接消費的技術規格。在此架構下，哪些類型的溝通式去幻覺請求應當反向流向該角色？
 3. 閱讀 MetaGPT 論文第 3 節（Agents）。整理並列出 MetaGPT 旗下 5 大核心角色各自的標準輸入／輸出結構描述。
-4. 閱讀 ChatDev 的對話鏈架構圖（arXiv:2307.07924，圖 3）。具體指出通訊去幻覺機制在何處成功打破了原本會導致無窮死迴圈的閉環。
+4. 閱讀 ChatDev 的對話鏈架構圖（arXiv:2307.07924，圖 3）。具體指出溝通式去幻覺機制在何處成功打破了原本會導致無窮死迴圈的閉環。
 5. PwC 報告中 7 倍的準確率躍升主要歸功於驗證迴圈的引入。嘗試設想三種引入客觀驗證者「毫無用武之地」的業務任務——即在此類任務中，對正確性進行確定性檢驗在物理上是不可能的，或成本高昂至不可承受。
 
 ## Key Terms｜關鍵術語
@@ -128,6 +128,6 @@ python3 code/main.py
 ## Further Reading｜延伸閱讀
 
 - [Hong et al. — MetaGPT: Meta Programming for Multi-Agent Collaboration](https://arxiv.org/abs/2308.00352) — 將 SOP 編碼為角色 prompt 的經典奠基論文。
-- [Qian et al. — Communicative Agents for Software Development (ChatDev)](https://arxiv.org/abs/2307.07924) — 對話鏈與通訊去幻覺機制的權威論文。
+- [Qian et al. — Communicative Agents for Software Development (ChatDev)](https://arxiv.org/abs/2307.07924) — 對話鏈與溝通式去幻覺機制的權威論文。
 - [Cemri et al. — Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657) — MAST 失效分類體系；揭示 21.3% 的系統崩潰源自驗證缺失。
 - [CrewAI docs — Agent roles](https://docs.crewai.com/en/introduction) — 正式環境角色規格定義官方指南。

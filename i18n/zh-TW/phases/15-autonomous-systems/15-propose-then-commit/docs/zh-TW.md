@@ -1,6 +1,6 @@
 # 人在迴圈中：先提議後確認寫入（Human-in-the-Loop: Propose-Then-Commit）
 
-> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血統（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆採用相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻記載的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
+> 2026 年業界對「人在迴圈中（HITL）」達成了高度具體的共識。它絕非「agent 發問、使用者點選核准」這種粗暴互動，而是嚴謹的先提議後確認寫入（propose-then-commit）模式：擬議動作會攜帶冪等性金鑰（idempotency key）被持久化儲存至外部儲存庫；帶著執行意圖、資料血緣（data lineage）、觸及權限、爆炸半徑（blast radius）以及回滾方案（rollback plan），完整呈現給人類審查員；唯有在獲得明確積極確認後才執行 commit；執行完畢後立即讀取驗證，確保外部副作用確實正確發生。LangGraph 的 `interrupt()` 搭配 PostgreSQL 檢查點機制、微軟 Agent Framework 的 `RequestInfoEvent`，以及 Cloudflare 的 `waitForApproval()` 皆採用相同的架構。該模式最典型的失效模式是「橡皮圖章式核准」：使用者不假思索便直接點選「核准」。文獻記載的最佳緩解手段，是引入附帶明確核對清單的質詢應答（challenge-and-response）機制。
 
 **Type:** Learn
 **Languages:** Python (stdlib, propose-then-commit state machine with idempotency)
@@ -11,7 +11,7 @@
 
 Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是拒絕。若這項決定是在一瞬間做出的，它很可能根本沒有經過真正的審查。若這項決定是結構化的，雖然審查較為耗時，但結果高度可信。工程上的關鍵問題在於：如何將結構化審查設計為系統阻力最小的自然路徑？
 
-2023 年代的 HITL 模式本質上是一個同步彈出視窗：「Agent 想要發送內文為 Y 的信件給 X——是否核准？」使用者隨手點選核准。每個人都產生了系統很安全的幻覺。然而在實務中，這種互動介面極易淪為流於形式的橡皮圖章：使用者核准速度飛快、審核毫無實質把關能力，而當 agent 釀成大禍時，稽核紀錄往往充斥著使用者早已毫無印象的大量核准歷史。
+2023 年代的 HITL 模式本質上是一個同步提示：「Agent 想要發送內文為 Y 的信件給 X——是否核准？」使用者隨手點選核准。每個人都產生了系統很安全的幻覺。然而在實務中，這種互動介面極易淪為流於形式的橡皮圖章：使用者核准速度飛快、審核毫無實質把關能力，而當 agent 釀成大禍時，稽核紀錄往往充斥著使用者早已毫無印象的大量核准歷史。
 
 2026 年的主流架構——先提議後確認寫入——將 HITL 建立在持久化底座之上，強制附帶結構化中繼資料，並要求使用者給予明確具體的 commit 確認。所有代管型 agent SDK 皆提供了各自的實作：LangGraph 的 `interrupt()`、微軟 Agent Framework 的 `RequestInfoEvent`、Cloudflare 的 `waitForApproval()`。API 命名雖有不同，底層架構完全一致。
 
@@ -21,7 +21,7 @@ Agent 即將執行一項操作。使用者必須做出抉擇：核准，還是�
 
 1. **提議（Propose）。** agent 生成擬議動作。該動作被持久化儲存至外部儲存庫（PostgreSQL、Redis 或 Durable Object）。包含：
    - 意圖（intent，說明 agent 為何要執行此動作）
-   - 資料血統（data lineage，追溯導致此提議的具體資料來源）
+   - 資料血緣（data lineage，追溯導致此提議的具體資料來源）
    - 觸及權限（permissions touched，涉及哪些權限範圍、檔案或端點）
    - 爆炸半徑（blast radius，評估最壞情況下的損害規模）
    - 回滾方案（rollback plan，若確認生效後，該如何乾淨還原）
@@ -88,7 +88,7 @@ mx-propose-then-commit
 
 4. 為一項特定動作（例如「向公開的 Twitter 帳號發布貼文」）設計一套質詢應答核對清單。審查員必須回答哪三個問題？為什麼挑選這三個？
 
-5. 挑選一個同步彈出「核准？」對話框便已完全足夠（無需持久化儲存庫）的實際業務場景。說明背後的原因，並明確指出你在此情境下所甘願承擔的風險類別。
+5. 挑選一個只用同步「核准？」提示就已完全足夠（無需持久化儲存庫）的實際業務場景。說明背後的原因，並明確指出你在此情境下所甘願承擔的風險類別。
 
 ## Key Terms｜關鍵術語
 

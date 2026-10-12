@@ -111,7 +111,7 @@ python3 code/main.py
 ## Use It｜實際應用
 
 - **Claude Agent SDK skills（Anthropic）**：2026 年的參考實作——每項技能皆具備描述、程式碼與指引，於 agent 對話期間按需載入。
-- **skillkit（npm: skillkit）**：跨 32 種以上主流 AI 撰寫程式碼 agent 的跨平台技能管理工具。
+- **skillkit（npm: skillkit）**：跨 32 種以上 AI 撰寫程式碼 agent 的跨 agent 技能管理工具。
 - **領域專屬自訂技能函式庫**：資料工程 agent 專用的 SQL 技能函式庫、基礎設施 agent 專用的 Terraform 技能函式庫。Voyager 架構同樣可以縮小規模套用。
 - **OpenAI Agents SDK `tools`**：輕量級別的體現；每個 tool 本質上就是一個微型封裝技能。
 
@@ -133,7 +133,7 @@ python3 code/main.py
 |---|---|---|
 | Skill | 「可重複利用的能力」 | 具備名稱、可執行程式碼與意圖描述的模組，支援依相似度召回 |
 | Skill library | 「Agent 的技能經驗庫」 | 持久化儲存技能的結構化儲存庫，支援搜尋檢索與拓撲組合 |
-| Curriculum | 「任務提案引擎」 | 依據當前能力盲區與環境狀態所驅動的由底向上目標探索器 |
+| Curriculum | 「課程」 | 依據當前能力差距驅動、由下而上的目標提案產生器 |
 | Composition | 「技能有向無環圖」 | 技能呼叫其他子技能的複合階層體系；在執行時依拓撲排序排程 |
 | Iterative refinement | 「自修復學習閉環」 | 將環境回饋、錯誤記錄與自我驗證結果折疊為下次回合的修正脈絡 |
 | Action-space-as-code | 「以程式碼為動作空間」 | 模型直接輸出結構化函式程式碼，而非單一基礎指令，用以表達複雜長路徑行為 |

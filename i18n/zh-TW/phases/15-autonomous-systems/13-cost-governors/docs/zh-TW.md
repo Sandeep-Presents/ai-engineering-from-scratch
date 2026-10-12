@@ -50,7 +50,7 @@ Claude Code Agent SDK 在其公開文件中提供了以下控制參數：
 - `allowed_tools` / `disallowed_tools`——工具白名單與黑名單。
 - 工具執行前的掛鉤點（hook points），可供開發者實作自訂的成本核算邏輯。
 
-將這些機制與權限模式階梯（第 10 課）緊密結合。一個在未配置 `max_budget_usd` 的情況下運作的 `autoMode` 工作階段，屬於缺乏成本治理的自主運作。Anthropic 明確強調 Auto Mode 必須搭配預算管控；分類器模型本身並無法解決財務成本失控的問題。
+將這些機制與權限模式階梯（第 10 課）緊密結合。一個在未設定 `max_budget_usd` 的情況下運作的 `autoMode` 工作階段，屬於缺乏成本治理的自主運作。Anthropic 明確強調 Auto Mode 必須搭配預算管控；分類器模型本身並無法解決財務成本失控的問題。
 
 ### 歐盟 AI 法案與 OWASP Agentic Top 10
 

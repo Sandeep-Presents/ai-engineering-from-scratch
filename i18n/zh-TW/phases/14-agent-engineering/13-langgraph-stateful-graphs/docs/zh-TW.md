@@ -88,7 +88,7 @@ python3 code/main.py
 ## Use It｜實際應用
 
 - **LangGraph**：生產就緒的權威實作。可使用 `create_react_agent`、`create_supervisor`，或手動組裝專屬圖結構。
-- **AutoGen v0.4**（第 14 課）：高並發場景下的 Actor 模型替代方案。
+- **AutoGen v0.4**（第 14 課）：高併發場景下的 Actor 模型替代方案。
 - **Claude Agent SDK**（第 17 課）：內建工作階段儲存庫的全代管執行環境架構。
 - **自建狀態機**：適合需要對狀態資料結構或檢查點儲存後端實施精確控制的團隊。
 
@@ -111,7 +111,7 @@ python3 code/main.py
 | State graph | 「狀態圖」 | 強型別狀態 + 節點純函式 + 邊 + Reducers 所構成的狀態機體系 |
 | Checkpointer | 「檢查點儲存器」 | 在每個節點執行後自動序列化狀態的持久化後端；實現中斷復原的核心 |
 | Reducer | 「狀態合併器」 | 定義如何將節點回傳的增量更新與現有全域狀態相合併的純函式 |
-| Conditional edge | 「條件轉移邊」 | 依據當前狀態數值動態計算跳轉目標的條件轉移邊 |
+| Conditional edge | 「條件轉移邊」 | 依據當前狀態動態選擇的邊 |
 | Subgraph | 「巢狀子圖」 | 作為另一個外部圖之內部節點執行的完整獨立狀態圖 |
 | Durable execution | 「持久化執行」 | 在遭遇故障崩潰後，能精準自最後一個成功節點原樣復原執行 |
 | Supervisor | 「中央調度者」 | 負責指揮各領域專業子 agent 的中央路由器 LLM |

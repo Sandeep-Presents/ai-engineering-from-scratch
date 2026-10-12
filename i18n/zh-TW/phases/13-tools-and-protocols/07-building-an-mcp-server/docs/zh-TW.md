@@ -97,7 +97,7 @@ forget request-scoped metadata
 
 ### 工具（Tools）
 
-`tools/list` 回傳具備確定性排序的工具描述清單。穩定的排序規則能大幅提升中繼快取命中率，並維持模型上下文的高度一致性。該成果物件中同樣必須包含 `ttlMs` 與 `cacheScope`。
+`tools/list` 回傳具備確定性排序的工具描述清單。穩定的排序規則有助於回應快取，並維持模型上下文穩定。該成果物件中同樣必須包含 `ttlMs` 與 `cacheScope`。
 
 `tools/call` 執行工具並回傳內容區塊清單以及 `isError` 布林值。當協定封裝信封格式錯誤或方法引數不合法時，拋出標準 JSON-RPC 協定錯誤；而當呼叫本身合法、但工具內部業務邏輯執行失敗時，則回傳 `isError: true` 成果。
 
@@ -116,7 +116,7 @@ forget request-scoped metadata
 
 針對專屬於特定使用者的私有筆記資料，必須設定 `cacheScope: "private"`。共享快取層嚴禁跨授權邊界復用標註為私有的快取回應。
 
-現代架構中的變更推送已不再依賴 `resources/subscribe`。用戶端改為建立 `subscriptions/listen` 串流，並按需訂閱 `resourceSubscriptions` 或特定類別的清單變更事件。第 10 課將深入建構此工作流程。
+現代架構中的變更通知已不再依賴 `resources/subscribe`。用戶端改為建立 `subscriptions/listen` 串流，並按需訂閱 `resourceSubscriptions` 或特定類別的清單變更事件。第 10 課將深入建構此工作流程。
 
 ### Prompt 範本（Prompts）
 
@@ -139,7 +139,7 @@ def complete(payload):
 
 ### 嚴禁伺服器主動發起逆向請求
 
-現代伺服器可以發送與特定用戶端請求直接關聯的通知，亦可在用戶端開啟的 `subscriptions/listen` 串流上推送變更通知。但伺服器**絕不允許**自發發起獨立的逆向 JSON-RPC 請求。
+現代伺服器可以發送與特定用戶端請求直接關聯的通知，亦可在用戶端開啟的 `subscriptions/listen` 串流上傳送變更通知。但伺服器**絕不允許**自發發起獨立的逆向 JSON-RPC 請求。
 
 當處理常式需要進行大模型取樣、發起引導式詢問（Elicitation）或存取系統根目錄時，它會向用戶端回傳一個 `input_required` 成果。用戶端在本地完成對應的輸入採集後，使用全新的請求 ID 重新呼叫最初的方法。第 11 課將深入剖析這套多輪往返請求（Multi Round-Trip Request）模式。
 
@@ -169,7 +169,7 @@ python3 -m unittest discover tests -v
 npx tsx main.ts --demo
 ```
 
-展示常式將依序發送 `server/discover` 探測、列舉各項原語清單、發起工具呼叫，並觸發不支援版本時的標準錯誤處理。在日誌中確認：每一個現代請求皆重複攜帶中繼資料，且每一個成功回應皆完整包含伺服器識別資訊。
+展示常式將依序發送 `server/discover` 探測、列舉各項原語清單、發起工具呼叫，並觸發不支援版本時的標準錯誤處理。在紀錄中確認：每一個現代請求皆重複攜帶中繼資料，且每一個成功回應皆完整包含伺服器識別資訊。
 
 ## Ship It｜交付成果
 

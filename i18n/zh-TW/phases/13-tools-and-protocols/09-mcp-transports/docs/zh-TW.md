@@ -31,11 +31,11 @@ stdio 綁定專為用戶端在本機啟動的子行程通訊而設計：
 
 - 用戶端向 stdin 寫入以換行分隔的 UTF-8 JSON-RPC 訊息。
 - 伺服器向 stdout 寫入以換行分隔的 UTF-8 JSON-RPC 訊息。
-- 伺服器向 stderr 輸出內部診斷與排查日誌。
+- 伺服器向 stderr 輸出內部診斷與排查紀錄。
 - 當 stdin 遭遇 EOF 結尾時，伺服器必須迅速正常退出。
 - 每個現代請求皆必須在 `params._meta` 中獨立攜帶協定版本與能力宣告。
 
-雖然該子行程在作業系統層面可能持續存活並處理多次呼叫，但它絕不代表存在現代 MCP 協定層級的工作階段。若行程意外崩潰，所有進行中的請求皆會遺失。正確的應對是：重啟行程、重新探測服務、重新拉取工具清單、重新建立訂閱串流，並使用新的請求 ID 重試安全操作。
+雖然該子行程在作業系統層面可能持續存活並處理多次呼叫，但它絕不代表存在現代 MCP 協定層級的工作階段。若行程意外崩潰，所有進行中的請求皆會遺失。正確的應對是：重啟行程、重新探測服務、重新取得工具清單、重新建立訂閱串流，並使用新的請求 ID 重試安全操作。
 
 ### 2026-07-28 規範下的 Streamable HTTP
 
@@ -46,7 +46,7 @@ stdio 綁定專為用戶端在本機啟動的子行程通訊而設計：
 針對一個請求，伺服器回傳以下兩者之一：
 
 - `Content-Type: application/json`：直接封裝單一 JSON-RPC 回應；或
-- `Content-Type: text/event-stream`：先推送與該請求相關的即時進度通知，最後輸出最終的 JSON-RPC 回應。
+- `Content-Type: text/event-stream`：先傳送與該請求相關的即時進度通知，最後輸出最終的 JSON-RPC 回應。
 
 針對收到且被接受的單向通知，伺服器直接回傳狀態碼 `202 Accepted`，且不帶任何 Body 內文。
 
@@ -65,7 +65,7 @@ Accept: application/json, text/event-stream
 - 傳入的 `Mcp-Session-Id` 標頭會被完全忽略，伺服器絕不簽發亦不回傳該標頭。
 - 傳入的 `Last-Event-ID` 會被直接忽略，因為現代串流不再支援斷點續傳。
 
-若一個綁定於請求範疇的串流在產出最終回應前異常中斷，意味著該次請求已在傳輸途中遺失。若該操作具備冪等安全性，用戶端應派發全新的 JSON-RPC 請求 ID 發起重試，絕不可嘗試發起串流續傳。
+若一個綁定於請求範疇的串流在產出最終回應前異常中斷，意味著該次請求已在傳輸途中遺失。若判定重試安全，用戶端即可派發全新的 JSON-RPC 請求 ID 發起重試，絕不可嘗試發起串流續傳。
 
 ### Origin 來源校驗防禦
 
@@ -121,7 +121,7 @@ stream closes
 
 絕不要為重播目的附加 SSE 事件 ID。`Last-Event-ID` 斷點續傳在現代規範中已被徹底除名。
 
-### 長期變更推送全面採用 subscriptions/listen
+### 長期變更通知全面採用 subscriptions/listen
 
 變更通知必須透過用戶端主動發起的專屬長連線請求進行監聽，而非獨立的 GET 端點：
 
@@ -147,7 +147,7 @@ stream closes
 }
 ```
 
-該 POST 請求的回應為長期存活的 SSE 串流。其輸出的第一條協定訊息嚴格為 `notifications/subscriptions/acknowledged`。該確認訊息、後續的所有變更通知以及最終終態結果，其 `_meta` 中皆必須附帶 `io.modelcontextprotocol/subscriptionId`，其數值嚴格等於最初監聽請求的 ID。伺服器可定期發送 SSE 註解作為心跳保活封包（Keepalive）。一旦串流意外中斷，用戶端必須指派全新請求 ID 重新發起 `subscriptions/listen`，並主動拉取受影響的清單資料。
+該 POST 請求的回應為長期存活的 SSE 串流。其輸出的第一條協定訊息嚴格為 `notifications/subscriptions/acknowledged`。該確認訊息、後續的所有變更通知以及最終終態結果，其 `_meta` 中皆必須附帶 `io.modelcontextprotocol/subscriptionId`，其數值嚴格等於最初監聽請求的 ID。伺服器可定期發送 SSE 註解作為心跳保活封包（Keepalive）。一旦串流意外中斷，用戶端必須指派全新請求 ID 重新發起 `subscriptions/listen`，並主動取得受影響的清單資料。
 
 傳統的 `resources/subscribe` 與 `resources/unsubscribe` 屬於舊版時代，嚴禁在現代連線上呼叫。
 
@@ -222,7 +222,7 @@ python3 -m unittest discover tests -v
 | stdio | 以換行符號分隔的 JSON-RPC 傳輸協定，運作於用戶端啟動的子行程之上 |
 | Streamable HTTP | 單一入口端點協定；每一個現代訊息皆是一次全新的 HTTP POST 請求 |
 | Request-scoped SSE | 綁定於單一請求生命週期的 POST 回應事件串流，包含相關進度通知與最終回應 |
-| `subscriptions/listen` | 長期存活的 POST 監聽請求，用於接收主動訂閱的清單或資源變更事件推送 |
+| `subscriptions/listen` | 長期存活的 POST 監聽請求，用於接收主動訂閱的清單或資源變更事件通知 |
 | Header mismatch | 當 HTTP 同步標頭與 JSON-RPC 內文出現矛盾時回傳的 HTTP `400` 與 `-32020` 錯誤 |
 | Origin validation | 針對傳入連線實施的 DNS 重綁定防禦機制；僅是安全過濾，絕不能充當身分驗證 |
 | Explicit state handle | 在業務層作為常規引數傳遞的不透明業務狀態識別碼，取代黑箱的協定工作階段 |

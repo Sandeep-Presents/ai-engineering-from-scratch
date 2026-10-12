@@ -91,7 +91,7 @@ sequenceDiagram
 
 上述展示了標準的 HTTP+JSON 綁定路徑，且每一個請求標頭皆強制攜帶 `A2A-Version: 1.0`。在預設情況下，`SendMessage` 會持續阻塞直到任務達成終端狀態或被中斷，因此採用輪詢的用戶端會主動設定 `configuration.returnImmediately` 以便在第一時間立即取得建立的任務物件。
 
-若採用串流機制：向 `POST /message:stream` 發起請求即可建立 Server-Sent Events（SSE）串流（首先推送 `task` 本體，隨後持續推播 `statusUpdate` 與 `artifactUpdate` 事件），並支援透過 `/tasks/{id}:subscribe` 重新掛載至正在運作中的長任務。一旦任務抵達終端狀態，串流便會自然關閉；協定本身並不存在額外的 `final` 標記。
+若採用串流機制：向 `POST /message:stream` 發起請求即可建立 Server-Sent Events（SSE）串流（首先送出 `task` 本體，隨後持續推播 `statusUpdate` 與 `artifactUpdate` 事件），並支援透過 `/tasks/{id}:subscribe` 重新掛載至正在運作中的長任務。一旦任務抵達終端狀態，串流便會自然關閉；協定本身並不存在額外的 `final` 標記。
 
 ### 身分驗證架構
 
@@ -176,7 +176,7 @@ python3 code/main.py
 
 1. 執行 `code/main.py`。確認用戶端能否順利發現伺服器端點，並驗收正確交付的工件。
 2. 為伺服器追加第二項專長技能（例如「文本摘要 summarize」）。更新其 Agent Card。撰寫一個能依據任務類型自動挑選技能的用戶端。注意：1.0 請求中並無單獨的 skill 欄位，因此伺服器端必須依據訊息內容進行路由分發。
-3. 實作 `POST /message:stream` 串流端點：以 Server-Sent Events（先推送 `task` 結構，隨後持續推播 `statusUpdate` 事件）進行回應，並在任務抵達終端狀態時優雅關閉串流。思考用戶端在處理串流時需要做出哪些架構調整？
+3. 實作 `POST /message:stream` 串流端點：以 Server-Sent Events（先送出 `task` 結構，隨後持續推播 `statusUpdate` 事件）進行回應，並在任務抵達終端狀態時優雅關閉串流。思考用戶端在處理串流時需要做出哪些架構調整？
 4. 閱讀 A2A 官方完整規範 (https://a2a-protocol.org/latest/specification/)。指出三項官方規格強制要求、但本玩具展示程式刻意簡化省略的具體協定特性。
 5. 橫向對比 A2A（透過 Agent Card 進行服務發現）與 MCP（透過 `listTools` 進行伺服器端能力探測）。在架構設計上，「自描述型 Agent」與「主動探測型能力發現」各自伴隨著何種深刻的取捨平衡？
 

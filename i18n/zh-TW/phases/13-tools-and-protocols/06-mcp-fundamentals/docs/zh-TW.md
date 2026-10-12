@@ -37,10 +37,10 @@ MCP `2026-07-28` 消除了這項歧義。協定核心是無狀態（Stateless）
 MCP 伺服器對外公開三大核心原語：
 
 1. **工具（Tools）**：由模型決策是否呼叫的動作，透過 `tools/list` 探測發現，透過 `tools/call` 發起執行。
-2. **資源（Resources）**：以 URI 唯一定位的唯讀資料資產，透過 `resources/list` 探測發現，透過 `resources/read` 檢索讀取。
+2. **資源（Resources）**：以 URI 定址的資料，透過 `resources/list` 探測發現，透過 `resources/read` 檢索讀取。
 3. **Prompt 範本（Prompts）**：可重複使用的結構化 prompt 範本，透過 `prompts/list` 探測發現，透過 `prompts/get` 進行實例化彩現。
 
-請注意：Roots、sampling 與 logging 在 `2026-07-28` 規範中為相容性而保留，但已棄用。新系統在架構設計時，應將根目錄作為顯式的工具或資源引數傳入、直接呼叫模型服務供應商的原生 API 進行文字取樣，並透過 stderr 或 OpenTelemetry 記錄日誌。引導式互動（Elicitation）仍可透過多輪往返請求（Multi Round-Trip Requests）進行：由伺服器回傳輸入請求，並由用戶端重試最初的操作。現代伺服器絕不可自主發起獨立的逆向 JSON-RPC 請求。
+請注意：Roots、sampling 與 logging 在 `2026-07-28` 規範中為相容性而保留，但已棄用。新系統在架構設計時，應將根目錄作為顯式的工具或資源引數傳入、直接呼叫模型服務供應商的原生 API 執行 Sampling，並透過 stderr 或 OpenTelemetry 將資訊寫入紀錄。引導式互動（Elicitation）仍可透過多輪往返請求（Multi Round-Trip Requests）進行：由伺服器回傳輸入請求，並由用戶端重試最初的操作。現代伺服器絕不可自主發起獨立的逆向 JSON-RPC 請求。
 
 ### JSON-RPC 封裝信封
 
@@ -140,7 +140,7 @@ MCP 嚴格遵循標準的 JSON-RPC 2.0 規範：
 8. 回傳包含伺服器識別資訊的完整成果物件。
 9. 徹底遺忘該請求所屬的協定層級中繼資料，不留任何連線記憶。
 
-嚴格遵守上述順序，能杜絕多個元件對同一個呼叫產生語義理解歧義（例如，閘道器不得授權 `Mcp-Name: notes.read`，但來源伺服器卻執行 `params.name: notes.delete`）。它同時確保了畸形輸入、標頭混淆、版本協商、能力不足、授權錯誤與業務錯誤在日誌中具備涇渭分明的審計證據。
+嚴格遵守上述順序，能杜絕多個元件對同一個呼叫產生語義理解歧義（例如，閘道器不得授權 `Mcp-Name: notes.read`，但來源伺服器卻執行 `params.name: notes.delete`）。它同時確保了畸形輸入、標頭混淆、版本協商、能力不足、授權錯誤與業務錯誤在紀錄中具備清楚區分的審計證據。
 
 關閉 stdin 或結束 HTTP 回應僅代表傳輸層活動的終止。它絕不代表協定工作階段的銷毀，因為現代 MCP 根本不存在工作階段。
 
@@ -167,7 +167,7 @@ python3 code/main.py
 python3 -m unittest discover code/tests -v
 ```
 
-在輸出日誌中親身驗證三大核心不變量：
+在輸出紀錄中親自驗證三大核心不變量：
 
 - 每一個送出的獨立請求，皆嚴格重複攜帶自身的 `_meta` 欄位。
 - 每一筆成功的回應，皆明確標註 `resultType: "complete"` 並附帶伺服器識別資訊。

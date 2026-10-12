@@ -54,7 +54,7 @@ Python SDK 近期新增了 `list_subagents()` 與 `get_subagent_messages()` 介�
 
 支援註冊的關鍵生命週期掛鉤：
 
-- `PreToolUse`、`PostToolUse`：在工具呼叫前後進行安全審批卡點或審計日誌記錄；
+- `PreToolUse`、`PostToolUse`：在工具呼叫前後進行安全審批卡點或稽核記錄；
 - `SessionStart`、`SessionEnd`：環境初始化與資源善後清理；
 - `UserPromptSubmit`：在模型看到使用者輸入前，預先實施過濾或安全檢查；
 - `PreCompact`：在對話脈絡觸發自動壓縮前執行；
@@ -97,7 +97,7 @@ ae-subagent-isolation
 python3 code/main.py
 ```
 
-日誌會展示：子 agent 的脈絡隔離（主協調者的上下文大小維持在可控邊界內）、鉤子的即時執行，以及工作階段的持久化。
+追蹤記錄會呈現：子 agent 的脈絡隔離（主協調者的上下文大小維持在可控邊界內）、鉤子的即時執行，以及工作階段的持久化。
 
 ## Use It｜實際應用
 

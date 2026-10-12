@@ -138,7 +138,7 @@ tp-schema-routing
 
 ## Ship It｜交付成果
 
-本課產出 `outputs/skill-tool-schema-linter.md`。給定任意工具註冊表定義，該審查技能將全面對照本課設計規範進行自動化靜態審計，並產出包含嚴重程度與具體改寫建議的修復清單。可無縫整合進 GitHub Actions CI 自動化閘門。
+本課產出 `outputs/skill-tool-schema-linter.md`。給定任意工具註冊表定義，該審查技能將全面對照本課設計規範進行自動化靜態審計，並產出包含嚴重程度與具體改寫建議的修復清單。可在 CI 中執行。
 
 ## Exercises｜練習
 

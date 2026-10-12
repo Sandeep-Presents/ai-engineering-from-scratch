@@ -20,9 +20,9 @@
 
 **OpenAI Chat Completions / Responses API**：傳入 `tools: [{type: "function", function: {name, description, parameters, strict}}]`。模型回傳的回應包含 `choices[0].message.tool_calls: [{id, type: "function", function: {name, arguments}}]`，其中 `arguments` 是一個你必須自行手動解析的字串化 JSON。嚴格模式（`strict: true`）透過語法受限解碼強制確保引數絕對符合結構描述規範。
 
-**Anthropic Messages API**：傳入 `tools: [{name, description, input_schema}]`。模型回傳的結果封裝為 `content: [{type: "text"}, {type: "tool_use", id, name, input}]`。注意其 `input` 已經由官方 SDK 解析為現成物件（而非未解析的純字串）。你必須以一條全新的 `user` 訊息回覆，內部包裹 `{type: "tool_result", tool_use_id, content}` 專屬區塊。
+**Anthropic Messages API**：傳入 `tools: [{name, description, input_schema}]`。模型回傳的結果封裝為 `content: [{type: "text"}, {type: "tool_use", id, name, input}]`。注意其 `input` 已經解析為物件（而非字串）。你必須以一條全新的 `user` 訊息回覆，內部包裹 `{type: "tool_result", tool_use_id, content}` 專屬區塊。
 
-**Google Gemini API**：傳入 `tools: [{functionDeclarations: [{name, description, parameters}]}]`（深層巢狀於 `functionDeclarations` 清單中）。模型回應包裝於 `candidates[0].content.parts: [{functionCall: {name, args, id}}]` 中，在 Gemini 3 以上版本中此 `id` 具備全域唯一性以支援並行呼叫關聯。你必須回傳 `{functionResponse: {name, id, response}}` 物件。
+**Google Gemini API**：傳入 `tools: [{functionDeclarations: [{name, description, parameters}]}]`（深層巢狀於 `functionDeclarations` 清單中）。模型回應包裝於 `candidates[0].content.parts: [{functionCall: {name, args, id}}]` 中，此 `id` 在 Gemini 3 及後續版本中具唯一性，可用於關聯平行呼叫。你必須回傳 `{functionResponse: {name, id, response}}` 物件。
 
 底層是完全相同的四步迴圈；外表卻是截然不同的欄位名稱、相異的巢狀深度、字串 vs 物件的處理慣例、以及相異的關聯追蹤機制。一個在 OpenAI 上跑通的天氣 Agent，若想移植至 Anthropic 與 Gemini，團隊光是處理格式，就得花兩天移植到 Anthropic，再花一天移植到 Gemini。
 

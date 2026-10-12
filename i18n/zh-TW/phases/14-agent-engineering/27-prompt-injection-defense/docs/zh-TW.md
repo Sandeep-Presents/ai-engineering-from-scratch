@@ -30,7 +30,7 @@
 - 一旦 Agent 讀取該資料，文字內部夾帶的指令便會篡奪並覆蓋開發者原本定義的系統 Prompt；
 - 論文在 Bing Chat、GPT-4 程式碼補全與各類合成 Agent 上實證驗證了五大攻擊手法：
   - **資料竊取（Data theft）**：Agent 自主將過往敏感對話歷史外洩發送至攻擊者掌控的外部 URL；
-  - **蠕蟲擴散（Worming）**：注入內容指示 Agent 在下一次輸出中強制夾帶該攻擊程式碼，實現自我複製傳播；
+  - **蠕蟲擴散（Worming）**：注入內容指示 Agent 在下一次輸出中強制夾帶該攻擊程式碼，達成自我複製傳播；
   - **持久化記憶投毒（Persistent memory poisoning）**：Agent 將攻擊者指令存入持久化記憶庫中，使自己在未來的對話工作階段中反覆持續中毒；
   - **資訊生態污染（Information ecosystem contamination）**：被注入的事實透過共享記憶擴散至其他 Agent；
   - **任意工具呼叫（Arbitrary tool use）**：註冊表中的任何工具都可能被攻擊者觸及。
@@ -46,7 +46,7 @@
 3. **逐步驟安全檢驗（Per-step safety evaluation）**：採用 Gemini 2.5 Computer Use 模式——在每個動作執行前獨立實施安全審查。
 4. **工具輸入與輸出端配置安全護欄（Guardrails）**：參見第 16 課（OpenAI Agents SDK 護欄）與第 06 課（參數嚴格驗證）。
 5. **關鍵敏感操作強制引入人工確認（Human-in-the-loop）**：帳號登入、付款結帳、驗證碼、對外發布訊息——必須由人類做最終決策。
-6. **內容與追蹤分離儲存（Content capture with external storage）**：參見第 23 課——將檢索到的文字內容安全儲存於外部，Span 中僅記錄 ID 參照，確保事故完整可審計且不污染日誌。
+6. **內容與追蹤分離儲存（Content capture with external storage）**：參見第 23 課——將檢索到的文字內容安全儲存於外部，Span 中僅記錄 ID 參照，確保事故完整可稽核且不污染記錄。
 
 ### PVE 防禦架構：Prompt-Validator-Executor
 
@@ -83,7 +83,7 @@ injection-hijack
 python3 code/main.py
 ```
 
-日誌會逐次展示每個呼叫的驗證器裁決與執行器的對應行為。
+逐次呈現呼叫追蹤記錄中的驗證器裁決與執行器的對應行為。
 
 ## Use It｜實際應用
 

@@ -275,7 +275,7 @@ data: {"statusUpdate":{"taskId":"task-123","contextId":"ctx-123","status":{"stat
 **當前狀態：** 正在併入 Linux 基金會旗下的 A2A 計畫
 **核心難題：** Agent 該如何在具備完整可稽核性、工作階段連續性與軌跡追蹤的前提下展開通訊？
 
-ACP 是一套專為**企業級環境**量身打造的通訊協定。不同於許多二手摘要的錯誤宣稱，ACP **並未**採用 JSON-LD。它是一套透過 OpenAPI 規格所定義的標準 REST/JSON API。其最具特色的核心亮點在於 **TrajectoryMetadata**：agent 回傳的每一項回應皆可攜帶一份詳盡的日誌，完整記錄產出該結果所經歷的所有推理步驟與工具呼叫。
+ACP 是一套專為**企業級環境**量身打造的通訊協定。不同於許多二手摘要的錯誤宣稱，ACP **並未**採用 JSON-LD。它是一套透過 OpenAPI 規格所定義的標準 REST/JSON API。其最具特色的核心亮點在於 **TrajectoryMetadata**：agent 回傳的每一項回應皆可攜帶一份詳盡的紀錄，完整記錄產出該結果所經歷的所有推理步驟與工具呼叫。
 ```mermaid
 sequenceDiagram
     participant Client
@@ -1393,7 +1393,7 @@ protocolDemo().catch((err) => {
   process.exitCode = 1;
 });
 ```
-## 常見問題
+## 失效情境
 
 通訊協定能順利處理正常路徑（happy path）。以下梳理在正式環境中必然面臨的真實挑戰：
 
@@ -1405,11 +1405,11 @@ protocolDemo().catch((err) => {
 
 **軌跡膨脹（Trajectory bloat）。** ACP 的軌跡記錄極具威力，但也代價昂貴。一個複雜的 agent 若在單次執行中呼叫了 200 次工具，將產生極為龐大的稽核紀錄。解法：支援可配置詳細等級的軌跡記錄。針對合規需求記錄工具名稱與 I/O，針對非監管業務則可略過細節推理步驟。
 
-**服務發現驚群效應（Discovery thundering herd）。** 50 個 agent 在開機啟動時同時發起 `GET /agents` 查詢。解法：為 Agent Card 配置具備 TTL 的快取機制、錯開各 agent 的發現時間間隔，或採用基於事件推送的註冊機制替代主動輪詢。
+**服務發現驚群效應（Discovery thundering herd）。** 50 個 agent 在開機啟動時同時發起 `GET /agents` 查詢。解法：為 Agent Card 配置具備 TTL 的快取機制、錯開各 agent 的發現時間間隔，或採用基於事件通知的註冊機制替代主動輪詢。
 
 ## Use It｜實際應用
 
-### 真實工業級實作
+### 實際實作
 
 **A2A** 是當前最為成熟的方案。Google 的[官方規範](https://github.com/google/A2A)已在 Linux 基金會下開源。提供完善的 Python 與 TypeScript SDK。若你的 agent 需要動態發現與任務協同，請以此為首選起點。
 

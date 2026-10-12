@@ -110,7 +110,7 @@ sw-debate-topology
 - `run_tree(root, children, question)`——具備深度 2 層聚合的階層式架構。
 - `run_graph(agents, question, rounds)`——全連通的對等網路辯論，支援輪次上限。
 - 一個腳本化的異質性旋鈕：每個 Agent 都有 `error_bias`，表示其系統性錯誤。
-- 一套測量框架：在 N=3、5、7 下執行各拓撲，回報 (accuracy, total_tokens, wallclock_simulated)。
+- 一套測量框架：在 N=3、5、7 下執行各拓撲，回報 (accuracy, total_tokens, 模擬掛鐘時間)。
 
 執行指令：
 
@@ -118,7 +118,7 @@ sw-debate-topology
 python3 code/main.py
 ```
 
-預期輸出：一張拓撲 × N → (準確率, token 數, 延遲) 的表格。在研究型任務上，圖狀拓撲於 N=3–5 時表現最好；在快速事實任務上，星狀拓撲表現最好；圖狀拓撲在 N=7 時會出現協同稅（延遲的增長快於準確率）。
+預期輸出：一張拓撲 × N → (準確率, token 數, 模擬掛鐘時間) 的表格。在研究型任務上，圖狀拓撲於 N=3–5 時表現最好；在快速事實任務上，星狀拓撲表現最好；圖狀拓撲在 N=7 時會出現協同稅（模擬掛鐘時間的增長快於準確率）。
 
 ## Use It｜實際應用
 

@@ -168,11 +168,11 @@ tags: [mcp, capstone, ecosystem, architecture, a2a, otel]
 
 | 架構層級 | `code/main.py` 實作方式 | 正式環境替換方案 | 所需的驗證證據 |
 |---|---|---|---|
-| 服務探索 | `server_discover()` 搭配靜態 `TOOLS` | 先呼叫 `server/discover`，再呼叫具備快取的 `tools/list` | 線路傳輸日誌、確定性排序與 Schema 結構校驗 |
+| 服務探索 | `server_discover()` 搭配靜態 `TOOLS` | 先呼叫 `server/discover`，再呼叫具備快取的 `tools/list` | 線路傳輸紀錄、確定性排序與 Schema 結構校驗 |
 | 身分驗證 | 以 Token 為鍵值的靜態字典 | OAuth 授權與受保護資源驗證 | 簽發者、受眾、權限範圍、過期時間與各類失敗測試 |
 | 授權治理 | 權限範圍集合包含性比對 | 綁定操作者、工具、目標資源與租戶的閘道器策略 | 允許與拒絕的完整審計測試案例 |
 | 論文檢索 | 寫死的靜態論文測試資料 | 真實的搜尋 API 或遠端 MCP 伺服器 | 來源真實性依據、相關性排序與網路異常測試 |
-| 長時間任務 | 本地 Handle 搭配即時的 `tasks/get` | 持久化 `io.modelcontextprotocol/tasks` 儲存，支援 `tasks/get`、`tasks/update`、`tasks/cancel` 與 TTL | 狀態機轉移、中途輸入、任務取消與崩潰恢復測試 |
+| 長時間任務 | 本地 Handle 搭配即時的 `tasks/get` | 持久化 `io.modelcontextprotocol/tasks` 儲存，支援 `tasks/get`、`tasks/update`、`tasks/cancel` 與 TTL | 狀態機轉移、中途輸入、任務取消與崩潰後復原測試 |
 | 任務委派 | 人工暫停搭配巢狀 span | A2A 用戶端與遠端 Agent Card | 契約結構、逾時中斷、失敗重試與不透明黑箱測試 |
 | 前端 App | 靜態 HTML 字串與 URI | MCP Apps 資源與 `App` 通訊橋接 | CSP 策略、權限授權、工具呼叫與瀏覽器實測 |
 | 遙測追蹤 | 記憶體內部串列儲存 | OTel SDK 與匯出器 | 收集器成功接收回執與 traceparent 脈絡斷言 |
@@ -222,7 +222,7 @@ python3 code/main.py
 
 1. 將 `server_discover()` 與靜態工具清單替換為真實的 `server/discover` 與 `tools/list` 網路呼叫。在每個請求中傳遞版本、身分與能力。
 2. 將靜態 Token 替換為標準授權伺服器與受保護資源校驗器。
-3. 實作標準的 `io.modelcontextprotocol/tasks` 擴充功能，並撰寫測試驗證 `tasks/get`、`tasks/update`、`tasks/cancel`、逾時中斷、TTL 與重啟恢復。切勿擅自新增已廢棄的 `tasks/result` 或 `tasks/list`。
+3. 實作標準的 `io.modelcontextprotocol/tasks` 擴充功能，並撰寫測試驗證 `tasks/get`、`tasks/update`、`tasks/cancel`、逾時中斷、TTL 與重新啟動後復原。切勿擅自新增已廢棄的 `tasks/result` 或 `tasks/list`。
 4. 將委派 stub 替換為真實解析 Agent Card 並發送訊息的 A2A 用戶端。
 5. 運用官方 SDK 打造前端 App，並透過 `app.callServerTool` 呼叫伺服器端工具。
 6. 將 spans 匯出至測試收集器，並在接收端嚴格斷言父子層級脈絡。
@@ -256,7 +256,7 @@ python3 code/main.py
 | Tasks extension | 「長效工具呼叫」 | 具備持久化身分、輪詢、用戶端輸入、最終產物與取消語義的選用性 `io.modelcontextprotocol/tasks` 生命週期 |
 | Opacity boundary | 「由另一個 Agent 全權處理」 | 呼叫端僅能觀察到公開介面與產物，無法窺探其私有推論與內部狀態 |
 | Runtime adapter | 「Skill 整合橋樑」 | 將可移植程式指引對映至探索、呼叫、工具、策略與脈絡的宿主端程式碼 |
-| Integration evidence | 「測試通過」 | 能證明實際系統邊界已被跨越的傳輸日誌、產物或接收端觀測證據 |
+| Integration evidence | 「測試通過」 | 能證明實際系統邊界已被跨越的傳輸紀錄、產物或接收端觀測證據 |
 
 ## Further Reading｜延伸閱讀
 

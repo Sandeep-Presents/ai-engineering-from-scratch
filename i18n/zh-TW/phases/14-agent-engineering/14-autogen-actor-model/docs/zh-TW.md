@@ -11,7 +11,7 @@
 
 - 深入描述 Actor 模型：Agent 作為獨立 Actor、訊息作為唯一的行程間通訊（IPC）途徑、各 Actor 具備完全獨立的故障隔離邊界。
 - 指出 AutoGen v0.4 的三大 API 架構層——Core（核心層）、AgentChat（聊天層）、Extensions（擴充層）及其各自職責。
-- 闡明為何將「訊息投遞」與「訊息處理」解耦能帶來天然的高並發能力與系統容錯性。
+- 闡明為何將「訊息投遞」與「訊息處理」解耦能帶來天然的高併發能力與系統容錯性。
 - 以純 Python 標準函式庫實作極簡的 Actor 執行環境，並在其上執行一套雙 Agent 程式碼審查協同流程。
 
 ## The Problem｜問題
@@ -45,7 +45,7 @@ AutoGen v0.4 將介面清晰劃分為三層：
 在 v0.2 的舊模型中，呼叫 `agent_a.chat(agent_b)` 會同步阻塞 agent_a，直到 agent_b 執行完畢回傳。而在 v0.4 中，`send(agent_b, msg)` 僅將訊息放入 agent_b 的收件匣並立刻返回，由執行環境在背景非同步分派處理。這帶來了三項結果：
 
 - **故障隔離（Fault isolation）**：Agent B 崩潰不會拖垮 Agent A——執行環境會捕獲 B 的例外錯誤，並自主決定是重試、寫入記錄還是轉入死信佇列（Dead-letter Queue）。
-- **天然高並發（Natural concurrency）**：同時有多筆訊息在傳輸中；各 Actor 獨立並行消化自身的收件匣。
+- **天然高併發（Natural concurrency）**：同時有多筆訊息在傳輸中；各 Actor 獨立並行消化自身的收件匣。
 - **天然的分散式擴展性（Distribution-ready）**：無論 Actor 是位於同一行程內，還是部署在跨網路的另一台伺服器上，收件匣 + 傳輸層的抽象完全保持一致。
 
 ### 常見編排拓撲
@@ -88,7 +88,7 @@ python3 code/main.py
 - **AutoGen v0.4 / v0.7（維護模式）**：適合學術研究、原型驗證與多 Agent 模式探索。
 - **Microsoft Agent Framework**：正式環境的生產級繼任者（2025 年 10 月預覽）；在全新 API 介面下貫徹相同的 Actor 模型思想。
 - **LangGraph Swarm 拓撲**（第 13 課）：透過共享工具控制權交接實作的類似對等架構。
-- **自建 Actor 執行環境**：適合需要對特定訊息中介層（如 NATS、RabbitMQ、gRPC）實施精確控制的團隊。
+- **自建 Actor 執行環境**：適合需要對特定傳輸技術（如 NATS、RabbitMQ、gRPC）實施精確控制的團隊。
 
 ## Ship It｜交付成果
 
@@ -98,7 +98,7 @@ python3 code/main.py
 
 1. 為系統新增死信佇列（Dead-letter Queue，DLQ）：當處理常式拋出例外時，將故障訊息暫存供人工排查。在此教學模型中，DLQ 被觸發的頻率如何？
 2. 實作 `SelectorGroupChat`：由專門的選擇器 Actor 依據對話狀態動態決定由誰處理下一則訊息。
-3. 實作分散式傳輸層：將記憶體內部的佇列替換為基於 HTTP 的 JSON 通訊伺服器，使各 Actor 能跨不同獨立行程執行。
+3. 實作分散式傳輸層：將同一行程內的佇列替換為基於 HTTP 的 JSON 通訊伺服器，使各 Actor 能跨不同獨立行程執行。
 4. 為每則訊息綁定 OTel Span（或以空操作替身代替）。遵循第 23 課標準發射 `gen_ai.agent.name` 與 `gen_ai.operation.name` 屬性。
 5. 研讀 AutoGen v0.4 官方架構設計文章。將本課的教學實作移植為使用真實的 `autogen_core` API。思考在正式環境中你省略了哪些關鍵細節？
 
@@ -106,9 +106,9 @@ python3 code/main.py
 
 | 術語 | 常見俗稱 | 實際工程意義 |
 |---|---|---|
-| Actor | 「智慧個體」 | 私有狀態 + 收件匣 + 處理常式；彼此完全不共享記憶體 |
+| Actor | 「Agent」 | 私有狀態 + 收件匣 + 處理常式；彼此完全不共享記憶體 |
 | Message | 「通訊事件」 | 強型別酬載；Actor 之間互動協同的唯一途徑 |
-| Inbox | 「郵箱佇列」 | 每個 Actor 專屬的待處理訊息佇列 |
+| Inbox | 「收件匣」 | 每個 Actor 專屬的待處理訊息佇列 |
 | Runtime | 「Agent 執行環境」 | 負責路由轉發訊息並隔離各類異常的事件迴圈 |
 | Topic | 「發布訂閱主題」 | Actor 之間具備名稱的發布—訂閱廣播路由通道 |
 | Fault isolation | 「任其崩潰」 | 單一 Actor 發生崩潰被限制在其內部，不影響其他 Actor |

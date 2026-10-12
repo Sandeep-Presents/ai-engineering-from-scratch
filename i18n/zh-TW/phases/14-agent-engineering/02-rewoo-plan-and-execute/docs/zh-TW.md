@@ -1,6 +1,6 @@
 # ReWOO 與 Plan-and-Execute：解耦規劃架構
 
-> ReAct 在單一資料流中將思考與行動交替穿插；而 ReWOO 則將兩者徹底解耦：先完整規劃，再執行；證據取得可平行。此設計節省了 5 倍的 Token 消耗、在 HotpotQA 上提升了 4% 的準確率，並允許將規劃能力蒸餾至 7B 輕量模型中。Plan-and-Execute 將其通用化，而 Plan-and-Act 則將此模式擴展至複雜的長路徑網頁導航任務。
+> ReAct 在單一資料流中將思考與行動交替穿插；而 ReWOO 則將兩者徹底解耦：先完整規劃，再執行。此設計節省了 5 倍的 Token 消耗、在 HotpotQA 上提升了 4% 的準確率，並允許將規劃能力蒸餾至 7B 輕量模型中。Plan-and-Execute 將其通用化，而 Plan-and-Act 則將此模式擴展至複雜的長路徑網頁導航任務。
 
 **Type:** Build
 **Languages:** Python (stdlib)
@@ -52,7 +52,7 @@ LangChain 團隊於 2023 年 8 月將 ReWOO 的核心理念提煉並定名為 Pl
 
 ### Plan-and-Act 範式（Erdogan 等人，arXiv:2503.09572，ICML 2025）
 
-Plan-and-Act 將該模式進一步推向長路徑的網頁與行動端 agent。其核心貢獻在於引入了合成規劃資料（Synthetic plan data）：利用標註軌跡產生器，主動產出帶有顯式規劃的訓練資料。這用於調校各類規劃器模型，使其在類似 WebArena 等超過 30 至 50 步的超長任務中依然能保持思維內聚力，而單一 ReAct 軌跡在這類長任務中容易失去連貫性。
+Plan-and-Act 將該模式進一步推向長路徑的網頁與行動端 agent。其核心貢獻在於引入了合成規劃資料（Synthetic plan data）：利用標註軌跡產生器，主動產出帶有顯式規劃的訓練資料。這用於調校各類規劃器模型，使其在類似 WebArena 等超過 30–50 步的超長任務中依然能保持思維內聚力，而單一 ReAct 軌跡在這類長任務中容易失去連貫性。
 
 ### 架構選型決策標準
 

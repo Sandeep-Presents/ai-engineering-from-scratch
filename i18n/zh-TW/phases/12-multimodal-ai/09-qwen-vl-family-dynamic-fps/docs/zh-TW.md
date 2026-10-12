@@ -1,6 +1,6 @@
 # Qwen-VL 家族與動態 FPS 影片理解（Qwen-VL Family and Dynamic-FPS Video）
 
-> Qwen-VL 家族——Qwen-VL（2023）、Qwen2-VL（2024）、Qwen2.5-VL（2025）、Qwen3-VL（2025）——堪稱 2026 年最具影響力的開源視覺語言模型體系。每一代模型皆做出了一項決定性的架構押注，並在十二個月內引發整個開源生態爭相效仿：藉由 M-RoPE 實現原生動態解析度、具備絕對時間對齊的動態 FPS 取樣、ViT 內部的視窗注意力（window attention），以及結構化的 Agent 工具輸出格式。到了 Qwen3-VL，這套工程配方已徹底臻於成熟：具備 2D-RoPE 的 ViT 編碼器接收原生長寬比輸入、雙層 MLP 投影器銜接強大的 Qwen3 語言大腦，並在訓練階段將 OCR、視覺定位（grounding）與 Agent 行為作為一等公民重點打造。本課按時間順序為你梳理整個家族演進，助你深刻理解為何各個關鍵參數皆定格於今日位置。
+> Qwen-VL 家族——Qwen-VL（2023）、Qwen2-VL（2024）、Qwen2.5-VL（2025）、Qwen3-VL（2025）——堪稱 2026 年最具影響力的開源視覺語言模型體系。每一代模型皆做出了一項決定性的架構押注，並在十二個月內引發整個開源生態爭相效仿：藉由 M-RoPE 實現原生動態解析度、具備絕對時間對齊的動態 FPS 取樣、ViT 內部的視窗注意力（window attention），以及結構化的 Agent 工具輸出格式。到了 Qwen3-VL，這套工程配方已徹底臻於成熟：具備 2D-RoPE 的 ViT 編碼器接收原生長寬比輸入、雙層 MLP 投影器銜接強大的 Qwen3 語言大腦，並在訓練階段將 OCR、視覺定位（grounding）與 Agent 行為作為一等公民重點打造。本課按時間順序為你梳理整個家族演進，說明各項設計選擇的由來。
 
 **Type:** Learn
 **Languages:** Python (stdlib, M-RoPE encoder + dynamic-FPS sampler)

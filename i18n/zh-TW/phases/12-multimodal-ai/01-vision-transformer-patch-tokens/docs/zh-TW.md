@@ -1,4 +1,4 @@
-# 視覺 Transformer 與 Patch-Token 原語（Vision Transformers and the Patch-Token Primitive）
+# 視覺 Transformer 與 Patch-token 基本單位（Vision Transformers and the Patch-Token Primitive）
 
 > 在進行任何多模態（multimodal）處理之前，影像必須先轉化為 Transformer 能處理的 token 序列。2020 年的 ViT 論文以 16×16 像素 patch、線性投影以及 position embedding 解答了這個問題。五年過去，在 2026 年的每個尖端模型（例如具備 2576px 原生解析度的 Claude Opus 4.7、Gemini 3.1 Pro、Qwen3.5-Omni）依然以這種方式啟動——編碼器雖已從 ViT 演進至 DINOv2 再到 SigLIP 2，並引入了暫存器 token，位置編碼機制也進化為 2D-RoPE，但這個底層原語依然屹立不搖。本課帶你端到端剖析 patch-token 管線，並以純 Python 標準函式庫實作，為 Phase 12 後續課程建立堅實具體的「視覺 token」心智模型。
 
@@ -49,7 +49,7 @@ Patch 本身不具備任何固有順序——在 Transformer 眼中它們只是�
 
 1. `[CLS]` token。在 patch 序列開頭前綴一個可學習向量。在通過所有 Transformer 區塊後，CLS token 的隱藏狀態即代表整張影像。此設計承襲自 BERT，為原創 ViT 與 CLIP 所採用。
 2. 平均池化（Mean pool）。將所有 patch token 的輸出隱藏狀態取平均。SigLIP、DINOv2 及多數現代 VLM 採用此方案。
-3. 暫存器 token（Register tokens）。Darcet 等人（2023）觀察到，若 ViT 在訓練時缺乏顯式的彙整接收 token，會自發在背景 patch 上形成高範數（high-norm）的「假影」異常點，進而干擾自注意力機制。額外引入 4 到 16 個可學習的暫存器 token 能夠吸收這些冗餘負荷，顯著提升密集預測（如分割、深度估計）的品質。DINOv2 與 SigLIP 2 皆原生內建暫存器機制。
+3. 暫存器 token（Register tokens）。Darcet 等人（2023）觀察到，若 ViT 在訓練時缺乏顯式的彙整接收 token，會自發形成高範數（high-norm）的「假影」patch，進而干擾自注意力機制。額外引入 4 到 16 個可學習的暫存器 token 能夠吸收這些冗餘負荷，顯著提升密集預測（如分割、深度估計）的品質。DINOv2 與 SigLIP 2 皆原生內建暫存器機制。
 
 這項抉擇對下游任務影響深遠。CLS 適用於單純分類；但對於需要將 patch token 餵入 LLM 的 VLM 而言，完全無需進行影像層級的池化——每個 patch 都會直接轉化為 LLM 的輸入 token。而暫存器 token 則會在交付給 LLM 之前被安全剔除（它們只是鷹架，並非實際內容）。
 

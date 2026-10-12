@@ -88,7 +88,7 @@ arXiv:2402.05863 提供了標準的談判基準。主要發現：
 4. 管理者依任務性質選出一或多位獲勝者，並發出授予通知。
 5. 落選的工作者可自由競標其他任務。
 
-這種架構可以擴展到 100 個以上的工作者，因為協調是「廣播並回應」，而非同步的聊天。正式環境中，Microsoft Agent Framework 的編排（orchestration）模式與部分 LangGraph 實作採用了這種做法。
+這種架構可以擴展到 100 個以上的工作者，因為協同方式是「廣播並回應」，而非同步的聊天。正式環境中，Microsoft Agent Framework 的編排（orchestration）模式與部分 LangGraph 實作採用了這種做法。
 
 ### LLM 利害關係人互動協商（NeurIPS 2024）
 

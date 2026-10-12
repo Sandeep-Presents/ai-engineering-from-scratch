@@ -33,7 +33,7 @@
 
 ### 既有 Sampling 工作流：平滑遷移至 MRTR
 
-Sampling 依然處於其淘汰過渡期之內。宣告遵循 2026-07-28 規範的伺服器，無法再直接向用戶端推送即時的 `sampling/createMessage` 逆向請求。取而代之的是將該請求安全封裝於 `InputRequiredResult` 中向外回傳。
+Sampling 依然處於其淘汰過渡期之內。宣告遵循 2026-07-28 規範的伺服器，無法再直接向用戶端傳送即時的 `sampling/createMessage` 逆向請求。取而代之的是將該請求安全封裝於 `InputRequiredResult` 中向外回傳。
 
 唯有當「深度利用呼叫端既有的模型憑證與配額」屬於強硬的產品業務需求時，方可選用此向下相容路徑。必須同步擬定長期的退場計畫，因為全新實作絕不應當盲目採納已廢棄的舊機制。
 
@@ -175,13 +175,13 @@ MRTR 機制僅允許在 `tools/call`、`prompts/get` 與 `resources/read` 上運
 
 面對嵌附的 Sampling 請求，用戶端是最終的安全信任邊界：
 
-- 當安全策略要求審核時，在呼叫模型前主動向使用者彈出確認視窗，清晰展示伺服器具體要求模型做什麼。
+- 當安全策略要求核准時，向使用者展示伺服器要求模型執行的操作。
 - 為 MRTR 輪次配置嚴格的上限。否則惡意受控的伺服器能輕易建構出無限呼叫模型的「算力燃燒迴圈」。
 - 在將取樣模型產出的字串用於檔案路徑、URL 位址或工具引數前，必須實施地毯式的格式校驗。
 - 限制單輪往返所允許消耗的位元組數與 token 上限。
 - 堅決拒絕執行任何未在當前用戶端能力宣告中顯式開放的輸入請求。
 - 嚴禁讓大模型的生成輸出直接左右核心授權決策。
-- 記錄最初發起的方法名稱與輸入請求金鑰，嚴禁在日誌中洩漏敏感的 Prompt 內文。
+- 記錄最初發起的方法名稱與輸入請求金鑰，嚴禁在紀錄中洩漏敏感的 Prompt 內文。
 
 `clientInfo` 與 `serverInfo` 僅供前端展示與診斷除錯之用，絕不可充當身分驗證憑證。
 
@@ -213,7 +213,7 @@ python3 main.py
 python3 -m unittest discover tests -v
 ```
 
-日誌軌跡重點檢驗清單：
+紀錄軌跡重點檢驗清單：
 
 - 服務發現回傳包含 `ttlMs` 與 `cacheScope` 的終態成果。
 - 工具探測回傳相同排序的描述符，包含 `resultType`、伺服器身分與快取提示。
@@ -260,6 +260,6 @@ python3 -m unittest discover tests -v
 ## Further Reading｜延伸閱讀
 
 - [MCP 2026-07-28 Multi Round-Trip Requests](https://modelcontextprotocol.io/specification/2026-07-28/basic/patterns/mrtr) ——MRTR 無狀態重試模式官方規格
-- [MCP 2026-07-28 changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog) ——最新協定重大架構變更日誌
+- [MCP 2026-07-28 changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog) ——最新協定重大架構變更紀錄
 - [MCP Sampling deprecation](https://modelcontextprotocol.io/seps/2577-deprecate-roots-sampling-and-logging) ——全面廢除 Sampling 與根目錄的官方架構提案（SEP-2577）
 - [MCP 2026-07-28 server discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover) ——動態服務發現官方規範手冊

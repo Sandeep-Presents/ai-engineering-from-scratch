@@ -81,7 +81,7 @@ MCP 2026-07-28 規範徹底移除了 `initialize`、`notifications/initialized`�
 
 伺服器在 `server/discover` 回傳成果中宣告精確的 `supportedVersions`、能力聲明、`ttlMs` 與 `cacheScope`，並在 capabilities.extensions 下聲明對應的 Tasks 擴充支援。由於宣告了工具支援，伺服器亦必須實作必備的 `tools/list`。其回傳的 `generate_report` 描述資訊中，必須包含合法的物件型別 `inputSchema`、`resultType: "complete"`、伺服器識別資訊中繼資料，以及公開的快取建議。
 
-若未宣告擴充支援的用戶端呼叫了任務方法，伺服器必須拋出 `-32021`（缺少必備用戶端能力），並將 `data.requiredCapabilities` 明確設定為 `{"extensions":{"io.modelcontextprotocol/tasks":{}}}`。協定版本不支援回傳 `-32022` 搭配精準的 `supported` 與 `requested` 資料；版本缺漏回傳 `-32602`。
+若未宣告擴充支援的用戶端呼叫了任務方法，伺服器必須拋出 `-32021`（缺少必備用戶端能力），並將 `data.requiredCapabilities` 明確設定為 `{"extensions":{"io.modelcontextprotocol/tasks":{}}}`。協定版本不支援回傳 `-32022` 搭配精準的 `supported` 與 `requested` 資料；缺少版本或版本不是字串時，回傳 `-32602`。
 
 不帶 JSON-RPC `id` 的信封代表單向通知。接收端可以處理它，但絕不回傳任何回應。在 Streamable HTTP 傳輸層上，接收合法的單向通知時回傳空內文的 `202 Accepted`。
 
@@ -355,7 +355,7 @@ Mcp-Name: tsk_786512e29e0d
 
 輪詢是無狀態架構的基本盤。若用戶端渴望獲得即時推播，可向伺服器發送攜帶目標任務 ID 的 `subscriptions/listen` 請求。在 Streamable HTTP 規範下，這是一次 POST 請求，其回應轉化為請求範疇的 SSE 串流。此處完全沒有獨立的 GET 事件端點，亦沒有黑箱的協定工作階段需要維護。
 
-伺服器先以 `notifications/subscriptions/acknowledged` 確認接受該訂閱，隨後即可透過 `notifications/tasks` 事件即時推送完整的任務狀態快照。該確認訊息以及後續的每一條任務通知，其 `_meta` 中皆必須原樣攜帶相同的 `io.modelcontextprotocol/subscriptionId`（數值等於 `subscriptions/listen` 的請求 ID）。除封裝外，每條任務通知的內聯資料與在該時刻呼叫 `tasks/get` 回傳的結構完全同構。
+伺服器先以 `notifications/subscriptions/acknowledged` 確認接受該訂閱，隨後即可透過 `notifications/tasks` 事件即時傳送完整的任務狀態快照。該確認訊息以及後續的每一條任務通知，其 `_meta` 中皆必須原樣攜帶相同的 `io.modelcontextprotocol/subscriptionId`（數值等於 `subscriptions/listen` 的請求 ID）。除封裝外，每條任務通知的內聯資料與在該時刻呼叫 `tasks/get` 回傳的結構完全同構。
 
 用戶端依然必須在每次通訊中宣告 Tasks 擴充功能。一旦連線中斷，應依據本機持久保存的任務 ID 重新建立連線或發起主動輪詢，絕不要依賴事件重播或過時的 `Last-Event-ID`。
 
@@ -454,7 +454,7 @@ id=5 resultType=complete status=completed
 | `pollIntervalMs` | 伺服器向呼叫端建議的下一次狀態輪詢最小等待毫秒數 |
 | `ttlMs` | 自任務建立瞬間起算的有效過期存活時長 |
 | Durable-before-return | 核心鐵律：必須在底層確認持久化寫入成功後，方可向外回傳任務識別碼 |
-| `notifications/tasks` | 在已建立的 SSE 訂閱串流上推送的完整任務狀態變更快照 |
+| `notifications/tasks` | 在已建立的 SSE 訂閱串流上傳送的完整任務狀態變更快照 |
 
 ## 傳統歷史相容性
 

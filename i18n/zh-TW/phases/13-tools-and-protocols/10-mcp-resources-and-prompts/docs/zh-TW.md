@@ -14,7 +14,7 @@
 - 打造具備絕對確定性排序的 `resources/list` 與 `prompts/list` 回傳結果。
 - 正確配置 `ttlMs` 存活時間與 `cacheScope` 快取作用域，杜絕特定使用者的隱私資料跨權限外洩。
 - 針對格式無效或不存在的未知資源 URI，精準回傳 JSON-RPC 錯誤碼 `-32602`。
-- 開啟 `subscriptions/listen` POST 長回應串流，並透過訂閱 ID 精確關聯所有推送的事件。
+- 開啟 `subscriptions/listen` POST 長回應串流，並透過訂閱 ID 精確關聯所有傳送的事件。
 - 嚴格將資源本體內容與 Prompt 範本視為不可信的外部資料，做好安全隔離防禦。
 
 ## 從呼叫者意圖出發
@@ -191,7 +191,7 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 
 現代事件訂閱機制徹底取代了舊有的 `resources/subscribe` RPC 呼叫以及歷史上的 HTTP GET 事件端點。
 
-用戶端以標準的 JSON-RPC 請求發起 `subscriptions/listen`。在 Streamable HTTP 傳輸層上，這是一次 POST 請求，其 HTTP 回應保持開啟，轉化為一條長期的 SSE 串流。請求中的 `notifications` 物件本質上是一份白名單；伺服器**絕不允許**推送任何未被用戶端顯式勾選訂閱的事件類型。
+用戶端以標準的 JSON-RPC 請求發起 `subscriptions/listen`。在 Streamable HTTP 傳輸層上，這是一次 POST 請求，其 HTTP 回應保持開啟，轉化為一條長期的 SSE 串流。請求中的 `notifications` 物件本質上是一份白名單；伺服器**絕不允許**傳送任何未被用戶端明確勾選訂閱的事件類型。
 
 ```json
 {
@@ -218,7 +218,7 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 }
 ```
 
-該請求的 ID 即代表本次連線的訂閱 ID（Subscription ID）。在推送任何訂閱事件之前，伺服器必須先發送 `notifications/subscriptions/acknowledged` 確認通知。其內部回傳的過濾規則，僅包含伺服器實際核准接受的子集。
+該請求的 ID 即代表本次連線的訂閱 ID（Subscription ID）。在傳送任何訂閱事件之前，伺服器必須先發送 `notifications/subscriptions/acknowledged` 確認通知。其內部回傳的過濾規則，僅包含伺服器實際核准接受的子集。
 
 ```json
 {
@@ -238,7 +238,7 @@ MCP 規範僅定義了 `public` 與 `private` 兩種合法的 `cacheScope` 數�
 }
 ```
 
-後續在該串流上推送的每個事件，其中繼資料中皆必須原樣攜帶相同的訂閱 ID。
+後續在該串流上傳送的每個事件，其中繼資料中皆必須原樣攜帶相同的訂閱 ID。
 
 ```json
 {
@@ -279,14 +279,14 @@ python3 main.py
 python3 -m unittest discover tests -v
 ```
 
-依照以下嚴謹順序逐一檢視日誌軌跡：
+依照以下嚴謹順序逐一檢視紀錄軌跡：
 
 1. 確認 `server/discover` 正確宣告了當前最新規範版本與雙重能力支援。
 2. 確認兩個清單查詢結果皆具備確定性排序，且皆使用 `resultType: "complete"`。
 3. 確認清單與讀取結果皆精確攜帶了合規的快取控制建議。
 4. 將讀取 URI 刻意改為 `notes://missing`，親眼觀察標準錯誤碼 `-32602` 的拋出。
 5. 確認訂閱確認通知（Acknowledged）發生在資源變更事件之前。
-6. 確認推送的事件與優雅關閉訊息，皆正確攜帶了相應的訂閱 ID `5`。
+6. 確認傳送的事件與優雅關閉訊息，皆正確攜帶了相應的訂閱 ID `5`。
 
 Python 模擬程式碼並未建立實際 HTTP 連線，它精準呈現的是 SDK 必須在請求範疇長回應串流中安放的合法訊息結構。在正式環境中，請務必採用官方 SDK 處理底層傳輸與封裝。
 
@@ -304,21 +304,21 @@ python3 main.py
 python3 -m unittest discover tests -v
 ```
 
-預期結果：主程式印出結構化 JSON 日誌，且單元測試指令回報至少 12 項測試全數順利通過（PASS）。
+預期結果：主程式印出結構化 JSON 紀錄，且單元測試指令回報至少 12 項測試全數順利通過（PASS）。
 
 ## 專題連結
 
-當你的 Capstone 專題伺服器在提供操作動作的同時、亦需暴露可定址的知識資產時，請嚴格恪守此契約。成果中應包含一份確定性目錄快照、一次通過授權審查的資源讀取、一次 Prompt 範本解析、一個無效 URI 的標準錯誤處理案例，以及一份完整的事件訂閱日誌。
+當你的 Capstone 專題伺服器在提供操作動作的同時、亦需暴露可定址的知識資產時，請嚴格恪守此契約。成果中應包含一份確定性目錄快照、一次通過授權審查的資源讀取、一次 Prompt 範本解析、一個無效 URI 的標準錯誤處理案例，以及一份完整的事件訂閱紀錄。
 
-你的交付驗收證據應當確鑿證明：任何清單查詢都不依賴連線歷史記憶，且訂閱事件的推送絕不能直接賦予對底層資源的免授權存取權限。
+你的交付驗收證據應當確鑿證明：任何清單查詢都不依賴連線歷史記憶，且傳送訂閱事件絕不能直接賦予對底層資源的免授權存取權限。
 
 ## Exercises｜練習
 
 1. 新增一個 `notes://projects/{project}/notes/{id}` 資源範本，並在處理器中對這兩個路徑變數實施雙重合法性校驗。
 2. 為 `resources/list` 端點擴充安全分頁機制，並證明在分頁檢索下依然完好保持確定性排序。
 3. 將某一項敏感資源修改為 `cacheScope: "private"` 搭配 `ttlMs: 0`，並配置宿主層級的禁止儲存策略；詳盡論證支撐這兩重防禦管制的安全威脅模型。
-4. 新增一條針對 Prompt 清單變更的訂閱規則；證明當過濾條件未包含 `promptsListChanged` 時，伺服器絕不會錯誤推送相應事件。
-5. 同時建立兩條平行的獨立訂閱串流，證明在並發推送時，每個事件皆精準攜帶了各自正確的請求 ID。
+4. 新增一條針對 Prompt 清單變更的訂閱規則；證明當過濾條件未包含 `promptsListChanged` 時，伺服器絕不會錯誤傳送相應事件。
+5. 同時建立兩條平行的獨立訂閱串流，證明同時傳送事件時，每個事件皆精準攜帶了各自正確的請求 ID。
 6. 在資源讀取處理常式中加入授權主體檢查，證明同一份快取條目絕不可跨越不同的安全主體邊界被非法挪用。
 
 ## Key Terms｜關鍵術語
@@ -328,8 +328,8 @@ python3 -m unittest discover tests -v
 - **Deterministic list（確定性清單）**：在相同請求輸入下，保證回傳項目成員與排列順序絕對穩定的探測結果。
 - **`ttlMs`**：快取新鮮度存活時間，以毫秒為計量單位。
 - **`cacheScope`**：快取成果的共享邊界約束。
-- **`subscriptions/listen`**：長期存活的長回應請求，其串流僅定向推送通過顯式白名單過濾的變更通知。
-- **Subscription ID（訂閱 ID）**：最初發起監聽的請求 ID，在後續推送的所有通知中繼資料中原樣重複攜帶。
+- **`subscriptions/listen`**：長期存活的長回應請求，其串流僅定向傳送通過明確白名單過濾的變更通知。
+- **Subscription ID（訂閱 ID）**：最初發起監聽的請求 ID，在後續傳送的所有通知中繼資料中原樣重複攜帶。
 - **Invalid parameters（無效參數錯誤）**：標準 JSON-RPC 錯誤碼 `-32602`，在此專門用於回報無效或不存在的未知資源 URI。
 - **Unsupported protocol version（不支援的協定版本）**：標準 JSON-RPC 錯誤碼 `-32022`，包含 `supported` 與 `requested` 版本修訂清單。
 - **`server/discover`（服務發現）**：強制必備的現代伺服器方法，宣告支援版本、能力、識別資訊與快取建議。

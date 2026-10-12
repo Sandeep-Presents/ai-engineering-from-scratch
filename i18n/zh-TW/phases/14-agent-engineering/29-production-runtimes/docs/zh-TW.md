@@ -9,7 +9,7 @@
 
 ## Learning Objectives｜學習目標
 
-- 指出六大生產級執行環境形態，並將每種形態對映至相應的框架與架構模式。
+- 指出六大生產級執行環境形態，並將每種形態對映至相應的框架與產品模式。
 - 深入解釋為何持久化執行（如 LangGraph）對超長路徑任務具備決定性意義。
 - 描述事件驅動執行環境的架構特徵，以及 Claude Managed Agents 在何時最為適用。
 - 闡述為何對於多步驟 Agent 而言，可觀測性屬於不可或缺的核心支柱。
@@ -61,9 +61,9 @@
 - 必須與持久化執行相結合，確保夜間失敗的批次任務在下一個週期能自斷點接續執行。
 - 代表技術堆疊：Kubernetes CronJob + 具持久狀態的框架；全託管平台（Render Cron、Vercel Cron）。
 
-### 2026 年主流部署模式收斂
+### 2026 年主流部署模式
 
-- **CrewAI Flows**：正式環境事件驅動工作流程的首選。
+- **CrewAI Flows**：用於正式環境的事件驅動工作流程。
 - **Agno**：適用於 Python 微服務的無狀態 FastAPI 後端。
 - **Mastra**：伺服器介接器（Express、Hono、Fastify、Koa）用於直接整合進現有架構中。
 - **Pipecat Cloud / LiveKit Cloud**：全託管即時語音後端（第 22 課）。

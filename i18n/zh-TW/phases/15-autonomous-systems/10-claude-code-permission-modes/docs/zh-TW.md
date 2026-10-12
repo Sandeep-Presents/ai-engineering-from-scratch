@@ -1,6 +1,6 @@
 # 自主 Agent 的權限模式階梯（Permission Modes for Autonomous Agents）
 
-> 權限階梯（permission ladder）——從每步動作必經審查到全自動核准的分級自主權限——是執行環境在無需人工確認下約束自主 agent 行為邊界的核心手段。作為本課深入剖析的代表案例，Claude Code 提供了六種權限模式：「plan」在執行任何動作前皆須詢問；「default」（在 UI 中標示為「Manual」）僅對高風險動作進行確認；「acceptEdits」自動核准檔案寫入，但執行 shell 指令仍需人工確認；而「bypassPermissions」則無條件放行所有動作。Auto Mode（即 `auto` 權限模式）將逐動作的人工核准替換為獨立的分類器模型，在每個動作執行前進行審查，並阻擋任何超出原始請求範圍的越權升級。動作預算則透過 `max_turns` 與 `max_budget_usd` 進行硬性強制執行。能否啟用 `auto` 取決於訂閱方案、組織層級啟用設定、選用模型與供應商——且 Anthropic 明確指出：單靠分類器本身並不足以確保安全。
+> 權限階梯（permission ladder）——從每步動作必經審查到全自動核准的分級自主權限——是執行環境在無需人工確認下約束自主 agent 行為邊界的核心手段。作為本課深入剖析的代表案例，Claude Code 提供了六種權限模式：「plan」在執行任何動作前皆須詢問；「default」（在 UI 中標示為「Manual」）僅對高風險動作進行確認；「acceptEdits」自動核准檔案寫入，但執行 shell 指令仍需人工確認；而「bypassPermissions」則無條件放行所有動作。Auto Mode（即 `auto` 權限模式）將逐動作的人工核准替換為獨立的分類器模型，在每個動作執行前進行審查，並阻擋任何超出原始請求範圍的動作。動作預算則透過 `max_turns` 與 `max_budget_usd` 進行硬性強制執行。能否啟用 `auto` 取決於訂閱方案、組織層級啟用設定、選用模型與供應商——且 Anthropic 明確指出：單靠分類器本身並不足以確保安全。
 
 **Type:** Learn
 **Languages:** Python (stdlib, two-stage classifier simulator)
@@ -11,7 +11,7 @@
 
 在你的本地主機上運作一個具備自主權限的程式碼編寫 agent，屬於一種獨立的資安類別。其攻擊表面涵蓋了該 agent 能夠觸及的一切資源——檔案系統、網路連線、憑證金鑰、剪貼簿、任何開啟的瀏覽器分頁以及任何執行中的終端機視窗。Bruce Schneier 等資安專家曾公開提出警示：能操作電腦的 agent 絕非傳統 chatbot 的單純「功能更新」，它們是一種新型工具，帶有新的風險特徵。
 
-Claude Code 的權限系統正是 Anthropic 對此給出的工程答案。系統並未採用單一的「自主／非自主」二元開關，而是設計了跨越能力階梯的六種模式：plan → default → acceptEdits → … → bypassPermissions。每一種模式都代表著在執行速度與逐動作審查成本之間的特定取捨平衡。Auto Mode（2026 年 3 月推出）更額外引入了獨立的分類器模型，將核准流程從使用者的關鍵路徑中移出：它會在每個動作執行前進行前置審查，自動攔截任何超出任務意圖的越權升級。
+Claude Code 的權限系統正是 Anthropic 對此給出的工程答案。系統並未採用單一的「自主／非自主」二元開關，而是設計了跨越能力階梯的六種模式：plan → default → acceptEdits → … → bypassPermissions。每一種模式都代表著在執行速度與逐動作審查成本之間的特定取捨平衡。Auto Mode（2026 年 3 月推出）更額外引入了獨立的分類器模型，將核准流程從使用者的關鍵路徑中移出：它會在每個動作執行前進行前置審查，自動攔截任何超出任務意圖的行為。
 
 核心工程問題在於：這套機制究竟能攔截什麼？會遺漏什麼？而面對給定的具體任務，到底該選用哪種權限模式才真正合理？
 
