@@ -33,7 +33,7 @@ A check compares bytes, so two runs must write the same files. Remove each sourc
 | ports | bind fixed ports on `127.0.0.1` and list them in the front matter |
 | values you cannot fix | mask them in both outputs before the comparison |
 
-When every value is fixed, the check is a plain byte comparison with nothing masked. That is the best result.
+Aim to fix every value. Then the check is a plain byte comparison with nothing masked.
 
 ## Scenarios and files
 

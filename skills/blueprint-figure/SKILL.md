@@ -34,7 +34,7 @@ This skill draws one static SVG figure that explains one mechanism of a real sys
 3. Collect the real names from the source: parties, fields, methods, codes, sequence numbers.
 4. Write the hue table for the figure set before you draw (see "Colour").
 5. Sketch the layout on the 640-unit grid. Keep content between x 20 and x 620.
-6. Draw the figure with a script, not by hand. Start from `templates/figure.mjs`.
+6. Draw the figure with a script. Start from `templates/figure.mjs`. Do not edit the SVG by hand.
 7. Run the script. It stops on a label that is too small, too wide, or outside the figure.
 8. Run the checks in `references/checks.md`. Fix every finding.
 9. Render the SVG to PNG and look at it at 100% and at 50% width.
@@ -110,6 +110,7 @@ Write every colour as `var(--m-<token>, <light hex>)`, for example `var(--m-rose
 
 - Text is at least 11 units at the 640-unit width. That is 11 pixels on screen and about 8 points in print.
 - Box titles are 12.5 bold mono. Sub lines are 11 serif. Arrow labels are 11.5. Notes are 11 serif.
+- Every serif line carries its own font: `class="m-serif"` and `font-family="Source Serif 4, Georgia, serif"`. Then the figure looks the same inline on any page, in a README image, and in a manual.
 - Kickers are 11, upper case, letter spacing 1.2, in ink-mute.
 - No ellipsis in labels. No text over text. No text on a hatched fill. No line through text.
 - A label that does not fit goes outside with a leader line or into a numbered key. Never reduce the font size.
@@ -121,7 +122,7 @@ Write every colour as `var(--m-<token>, <light hex>)`, for example `var(--m-rose
 ## Technical rules
 
 - Root: `viewBox="0 0 640 H"` with H at most 760, `role="img"`, `aria-labelledby="<id>-title <id>-desc"`.
-- Root font: `font-family="JetBrains Mono, ui-monospace, monospace"`, on the root only.
+- Root font and ink: `font-family="JetBrains Mono, ui-monospace, monospace"` and `fill="var(--m-ink, #1a1a1a)"`. Serif lines set their own `font-family` as above.
 - A `<title>` and a `<desc>` of at least 40 characters, as direct children of the root.
 - The `desc` names every part and every exchange in reading order.
 - Every `id` starts with the figure id, such as `fig-4-1-head-amber`.
@@ -134,7 +135,7 @@ Write every colour as `var(--m-<token>, <light hex>)`, for example `var(--m-rose
 
 ## The caption
 
-The caption lives in the page around the SVG, not in the SVG.
+Put the caption in the page around the SVG. Do not put it inside the SVG.
 
 1. Start with the claim in bold: one sentence, at most 28 words, ending with a period.
 2. Say how to read the figure, such as "Read top to bottom."
@@ -173,6 +174,7 @@ In a lesson or README, put the SVG in an image tag or inline, then the caption a
 - [ ] Every colour is `var(--m-<token>, <light hex>)` with the correct hex.
 - [ ] No text is below 11 units, outside the viewBox, over other text, or crossed by a line.
 - [ ] No ellipsis in any label.
+- [ ] Every serif line has a `font-family` attribute and the root has the ink `fill`, so the figure needs no host stylesheet.
 - [ ] No `style`, script, link, image, or transform other than `translate()` on `<g>`.
 - [ ] The file is at most 40 KB.
 - [ ] The PNG render is readable at 50% width.

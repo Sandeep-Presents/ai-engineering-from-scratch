@@ -108,21 +108,27 @@ In the first figure of a set (figure 0.1), show each arrow style that the set us
 | Element | Size | Weight and face | Colour |
 |---|---|---|---|
 | box title | 12.5 | 700, mono | ink |
-| box sub line | 11 | serif (`class="m-serif"`) | ink-soft |
+| box sub line | 11 | serif (`class="m-serif"` and `font-family`) | ink-soft |
 | kicker (column or group heading) | 11, upper case, `letter-spacing="1.2"` | mono | ink-mute |
 | arrow label | 11.5 | mono | the arrow hue, or ink for call and reply |
 | arrow note | 11, 15 units below the arrow | serif | ink-soft |
 | step number | 11 in a circle of r 9 | mono | ink |
 | table cell text | 12 | mono | ink or ink-soft |
 
-The root sets `font-family="JetBrains Mono, ui-monospace, monospace"`. The host sets `.m-serif` to the body serif. Measure text width with these factors:
+Every text element carries its own font and colour. Then the figure looks the same inline on a page, in a README image, and in a manual:
+
+- The root sets `font-family="JetBrains Mono, ui-monospace, monospace"` and `fill="var(--m-ink, #1a1a1a)"`. Text with no `fill` takes the ink colour from the root.
+- Each serif line sets `class="m-serif"` and `font-family="Source Serif 4, Georgia, serif"`.
+- Keep the explicit `fill` on every shape and on every text that uses another hue.
+
+Measure text width with these factors:
 
 - mono: `characters × size × 0.6`
 - serif: `characters × size × 0.54`
 - letter spacing adds `(characters − 1) × spacing`
 - the text box runs from `y − 0.78 × size` to `y + 0.22 × size`
 
-When no host stylesheet applies `.m-serif`, the serif line renders in mono. In that case measure serif lines with the mono factor 0.6.
+Without the `font-family` attribute, a serif line renders in mono on a page that has no `.m-serif` rule. Then long lines run past their boxes.
 
 ## Shapes
 

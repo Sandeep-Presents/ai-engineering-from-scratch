@@ -30,13 +30,13 @@ const GROUPS = [
     skills: {
       learn: { line: 'Teaches your next lesson section by section in the terminal, asks questions, and records what you finished.', say: ['/learn', 'teach me the next lesson'], writes: 'LEARNING.md' },
       'check-understanding': { line: 'Quizzes you on a phase and tells you which lessons to read again before you move on.', say: ['quiz me on phase 3', 'check my understanding'], writes: 'Nothing. It prints your score and what to review.' },
-      'build-project': { line: 'Guides one stage of a course project per session. You write the code, run the stage grader, and keep the result. It gives hints, never full solutions.', say: ['build a project', 'continue my project'], writes: 'PROJECTS-LEARNING.md' },
+      'build-project': { line: 'Guides one stage of a course project per session. It gives hints only. You write the code and run the stage grader.', say: ['build a project', 'continue my project'], writes: 'PROJECTS-LEARNING.md' },
     },
   },
   {
     id: 'paths',
     title: 'Focused paths',
-    when: 'Use these when you want one topic in depth, from first principles to production.',
+    when: 'Use these to study one topic lesson by lesson.',
     skills: {
       'learn-mcp': { line: 'One lesson at a time through the Model Context Protocol path: clients, servers, transports, security, gateways, and conformance.', say: ['teach me MCP', 'continue the MCP path'], writes: 'MCP-LEARNING.md' },
       'learn-agent-skills': { line: 'One lesson at a time through the Agent Skills path: write, find, run, secure, test, package, and port skills.', say: ['teach me agent skills', 'continue the skills path'], writes: 'AGENT-SKILLS-LEARNING.md' },
@@ -54,13 +54,13 @@ const GROUPS = [
   {
     id: 'make',
     title: 'Make figures and manuals',
-    when: 'Use these to draw, animate, and write in the same style as this site.',
+    when: 'Use these to make figures and manuals that match this site.',
     skills: {
-      'course-style': { line: 'The shared reference the other making skills read: colours for light and dark, fonts, figure labels, and the plain technical English rules.', say: ['use the course style', 'check this text for plain English'], writes: 'Nothing. Other skills read it.' },
-      'blueprint-figure': { line: 'Static SVG figures for lessons, READMEs, and manuals: nine figure kinds, colour rules, arrows, and legibility checks.', say: ['draw a figure of the request path', 'make FIG_012 for this lesson'], writes: 'An SVG file' },
-      'motion-figure': { line: 'Figures that move or answer back: lesson animations and sliders, interactive mechanism figures with a computed verdict, and dither bands like the one at the top of this page.', say: ['animate this concept', 'show how this system works'], writes: 'A lesson figure, a standalone figure, or a dither band' },
-      'isometric-explainer': { line: 'An interactive isometric machine whose motion is the concept, driven by a tested state model, with controls to break parts and watch what fails.', say: ['explain how a cache evicts entries as a machine', 'make an isometric explainer for this lesson'], writes: 'A standalone HTML page and its source' },
-      'write-manual': { line: 'A long manual about one subject at one pinned version: sources, a table of contents, offline captures for every listing, figures, and an audit.', say: ['write a manual for this tool', 'start a 101 manual'], writes: 'A manual folder: manual.json, sections, figures, captures' },
+      'course-style': { line: 'Colours for light and dark, fonts, figure labels, and the plain technical English rules. The other skills in this group read it.', say: ['use the course style', 'check this text for plain English'], writes: 'Nothing. Other skills read it.' },
+      'blueprint-figure': { line: 'Static SVG figures for lessons, READMEs, and manuals. It has nine figure kinds, colour rules, and checks for label size and overlap.', say: ['draw a figure of the request path', 'make FIG_012 for this lesson'], writes: 'An SVG file' },
+      'motion-figure': { line: 'Animated and interactive figures: SVG animations, slider widgets, figures with controls and a computed result, and dither bands like the one at the top of this page.', say: ['animate this concept', 'show how this system works'], writes: 'A lesson figure, a standalone figure, or a dither band' },
+      'isometric-explainer': { line: 'An interactive isometric machine that shows a process step by step. A tested state model drives it. Controls let you break a part and see what fails.', say: ['explain how a cache evicts entries as a machine', 'make an isometric explainer for this lesson'], writes: 'A standalone HTML page and its source' },
+      'write-manual': { line: 'A long manual about one tool at one pinned version, with sources, a table of contents, offline captures of every listing, figures, and an audit.', say: ['write a manual for this tool', 'start a 101 manual'], writes: 'A manual folder: manual.json, sections, figures, captures' },
     },
   },
 ];
@@ -136,7 +136,7 @@ const EXAMPLES = {
     return `<a class="sk-example sk-example--svg" href="manuals.html">${svg}<span>Made with it: a figure from the A2A 101 manual →</span></a>`;
   },
   'motion-figure': loaderFigure,
-  'write-manual': () => `<a class="sk-example sk-example--text" href="manuals.html"><strong>Manuals</strong><span>Two published so far, each pinned to one version, every listing captured offline. Read them →</span></a>`,
+  'write-manual': () => `<a class="sk-example sk-example--text" href="manuals.html"><strong>Manuals</strong><span>Two manuals are published. Each one covers one pinned version. Read them →</span></a>`,
   'course-style': () => `<div class="sk-example sk-swatches" aria-label="Course colours"><i style="background:var(--bg)"></i><i style="background:var(--bg-surface)"></i><i style="background:var(--ink)"></i><i style="background:var(--blueprint)"></i><i style="background:var(--warn)"></i><span>Paper, surface, ink, blueprint, warning. Both themes.</span></div>`,
 };
 
@@ -227,11 +227,11 @@ function build() {
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <meta name="description" content="Skills for your coding agent from AI Engineering from Scratch: start the course, learn lesson by lesson, prepare for certifications, and make figures and manuals in the course style.">
+  <meta name="description" content="Skills for your coding agent from AI Engineering from Scratch. They start the course, teach lessons, prepare you for certifications, and make figures and manuals.">
   <link rel="canonical" href="${ORIGIN}/skills.html">
   <link rel="alternate" type="text/markdown" href="${ORIGIN}/skills.md">
   <meta property="og:title" content="Skills · AI Engineering from Scratch">
-  <meta property="og:description" content="Skills that teach the course, test what you know, and make figures in the course style. One install for every agent.">
+  <meta property="og:description" content="15 skills for your coding agent: course lessons, level tests, certification prep, and figure and manual tools.">
   <meta property="og:image" content="${ORIGIN}/og/page/skills.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -242,7 +242,7 @@ function build() {
   <meta property="og:url" content="${ORIGIN}/skills.html">
   <meta property="og:type" content="website">
   <meta name="twitter:title" content="Skills · AI Engineering from Scratch">
-  <meta name="twitter:description" content="Skills that teach the course, test what you know, and make figures in the course style.">
+  <meta name="twitter:description" content="15 skills for your coding agent: course lessons, level tests, certification prep, and figure and manual tools.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -280,7 +280,7 @@ function build() {
       <div class="dither sk-band" data-seed="skills" data-label="${total} skills · for your agent" aria-hidden="true"></div>
       <p class="sk-eyebrow">FIG_SKL · Skills for your coding agent</p>
       <h1>Skills</h1>
-      <p class="sk-lede">A skill is a short instruction file. Your agent reads it when a task matches, then works the way the file says. These ${total} skills teach the course, test what you know, and make figures and manuals in the course style.</p>
+      <p class="sk-lede">A skill is a short instruction file. Your agent reads it when your request matches the skill, then follows its steps. These ${total} skills teach the course, test your level, and make figures and manuals.</p>
       <div class="sk-install">
         <div class="sk-install-bar"><span>Install all ${total}</span><button type="button" class="sk-copy" data-copy="${escape(install)}">Copy</button></div>
         <pre><code>${escape(install)}</code></pre>
@@ -294,7 +294,7 @@ function build() {
       <section class="sk-group" id="artifacts" aria-labelledby="artifacts-title">
         <div class="sk-group-head">
           <span class="sk-num">${String(GROUPS.length + 1).padStart(2, '0')}</span>
-          <div><h2 id="artifacts-title">Lesson artifacts</h2><p>Every lesson ends with something you keep. Install them by phase or by tag.</p></div>
+          <div><h2 id="artifacts-title">Lesson artifacts</h2><p>Many lessons end with a skill or prompt file. You can install them by phase or by tag.</p></div>
         </div>
         <div class="sk-artifacts">
           <p><strong>${artifacts.skills} skills and ${artifacts.prompts} prompts</strong> live next to the lessons that teach them, under <code>phases/**/outputs/</code>. Clone the repo, then copy the ones you want into your agent's skills folder.</p>
@@ -306,28 +306,14 @@ python3 scripts/install_skills.py .skills --type all --dry-run</code></pre>
       </section>
 
       <section class="sk-how" aria-labelledby="how-title">
-        <h2 id="how-title">How to ask</h2>
-        <div class="sk-how-grid">
-          <div><h3>Name the idea, not the drawing</h3><p>Say what the reader should understand. "Explain how a cache evicts old entries" gives the skill room to choose the right figure. Add real numbers if you have them.</p></div>
-          <div><h3>Say where it goes</h3><p>A lesson, a README, a manual, or a standalone page. The skill picks the size, the format, and the checks that fit.</p></div>
-          <div><h3>Expect a first draft</h3><p>Look at the result, say what reads wrong, and ask again. Most of the quality comes from the second pass.</p></div>
-        </div>
-        <table class="sk-sizes">
-          <caption>How long a figure takes</caption>
-          <thead><tr><th>Skill</th><th>Typical size</th><th>Time</th></tr></thead>
-          <tbody>
-            <tr><td><code>blueprint-figure</code></td><td>One static SVG</td><td>Minutes</td></tr>
-            <tr><td><code>motion-figure</code></td><td>One animation or slider widget</td><td>Under an hour</td></tr>
-            <tr><td><code>isometric-explainer</code></td><td>40 to 80 parts</td><td>About an hour</td></tr>
-            <tr><td><code>isometric-explainer</code></td><td>80 to 150 parts, full controls</td><td>Two to four hours</td></tr>
-            <tr><td><code>write-manual</code></td><td>One manual, 30 or more sections</td><td>Days, one section per commit</td></tr>
-          </tbody>
-        </table>
+        <h2 id="how-title">Ask for a figure</h2>
+        <p>Tell the skill what the reader must understand and where the figure goes: a lesson, a README, a manual, or a standalone page. Give real numbers when you have them. The figure then computes its result from those numbers.</p>
+        <p>Example: <q>Make a figure for the skills lesson that shows how an agent loads a skill. Use the real file sizes.</q></p>
       </section>
 
       <section class="sk-cta">
-        <p>Learn to build every part from scratch.</p>
-        <a class="sk-btn sk-btn--primary" href="lesson?path=phases%2F13-tools-and-protocols%2F22-skills-and-agent-sdks">Learn how skills work</a>
+        <p>How agents find and load skills</p>
+        <a class="sk-btn sk-btn--primary" href="lesson?path=phases%2F13-tools-and-protocols%2F22-skills-and-agent-sdks">Read the lesson</a>
         <a class="sk-btn" href="${GITHUB}/tree/main/skills" target="_blank" rel="noopener">All skills on GitHub ↗</a>
       </section>
     </div>

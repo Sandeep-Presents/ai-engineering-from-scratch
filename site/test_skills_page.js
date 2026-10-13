@@ -174,3 +174,30 @@ test('the page draws a dither band from the motion figure template and loads the
     assert.doesNotMatch(source, /=>|\blet\b|\bconst\b|`/, name);
   }
 });
+
+test('the page copy has no contrast tells, dashes, semicolons, or banned words', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'skills.html'), 'utf8');
+  const text = html
+    .replace(/<(script|style|svg)[\s\S]*?<\/\1>/g, ' ')
+    .replace(/<pre[\s\S]*?<\/pre>/g, ' ')
+    .replace(/<code>[\s\S]*?<\/code>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z]+;/g, ' ');
+  const problems = [];
+  if (/[—–]/.test(text)) problems.push('dash');
+  if (text.includes(';')) problems.push('semicolon');
+  if (/\bmay\b/i.test(text)) problems.push('"may"');
+  const contrast = /, not [a-z]|\bnot just\b|\bnot only\b|\brather than\b|\bnever full\b/i.exec(text);
+  if (contrast) problems.push(`contrast "${contrast[0]}"`);
+  const word = BANNED.exec(text);
+  if (word) problems.push(`"${word[0]}"`);
+  assert.deepEqual(problems, []);
+});
+
+test('inline figures style every class they use', () => {
+  const html = fs.readFileSync(path.join(__dirname, 'skills.html'), 'utf8');
+  for (const svg of html.match(/<svg[\s\S]*?<\/svg>/g) || []) {
+    if (svg.includes('class="m-serif"')) assert.match(html, /\.m-serif\s*\{\s*font-family/);
+    if (/<text(?![^>]*fill=)/.test(svg)) assert.match(html, /\.sk-example svg \{ fill: var\(--m-ink\)/);
+  }
+});

@@ -2,9 +2,9 @@
 
 A mechanism figure is a small interactive panel that shows how one system works. The reader drives it with one control, watches the named contents change, and reads a verdict that the figure computes. Use this tier for a standalone page, a README demo, a product page, or an essay. Inside a lesson, use the lesson figure tier first.
 
-## The first rule
+## Real names
 
-Show the system as its real named contents. Never show it as abstract boxes.
+Show the named parts of the real system. Do not draw abstract boxes.
 
 | Topic | Weak figure | Strong figure |
 |---|---|---|
@@ -13,7 +13,7 @@ Show the system as its real named contents. Never show it as abstract boxes.
 | Rules file | A bullet list | The real file, with rules that appear one at a time and a comment on each rule that names the incident it came from |
 | Agent fleet | A number | A grid of agent squares, with N running and the rest queued |
 
-If your draft is generic boxes, discard it and draw the real thing with real names.
+If the draft shows generic boxes, delete it. Draw the real parts with their real names.
 
 ## Rejected figures
 
@@ -72,7 +72,7 @@ The scaffold in `templates/mechanism.html` has all five parts.
 | Fold or drawer | 380 to 500 ms | `cubic-bezier(0.23, 1, 0.32, 1)` |
 | Colour change | 150 to 200 ms | `ease` |
 
-- Animate `transform` and `opacity` only. Animate `max-height` only for a fold that reads as a fold.
+- Animate `transform` and `opacity` only. Animate `max-height` only to fold a panel open or closed.
 - Never use `ease-in` for an entry.
 - Give every button `:active { transform: scale(0.96) }`.
 - Put hover effects inside `@media (hover: hover) and (pointer: fine)`.
@@ -106,7 +106,7 @@ Check these at the first frame, during the run, and at the end state.
 
 ## Check before you finish
 
-- [ ] The body shows real names and real numbers, not `item 1` or `block A`.
+- [ ] The body shows real names and real numbers. No label reads `item 1` or `block A`.
 - [ ] The reader drives at least one control.
 - [ ] The verdict is text, and a change in the control changes it.
 - [ ] Each number in the verdict matches the arithmetic on the numbers in the body.

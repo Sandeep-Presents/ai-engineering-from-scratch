@@ -2,8 +2,8 @@
 name: isometric-explainer
 version: 1.0.0
 description: >
-  Builds an interactive isometric machine page where the motion of one invented machine is the concept.
-  A pure, tested state model drives the motion, the readouts and the copy, and the page has controls and a verification loop.
+  Builds an interactive isometric machine page. Each station of one invented machine stands for one step of a process.
+  A pure, tested state model drives the motion, the readouts and the copy. The page has controls and a verification loop.
   Trigger phrases: "isometric explainer", "machine explainer", "explain this as a machine",
   "interactive isometric figure", "explorable explainer", "show how it works inside".
 tags: [isometric, svg, interactive, explainer, simulation]
@@ -11,42 +11,43 @@ tags: [isometric, svg, interactive, explainer, simulation]
 
 # Isometric Explainer
 
-This skill makes a single-page interactive figure. The figure is a solid isometric machine on a bench. One physical machine stands for one concept, and its motion is the explanation. A request card rides a carriage, a probe drops, a press stamps, a dial swings. A pure state model decides every move, so the picture, the numbers and the words always agree. The `templates/` folder holds a working starter, and `kit/` holds the geometry library it uses.
+This skill makes a single-page interactive figure. The figure is a solid isometric machine on a bench. Each station of the machine stands for one step of a process. For example, a request card moves on a carriage, a probe drops, and a press stamps the card. A pure state model decides every move, so the picture, the numbers and the words match. The `templates/` folder holds a working starter, and `kit/` holds the geometry library it uses.
 
 ## When to use
 
 - The concept is a process with stations, order and failure modes: a loop, a pipeline, a cache, a queue, a retry policy.
-- The reader learns more by breaking the system than by reading about it.
-- The page is a hero piece or a standalone explorable, not a small inline diagram.
+- The reader can break one part and see what fails.
+- The figure is the main content of a page.
 
 ## When not to use
 
 - A static diagram explains the idea. Make a flat SVG figure instead.
-- The concept has no order or state change. A machine with nothing to move adds noise.
+- The concept has no order or state change. Make a static figure instead.
+- The figure is a small diagram inside a lesson or a README. Use the sibling skill `blueprint-figure`.
 - You cannot write a deterministic model of the behavior. Do not animate a guess.
 - The job needs more than 150 parts and the user has not approved the size.
 
 ## Method
 
-1. **Invent the machine**. Write one sentence: "X moves through Y, and that motion means Z." If you cannot write it, stop and pick another machine. See `references/concept.md`.
-2. **Size the job before you draw**. Count the parts on paper and pick a tier.
+1. Invent the machine. Write one sentence: "X moves through Y, and that motion means Z." If you cannot write it, pick another machine. See `references/concept.md`.
+2. Count the parts on paper before you draw, and pick a tier.
 
-   | Tier | Parts | Time |
+   | Tier | Parts | Approval |
    |---|---|---|
-   | Figure | 40 to 80 | about 1 hour |
-   | Hero | 80 to 150 | 2 to 4 hours |
+   | Figure | 40 to 80 | not needed |
+   | Hero | 80 to 150 | not needed |
    | Larger | more than 150 | get the user's approval first |
 
-3. **Write the state model first**. Make `model.mjs` pure and deterministic, with no DOM and no clock. `simulate(config)` returns an event list and totals. Test it before any geometry. See `references/state-model.md`.
-4. **Map concepts to stations**. Write a table: station, concept word for its nameplate, what it does, what fails without it.
-5. **Write the parts list**. List each part with its assembly, size in world units, tone and whether it moves. Geometry comes after the list.
-6. **Fix the camera**. Use world units and one isometric camera. Set elevation to 30 degrees. Pick the azimuth so the working faces point at the viewer. Fit the projection over the assembled and the exploded pose.
-7. **Build static geometry once**. Each part becomes one SVG group with a depth key. Movers get a `data-live` hook. See `references/geometry.md`.
-8. **Animate by translation**. Move a part by changing its `transform` only. Rebuild a path only when its shape changes, such as a rod that gets longer.
-9. **Paint back to front**. Sort groups by depth key plus the depth of their current offset. Reorder the DOM only when the order changes.
-10. **Light one accent**. Exactly one accent colour marks the active part and its nameplate. Everything else uses four grey shades and four line tones.
-11. **Add controls that change the real model**. Run, step, break, repair, reset and the config switches all act on a real `simulate` run. Write the config to the URL. See `references/live.md`.
-12. **Verify in a headless browser**. Take screenshots at desktop and phone width in both themes. Add 4x close-ups, a line-end check, a scenario sweep with zero console errors and a contact sheet. See `references/verify.md`.
+3. Write the state model first. Make `model.mjs` pure and deterministic, with no DOM and no clock. `simulate(config)` returns an event list and totals. Test it before any geometry. See `references/state-model.md`.
+4. Map each concept to a station. Write a table: station, concept word for its nameplate, what it does, what fails without it.
+5. Write the parts list. List each part with its assembly, size in world units, tone and whether it moves. Geometry comes after the list.
+6. Set the camera. Use world units and one isometric camera. Set elevation to 30 degrees. Pick the azimuth so the working faces point at the viewer. Fit the projection over the assembled and the exploded pose.
+7. Build the static geometry once. Each part becomes one SVG group with a depth key. Movers get a `data-live` hook. See `references/geometry.md`.
+8. Animate by translation. Move a part by changing its `transform` only. Rebuild a path only when its shape changes, such as a rod that gets longer.
+9. Paint from back to front. Sort groups by depth key plus the depth of their current offset. Reorder the DOM only when the order changes.
+10. Use one accent colour. Exactly one accent colour marks the active part and its nameplate. Everything else uses four grey shades and four line tones.
+11. Add controls that change the model. Run, step, break, repair, reset and the config switches all act on a real `simulate` run. Write the config to the URL. See `references/live.md`.
+12. Verify the page in a headless browser. Take screenshots at desktop and phone width in both themes. Add 4x close-ups, a line-end check, a scenario sweep with zero console errors and a contact sheet. See `references/verify.md`.
 
 ## Rules
 

@@ -6,6 +6,7 @@ const MAX_HEIGHT = 760;
 const MIN_FONT = 11;
 const MONO = 0.6;
 const SERIF = 0.54;
+const SERIF_FONT = 'Source Serif 4, Georgia, serif';
 const ASCENT = 0.78;
 const DESCENT = 0.22;
 
@@ -77,6 +78,7 @@ function figure(id, { height, title, desc }, draw) {
         'font-weight': o.weight,
         'letter-spacing': o.spacing,
         class: o.serif ? 'm-serif' : undefined,
+        'font-family': o.serif ? SERIF_FONT : undefined,
         fill: o.hue ? ink(o.hue) : undefined,
       })}>${esc(content)}</text>`);
     },
@@ -122,7 +124,7 @@ function figure(id, { height, title, desc }, draw) {
   draw(f);
   const defs = [...heads].map(hue => `<marker id="${id}-head-${hue}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 1 L10 5 L0 9 z" fill="${ink(hue)}"/></marker>`);
   const svg = [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${height}" role="img" aria-labelledby="${id}-title ${id}-desc" font-family="JetBrains Mono, ui-monospace, monospace">`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${height}" role="img" aria-labelledby="${id}-title ${id}-desc" font-family="JetBrains Mono, ui-monospace, monospace" fill="${color('ink')}">`,
     `  <title id="${id}-title">${esc(title)}</title>`,
     `  <desc id="${id}-desc">${esc(desc)}</desc>`,
     defs.length ? `  <defs>${defs.join('')}</defs>` : null,

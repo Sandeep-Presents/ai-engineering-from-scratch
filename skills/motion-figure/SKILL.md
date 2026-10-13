@@ -3,8 +3,8 @@ name: motion-figure
 version: 1.1.0
 description: >
   Builds figures that move or respond to the reader, in three tiers: SMIL animations and slider
-  widgets inside lessons, interactive mechanism figures that show a system as its real named
-  contents with a computed verdict, and ordered dither bands in the course palette. Triggers:
+  widgets inside lessons, interactive mechanism figures that show the named parts of a real
+  system with a computed verdict, and ordered dither bands in the course palette. Triggers:
   "animated figure", "add a slider widget", "interactive figure", "show how this system works",
   "make this diagram move", "dither masthead", "mechanism figure", "figure fence".
 tags: [figures, svg, smil, animation, interactive, dither]
@@ -12,12 +12,12 @@ tags: [figures, svg, smil, animation, interactive, dither]
 
 # Motion figure
 
-This skill makes figures that move or respond to input. It has three tiers. The rules in each tier come from real figures that readers and reviewers rejected or kept. Use this skill with Claude, Cursor, Codex, OpenClaw, Hermes, or any agent that reads SKILL.md.
+This skill makes figures that move or respond to input. It has three tiers. Use this skill with Claude, Cursor, Codex, OpenClaw, Hermes, or any agent that reads SKILL.md.
 
 | Tier | What it makes | Where it goes |
 |---|---|---|
 | 1. Lesson figure | Declarative SMIL animation, or a slider widget that redraws an SVG. Both mount from a ```figure fence. | Course lessons |
-| 2. Mechanism figure | An HTML panel that shows a system as its named contents. The reader drives one control and reads a computed verdict. | Standalone pages, READMEs, essays, the course site outside lessons |
+| 2. Mechanism figure | An HTML panel that shows the named parts of a system. The reader drives one control and reads a computed verdict. | Standalone pages, READMEs, essays, the course site outside lessons |
 | 3. Dither field | A WebGL band of ordered dither dots in the paper, accent, and ink colours, with four seeded motions. | Page mastheads and section breaks |
 
 Tier 1 has the most rules, because the lesson runtime has hard limits. Tiers 2 and 3 have their own reference files.
@@ -28,7 +28,7 @@ Tier 1 has the most rules, because the lesson runtime has hard limits. Tiers 2 a
 - A lesson explains a formula where one input changes the output: learning rate, temperature, chunk size, batch size.
 - An author writes "animate this figure", "add a slider", or "make the diagram interactive".
 - A page needs a demo where the reader changes one thing and sees what the system does: a cache, a queue, a context window, a router. Use tier 2.
-- A page needs a calm moving header in the course colours. Use tier 3.
+- A page needs a slow moving header in the course colours. Use tier 3.
 
 ## When not to use
 
@@ -46,7 +46,7 @@ Tier 1 has the most rules, because the lesson runtime has hard limits. Tiers 2 a
 6. Build the card: `.lf-head` with an uppercase `.lf-label` and a short hint, `.lf-body`, and `.lf-cap` with the caption.
 7. Use `viewBox="0 0 520 H"` for the SVG. Most course figures use an H from 200 to 250. A single bar needs less.
 8. Add a `<title>` and a `<desc>` with ids that you create once, outside any render function.
-9. For an animated figure, add entries first, then one calm loop. Follow `references/smil-rules.md` line by line.
+9. For an animated figure, add entries first, then one slow loop. Follow `references/smil-rules.md` line by line.
 10. For a slider widget, define `state._render` before you call `LF.slider` or `LF.select`. Then call `state._render()` once at the end.
 11. Call `LF.register({ 'your-name': fn })` at the end of the module.
 12. In the lesson Markdown, add the fence. Put the name on the first line and optional JSON config after it:
@@ -86,7 +86,7 @@ Animated figures:
 9. An `animateMotion` with `keyPoints` uses `calcMode="linear"`. Its keyPoints count equals its keyTimes count. It has no `values`.
 10. Do not put `var()` in an animated `fill` or `stroke` value. Animate the opacity of a second element that has the target colour.
 11. Loops animate only opacity, transform, `stroke-dashoffset`, or motion along a path. The runtime makes any animation of x, y, x1, y1, x2, y2, width, height, r, cx, cy, rx, or ry play once.
-12. The frame at the host's `data-static-time` (default 1.5 s) is complete and readable. Set the attribute on the host when your story needs a later moment.
+12. The frame at the host's `data-static-time` (default 1.5 s) is complete and readable. Set the attribute on the host when a later moment shows the full state.
 13. Scale an element around its centre. Draw the content of a group around (0, 0) and move the group with `translate`. Add the scale with `additive="sum"`.
 
 Slider widgets:
@@ -149,7 +149,7 @@ Dither fields (tier 3):
 - `references/smil-rules.md`: the twelve SMIL rules in full, what each rule prevents, and a validator you can run in the browser console.
 - `references/toolkit.md`: the `LF` functions and the mount sequence. It also has a complete slider widget, a complete SMIL figure, and a preview page for use outside the course site.
 - `references/tokens.md`: colour tokens for light and dark themes, fonts, and motion timing values.
-- `references/mechanism-figures.md`: tier 2. The first rule, rejected figures, mechanism shapes, anatomy, verdict, motion budget, and checks.
+- `references/mechanism-figures.md`: tier 2. Real names, rejected figures, mechanism shapes, anatomy, verdict, motion budget, and checks.
 - `references/dither-fields.md`: tier 3. How the shader draws, the four motions, markup, rules, dithered bars, and checks.
 - `templates/mechanism.html`: a complete tier 2 figure, an LRU cache with a size control, that opens in any browser.
 - `templates/dither.js`: a complete tier 3 script. Load it and add `<div class="dither" data-seed="...">`.

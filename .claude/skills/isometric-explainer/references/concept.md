@@ -1,6 +1,6 @@
 # Invent the machine
 
-The machine is the explanation. A reader who watches it run once should be able to retell the concept without the captions.
+Each part of the machine does one step of the process. After one run, a reader can explain the process without the captions.
 
 ## The one-sentence test
 
@@ -52,7 +52,7 @@ Write one scenario button per interesting failure. The reference page has eight,
 
 ## Size the job
 
-Count parts from the parts list, not from the picture. A part is one solid, one moving group or one line set that a reviewer can point at.
+Count parts from the parts list. Do not count them from the picture. A part is one solid, one moving group or one line set that a reviewer can point at.
 
 | Tier | Parts | Time | Typical use |
 |---|---|---|---|

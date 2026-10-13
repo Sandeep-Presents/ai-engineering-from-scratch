@@ -12,7 +12,8 @@ Each check below has a rule name and a test that a script or a reviewer can run 
 | title | a `<title id="<id>-title">` with text, as a direct child of the root |
 | desc | a `<desc id="<id>-desc">` of at least 40 characters, as a direct child of the root |
 | ids | every `id` starts with `<id>-`, because all figures share one page |
-| font | `font-family` appears on the root only |
+| font | the root has the mono `font-family`, and every `m-serif` text has the serif `font-family` |
+| ink | the root has `fill="var(--m-ink, #1a1a1a)"`, so text with no `fill` is visible on a dark page |
 
 The `desc` lists the real parts and what happens between them, in reading order. A screen reader user gets the full figure from it.
 
@@ -91,7 +92,7 @@ Never reduce the font size below 11 to make a label fit.
 
 ## Caption
 
-The caption lives in the page, not in the SVG.
+Put the caption in the page. Do not put it inside the SVG.
 
 | Rule | Test |
 |---|---|

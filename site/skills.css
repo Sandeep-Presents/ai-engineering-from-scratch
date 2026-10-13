@@ -102,13 +102,6 @@
 
 .sk-how { padding: 44px 0 12px; }
 .sk-how > h2 { margin-bottom: 18px; color: var(--blueprint); }
-.sk-how-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-bottom: 28px; }
-.sk-how h3 { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 6px; color: var(--ink); }
-.sk-how p { margin: 0; color: var(--ink-soft); line-height: 1.6; }
-.sk-sizes { width: 100%; max-width: 760px; border-collapse: collapse; font-size: 0.92rem; }
-.sk-sizes caption { text-align: left; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); padding-bottom: 8px; }
-.sk-sizes th, .sk-sizes td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule-soft); }
-.sk-sizes th { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
 
 .sk-cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 40px; padding: 22px; border: 1px solid var(--ink); background: var(--bg-surface); }
 .sk-cta p { flex: 1 1 260px; margin: 0; font-family: var(--font-display); font-size: 2rem; line-height: 1; text-transform: uppercase; }
@@ -122,7 +115,6 @@
   .sk-card--example { display: flex; }
   .sk-group-head { grid-template-columns: 48px 1fr; }
   .sk-num { font-size: 2rem; }
-  .sk-how-grid { grid-template-columns: 1fr; }
   .sk-cta p { font-size: 1.6rem; }
   .sl-always { grid-template-columns: 1fr; }
 }
@@ -137,3 +129,7 @@
 }
 #motion-figure.sk-card--example { display: flex; }
 #motion-figure.sk-card--example > footer { align-self: stretch; }
+.sk-example svg .m-serif { font-family: var(--m-font-body); }
+.sk-how > p { max-width: 68ch; margin: 0 0 12px; color: var(--ink-soft); line-height: 1.6; }
+.sk-how q { quotes: none; font-family: var(--font-mono); font-size: 0.86rem; color: var(--ink); }
+.sk-example svg { fill: var(--m-ink); }

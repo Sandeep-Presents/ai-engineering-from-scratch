@@ -59,7 +59,7 @@ Quizzes you on a phase and tells you which lessons to read again before you move
 
 ### build-project (v1.0.0)
 
-Guides one stage of a course project per session. You write the code, run the stage grader, and keep the result. It gives hints, never full solutions.
+Guides one stage of a course project per session. It gives hints only. You write the code and run the stage grader.
 
 - Say: "build a project", "continue my project"
 - Writes: PROJECTS-LEARNING.md
@@ -68,7 +68,7 @@ Guides one stage of a course project per session. You write the code, run the st
 
 ## 03 Focused paths
 
-Use these when you want one topic in depth, from first principles to production.
+Use these to study one topic lesson by lesson.
 
 ### learn-mcp (v1.0.0)
 
@@ -112,11 +112,11 @@ Tutor for the Model Context Protocol Associate exam: lessons, practical labs, an
 
 ## 05 Make figures and manuals
 
-Use these to draw, animate, and write in the same style as this site.
+Use these to make figures and manuals that match this site.
 
 ### course-style (v1.0.0)
 
-The shared reference the other making skills read: colours for light and dark, fonts, figure labels, and the plain technical English rules.
+Colours for light and dark, fonts, figure labels, and the plain technical English rules. The other skills in this group read it.
 
 - Say: "use the course style", "check this text for plain English"
 - Writes: Nothing. Other skills read it.
@@ -125,7 +125,7 @@ The shared reference the other making skills read: colours for light and dark, f
 
 ### blueprint-figure (v1.0.0)
 
-Static SVG figures for lessons, READMEs, and manuals: nine figure kinds, colour rules, arrows, and legibility checks.
+Static SVG figures for lessons, READMEs, and manuals. It has nine figure kinds, colour rules, and checks for label size and overlap.
 
 - Say: "draw a figure of the request path", "make FIG_012 for this lesson"
 - Writes: An SVG file
@@ -134,7 +134,7 @@ Static SVG figures for lessons, READMEs, and manuals: nine figure kinds, colour 
 
 ### motion-figure (v1.1.0)
 
-Figures that move or answer back: lesson animations and sliders, interactive mechanism figures with a computed verdict, and dither bands like the one at the top of this page.
+Animated and interactive figures: SVG animations, slider widgets, figures with controls and a computed result, and dither bands like the one at the top of this page.
 
 - Say: "animate this concept", "show how this system works"
 - Writes: A lesson figure, a standalone figure, or a dither band
@@ -143,7 +143,7 @@ Figures that move or answer back: lesson animations and sliders, interactive mec
 
 ### isometric-explainer (v1.0.0)
 
-An interactive isometric machine whose motion is the concept, driven by a tested state model, with controls to break parts and watch what fails.
+An interactive isometric machine that shows a process step by step. A tested state model drives it. Controls let you break a part and see what fails.
 
 - Say: "explain how a cache evicts entries as a machine", "make an isometric explainer for this lesson"
 - Writes: A standalone HTML page and its source
@@ -152,7 +152,7 @@ An interactive isometric machine whose motion is the concept, driven by a tested
 
 ### write-manual (v1.0.0)
 
-A long manual about one subject at one pinned version: sources, a table of contents, offline captures for every listing, figures, and an audit.
+A long manual about one tool at one pinned version, with sources, a table of contents, offline captures of every listing, figures, and an audit.
 
 - Say: "write a manual for this tool", "start a 101 manual"
 - Writes: A manual folder: manual.json, sections, figures, captures

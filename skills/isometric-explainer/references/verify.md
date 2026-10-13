@@ -11,12 +11,12 @@ Do not trust the code. Look at the pixels. Run this loop after each build, and f
 5. **Close-ups at 4x.** Crop each station at device scale 4. Look for gaps between parts, text off its plate and lines that stop short.
 6. **Line ends.** Every open line end without `data-free` sits on a painted part.
 7. **Scenario sweep.** Load every config, seek to every event and finish the run. Collect `console.error` and `pageerror` messages. The count must be 0.
-8. **Contact sheet.** Put one frame per event of a run in a grid and read it as a strip. The motion story must make sense without captions.
+8. **Contact sheet.** Put one frame per event of a run in a grid and read it as a strip. A reader must be able to follow the steps without captions.
 9. **Exploded pose.** Explode, wait 1.5 s and check that no part leaves the stage.
 
 ## Findings from real runs
 
-These defects were found by this loop, not by reading code:
+This loop found the defects below. A code review did not find them.
 
 - A card resting on a station top had a smaller depth key than the station and never showed. Fix: a positive depth bias.
 - Nameplates on station faces were hidden each time the carriage parked in front of them. Fix: move plates where no mover passes.

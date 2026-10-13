@@ -1,6 +1,6 @@
 # Dither fields
 
-A dither field is a band of moving pixels drawn with ordered dithering. It uses only three colours from the page: the paper, the accent, and the ink. Use one as a page masthead or above a section. It gives a page motion that is calm, cheap, and in the course palette. `templates/dither.js` is a complete script.
+A dither field is a band of moving pixels drawn with ordered dithering. It uses only three colours from the page: the paper, the accent, and the ink. Use one as a page masthead or above a section. It adds slow motion to a page at a low cost and uses only the course colours. `templates/dither.js` is a complete script.
 
 ## How it draws
 
@@ -53,7 +53,7 @@ The same idea works on bars inside a figure. A bar fill in the accent colour get
 - The edge is 16 to 24 px of paper-coloured dots over the end of the fill, at three densities: 22, 50, and 80 percent. The fill then breaks up into dots at its end.
 - The entry is a dot veil over the fill that goes from opaque to clear in 4 steps over about 520 ms, with `steps(4, end)`.
 - A grey track behind a fill can show a sparse ink dot field at 28 percent.
-- One way that needs no colour lookup: put a pseudo-element at the end of the fill, give it the track colour, and cut it with a CSS `mask` of an 8 by 8 Bayer tile.
+- To skip a colour lookup, put a pseudo-element at the end of the fill and give it the track colour. Cut it with a CSS `mask` of an 8 by 8 Bayer tile.
 - Never put a label or a value on a dithered part of a bar.
 - With reduced motion, show the end state with no veil.
 
