@@ -1,5 +1,5 @@
 /* figures-re-35.js - evidence ledger lab for lesson 35 (reverse engineering).
-   Every record below is real. The rea record comes from rea-agents 6.4.0 with
+   Every record below is real. The rea record comes from rea-agents 6.5.0 with
    the Ghidra 12.1.4 provider on ledger-x86_64-O1.o. The other records come from
    the lesson's own reader, byte model, predictions, and host runs
    (phases/13-tools-and-protocols/35-evidence-confidence-and-unknowns/code/fixtures). */
@@ -77,7 +77,7 @@
     },
     {
       key: 'ghidra',
-      id: 'ev_f91f0cdc1943edeb73e7847d142229b63aea975064521e22cef4c0a2fecd8f8e',
+      id: 'ev_67b6d3f992eaf49a2e16de084b6ebfdd9884e8c5c7f75e175b7bb20f4f748ce1',
       confidence: 'observed',
       authority: 'shipped-artifact',
       text: 'Ghidra 12.1.4 analyze_function grade: pseudocode and 14 instructions',

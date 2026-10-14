@@ -10,10 +10,10 @@ import main
 
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
-GRADE_ID = "ev_f91f0cdc1943edeb73e7847d142229b63aea975064521e22cef4c0a2fecd8f8e"
-PERCENT_ID = "ev_4b69a47e7269aca05a56c35ea00439c7ec037a7e03e884a2ad78b1fb49df290e"
-PROFILE_DIGEST = "a04af771c3a78edf03c11c3b8652d4812dfce76da00d380345526a333361b5c9"
-GRADE_QUERY = "query_7681c1d24903ac017c4e0479aeab9cfb9568ec3ff353aa91e40b98492a0829cb"
+GRADE_ID = "ev_67b6d3f992eaf49a2e16de084b6ebfdd9884e8c5c7f75e175b7bb20f4f748ce1"
+PERCENT_ID = "ev_e88b10dc0c6400e51bb6f7fdc3eaea8d2c97cc02463f0db3e6afeefc273197cd"
+PROFILE_DIGEST = "9c7f6b24be69294e61da046e4583e3856cb9e40433b149c1bf8bb534d2fe03ef"
+GRADE_QUERY = "query_26122aebe9d8abae8de7a5cc962bcdb70ede0d3ba52d28e471a1e1d6d7d83b41"
 OBJECT_SHA256 = "9a4a8082ba5e285a732552981a6935e0c5255725664f380e37c44ebfb04d803f"
 HOST_ENV = {"id": "host-process", "platform": "test", "architecture": "test", "isolation": "process"}
 HARNESS = {"id": "course-harness", "name": "test harness", "version": "test"}

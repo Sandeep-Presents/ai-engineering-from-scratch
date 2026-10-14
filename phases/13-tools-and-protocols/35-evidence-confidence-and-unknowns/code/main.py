@@ -1,6 +1,6 @@
 """Companion code for docs/en.md: an evidence ledger for binary analysis.
-Record model: rea 6.4.0 `src/domain/evidence.ts`, `src/domain/residualUnknown.ts`,
-`src/domain/analysisSnapshot.ts` (commit 6e25cc3c761da358f799e306c2be3545830b6a3b).
+Record model: rea 6.5.0 `src/domain/evidence.ts`, `src/domain/residualUnknown.ts`,
+`src/domain/analysisSnapshot.ts` (tag rea-agents-6.5.0, commit 3b79af28e80785afce9f5998d8f03289402a1847).
 Run `python3 main.py` for the finite demo or `python3 -m unittest discover -s tests`.
 """
 
