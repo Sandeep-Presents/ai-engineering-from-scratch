@@ -24,7 +24,7 @@ You open the same object in `llvm-objdump -d` and see four blocks after the jump
 
 A listing answers one question only: which bytes form which instruction. It does not say which instructions run, in what order, or from where. To answer them you need three more structures: the bytes that control flow can reach, the basic blocks, and the edges between them.
 
-rea 6.4.0 has no disassembler of its own. Its README asks you to bring Ghidra, Hopper, or IDA. Its call graph stops at unresolved targets: "Callers/callees contain only resolved functions.... Targetless computed flow remains unknown.". This lesson builds the part that produces those facts, so you can judge them when a tool reports them.
+rea 6.5.0 has no disassembler of its own. For deep analysis, its README asks you to bring Ghidra, Hopper, or IDA. For offline inspection, rea can also call a GNU objdump or a Rizin that you install. Its call graph stops at unresolved targets: "Callers/callees contain only resolved functions.... Targetless computed flow remains unknown.". This lesson builds the part that produces those facts, so you can judge them when a tool reports them.
 
 ```figure
 re-33-sweep-vs-descent
@@ -332,7 +332,7 @@ The lesson from the two builds is to name what the bytes show. A jump table chan
 
 ## What rea and Ghidra Give You Here
 
-rea 6.4.0 with the Ghidra 12.1.4 provider returns the Listing text of a function from `procedure_assembly` as one string. `inspect_native_instruction` returns the bytes, length, decoder text, operand tokens, typed references, and flow of one instruction, with the return classified from p-code. `xrefs` returns the sorted unique source addresses from Ghidra's `ReferenceManager.getReferencesTo`. `analyze_function` carries the CFG and `body` of the function. `procedure_info` gives the body as inclusive ranges and warns that "Gaps and shared tails must not be treated as owned bytes".
+rea 6.5.0 with the Ghidra 12.1.4 provider returns the Listing text of a function from `procedure_assembly` as one string. `inspect_native_instruction` returns the bytes, length, decoder text, operand tokens, typed references, and flow of one instruction, with the return classified from p-code. `xrefs` returns the sorted unique source addresses from Ghidra's `ReferenceManager.getReferencesTo`. `analyze_function` carries the CFG and `body` of the function. `procedure_info` gives the body as inclusive ranges and warns that "Gaps and shared tails must not be treated as owned bytes".
 
 Every one of those facts is Ghidra's recursive descent plus its analyzers, serialised. The rea analysis profile pins contract versions for `instruction_flow_evidence`, `function_references`, and `jump_table_evidence`. A result therefore names the rules that produced it. What it cannot do is show its work. When Ghidra does not find the table, the flow is "unknown", and the case blocks are missing from callers, callees, and the CFG.
 
@@ -540,4 +540,4 @@ Decode against an oracle, walk control flow from known entries, and account for 
 - [Cooper, Harvey, Kennedy, "A Simple, Fast Dominance Algorithm" (2001)](https://www.cs.tufts.edu/~nr/cs257/archive/keith-cooper/dom14.pdf)
 - [Lengauer, Tarjan, "A fast algorithm for finding dominators in a flowgraph" (1979)](https://doi.org/10.1145/357062.357071)
 - [Capstone 6.0.0-Alpha10 release notes](https://github.com/capstone-engine/capstone/releases/tag/6.0.0-Alpha10)
-- rea 6.4.0 source at tag `a56f7bb` that this lesson describes: `README.md`, `docs/ghidra-provider.md`, `bridge/ghidra/ReaGhidraBridge.java`, `src/contracts/officialToolContracts.ts`, `ReaGhidraBridge.java`, `docs/ghidra-dos.md`, `src/ghidra/GhidraAnalysisProfile.ts`.
+- rea 6.5.0 source at tag `3b79af2` that this lesson describes: `README.md`, `docs/ghidra-provider.md`, `docs/ghidra-dos.md`, `docs/reverse-engineering-tools.md`, `bridge/ghidra/ReaGhidraBridge.java`, `src/contracts/officialToolContracts.ts`, `src/ghidra/GhidraAnalysisProfile.ts`.
