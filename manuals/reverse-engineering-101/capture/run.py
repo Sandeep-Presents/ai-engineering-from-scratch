@@ -74,6 +74,8 @@ CHECK_MASKS = [
     (r"/tmp/rea-ghidra-socket-[^\"\s/]+", "<tmp>"),
     (r"rea-ghidra-[A-Za-z0-9_-]+", "rea-ghidra-<id>"),
     (r"\"pid\":\s*\d+", "\"pid\": <pid>"),
+    (r"\"process_id\":\s*\d+", "\"process_id\": <pid>"),
+    (r"\\\"process_id\\\":\s*\d+", r"\\\"process_id\\\": <pid>"),
     (r"\bpid \d+", "pid <pid>"),
 ]
 
