@@ -4,7 +4,7 @@
 
 A vendor sent you a binary, and an agent at your side can decompile it in eight seconds. Before the first command, two questions stand. Who owns the program, and what does the law allow you to do with a copy you did not write? rea asks neither question. Its README puts the answer on you, and the statutes and decisions below say what the answer has to contain.
 
-When you finish this section, you can say which rule lets you analyze a program, and why every target in this manual passes that test. This section is a reading of primary sources, not legal advice.
+When you finish this section, you can say which rule lets you analyze a program, and why every target in this manual passes that test. This section reads primary sources and gives no legal advice.
 
 ## The use rule at the tag
 

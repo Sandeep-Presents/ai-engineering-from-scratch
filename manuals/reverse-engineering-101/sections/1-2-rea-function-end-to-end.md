@@ -108,7 +108,7 @@ id: fig-1-3
 kind: structure
 title: the 15 fields of one Evidence record
 claim: Every field of the record is either identity, provenance, the answer, or a limit on the answer, and the id covers all of them except the display names.
-caption: Read the field, its value in this record, and the note. From capture/out/06-function-percent-change.json, with the field list from src/domain/evidence.ts:100-118 at the tag.
+caption: Read the field, its value in this record, and the note. From capture/out/06-function-percent-change.json, with the field list from src/domain/evidence.ts at the tag.
 ```
 
 ## Inside normalized_result

@@ -105,7 +105,7 @@ note: Cut to the result. Nine of the twelve segment entries are cut.
 
 The `document` is not the file you named. It is `target-01b5d08b08fb.bin`, the private copy that rea makes under its runtime root. The name is `target-` plus the first twelve hex digits of the SHA-256. [Section 4.1](#s-open-binary-and-the-headless-bridge) shows that copy being made.
 
-The twelve segments are Ghidra memory blocks, not the four `LC_SEGMENT_64` commands of [section 3.2](#s-inspect-binary-layout-and-the-load-image). Ghidra splits `__TEXT` into the 1280-byte header range and its five sections. It splits `__DATA_CONST` into `__got`, `__const`, and the 16296 bytes after them. It splits `__LINKEDIT` into the 1104 used bytes and the padding to the next page.
+The twelve segments are Ghidra memory blocks. They are different from the four `LC_SEGMENT_64` commands of [section 3.2](#s-inspect-binary-layout-and-the-load-image). Ghidra splits `__TEXT` into the 1280-byte header range and its five sections. It splits `__DATA_CONST` into `__got`, `__const`, and the 16296 bytes after them. It splits `__LINKEDIT` into the 1104 used bytes and the padding to the next page.
 
 The ends are exclusive: `__text` runs from `0x100000500` to `0x100000740`, and the next block starts at `0x100000740`. The last block, `EXTERNAL`, is not in the file at all. Ghidra creates it for imported functions, and [section 4.2](#s-list-procedures-and-function-bodies) shows four of them living there.
 
@@ -178,7 +178,9 @@ caption: Read each column top to bottom. The green box names the Ghidra document
 
 ## What the overview does not say
 
-The record has no function sizes, no entry point, and no image base. The research notes that `binary_overview` at 6.4.0 reports no `image_base`, and that per-segment bases come from `list_segments`. For sizes, use the `body` of each function in [section 4.2](#s-list-procedures-and-function-bodies). For the entry point, use `LC_MAIN` in [section 3.2](#s-inspect-binary-layout-and-the-load-image). The two profile digests differ, `20565088` against `a04af771`, because `target_format` and `architecture` are inside the profile parameters. [Section 5.3](#s-snapshots-and-the-answer-cache) shows that a cached answer replays only when the whole digest matches.
+The record has no function sizes, no entry point, and no image base. The output schema of `binary_overview` in rea 6.4.0 has no `image_base` field. Each memory region that `list_segments` returns has an optional `image_base` field.
+
+For sizes, use the `body` of each function in [section 4.2](#s-list-procedures-and-function-bodies). For the entry point, use `LC_MAIN` in [section 3.2](#s-inspect-binary-layout-and-the-load-image). The two profile digests differ, `20565088` against `a04af771`, because `target_format` and `architecture` are inside the profile parameters. [Section 5.3](#s-snapshots-and-the-answer-cache) shows that a cached answer replays only when the whole digest matches.
 
 ```takeaways
 - Run `rea analyze` once per build and keep the `document` name with the record.
@@ -187,4 +189,4 @@ The record has no function sizes, no entry point, and no image base. The researc
 - Read `confidence: "derived"` as a sign that three primitive records stand behind this one.
 ```
 
-Sources: capture/out/00-commands.txt, capture/out/05-analyze-arm64-O1.json, capture/out/05-analyze-x86_64-O1.json; rea 6.4.0 at a56f7bb: src/cliCommandNames.ts, src/application/EnhancedTools.ts, src/application/WorkflowEvidence.ts, src/contracts/toolOutputSchemaGroups.ts, src/ghidra/GhidraTargetSnapshot.ts
+Sources: capture/out/00-commands.txt, capture/out/05-analyze-arm64-O1.json, capture/out/05-analyze-x86_64-O1.json; rea 6.4.0 at a56f7bb: src/cliCommandNames.ts, src/application/EnhancedTools.ts, src/application/WorkflowEvidence.ts, src/contracts/toolOutputSchemaGroups.ts, src/contracts/toolOutputSchemaPrimitives.ts, src/ghidra/GhidraTargetSnapshot.ts

@@ -11,10 +11,10 @@ The capture kit drove `rea mcp` with a small client of its own and recorded 25 e
 The published way to register the server is one `mcpServers` entry that runs the package through `npx` with the `mcp` command:
 
 ```listing
-title: the manual registration the install docs give
+title: the registration shape this manual uses
 source: examples/mcp-registration.json
 lang: json
-note: Nothing is cut. rea setup writes the same shape for the clients it knows and pins the version that ran it.
+note: Nothing is cut. The shape follows the install docs {{install MCP registry}}. rea setup writes the same shape for the clients it knows and pins the version that ran it.
 ---
 {
   "mcpServers": {
@@ -170,4 +170,4 @@ The docs add that "No macOS cold-start recovery was exercised." {{mcp Ghidra fir
 - After a client timeout during startup, call close_binary, then open_binary, then retry.
 ```
 
-Sources: capture/out/10-mcp-01-initialize.json, 10-mcp-02-tools-list.json, 10-mcp-03-open-binary-O1.json, 10-mcp-04-binary-session.json, 10-mcp-05-list-procedures.json, 10-mcp-15-close-binary-O1.json, 10-mcp-session.txt, 10-mcp-server.log, 00-fixtures.txt; capture/README.md; rea docs/installation.md (MCP registry), docs/mcp-contracts.md (Identity and discovery, Compact input schema profile, Ghidra first-query deadlines and recovery, Request scope and local effects); rea at a56f7bb: scripts/rea.mjs, src/main.ts, src/main/messages.ts, src/server/createServer.ts, src/config/ghidraStartupTimeout.ts, src/config/environment.ts, src/cliCommandNames.ts, docs/mcp-prompts.md; @modelcontextprotocol/server 2.3.1 as installed in the npx cache
+Sources: examples/mcp-registration.json; capture/out/10-mcp-01-initialize.json, 10-mcp-02-tools-list.json, 10-mcp-03-open-binary-O1.json, 10-mcp-04-binary-session.json, 10-mcp-05-list-procedures.json, 10-mcp-15-close-binary-O1.json, 10-mcp-session.txt, 10-mcp-server.log, 00-fixtures.txt; capture/README.md; rea docs/installation.md (MCP registry), docs/mcp-contracts.md (Identity and discovery, Compact input schema profile, Ghidra first-query deadlines and recovery, Request scope and local effects); rea at a56f7bb: scripts/rea.mjs, src/main.ts, src/main/messages.ts, src/server/createServer.ts, src/config/ghidraStartupTimeout.ts, src/config/environment.ts, src/cliCommandNames.ts, docs/mcp-prompts.md; @modelcontextprotocol/server 2.3.1 as installed in the npx cache

@@ -18,6 +18,7 @@ rea, the `rea-agents` package at 6.4.0, with the Ghidra 12.1.4 provider, from th
 | `front.md`, `sections/` | the text, one file per section |
 | `figures/src/` | the figure sources, built to `figures/*.svg` |
 | `capture/` | the kit, its fixtures, and its recorded output in `capture/out/` |
+| `examples/` | `mcp-registration.json`, the MCP registration that section 8.1 lists |
 
 ## The pin
 

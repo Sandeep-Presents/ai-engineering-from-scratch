@@ -109,7 +109,7 @@ id: fig-2-2
 kind: flow
 title: the nine checks of rea doctor for the Ghidra scope
 claim: rea doctor runs nine checks for the Ghidra scope in a fixed order, and on the capture Mac every one passed with the path or version it found.
-caption: Read left to right, then down, and the two boxes at the bottom are the report's two verdicts. From capture/out/01-doctor-ghidra.json and 00-commands.txt, with the order from src/ghidra/GhidraInstallation.ts:174-182 at the tag.
+caption: Read left to right, then down, and the two boxes at the bottom are the report's two verdicts. From capture/out/01-doctor-ghidra.json and 00-commands.txt, with the order from src/ghidra/GhidraInstallation.ts at the tag.
 ```
 
 ## healthy and environment_healthy

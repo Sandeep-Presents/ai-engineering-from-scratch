@@ -32,7 +32,7 @@ note: Nothing is cut.
 }
 ```
 
-The MCP server does not know the tool either. The answer is a JSON-RPC error, not a tool result with `isError`, because the request never reached a tool.
+The MCP server does not know the tool either. The answer is a JSON-RPC error with no `isError` tool result, because the request never reached a tool.
 
 ```listing
 title: the MCP refusal
@@ -67,7 +67,7 @@ The source at the tag agrees with both answers. The 6.4.0 source has no WebAssem
 
 ## What main added after the release
 
-Two days after the release, the main branch at `6e25cc3` has an `inspect_wasm_artifact` tool and a CLI command of that name. None of it is in 6.4.0, so this manual describes it in two paragraphs and cites the research rather than the code.
+Two days after the release, the main branch at `6e25cc3` has an `inspect_wasm_artifact` tool and a CLI command of that name. None of it is in 6.4.0, so this manual describes it in two paragraphs only.
 
 On main the tool runs three caller-supplied WABT programs on a private copy of the module. They are `wasm-validate --enable-all`, `wasm-objdump -h -x`, and `wasm2wat --enable-all`, from the directory named by `REA_WABT_BIN_DIRECTORY`. Each program must print exactly `1.0.42` as its version, or the tool refuses to run.
 

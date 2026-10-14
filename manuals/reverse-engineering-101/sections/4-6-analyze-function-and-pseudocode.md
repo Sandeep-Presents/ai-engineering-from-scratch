@@ -177,7 +177,7 @@ The pseudocode says the function returns `ulong`, eight bytes, and returns `para
 id: fig-4-9
 kind: comparison
 title: percent_change as written and as decompiled
-claim: Four source lines became fourteen lines of pseudocode, and the three marked lines describe the registers rather than the function.
+claim: Four source lines became fourteen lines of pseudocode, and the three marked lines describe only the registers.
 caption: Read the source first, then the pseudocode. The rose marks name the return width, the repeated test, and the return of the whole register. From capture/fixtures/ledger.c and capture/out/10-mcp-09-analyze-function-percent-change-O1.json.
 ```
 

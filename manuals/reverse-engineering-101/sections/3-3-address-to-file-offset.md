@@ -2,7 +2,7 @@
 
 > address-to-file-offset maps one virtual address to the byte in the file that Ghidra loaded there, and the segment load command lets you check the answer by hand.
 
-`inspect-macho` says `_grade` is exported at `0x100000518`. You want to open `ledger-arm64-O1` in a hex viewer and read those bytes, so you need a file offset, not an address. One rea command answers that question, and the Mach-O load commands let you compute the same number without rea.
+`inspect-macho` says `_grade` is exported at `0x100000518`. You want to open `ledger-arm64-O1` in a hex viewer and read those bytes, so you need the file offset of that address. One rea command answers that question, and the Mach-O load commands let you compute the same number without rea.
 
 When you finish this section, you can turn an address into a file offset with `rea address-to-file-offset`. You can do the same arithmetic from the `LC_SEGMENT_64` fields, and say when the two can disagree.
 

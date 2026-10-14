@@ -6,7 +6,7 @@ An agent tells you that `_percent_change` returns 0 when `before` is 0. You want
 
 ## One record for every successful observation
 
-**Evidence record:** the one record type that rea returns for a successful observation. The schema is one strict object with fifteen fields. A record with an extra field, or with a field missing, is rejected. The MCP server returns the record as `structuredContent` and as a text copy: "Evidence-producing tools return the complete canonical Evidence record in both text and structured content." {{mcp mcp-contracts.md:284-286}}
+**Evidence record:** the one record type that rea returns for a successful observation. The schema is one strict object with fifteen fields. A record with an extra field, or with a field missing, is rejected. The MCP server returns the record as `structuredContent` and as a text copy: "Evidence-producing tools return the complete canonical Evidence record in both text and structured content." {{mcp Tool results}}
 
 ```listing
 title: the fifteen fields of the _percent_change dossier record
@@ -91,7 +91,7 @@ Three defaults fill in what a producer leaves out. When the producer names no co
 | `inspect_analysis_view`, provider `rea-analysis-view` | `derived` | `shipped-artifact` | `15-js-app-view-summary.json` |
 | `record_unknown`, provider `rea-unknown-registry` | `derived` | `analyst-inference` | none in the capture |
 
-Read `observed` with care. In the dossier it means that rea recorded what Ghidra returned, with the bytes on disk as the authority. It does not mean that the pseudocode is the program's source. The provider documentation says so: "Assembly is complete Ghidra Listing text; pseudocode is Ghidra decompiler output." {{ghidra ghidra-provider.md:51}}
+Read `observed` with care. In the dossier it means that rea recorded what Ghidra returned, with the bytes on disk as the authority. It does not mean that the pseudocode is the program's source. The provider documentation says so: "Assembly is complete Ghidra Listing text; pseudocode is Ghidra decompiler output." {{ghidra Admitted function-analysis semantics}}
 
 The `binary_overview` record is `derived`, because a rea workflow computed it from provider calls. Its one limitation says so: "Derived by an REA composed workflow." (`05-analyze-arm64-O1.json`). [Lesson 35](phases/13-tools-and-protocols/35-evidence-confidence-and-unknowns) builds a ledger in plain Python with the same three words and the same five authorities.
 
@@ -122,7 +122,7 @@ note: Of the 27 limitations, the first two are shown.
 
 `evidence_links` names the records a derived record was computed from. The comparison links the two dossiers it compared, and a view links its parent record. `locations` says where in the artifact the fact was seen. The JavaScript record in `15-js-app.json` carries one `artifact-path` location, `artifact-root`. The Ghidra dossier carries none, because its addresses live inside `normalized_result`.
 
-`analysis_profile` is part of the identity even when it is empty: "`analysis_profile` is always present: a concrete profile object or `null`; either value participates in semantic identity." {{mcp mcp-contracts.md:289-291}}
+`analysis_profile` is part of the identity even when it is empty: "`analysis_profile` is always present: a concrete profile object or `null`; either value participates in semantic identity." {{mcp Tool results}}
 
 A profile whose provider differs from the record's `provider` is rejected with "Analysis profile provider does not match Evidence provider". The profile digest is a SHA-256 over the canonical JSON of its provider and parameters. [The snapshot cache](#s-snapshots-and-the-answer-cache) uses the same digest as part of its key.
 

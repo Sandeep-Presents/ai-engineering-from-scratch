@@ -61,7 +61,7 @@ id: fig-2-3
 kind: structure
 title: one capability record, analyze_function under ghidra
 claim: A capability record answers four questions before any call: is the operation available, what does it start, what does it write, and what does it change.
-caption: Read the field, its value for analyze_function in the ghidra candidate, and the note that says which other operations differ. From capture/out/02-capabilities.json, with the schema from src/contracts/toolOutputSchemaPrimitives.ts:79-99 at the tag.
+caption: Read the field, its value for analyze_function in the ghidra candidate, and the note that says which other operations differ. From capture/out/02-capabilities.json, with the schema from src/contracts/toolOutputSchemaPrimitives.ts at the tag.
 ```
 
 ## The seven effects
@@ -160,7 +160,7 @@ note: Cut to one of the 170 catalog entries. The other entries, the protocol fea
         }
 ```
 
-The catalog describes the MCP tool, not the provider operation. `xrefs` has `mutatesSession: true`, because every answer is recorded in the session's Evidence ledger. So its MCP annotation `read_only` is false, even though the provider capability says `mutates_artifact: false`. The two vocabularies answer two questions. The capability says what the engine does to your machine, and the catalog says what the tool does to the MCP session. Read the one that matches your question, and do not mix them.
+The catalog describes the MCP tool, and the capability describes the provider operation. `xrefs` has `mutatesSession: true`, because every answer is recorded in the session's Evidence ledger. So its MCP annotation `read_only` is false, even though the provider capability says `mutates_artifact: false`. The two vocabularies answer two questions. The capability says what the engine does to your machine, and the catalog says what the tool does to the MCP session. Read the one that matches your question, and do not mix them.
 
 ```takeaways
 - Run `rea capabilities --format json` before the first call on a new machine.

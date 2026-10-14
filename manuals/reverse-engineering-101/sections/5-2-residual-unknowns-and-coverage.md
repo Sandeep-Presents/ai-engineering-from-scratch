@@ -19,9 +19,9 @@ note: Line 1009 and line 1824 of the file. Everything between them is cut.
 "Resolved reference metadata identifies computed, indirect, external, call, jump, and data edges; unresolved targetless flows remain unknown, and function classifications distinguish thunks and externals.",
 ```
 
-The provider documentation states the same limit in one sentence: "Callers/callees contain only resolved functions." {{ghidra ghidra-provider.md:53}}
+The provider documentation states the same limit in one sentence: "Callers/callees contain only resolved functions." {{ghidra Admitted function-analysis semantics}}
 
-The design rule behind every rea tool is shorter still: "Missing coverage is unknown, not absence." {{design tool-design.md:53}}
+The design rule behind every rea tool is shorter still: "Missing coverage is unknown, not absence." {{design Define the contract}}
 
 At 6.4.0 the rule is prose, because the record has no coverage field for callers and callees. That field came after the release. A reader of a 6.4.0 record takes the coverage from `limitations`.
 
@@ -47,7 +47,7 @@ note: One of the eight records. The fields before native_dossier are cut.
 }
 ```
 
-A zero here is a count that rea stands behind. An empty array elsewhere is a count with no such statement. The contract says what those fields are for: "`native_dossier.value_flow` independently reports truncation, unavailable or unknown metadata." {{mcp mcp-contracts.md:318-319}}
+A zero here is a count that rea stands behind. An empty array elsewhere is a count with no such statement. The contract says what those fields are for: "`native_dossier.value_flow` independently reports truncation, unavailable or unknown metadata." {{mcp Tool results}}
 
 Two other empty lists in the capture carry the same lesson. `rea compare` in `14-compare-bundles.json` lists ten records with an empty `right_evidence_ids`. It classifies every one as `unknown` with the conclusion kind `unresolved_branch`, because a bundle has no marker that says it is complete ([compare](#s-compare-and-compare-functions)). The JavaScript summary view in `15-js-app-view-summary.json` reports `"semantic_unknowns": 118` for a six-file application. It marks the semantic coverage `unknown` ([the application graph](#s-analyze-javascript-application)). [Figure](#fig-5-3) puts the three lists side by side.
 
@@ -94,7 +94,7 @@ id: fig-5-2
 kind: structure
 title: a ResidualUnknown and its revision chain
 claim: An unknown keeps its id across revisions, each revision names the digest of the one before, and each change writes its own Evidence record.
-caption: Read left to right. Revision 1 is the unknown that registerFunctionComparisonTool.ts:122-155 records for the _total comparison in capture/out/10-mcp-21-compare-functions-total.json. The right column shows the fields that an update_unknown call changes.
+caption: Read left to right. Revision 1 is the unknown that registerFunctionComparisonTool.ts records for the _total comparison in capture/out/10-mcp-21-compare-functions-total.json. The right column shows the fields that an update_unknown call changes.
 ```
 
 ## Unknowns that rea opens itself

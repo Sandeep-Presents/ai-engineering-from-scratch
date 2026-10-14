@@ -6,7 +6,7 @@ You have a small Electron-style application, six files in `capture/fixtures/js-a
 
 ## The command and the record
 
-The CLI command is `rea analyze-javascript-application PATH`. The plain `rea analyze PATH` reaches the same code for a directory: "Generic `rea analyze PATH` selects this workflow for directories and `.asar` files when neither `--provider` nor `--snapshot` is supplied." {{cli cli.md:18-19}}
+The CLI command is `rea analyze-javascript-application PATH`. The plain `rea analyze PATH` reaches the same code for a directory: "Generic `rea analyze PATH` selects this workflow for directories and `.asar` files when neither `--provider` nor `--snapshot` is supplied." {{cli Run a command}}
 
 The inputs are `input_path`, `format` as `auto`, `asar`, or `directory`, and `integrity_policy`. Two resource limits are optional: `max_heap_mb`, 1024 MiB by default, and `analysis_timeout_ms`, 300,000 ms by default. Over MCP a `detail` of `complete` or `summary` is added. The parser is `@babel/parser` with `errorRecovery` on and comments left unattached.
 
@@ -100,9 +100,9 @@ note: Events 1, 3, and 19 of the first analyze-javascript-application call. The 
 
 ## The graph
 
-**Application graph:** the provider-neutral model of an application as nodes and directed edges, with an evidence block on every edge. The documentation fixes two rules. The graph is built from syntax alone: "It performs no filesystem or CDP I/O, does not evaluate JavaScript, and has no application-specific node kinds." {{jsgraph javascript-application-graph.md:10-11}}
+**Application graph:** the provider-neutral model of an application as nodes and directed edges, with an evidence block on every edge. The documentation fixes two rules. The graph is built from syntax alone: "It performs no filesystem or CDP I/O, does not evaluate JavaScript, and has no application-specific node kinds." {{jsgraph JavaScript Application Graph}}
 
-The edges use a fixed vocabulary: "The directed relation vocabulary is `contains`, `loads`, `imports`, `maps_to`, `exposes`, `sends`, `invokes`, `handles`, `calls`, `persists_to`, `observed_as`, and `changed_from`." {{jsgraph javascript-application-graph.md:71-73}}
+The edges use a fixed vocabulary: "The directed relation vocabulary is `contains`, `loads`, `imports`, `maps_to`, `exposes`, `sends`, `invokes`, `handles`, `calls`, `persists_to`, `observed_as`, and `changed_from`." {{jsgraph Entities and relationships}}
 
 The graph for ledger-desk in `15-js-app-graph.json` has 33 nodes and 50 edges, and its own coverage is `complete` with nothing omitted.
 
@@ -126,7 +126,7 @@ The graph for ledger-desk in `15-js-app-graph.json` has 33 nodes and 50 edges, a
 | `sends`, `exposes` | 2 each | inferred |
 | `calls`, `persists_to` | 1 each | inferred, `fetch` and `localStorage.setItem` |
 
-Every edge says how it was obtained. An AST fact has authority `ast-static-analysis`, state `observed`, confidence `exact`, and a source range. A relationship has authority `static-relationship-inference`, state `inferred`, and confidence `high` by default. It always carries the limitation "Static syntax does not prove that this relationship executes at runtime." The documentation states the rule for the Electron edges: "The `loads`, `exposes`, `invokes`, `handles`, and `imports` relationships remain static inferences." {{jsgraph javascript-application-graph.md:102-103}}
+Every edge says how it was obtained. An AST fact has authority `ast-static-analysis`, state `observed`, confidence `exact`, and a source range. A relationship has authority `static-relationship-inference`, state `inferred`, and confidence `high` by default. It always carries the limitation "Static syntax does not prove that this relationship executes at runtime." The documentation states the rule for the Electron edges: "The `loads`, `exposes`, `invokes`, `handles`, and `imports` relationships remain static inferences." {{jsgraph Entities and relationships}}
 
 ```listing
 title: one invokes edge, from preload.js to the handler in main.js
@@ -179,7 +179,7 @@ caption: Read from the top left. Olive boxes are the application's own code, the
 
 ## Views over a large record
 
-Six files give a record of about 200 KB. The documentation warns about real applications: "The complete application Evidence can be hundreds of megabytes for a real application." {{cli cli.md:23-24}}
+Six files give a record of about 200 KB. The documentation warns about real applications: "The complete application Evidence can be hundreds of megabytes for a real application." {{cli Run a command}}
 
 `inspect-analysis-view` reads a view out of a record that already exists, without running the analysis again. Its input is a `source` and a `view`. The source is the complete record inline, or a reference to a record the MCP session retains. The view is a summary, a page of a collection, or one module. The capture asked for the summary and for the first 32 items of the `modules` collection.
 

@@ -99,7 +99,7 @@ note: The two suggested commands are cut.
 }
 ```
 
-`COMMAND_NOT_FOUND` and `cta` belong to the command-line parser, not to `analysisErrorProjectionSchema`. A script that reads rea errors needs a branch for a misspelt or missing command before it reads `category`. Both WebAssembly files record the same fact from two sides. The tool and the command exist on the main branch of rea and not in the published 6.4.0 package ([Section 6.2](#s-wasm-in-rea-6-4-0)).
+`COMMAND_NOT_FOUND` and `cta` belong to the command-line parser. `analysisErrorProjectionSchema` does not define them. A script that reads rea errors needs a branch for a misspelt or missing command before it reads `category`. Both WebAssembly files record the same fact from two sides. The tool and the command exist only on the main branch of rea, after the published 6.4.0 package ([Section 6.2](#s-wasm-in-rea-6-4-0)).
 
 ## Codes that are not errors
 
