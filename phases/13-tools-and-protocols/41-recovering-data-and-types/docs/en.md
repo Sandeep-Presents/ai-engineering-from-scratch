@@ -362,7 +362,7 @@ Ghidra's output without DWARF shows the same two rules at work. Its decompiler a
 
 The hand-made table is the other half of the story. Ghidra's Data Type Manager, IDA's Local Types, Binary Ninja's type archives, and rizin's `td` all let you type the struct from the recovered layout and watch the decompiler re-render. The pass tells you what to type and which fields you are guessing.
 
-rea 6.4.0 with its Ghidra provider returns the decompiler text as a record. Everything in the Ghidra row applies to it, and the record carries the type names without the evidence that produced them. Running `python3 code/main.py infer` on the same listing gives you that evidence.
+rea 6.5.0 with its Ghidra provider returns the decompiler text as a record. Everything in the Ghidra row applies to it, and the record carries the type names without the evidence that produced them. Running `python3 code/main.py infer` on the same listing gives you that evidence.
 
 ## Type Inference Research
 
