@@ -11,7 +11,7 @@ const columns = [
       ['percent-change-pseudocode', 'status pass, observed_status unchanged'],
       ['percent-change-assembly', 'status pass, observed_status unchanged'],
     ],
-    comparison: ['compare_functions ev_f5276998', ['left ev_0000b698 (ledger-arm64-O1)', 'right ev_b84b923e (ledger-arm64-O2)']],
+    comparison: ['compare_functions ev_ef3ad879', ['left ev_172d39ff (ledger-arm64-O1)', 'right ev_1f3bca22 (ledger-arm64-O2)']],
     tail: { hue: 'grey', title: 'no residual unknown', sub: 'all eight dimensions unchanged', style: 'reply', label: 'no unknown' },
   },
   {
@@ -22,17 +22,17 @@ const columns = [
       ['total-pseudocode', 'status fail, observed_status changed'],
       ['total-assembly', 'status fail, observed_status changed'],
     ],
-    comparison: ['compare_functions ev_0fe621b6', ['left ev_4c2f020b (ledger-arm64-O1)', 'right ev_6b95d417 (ledger-arm64-O2)']],
-    tail: { hue: 'rose', title: 'unk_391244e5', sub: 'Function comparison is changed (medium)', style: 'fail', label: 'unknown_ids' },
+    comparison: ['compare_functions ev_c33c0c81', ['left ev_7c94981b (ledger-arm64-O1)', 'right ev_a36b5090 (ledger-arm64-O2)']],
+    tail: { hue: 'rose', title: 'unk_f318e8ba', sub: 'Function comparison is changed (medium)', style: 'fail', label: 'unknown_ids' },
   },
 ];
 
 module.exports = figure('fig-7-1', {
   height: 392,
   title: 'Four claims over two comparison records',
-  desc: 'A tree. The verification record ev_5897face at the top has status fail with two passed and two failed claims. Its left column holds the two percent_change claims, pseudocode and assembly, both pass with observed_status unchanged, pointing at the comparison record ev_f5276998 whose left side is ev_0000b698 from ledger-arm64-O1 and right side ev_b84b923e from ledger-arm64-O2, with no residual unknown. The right column holds the two total claims, both fail with observed_status changed, pointing at the comparison record ev_0fe621b6 with sides ev_4c2f020b and ev_6b95d417, which recorded the residual unknown unk_391244e5, Function comparison is changed.',
+  desc: 'A tree. The verification record ev_0f0a4142 at the top has status fail with two passed and two failed claims. Its left column holds the two percent_change claims, pseudocode and assembly, both pass with observed_status unchanged, pointing at the comparison record ev_ef3ad879 whose left side is ev_172d39ff from ledger-arm64-O1 and right side ev_1f3bca22 from ledger-arm64-O2, with no residual unknown. The right column holds the two total claims, both fail with observed_status changed, pointing at the comparison record ev_c33c0c81 with sides ev_7c94981b and ev_a36b5090, which recorded the residual unknown unk_f318e8ba, Function comparison is changed.',
 }, f => {
-  const top = f.box({ x: 150, y: 14, w: 340, h: 48, hue: 'blue', title: 'verify_reconstruction ev_5897face', sub: 'status fail: 2 passed, 2 failed, 0 unknown' });
+  const top = f.box({ x: 150, y: 14, w: 340, h: 48, hue: 'blue', title: 'verify_reconstruction ev_0f0a4142', sub: 'status fail: 2 passed, 2 failed, 0 unknown' });
   for (const column of columns) {
     const cx = column.x + 145;
     f.arrow(top.bottom(), [cx, 99], { style: 'call' });
