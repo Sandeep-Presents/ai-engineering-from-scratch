@@ -1781,7 +1781,7 @@ def demo() -> None:
         print(lifted[name].ir_text)
         print(f"-- {name}: SSA with phi functions --")
         print(lifted[name].ssa_text)
-        print(f"-- {name}: our pseudocode next to Ghidra 12.1.4 through rea 6.4.0 --")
+        print(f"-- {name}: our pseudocode next to Ghidra 12.1.4 through rea 6.5.0 --")
         print(side_by_side(lifted[name].unit, ghidra_pseudocode(name), "lifter", "ghidra"))
     print("\n== grade at -O1 with division recognition switched off ==")
     print(lift_all(o1, recognize_division=False)["grade"].pseudocode)

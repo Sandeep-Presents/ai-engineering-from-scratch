@@ -314,7 +314,7 @@ The length of the table is a heuristic. `table_values()` reads from the table st
 
 ## Side by Side With Ghidra
 
-The demo prints each pair. The Ghidra text comes from `code/fixtures/ghidra/*.json`, the Evidence records that rea returned on 2026-10-13. The command was `npx -y rea-agents@6.4.0 decompile ledger-x86_64-O1.o <function> --provider ghidra --format json`. Each record carries `confidence: observed` and `authority: shipped-artifact`. The text is observed. The claims inside the text are derived, and the records do not say which ones.
+The demo prints each pair. The Ghidra text comes from `code/fixtures/ghidra/*.json`, the Evidence records that rea returned on 2026-10-14. The command was `npx -y rea-agents@6.5.0 decompile ledger-x86_64-O1.o <function> --provider ghidra --format json`. Each record carries `confidence: observed` and `authority: shipped-artifact`. The text is observed. The claims inside the text are derived, and the records do not say which ones.
 
 ### percent_change
 
@@ -601,5 +601,5 @@ Treat pseudocode as a derivation you have not seen. Reproduce it from the instru
 - [LLM4Decompile, EMNLP 2024](https://arxiv.org/abs/2403.05286)
 - [DecompileBench, Findings of ACL 2025](https://aclanthology.org/2025.findings-acl.1194/)
 - [Liu, Raff, Micinski, When LLM Decompilers Recompile More and Preserve Less, 2026](https://arxiv.org/abs/2609.05370)
-- [rea 6.4.0 Ghidra provider notes](https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/ghidra-provider.md)
-- rea 6.4.0 source at tag `a56f7bb` that this lesson describes: `src/domain/functionComparisonDimensions.ts`, `website/evidence/dx-ball-sound-pan.md`.
+- [rea 6.5.0 Ghidra provider notes](https://github.com/morluto/rea/blob/rea-agents-6.5.0/docs/ghidra-provider.md)
+- rea 6.5.0 source at tag `3b79af2` that this lesson describes: `src/domain/functionComparisonDimensions.ts`, `website/evidence/dx-ball-sound-pan.md`.

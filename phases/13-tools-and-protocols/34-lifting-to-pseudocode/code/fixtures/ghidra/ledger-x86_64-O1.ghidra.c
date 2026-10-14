@@ -1,4 +1,4 @@
-/* percent_change: Ghidra 12.1.4 decompiler text returned by rea 6.4.0 procedure_pseudo_code, verbatim. */
+/* percent_change: Ghidra 12.1.4 decompiler text returned by rea 6.5.0 procedure_pseudo_code, verbatim. */
 undefined1  [16] percent_change(int param_1,int param_2,ulong param_3)
 
 {
@@ -17,7 +17,7 @@ undefined1  [16] percent_change(int param_1,int param_2,ulong param_3)
   return auVar2 << 0x40;
 }
 
-/* grade: Ghidra 12.1.4 decompiler text returned by rea 6.4.0 procedure_pseudo_code, verbatim. */
+/* grade: Ghidra 12.1.4 decompiler text returned by rea 6.5.0 procedure_pseudo_code, verbatim. */
 uint grade(int param_1)
 
 {
@@ -32,7 +32,7 @@ uint grade(int param_1)
   return uVar1;
 }
 
-/* total: Ghidra 12.1.4 decompiler text returned by rea 6.4.0 procedure_pseudo_code, verbatim. */
+/* total: Ghidra 12.1.4 decompiler text returned by rea 6.5.0 procedure_pseudo_code, verbatim. */
 int total(long param_1,uint param_2)
 
 {

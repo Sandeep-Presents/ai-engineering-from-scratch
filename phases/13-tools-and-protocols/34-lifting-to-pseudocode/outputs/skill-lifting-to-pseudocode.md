@@ -16,7 +16,7 @@ Given a function in an object file or executable that you built or are authorize
 - A reference disassembly from `llvm-objdump -d -r` or the decompiler's instruction view.
 - The relocation records that apply to the function body.
 - The calling convention of the target (System V AMD64 psABI section 3.2.3 for x86-64 Linux objects).
-- The decompiler text for the same function, with the provider name and version, for example Ghidra 12.1.4 through rea 6.4.0.
+- The decompiler text for the same function, with the provider name and version, for example Ghidra 12.1.4 through rea 6.5.0.
 - The source of the function when the target is your own fixture, for the behaviour comparison.
 
 ## Procedure

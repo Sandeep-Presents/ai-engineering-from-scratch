@@ -24,14 +24,14 @@ Apple LLVM version 17.0.0. The tests require the decoder in `../main.py` to agre
 
 ## Ghidra pseudocode through rea
 
-`ghidra/percent_change.json`, `ghidra/grade.json`, and `ghidra/total.json` are the Evidence records that rea 6.4.0 returned for the `decompile` verb (operation `procedure_pseudo_code`) with the Ghidra 12.1.4 provider. Run on 2026-10-13 on macOS 26.2 arm64 with OpenJDK 21.0.12.1:
+`ghidra/percent_change.json`, `ghidra/grade.json`, and `ghidra/total.json` are the Evidence records that rea 6.5.0 returned for the `decompile` verb (operation `procedure_pseudo_code`) with the Ghidra 12.1.4 provider. Run on 2026-10-14 on macOS 26.2 arm64 with OpenJDK 21.0.12.1:
 
 ```bash
 export GHIDRA_INSTALL_DIR=/opt/homebrew/Cellar/ghidra/12.1.4/libexec
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21
-npx -y rea-agents@6.4.0 decompile "$PWD/ledger-x86_64-O1.o" percent_change --provider ghidra --format json
-npx -y rea-agents@6.4.0 decompile "$PWD/ledger-x86_64-O1.o" grade --provider ghidra --format json
-npx -y rea-agents@6.4.0 decompile "$PWD/ledger-x86_64-O1.o" total --provider ghidra --format json
+npx -y rea-agents@6.5.0 decompile "$PWD/ledger-x86_64-O1.o" percent_change --provider ghidra --format json
+npx -y rea-agents@6.5.0 decompile "$PWD/ledger-x86_64-O1.o" grade --provider ghidra --format json
+npx -y rea-agents@6.5.0 decompile "$PWD/ledger-x86_64-O1.o" total --provider ghidra --format json
 ```
 
 Each call took about 10 seconds. The `subject.local_path` field records the path of the copy under `manuals/reverse-engineering-101/capture/fixtures/`, which has the same SHA-256.
