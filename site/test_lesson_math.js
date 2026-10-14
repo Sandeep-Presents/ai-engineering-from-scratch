@@ -113,9 +113,18 @@ test('lesson math stays portable to GitHub, the book and the translation pipelin
       if (inCode) return;
       if (/^\s*\$\$.+\$\$\s*$/.test(line)) problems.push(`${rel}:${index + 1}: write display math as a $$ block on its own lines`);
       const prose = line.replace(/`[^`]+`/g, ' ').replace(/\\\$/g, ' ');
-      if (/[)\]]\$[)\]"]|"\$[^\s$][^$]*\$"|(?:^|\s)-\$[^\s$][^$]*\$-/.test(prose)) {
-        problems.push(`${rel}:${index + 1}: GitHub does not render math closed as ")$)", "$...$" in quotes or -$...$-; rephrase the punctuation around the span`);
+      if (/[)\]]\$[)\]"]|"\$[^\s$][^$]*\$"/.test(prose)) {
+        problems.push(`${rel}:${index + 1}: GitHub does not render math closed as ")$)" or wrapped in quotes; rephrase the punctuation around the span`);
       }
+      const parts = splitInlineMath(prose);
+      let emphasis = 0;
+      parts.forEach((part, at) => {
+        if (part.math == null) return;
+        emphasis += (part.math.match(/[}\])]_[{(\\[]/g) || []).length;
+        const before = at > 0 ? parts[at - 1].text || '' : '';
+        if (/\w-$/.test(before)) problems.push(`${rel}:${index + 1}: GitHub does not render math opened right after a hyphen as in rank-$k$`);
+      });
+      if (emphasis > 1) problems.push(`${rel}:${index + 1}: GitHub pairs two "}_{" in one line as emphasis; write "} _{" with a space`);
     });
     for (const item of extractMath(md)) {
       const where = `${rel}:${item.line}`;

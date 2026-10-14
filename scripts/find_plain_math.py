@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-FORMULA_FENCES = {"", "text", "math", "plaintext"}
+FORMULA_FENCES = {"", "text", "plaintext"}
 
 PATTERNS = [
     ("power", re.compile(r"(?<![\w.])(?:[a-zA-Z]|\d+|\))\^(?:\(|\{|-?\w)")),
