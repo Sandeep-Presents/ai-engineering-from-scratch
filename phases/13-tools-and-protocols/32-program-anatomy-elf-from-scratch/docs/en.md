@@ -44,7 +44,7 @@ These notes come from the statutes and the opinions, and they are not legal advi
 
 You compiled `ledger.c` and ran `llvm-objdump -t` on the object. The output lists `percent_change` at value `0000000000000000` with size `0000000000000010`. Which 16 bytes of the 1,768-byte file are that function? The listing also shows `R_X86_64_PC32 .rodata+0x10` at offset `0x36`, and the four bytes at that spot in the file are zero. What will they become, and why is the addend `0x10` when the table starts at `0x14`?
 
-rea answers layout questions with `inspect_binary_layout`, and that tool exists only on Linux x64 with pwntools 4.15.0 behind `REA_PWNTOOLS_PYTHON`. On this Mac it is absent. `address_to_file_offset` needs a Ghidra session and a complete copy of the original file bytes with a matching SHA-256. `inspect_artifact` and `inventory_artifact` list what a container holds by path and content hash, and they never open the tables inside an object file. So you write the reader yourself in about 950 lines of Python with `struct.unpack` and no dependency. The tests compare every table with `llvm-objdump` text captured once into the fixtures.
+rea answers layout questions with `inspect_binary_layout`, and that tool exists only on Linux x64 with pwntools 4.15.0 behind `REA_PWNTOOLS_PYTHON`. On this Mac it is absent. `address_to_file_offset` needs a Ghidra session and a complete copy of the original file bytes with a matching SHA-256. `inspect_artifact` lists what a container holds by path and content hash. It never opens the tables inside an object file. So you write the reader yourself in about 950 lines of Python with `struct.unpack` and no dependency. The tests compare every table with `llvm-objdump` text captured once into the fixtures.
 
 ```figure
 elf-byte-map
@@ -210,7 +210,7 @@ entry 0x4000b0 is file offset 0xb0 through PT_LOAD
 
 The single `PT_LOAD` maps the whole 736-byte file at `0x400000`. The reader maps an address to a file offset by finding the `PT_LOAD` that contains it and computing `p_offset + (address - p_vaddr)`. For the entry point that is `0 + (0x4000b0 - 0x400000) = 0xb0`, the start of `.text`.
 
-This is the computation behind rea's `address_to_file_offset`. That tool returns `{address, file_offset, provider_file_offset, image_base_file_offset}` for a Ghidra target, and it needs a complete original copy of the file whose SHA-256 matches. The documentation of rea's `inspect_binary_layout` adds a line to keep: "A linked address is not a runtime address". A position-independent executable loads at a base the kernel chooses, and the file offset is the only stable coordinate.
+This is the computation behind rea's `address_to_file_offset`. For a Ghidra target, that tool returns `{address, file_offset}`. The Hopper provider also returns `provider_file_offset` and `image_base_file_offset`. The tool needs a complete original copy of the file, and the SHA-256 of that copy must match the target. The documentation of rea's `inspect_binary_layout` adds a line to keep: "A linked address is not a runtime address". A position-independent executable loads at a base the kernel chooses, and the file offset is the only stable coordinate.
 
 Program headers also explain why a stripped executable still runs. A linker can remove the section header table entirely, and `e_shoff` becomes zero. A tool that walks sections then sees nothing. The loader never looked at them.
 
@@ -266,7 +266,7 @@ The reader's `compare_formats` puts the two files side by side:
 | Relocations | `.rela.text`, 3 records, `R_X86_64_PC32` | `__text` `reloff` 1104, 6 records, `PAGE21` and `PAGEOFF12` |
 | Function bytes | `percent_change`: 16 bytes at `0x40` | `_percent_change`: 24 bytes at `0x288` |
 
-rea reads Mach-O through `inspect_macho`, which runs `otool -h -l`, `nm -gjU`, `dyld_info -imports -exports`, and `dwarfdump --uuid` through `xcrun`. Your reader needs none of them, and it reads the same `symoff` and `stroff` that `otool -l` prints. The `open_binary` tool of rea detects ELF, MZ, PE, and thin or universal Mach-O from the magic bytes. It also reads `e_machine` at offset 18 itself. That is the first 20 bytes of what you built here. It refuses a universal binary and asks for a thinned slice, and so does your reader when it sees `0xcafebabe`.
+rea reads Mach-O through `inspect_macho`, which runs `otool -h -l`, `nm -gjU`, `dyld_info -imports -exports`, and `dwarfdump --uuid` through `xcrun`. Your reader needs none of them, and it reads the same `symoff` and `stroff` that `otool -l` prints. The `open_binary` tool of rea detects ELF, MZ, PE, and thin or universal Mach-O from the magic bytes. It also reads `e_machine` at offset 18 itself. That is the first 20 bytes of what you built here. For a file with no header, you give `format: raw-binary`, the architecture, and the entry address. The Ghidra provider refuses a universal binary and asks for a thinned slice. Your reader does the same when it sees `0xcafebabe`.
 
 ## Build It
 
@@ -438,4 +438,4 @@ Read the header you can trust, follow the offsets it holds, and name every field
 - [Apple XNU `loader.h`](https://github.com/apple-oss-distributions/xnu/blob/main/EXTERNAL_HEADERS/mach-o/loader.h), [`nlist.h`](https://github.com/apple-oss-distributions/xnu/blob/main/EXTERNAL_HEADERS/mach-o/nlist.h), and [`reloc.h`](https://github.com/apple-oss-distributions/xnu/blob/main/EXTERNAL_HEADERS/mach-o/reloc.h)
 - [17 U.S.C. 1201](https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title17-section1201&num=0&edition=prelim) and [Directive 2009/24/EC](https://eur-lex.europa.eu/eli/dir/2009/24/oj/eng)
 - [Sega v. Accolade, 977 F.2d 1510](https://law.resource.org/pub/us/case/reporter/F2/977/977.F2d.1510.92-15655.html) and [Sony v. Connectix, 203 F.3d 596](https://law.resource.org/pub/us/case/reporter/F3/203/203.F3d.596.99-15852.html)
-- [rea 6.4.0 `docs/binary-diagnostics.md`](https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/binary-diagnostics.md) and [`docs/ghidra-provider.md`](https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/ghidra-provider.md)
+- [rea 6.5.0 `docs/binary-diagnostics.md`](https://github.com/morluto/rea/blob/rea-agents-6.5.0/docs/binary-diagnostics.md) and [`docs/ghidra-provider.md`](https://github.com/morluto/rea/blob/rea-agents-6.5.0/docs/ghidra-provider.md)
