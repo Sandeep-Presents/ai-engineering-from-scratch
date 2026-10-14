@@ -33,7 +33,8 @@ PATTERNS = [
     ("unicode-op", re.compile(r"[√∈∀∃⋅]")),
 ]
 
-MATH_SPAN = re.compile(r"(?<![\\$])\$(?=[^\s$])(?:\\.|[^$\\\n])+?(?<=[^\s\\])\$(?!\d)")
+MATH_SPAN = re.compile(r"(?<![\\$\w])\$(?=[^\s$])(?:\\.|[^$\\\n])+(?<=[^\s\\])\$(?!\w)")
+LOOSE_SPAN = re.compile(r"(?<![\\$])\$(?=[^\s$])(?:\\.|[^$\\\n])+?(?<=[^\s\\])\$(?![\d$])")
 CODE_SPAN = re.compile(r"`[^`\n]+`")
 FENCE = re.compile(r"^\s*(```|~~~)\s*([\w+-]*)")
 
@@ -72,7 +73,7 @@ def scan(path):
             hits.append((number, kinds, line.strip(), fence is not None))
         if fence is None:
             plain = CODE_SPAN.sub(" ", line).replace("\\$", " ")
-            for span in MATH_SPAN.finditer(plain):
+            for span in LOOSE_SPAN.finditer(plain):
                 if not looks_like_tex(span.group(0)):
                     stray.append((number, span.group(0)))
     return hits, stray
@@ -82,7 +83,8 @@ def looks_like_tex(span):
     body = span[1:-1]
     if re.fullmatch(r"[\d.,]+[kKmMbB]?", body):
         return False
-    return not re.search(r"\d[\d,.]*\s*(?:/|per|to|-|and|or)\s", body)
+    words = re.findall(r"(?<![\\a-zA-Z])[a-zA-Z]{3,}", re.sub(r"\\text\{[^}]*\}", " ", body))
+    return not (body[:1].isdigit() and words)
 
 
 def lesson_docs(phase=None):

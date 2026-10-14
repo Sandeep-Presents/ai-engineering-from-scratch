@@ -59,6 +59,12 @@ test('display math renders as a block in both the fenced and the single-line for
   assert.match(block, /<p>More text\.<\/p>$/);
   assert.match(parseMd('$$a^2 + b^2 = c^2$$'), /^<div class="math-display" data-math="display">a\^2 \+ b\^2 = c\^2<\/div>$/);
   assert.match(parseMd('$$\nx < y\n$$'), /x &lt; y/);
+  const fence = parseMd('```math\n\\begin{aligned} a &= b \\\\ c &= d \\, e \\end{aligned}\n```');
+  assert.equal(fence, '<div class="math-display" data-math="display">\\begin{aligned} a &amp;= b \\\\ c &amp;= d \\, e \\end{aligned}</div>');
+  assert.deepEqual(extractMath('```math\nq^2\n```\n```python\nx = "$a$"\n```\nThen $y$.'), [
+    { display: true, tex: 'q^2', line: 1 },
+    { display: false, tex: 'y', line: 7 },
+  ]);
 });
 
 test('code spans, code blocks and figures never render math', () => {
@@ -73,8 +79,12 @@ test('code spans, code blocks and figures never render math', () => {
   assert.match(figure, /class="lesson-figure"/);
 });
 
-test('the scanner follows the pandoc rule for opening and closing dollars', () => {
+test('the scanner follows the GitHub rule for opening and closing dollars', () => {
   assert.deepEqual(splitInlineMath('$x$5'), [{ text: '$x$5' }]);
+  assert.deepEqual(splitInlineMath('the $k$th row'), [{ text: 'the $k$th row' }]);
+  assert.deepEqual(splitInlineMath('US$5 or A$x$'), [{ text: 'US$5 or A$x$' }]);
+  assert.deepEqual(splitInlineMath('a $k$th b, then $x$ c'), [{ text: 'a $k$th b, then ' }, { math: 'x' }, { text: ' c' }]);
+  assert.deepEqual(splitInlineMath('($x$) and $y$-th'), [{ text: '(' }, { math: 'x' }, { text: ') and ' }, { math: 'y' }, { text: '-th' }]);
   assert.deepEqual(splitInlineMath('$x $'), [{ text: '$x $' }]);
   assert.deepEqual(splitInlineMath('$ x$'), [{ text: '$ x$' }]);
   assert.deepEqual(splitInlineMath('a $x$ b'), [{ text: 'a ' }, { math: 'x' }, { text: ' b' }]);
@@ -111,6 +121,10 @@ test('lesson math stays portable to GitHub, the book and the translation pipelin
       }
       if (!item.display && /^[\d.,]+[kKmMbB]?$/.test(item.tex.trim())) problems.push(`${where}: a money amount reads as math; escape it as \\$`);
       if (/\$/.test(item.tex.replace(/\\\$/g, ''))) problems.push(`${where}: nested dollar inside math`);
+      const fencedDisplay = item.display && !/^\s*\$\$/.test(lines[item.line - 1]);
+      if (!fencedDisplay && /\\[!-\/:-@\[-`{-~]/.test(item.tex)) {
+        problems.push(`${where}: GitHub drops a backslash before punctuation inside $ math; use a math fence or a named command such as \\lbrace`);
+      }
     }
   }
   assert.deepEqual(problems, []);

@@ -108,7 +108,9 @@
         if (line.match(/^```\s*$/)) {
           inCodeBlock = false;
           var raw = codeLines.join('\n');
-          if (codeLang === 'figure') {
+          if (codeLang === 'math') {
+            out += mathBlock(raw);
+          } else if (codeLang === 'figure') {
             out += '<div class="lesson-figure" data-figure="' + escapeHtml(raw.trim()) + '"></div>';
           } else if (codeLang === 'mermaid') {
             mermaidBlocks++;
@@ -321,6 +323,10 @@
     return ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r' || ch === '\u00a0';
   }
 
+  function isWordChar(ch) {
+    return /[A-Za-z0-9_]/.test(ch);
+  }
+
   function closingDollar(text, start) {
     for (var j = start; j < text.length; j++) {
       var ch = text.charAt(j);
@@ -329,8 +335,8 @@
         continue;
       }
       if (ch !== '$') continue;
-      if (text.charAt(j + 1) === '$') return -1;
-      if (j > start && !isSpace(text.charAt(j - 1)) && !/[0-9]/.test(text.charAt(j + 1))) return j;
+      if (j > start && !isSpace(text.charAt(j - 1)) && !isWordChar(text.charAt(j + 1))) return j;
+      return -1;
     }
     return -1;
   }
@@ -350,7 +356,7 @@
         i++;
         continue;
       }
-      if (ch === '$' && i + 1 < text.length && !isSpace(text.charAt(i + 1))) {
+      if (ch === '$' && i + 1 < text.length && !isSpace(text.charAt(i + 1)) && !isWordChar(text.charAt(i - 1))) {
         var end = closingDollar(text, i + 1);
         if (end > 0) {
           if (plain) parts.push({ text: plain });
@@ -370,6 +376,8 @@
     var found = [];
     var lines = md.split(/\r?\n/);
     var inCode = false;
+    var mathFence = [];
+    var mathStart = 0;
     var block = null;
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
@@ -382,8 +390,20 @@
         }
         continue;
       }
-      if (/^```/.test(line)) {
-        inCode = !inCode;
+      var fence = line.match(/^```(\w*)/);
+      if (fence) {
+        if (inCode === 'math') found.push({ display: true, tex: mathFence.join('\n').trim(), line: mathStart });
+        if (inCode) {
+          inCode = false;
+        } else {
+          inCode = fence[1] || 'code';
+          mathFence = [];
+          mathStart = i + 1;
+        }
+        continue;
+      }
+      if (inCode === 'math') {
+        mathFence.push(line);
         continue;
       }
       if (inCode) continue;
