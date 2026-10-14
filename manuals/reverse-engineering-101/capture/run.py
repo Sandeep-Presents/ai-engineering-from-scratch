@@ -294,7 +294,11 @@ class Kit:
             proc = subprocess.run(argv, cwd=HERE, env=self.env, capture_output=True, text=True, timeout=COMMAND_TIMEOUT)
             code, stdout, stderr = proc.returncode, proc.stdout, proc.stderr
         except subprocess.TimeoutExpired as exc:
-            code, stdout, stderr = "timeout", exc.stdout or "", (exc.stderr or "") + f"\n[run.py] timed out after {COMMAND_TIMEOUT} s"
+            stdout, stderr = (
+                part.decode("utf-8", errors="replace") if isinstance(part, bytes) else part or ""
+                for part in (exc.stdout, exc.stderr)
+            )
+            code, stderr = "timeout", stderr + f"\n[run.py] timed out after {COMMAND_TIMEOUT} s"
         elapsed = time.monotonic() - started
         self.timings.append((name or stdout_path, elapsed))
         if stdout_path is not None:
