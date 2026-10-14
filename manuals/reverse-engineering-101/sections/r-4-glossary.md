@@ -14,14 +14,14 @@ Every term is defined once, in the section the last column names, with the sourc
 | Basic block | A run of instructions with one entry at the top and one exit at the bottom | [4.3](#s-procedure-assembly) |
 | Basic blocks | The `basic_blocks` list of a dossier, with exclusive end addresses | [1.2](#s-rea-function-end-to-end) |
 | Bridge | `ReaGhidraBridge.java`, the Ghidra post-script that serves one JSON line per request on a Unix socket | [1.1](#s-rea-providers-and-evidence) |
-| Capability | One operation with its `available` flag, a reason and code when unavailable, seven effect booleans, and limitations | [2.3](#s-rea-capabilities) |
+| Capability | One group of operations that share an `available` flag, a reason and code when unavailable, the effects that are true out of seven, and limitations | [2.3](#s-rea-capabilities) |
 | Circumvention | Under 17 U.S.C. 1201(a)(3)(A), to avoid, bypass, remove, deactivate, or impair a technological measure without the authority of the copyright owner | [2.1](#s-the-readme-use-rule-and-the-law) |
 | Claim status | `pass`, `fail`, or `unknown` for one claim of `verify_reconstruction`, from authority limitations, the observed status, and open unknowns, in that order | [7.1](#s-verify-reconstruction) |
 | Composed operation | A rea operation built from other operations, with provider `rea-workflow` and `confidence: "derived"` | [3.4](#s-analyze-overview) |
 | Confidence | One of three words, `observed`, `derived`, or `inferred`, never a number | [5.1](#s-the-evidence-record) |
 | Decompiler artifact | A line of pseudocode that the decompiler needed and that no source line produced | [4.6](#s-analyze-function-and-pseudocode) |
 | Dossier | The composed record of one function that `analyze_function` returns, built from five Ghidra sources | [4.6](#s-analyze-function-and-pseudocode) |
-| Evidence | The one record type every successful analysis call returns, a strict object with 15 fields | [1.1](#s-rea-providers-and-evidence) |
+| Evidence | The one record type every successful analysis call returns, a strict object with 16 fields | [1.1](#s-rea-providers-and-evidence) |
 | Evidence bundle | One JSON object with seven arrays: `artifacts`, `providers`, `environments`, `scenarios`, `captures`, `unknowns`, and `records` | [5.4](#s-evidence-bundles-export-and-import) |
 | Evidence ledger | The table an agent keeps during an investigation: one row per claim with its kind, its Evidence id, and its boundary | [8.2](#s-an-agent-investigation) |
 | Evidence record | The record type itself, as [Part 5](#p-5) reads it field by field | [5.1](#s-the-evidence-record) |
@@ -35,7 +35,7 @@ Every term is defined once, in the section the last column names, with the sourc
 | Jump table | A table of code addresses that an indirect jump indexes | [4.4](#s-xrefs-and-the-jump-table) |
 | Load command | One record after the Mach-O header, with a `cmd` type and a `cmdsize` | [3.2](#s-inspect-binary-layout-and-the-load-image) |
 | Procedure | The function identity in a dossier: address, body ranges, signature, and classification | [1.2](#s-rea-function-end-to-end) |
-| Provider | An analysis engine behind one interface, `hopper`, `ghidra`, or `ida` at 6.4.0 | [1.1](#s-rea-providers-and-evidence) |
+| Provider | An analysis engine behind one interface, `hopper`, `ghidra`, or `ida` at 6.5.0 | [1.1](#s-rea-providers-and-evidence) |
 | Query id | `query_` and the SHA-256 of the target identity, the binding, the operation, and the parameters of one cached answer | [5.3](#s-snapshots-and-the-answer-cache) |
 | References | The incoming and outgoing edges of a dossier, each with a Ghidra reference type | [1.2](#s-rea-function-end-to-end) |
 | Relocation masking | Zeroing every relocation field in both functions before comparing bytes, then comparing the records and reading the bytes they point at | [7.2](#s-a-proof-harness-outside-rea) |
@@ -48,8 +48,8 @@ Every term is defined once, in the section the last column names, with the sourc
 | Target snapshot | The private copy of the input that the Ghidra launcher imports with `-readOnly` and `-deleteProject` and deletes when the session closes | [5.3](#s-snapshots-and-the-answer-cache) |
 | Target text | Every string, symbol name, comment, and line of pseudocode that a result copies out of the analyzed file, to be quoted and never acted on | [8.2](#s-an-agent-investigation) |
 | Thunk | A small function whose only job is to jump to another function | [4.2](#s-list-procedures-and-function-bodies) |
-| Tool catalog | The 170 tools the MCP server advertises in `tools/list`, available or not | [8.1](#s-the-rea-mcp-server) |
+| Tool catalog | The 207 tools the MCP server advertises in `tools/list`, available or not | [8.1](#s-the-rea-mcp-server) |
 | Value table | A table of data that a load indexes, so one instruction returns one of several values | [4.4](#s-xrefs-and-the-jump-table) |
 | Virtual address | The position of a byte in memory after the loader maps the segment that contains it | [3.3](#s-address-to-file-offset) |
 
-Sources: the definition paragraphs of every file under sections/; rea at a56f7bb: src/domain/evidence.ts, src/domain/evidenceBundle.ts, src/domain/residualUnknown.ts, src/domain/reconstructionVerification.ts, src/config/ghidraStartupTimeout.ts; rea docs/mcp-contracts.md
+Sources: the definition paragraphs of every file under sections/; rea at 3b79af2: src/domain/evidence.ts, src/domain/evidenceBundle.ts, src/domain/residualUnknown.ts, src/domain/reconstructionVerification.ts, src/config/providerStartupTimeout.ts, src/contracts/toolOutputSchemaPrimitives.ts; rea docs/mcp-contracts.md

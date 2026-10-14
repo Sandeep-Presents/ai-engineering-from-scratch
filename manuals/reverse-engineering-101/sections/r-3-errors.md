@@ -1,10 +1,10 @@
 # Errors seen in the captures
 
-> Four error envelopes, two unavailability codes, and two refused conclusions appear in the captures, and every rea error has the same five fields.
+> Two error envelopes, two unavailability codes, and two refused conclusions appear in the captures, and every rea error has the same five fields.
 
-The capture kit recorded four calls that failed and kept each reply whole. Two came from rea's own error projection, one from the MCP SDK below rea, and one from the CLI dispatcher above it. Two more files hold codes that are not errors: the availability of a provider that is not installed, and a comparison that reached no conclusion. This section lists all of them, then the schema they follow.
+The capture kit recorded two calls that failed and kept each reply whole. Both came from rea's own error projection, one from the CLI and one from the MCP server. Two more files hold codes that are not errors: the availability of a provider that is not installed, and a comparison that reached no conclusion. This section lists all of them, then the schema they follow.
 
-## The four error envelopes
+## The two error envelopes
 
 The CLI printed its envelope to stdout and exited 1 when `inspect-binary-layout` met a Mach-O file on macOS:
 
@@ -30,13 +30,13 @@ note: Nothing is cut. The exit status 1 is in capture/out/00-commands.txt.
 }
 ```
 
-Over MCP the same projection travels as text. A failed `tools/call` returns `isError: true` and the `{ "error":... }` object as JSON in `content[0].text`, with no `structuredContent`, because the advertised output schema describes success only {{mcp Progress and cancellation}}. The capture kit decoded that text into `decoded_text` beside the raw reply:
+Over MCP the same projection travels as text. A failed `tools/call` returns `isError: true` and the `{ "error":... }` object as JSON in `content[0].text`, with no `structuredContent`, because the advertised output schema describes success only {{mcp Tool results}}. The capture kit decoded that text into `decoded_text` beside the raw reply:
 
 ```listing
 title: invalid_request for a procedure that does not exist
 source: capture/out/10-mcp-13-analyze-function-missing.json
 lang: json
-note: The request and the raw response are cut. The raw response holds the same object as one JSON string.
+note: The request, the raw response, and details.diagnostics are cut. The raw response holds the same object as one JSON string. The diagnostics hold the Ghidra run id, the bridge endpoint, the launch output, and the remote failure code not_found.
 ---
   "decoded_text": {
     "error": {
@@ -63,43 +63,9 @@ note: The request and the raw response are cut. The raw response holds the same 
 
 The bridge raised `not_found` with the message in `issues[0].message`, and rea mapped a remote `not_found` to `AnalysisInputError`, whose code is `invalid_request`. The server log recorded the failure twice, once for the bridge layer and once for the server layer, both at level 40 (capture/out/10-mcp-server.log).
 
-A tool that the server does not have never reaches rea's projection. The MCP SDK answers with a JSON-RPC error object instead of a result:
+A call to a tool that the server does not have never reaches rea's projection. The MCP SDK answers with a JSON-RPC error `-32602` and the message `Tool <name> not found`, with no tool result. The 6.5.0 capture has no such call.
 
-```listing
-title: a tool that 6.4.0 does not have
-source: capture/out/10-mcp-24-inspect-wasm-artifact.json
-lang: json
-note: The request is cut. It named inspect_wasm_artifact with the path of the WASM fixture.
----
-  "response": {
-    "jsonrpc": "2.0",
-    "id": 24,
-    "error": {
-      "code": -32602,
-      "message": "Tool inspect_wasm_artifact not found"
-    }
-  }
-```
-
-The CLI dispatcher answers the same absence with its own envelope, which has a different shape from the projection:
-
-```listing
-title: a command that 6.4.0 does not have
-source: capture/out/16-inspect-wasm-artifact.json
-lang: json
-note: The two suggested commands are cut.
----
-{
-  "code": "COMMAND_NOT_FOUND",
-  "message": "'inspect-wasm-artifact' is not a command for 'rea'. Did you mean 'inspect-artifact'?",
-  "cta": {
-    "description": "Suggested commands:",
-    …
-  }
-}
-```
-
-`COMMAND_NOT_FOUND` and `cta` belong to the command-line parser. `analysisErrorProjectionSchema` does not define them. A script that reads rea errors needs a branch for a misspelt or missing command before it reads `category`. Both WebAssembly files record the same fact from two sides. The tool and the command exist only on the main branch of rea, after the published 6.4.0 package ([Section 6.2](#s-wasm-in-rea-6-4-0)).
+A misspelt CLI command gets the parser envelope `COMMAND_NOT_FOUND` with a `cta` object that suggests the nearest command. `analysisErrorProjectionSchema` does not define them. A script that reads rea errors needs a branch for a misspelt or missing command before it reads `category`. The 6.5.0 capture has no such call either.
 
 ## Codes that are not errors
 
@@ -131,7 +97,7 @@ Two results in the captures refused a conclusion and exited 0. `rea compare` ove
 | `code` | the discriminator, one of 20 codes listed below |
 | `category` | one of ten: `invalid_input`, `unsupported_provider`, `unsupported_target`, `integrity_mismatch`, `truncated`, `cancelled`, `timeout`, `resource_constraint`, `unavailable`, `execution_failure` |
 | `message` | one plain sentence for a person, with provider names and internal reasons removed |
-| `retryable` | true only for `artifact_changed`, `invalid_request`, `provider_timeout`, `cancelled`, `revision_conflict`, and `provider_unavailable` |
+| `retryable` | true for `artifact_changed`, `invalid_request`, `provider_timeout`, `cancelled`, `revision_conflict`, and `provider_unavailable`, for a `capability_unavailable` error that the provider marks retryable, and for a `resource_constraint` error on capacity |
 | `remediation.action` | one sentence that says what to do |
 | `details` | optional, free JSON for generic codes, and a fixed object with `logical_path`, `declared_sha256`, `calculated_sha256`, and `unpacked` for `artifact_integrity_mismatch` |
 
@@ -139,4 +105,4 @@ The 20 codes are `invalid_request`, `access_denied`, `artifact_changed`, `unread
 
 Two codes deserve a note for the Ghidra provider. `provider_timeout` is what the first Ghidra-backed call returns when the startup deadline of [Section 8.1](#s-the-rea-mcp-server) passes. `target_unavailable` is what every provider tool returns before `open_binary`, with the message "No app is open. Ask the user which app to investigate, then call open_binary with its local path.". Neither appeared in the captures, because the kit set a long client deadline and opened a target first.
 
-Sources: capture/out/04-inspect-binary-layout.json, 10-mcp-13-analyze-function-missing.json, 10-mcp-24-inspect-wasm-artifact.json, 16-inspect-wasm-artifact.json, 02-capabilities.json, 14-compare-bundles.json, 10-mcp-22-verify-reconstruction.json, 10-mcp-server.log, 00-commands.txt; rea docs/mcp-contracts.md (Progress and cancellation); rea at a56f7bb: src/contracts/errorSchemas.ts, src/domain/analysisErrorProjection.ts, src/domain/analysisErrorPresentation.ts, src/ghidra/GhidraProviderClient.ts, bridge/ghidra/ReaGhidraBridge.java, docs/user-visible-errors.csv, docs/error-contract.schema.json
+Sources: capture/out/04-inspect-binary-layout.json, 10-mcp-13-analyze-function-missing.json, 02-capabilities.json, 14-compare-bundles.json, 10-mcp-22-verify-reconstruction.json, 10-mcp-server.log, 00-commands.txt; rea docs/mcp-contracts.md (Tool results); rea at 3b79af2: src/contracts/errorSchemas.ts, src/domain/analysisErrorProjection.ts, src/domain/analysisErrorPresentation.ts, src/domain/configurationErrors.ts, src/ghidra/GhidraProviderClient.ts, src/ghidra/GhidraDiagnostics.ts, bridge/ghidra/ReaGhidraBridge.java, docs/user-visible-errors.csv, docs/error-contract.schema.json
