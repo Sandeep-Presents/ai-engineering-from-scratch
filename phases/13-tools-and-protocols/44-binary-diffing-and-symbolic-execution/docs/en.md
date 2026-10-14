@@ -113,7 +113,7 @@ In the `-O1` image: `0x1000a0 + 0x14 - 0x10003a = 0x7a = 122`. In the `-O2` imag
 
 Ghidra reports the same split. On `-O1` against `-O2`, Exact Function Bytes Match found `percent_change` and `grade_label`, Exact Function Instructions Match found those two plus `grade`, and Exact Function Mnemonics Match found the same three. The instruction correlator masks operands, which covers the displacement. The lesson's image view gives exact-bytes matches for exactly the two functions Ghidra's byte correlator found and masked-bytes agreement for exactly the three its instruction correlator found. The test suite asserts both equalities.
 
-rea 6.4.0's `compare_functions` line-diffs provider text and attaches the limitation "relocation normalization is unavailable". The loader and the mask in this lesson are that normalization.
+rea 6.5.0's `compare_functions` line-diffs provider text. On the assembly dimension it attaches the limitation "relocation normalization is unavailable". The loader and the mask in this lesson supply that normalization.
 
 ## What radiff2 Measures
 
