@@ -43,7 +43,7 @@ INT_MIN = -(2**31)
 INT_MAX = 2**31 - 1
 TRAP = "trap"
 FUNCTIONS = ("percent_change", "grade")
-REA_COMMAND = os.environ.get("REA_MCP_COMMAND", "npx -y rea-agents@6.4.0 mcp").split()
+REA_COMMAND = os.environ.get("REA_MCP_COMMAND", "npx -y rea-agents@6.5.0 mcp").split()
 MCP_PROTOCOL_VERSION = "2025-11-25"
 
 

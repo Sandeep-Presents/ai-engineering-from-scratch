@@ -47,13 +47,13 @@ re-36-prove-equal
 
 ## What the Evidence Says
 
-The agent loop in `code/main.py` made six calls to rea 6.4.0 over stdio. The recorded run is `code/fixtures/runs/agent-run.json`. The server answered `initialize` with protocol version `2025-11-25`. Three calls returned Evidence records:
+The agent loop in `code/main.py` made six calls to rea 6.5.0 over stdio. The recorded run is `code/fixtures/runs/agent-run.json`. The server answered `initialize` with protocol version `2025-11-25`. Three calls returned Evidence records:
 
 | Step | Tool | Time | Evidence id |
 |---|---|---|---|
-| 2 | `analyze_function percent_change` | 6.65 s | `ev_4b69a47e7269aca05a56c35ea00439c7ec037a7e03e884a2ad78b1fb49df290e` |
-| 3 | `analyze_function grade` | 0.02 s | `ev_f91f0cdc1943edeb73e7847d142229b63aea975064521e22cef4c0a2fecd8f8e` |
-| 4 | `read_bytes 0x1000b4, 20` | 0.00 s | `ev_9206ca101e8739f507c8c30871a92d3f2471b136103f9501056104d5a349ab8a` |
+| 2 | `analyze_function percent_change` | 6.31 s | `ev_e88b10dc0c6400e51bb6f7fdc3eaea8d2c97cc02463f0db3e6afeefc273197cd` |
+| 3 | `analyze_function grade` | 0.02 s | `ev_67b6d3f992eaf49a2e16de084b6ebfdd9884e8c5c7f75e175b7bb20f4f748ce1` |
+| 4 | `read_bytes 0x1000b4, 20` | 0.00 s | `ev_c26146cfedf4c1ee146d8ff00cfa9a5d3f5335bdd9c97ccf4e1af5f6ea3ed6bc` |
 
 The first call paid for the Ghidra import and auto-analysis. Each record carries `confidence: "observed"`, `authority: "shipped-artifact"`, and the SHA-256 of the object, `9a4a8082ba5e285a732552981a6935e0c5255725664f380e37c44ebfb04d803f`. Ghidra loads the relocatable object with `.text` at `0x100000`, so `percent_change` sits at `0x100000` and `grade` at `0x100010`.
 
@@ -201,7 +201,7 @@ Size is a diagnostic and not an acceptance. rea's evidence pages record a 1,825-
 
 ## The Agent Loop Over rea
 
-Sixty of rea's MCP tools have no CLI command, and `verify_reconstruction` is one of them. `McpStdioClient` in `code/main.py` is the smallest client that reaches them. It starts `npx -y rea-agents@6.4.0 mcp`, writes one JSON-RPC request per line to stdin, and reads one JSON object per line from stdout on a thread. It sends `initialize` with protocol version `2025-11-25`, then `notifications/initialized`, then `tools/call`. The default deadline per call is 330 s, the same number rea allows for a Ghidra cold start.
+Sixty-five of rea's MCP tools have no CLI command, and `verify_reconstruction` is one of them. `McpStdioClient` in `code/main.py` is the smallest client that reaches them. It starts `npx -y rea-agents@6.5.0 mcp`, writes one JSON-RPC request per line to stdin, and reads one JSON object per line from stdout on a thread. It sends `initialize` with protocol version `2025-11-25`, then `notifications/initialized`, then `tools/call`. The default deadline per call is 330 s, the same number rea allows for a Ghidra cold start.
 
 `agent_loop()` makes the six calls and records each one:
 
@@ -210,12 +210,12 @@ Sixty of rea's MCP tools have no CLI command, and `verify_reconstruction` is one
   "step": 2,
   "tool": "analyze_function",
   "arguments": {"procedure": "percent_change"},
-  "seconds": 6.65,
+  "seconds": 6.31,
   "is_error": false,
-  "evidence_id": "ev_4b69a47e7269aca05a56c35ea00439c7ec037a7e03e884a2ad78b1fb49df290e",
+  "evidence_id": "ev_e88b10dc0c6400e51bb6f7fdc3eaea8d2c97cc02463f0db3e6afeefc273197cd",
   "confidence": "observed",
   "authority": "shipped-artifact",
-  "limitations": ["Unresolved computed or indirect flows without target addresses are not represented as reference edges.", "..."],
+  "limitations": ["Resolved reference metadata identifies computed, indirect, external, call, jump, and data edges; unresolved targetless flows remain unknown, and function classifications distinguish thunks and externals.", "..."],
   "result_sha256": "..."
 }
 ```
@@ -226,7 +226,7 @@ The complete Evidence records are stored under their ids in the same file. The p
 
 ### What rea's verifier can and cannot say
 
-rea's `verify_reconstruction` takes claims that point at comparison Evidence and returns pass, fail, or unknown per claim. Its fixed limitation reads "Pass means every declared claim passed; it does not establish global implementation equivalence." The claim it can pass is "same provider text", because its comparison producer is `compare_functions`. Nothing inside rea executes a function or compiles one. The two legs in this lesson are the part rea leaves to you.
+rea's `verify_reconstruction` takes claims that point at comparison Evidence and returns pass, fail, or unknown per claim. Its fixed limitation reads "Pass means every declared claim passed; it does not establish global implementation equivalence." A claim about a function compares provider text from `compare_functions`. A behavioural claim compares two recorded process captures from `compare_process_captures`. When a source record has incomplete call coverage, a claim about calls is `unknown`. Nothing inside rea compiles a rebuilt function or runs it over your input grid. The two legs in this lesson are the part rea leaves to you.
 
 rea's obligation ledger expects a proof record with `predicate_type: "rea.reconstruction-proof"`, `operation: "verify_reconstruction_obligations"`, `confidence: "observed"`, and `normalized_result.passed === true`. No public rea tool emits one. `build_proof()` in `code/main.py` mints it:
 
@@ -240,14 +240,14 @@ rea's obligation ledger expects a proof record with `predicate_type: "rea.recons
     "passed": true,
     "status": "pass",
     "claims": [
-      {"claim_id": "percent_change.behaviour", "kind": "behavioral", "status": "pass", "evidence_ids": ["ev_4b69a47e..."]},
-      {"claim_id": "grade.behaviour", "kind": "behavioral", "status": "pass", "evidence_ids": ["ev_f91f0cdc..."]},
-      {"claim_id": "percent_change.bytes", "kind": "structural-function", "status": "pass", "evidence_ids": ["ev_4b69a47e..."]},
-      {"claim_id": "grade.bytes", "kind": "structural-function", "status": "pass", "evidence_ids": ["ev_f91f0cdc..."]},
-      {"claim_id": "grade.referenced-constants", "kind": "structural-function", "status": "pass", "evidence_ids": ["ev_f91f0cdc..."]}
+      {"claim_id": "percent_change.behaviour", "kind": "behavioral", "status": "pass", "evidence_ids": ["ev_e88b10dc..."]},
+      {"claim_id": "grade.behaviour", "kind": "behavioral", "status": "pass", "evidence_ids": ["ev_67b6d3f9..."]},
+      {"claim_id": "percent_change.bytes", "kind": "structural-function", "status": "pass", "evidence_ids": ["ev_e88b10dc..."]},
+      {"claim_id": "grade.bytes", "kind": "structural-function", "status": "pass", "evidence_ids": ["ev_67b6d3f9..."]},
+      {"claim_id": "grade.referenced-constants", "kind": "structural-function", "status": "pass", "evidence_ids": ["ev_67b6d3f9..."]}
     ]
   },
-  "evidence_links": ["ev_4b69a47e...", "ev_f91f0cdc..."],
+  "evidence_links": ["ev_e88b10dc...", "ev_67b6d3f9..."],
   "evidence_id": "ev_..."
 }
 ```
@@ -289,7 +289,7 @@ Expected shape on an arm64 Mac:
     "percent_change_wide": {"status": "fail", "reasons": ["size 16 vs 26 bytes"]},
     "grade_case10_wrong": {"status": "fail", "reasons": ["referenced constants differ: [1, 2, 3, 4, 4] vs [1, 2, 3, 4, 3]"]}
   },
-  "agentRun": {"mode": "replayed fixture", "server": {"name": "rea", "version": "6.4.0", "protocolVersion": "2025-11-25"}},
+  "agentRun": {"mode": "replayed fixture", "server": {"name": "rea", "version": "6.5.0", "protocolVersion": "2025-11-25"}},
   "proof": {"status": "pass", "evidence_id": "ev_..."}
 }
 ```
@@ -365,7 +365,7 @@ The bytes match, the records match, and the tables do not. Now edit `grade_case1
 
 ### Lab D: drive rea
 
-With rea 6.4.0 and Ghidra 12.1.4 installed:
+With rea 6.5.0 and Ghidra 12.1.4 installed:
 
 ```bash
 GHIDRA_INSTALL_DIR=/opt/homebrew/Cellar/ghidra/12.1.4/libexec \
@@ -455,5 +455,5 @@ Write the rebuild from the listing and name the record it came from. Run it agai
 - [x86-64 psABI repository, relocation types](https://gitlab.com/x86-psABIs/x86-64-ABI)
 - [Intel 64 and IA-32 Architectures Software Developer's Manual, Volume 2, IDIV](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
 - [Arm Architecture Reference Manual for A-profile, DDI 0487, SDIV](https://developer.arm.com/documentation/ddi0487/latest)
-- [rea 6.4.0 MCP contracts](https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/mcp-contracts.md)
-- [rea 6.4.0 reconstruction obligation ledgers](https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/reconstruction-obligation-ledgers.md)
+- [rea 6.5.0 MCP contracts](https://github.com/morluto/rea/blob/rea-agents-6.5.0/docs/mcp-contracts.md)
+- [rea 6.5.0 reconstruction obligation ledgers](https://github.com/morluto/rea/blob/rea-agents-6.5.0/docs/reconstruction-obligation-ledgers.md)
