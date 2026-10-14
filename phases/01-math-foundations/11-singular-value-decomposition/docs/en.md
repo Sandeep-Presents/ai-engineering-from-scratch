@@ -55,7 +55,7 @@ For a matrix $A$ with shape $m \times n$:
 & \quad \Sigma \text{ is } m \times n, \text{ diagonal (singular values on the diagonal)} \\
 & \quad V \text{ is } n \times n, \text{ orthogonal } (V^T V = I) \\[6pt]
 & \text{The singular values } \sigma_1 \ge \sigma_2 \ge \cdots \ge \sigma_r > 0 \\
-& \text{where } r = \operatorname{rank}(A)
+& \text{where } r = \mathop{\mathrm{rank}}(A)
 \end{aligned}
 ```
 
