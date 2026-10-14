@@ -52,4 +52,4 @@ Every term is defined once, in the section the last column names, with the sourc
 | Value table | A table of data that a load indexes, so one instruction returns one of several values | [4.4](#s-xrefs-and-the-jump-table) |
 | Virtual address | The position of a byte in memory after the loader maps the segment that contains it | [3.3](#s-address-to-file-offset) |
 
-Sources: the definition paragraphs of every file under sections/; rea at a56f7bb: src/domain/evidence.ts, src/domain/evidenceBundle.ts, src/domain/residualUnknown.ts, src/domain/reconstructionVerification.ts, src/config/ghidraStartupTimeout.ts; sources/rea/docs-mcp-contracts.md
+Sources: the definition paragraphs of every file under sections/; rea at a56f7bb: src/domain/evidence.ts, src/domain/evidenceBundle.ts, src/domain/residualUnknown.ts, src/domain/reconstructionVerification.ts, src/config/ghidraStartupTimeout.ts; rea docs/mcp-contracts.md

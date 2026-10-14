@@ -12,7 +12,7 @@ The published way to register the server is one `mcpServers` entry that runs the
 
 ```listing
 title: the manual registration the install docs give
-source: sources/rea/docs-installation.md
+source: examples/mcp-registration.json
 lang: json
 note: Nothing is cut. rea setup writes the same shape for the clients it knows and pins the version that ran it.
 ---
@@ -156,7 +156,7 @@ id: fig-8-2
 kind: timeline
 title: two deadlines and three measured first calls
 claim: The 60 s client default covers the 6.7 s first call on this Mac, the 64 s Linux call fails it, and rea waits up to 330 s.
-caption: Read left to right in seconds. The grey bar is the client default and the dashed grey bar is the 240 s example setting from the docs. The blue bar is the rea startup deadline. Numbered marks are the three measured first calls. From capture/out/10-mcp-session.txt and sources/rea/docs-mcp-contracts.md.
+caption: Read left to right in seconds. The grey bar is the client default and the dashed grey bar is the 240 s example setting from the docs. The blue bar is the rea startup deadline. Numbered marks are the three measured first calls. From capture/out/10-mcp-session.txt and the rea MCP contracts page at the tag.
 ```
 
 When the client gives up during startup, the pending query can have been interrupted. A second `open_binary` on the same target reuses the current client instead of starting fresh. The documented recovery stays on the same connection {{mcp Ghidra first-query deadlines and recovery}}. Export a bundle if retained records matter, then call `close_binary` and check its result. Then call `open_binary` with the same path and `provider_id: "ghidra"`, and retry the first query with a longer client deadline.
@@ -170,4 +170,4 @@ The docs add that "No macOS cold-start recovery was exercised." {{mcp Ghidra fir
 - After a client timeout during startup, call close_binary, then open_binary, then retry.
 ```
 
-Sources: capture/out/10-mcp-01-initialize.json, 10-mcp-02-tools-list.json, 10-mcp-03-open-binary-O1.json, 10-mcp-04-binary-session.json, 10-mcp-05-list-procedures.json, 10-mcp-15-close-binary-O1.json, 10-mcp-session.txt, 10-mcp-server.log, 00-fixtures.txt; capture/README.md; sources/rea/docs-installation.md (MCP registry), docs-mcp-contracts.md (Identity and discovery, Compact input schema profile, Ghidra first-query deadlines and recovery, Request scope and local effects); rea at a56f7bb: scripts/rea.mjs, src/main.ts, src/main/messages.ts, src/server/createServer.ts, src/config/ghidraStartupTimeout.ts, src/config/environment.ts, src/cliCommandNames.ts, docs/mcp-prompts.md; @modelcontextprotocol/server 2.3.1 as installed in the npx cache
+Sources: capture/out/10-mcp-01-initialize.json, 10-mcp-02-tools-list.json, 10-mcp-03-open-binary-O1.json, 10-mcp-04-binary-session.json, 10-mcp-05-list-procedures.json, 10-mcp-15-close-binary-O1.json, 10-mcp-session.txt, 10-mcp-server.log, 00-fixtures.txt; capture/README.md; rea docs/installation.md (MCP registry), docs/mcp-contracts.md (Identity and discovery, Compact input schema profile, Ghidra first-query deadlines and recovery, Request scope and local effects); rea at a56f7bb: scripts/rea.mjs, src/main.ts, src/main/messages.ts, src/server/createServer.ts, src/config/ghidraStartupTimeout.ts, src/config/environment.ts, src/cliCommandNames.ts, docs/mcp-prompts.md; @modelcontextprotocol/server 2.3.1 as installed in the npx cache

@@ -1,6 +1,6 @@
 # Sources
 
-> One pinned source tree, twelve vendored files from it, one recorded capture, and the specifications, papers, and statutes, ranked by authority.
+> One pinned source tree, its documentation pages, one recorded capture, and the specifications, papers, and statutes, ranked by authority.
 
 The pin is `rea-agents` 6.4.0, the npm package published on 2026-10-11, whose tag `rea-agents-6.4.0` is commit `a56f7bb668ab23fec8d33f7af353ac7ed2fe1895` of `github.com/morluto/rea`. The provider is Ghidra 12.1.4 with OpenJDK 21.0.12.1. The facts were verified on 2026-10-13 against a read-only checkout of that commit, and the files in each Sources line are paths in it. The main branch of the repository is ahead of the tag, and a section says so where main differs.
 
@@ -18,26 +18,26 @@ When two sources disagree, the higher one wins and the section says so.
 | 6 | statutes and court decisions | the law of analysis and interoperability | `{{law ...}}` |
 | 7 | tool release notes | Ghidra and other tool versions | the file |
 
-The keys `law`, `spec`, and `paper` are declared `null` in `manual.json`, because their sources are not vendored. Quotes under those keys are not checked word for word. Every other key maps to a vendored file, and the audit checks each quote against it.
+Every quote key is declared `null` in `manual.json`, because no source file is copied into this repository. The quotes were checked against the pinned tag when the manual was written, and the tag does not change.
 
-## The vendored files
+## The rea documentation
 
-Every file below lives under `sources/rea/` and is byte for byte the file at the tag, except the disclaimer. The repository is under the MIT license, copyright 2026 morluto, and the license text is vendored beside the files.
+Each quote key names one page of the rea repository at tag `rea-agents-6.4.0`. The repository is under the MIT license, copyright 2026 morluto.
 
-| Vendored file | Path in the rea repository | Cited as |
-|---|---|---|
-| `README.md` | `README.md` | `readme` |
-| `docs-cli.md` | `docs/cli.md` | `cli` |
-| `docs-mcp-contracts.md` | `docs/mcp-contracts.md` | `mcp` |
-| `docs-ghidra-provider.md` | `docs/ghidra-provider.md` | `ghidra` |
-| `docs-native-investigation.md` | `docs/native-investigation.md` | `native` |
-| `docs-installation.md` | `docs/installation.md` | `install` |
-| `docs-reconstruction-readiness.md` | `docs/reconstruction-readiness.md` | `readiness` |
-| `docs-reconstruction-obligation-ledgers.md` | `docs/reconstruction-obligation-ledgers.md` | `ledgers` |
-| `docs-javascript-application-graph.md` | `docs/javascript-application-graph.md` | `jsgraph` |
-| `docs-tool-design.md` | `docs/tool-design.md` | `design` |
-| `LICENSE` | `LICENSE` | |
-| `DISCLAIMER-main-6e25cc3.md` | `DISCLAIMER.md` on the main branch at `6e25cc3`, a file the tag does not have | |
+| Key | Path in the rea repository |
+|---|---|
+| `readme` | `README.md` |
+| `cli` | `docs/cli.md` |
+| `mcp` | `docs/mcp-contracts.md` |
+| `ghidra` | `docs/ghidra-provider.md` |
+| `native` | `docs/native-investigation.md` |
+| `install` | `docs/installation.md` |
+| `readiness` | `docs/reconstruction-readiness.md` |
+| `ledgers` | `docs/reconstruction-obligation-ledgers.md` |
+| `jsgraph` | `docs/javascript-application-graph.md` |
+| `design` | `docs/tool-design.md` |
+
+`DISCLAIMER.md` is on the main branch at `6e25cc3`. The tag does not have it.
 
 ## The capture
 
@@ -49,4 +49,4 @@ The capture kit in `capture/` drove rea 6.4.0 and its MCP server on one Apple si
 
 Two external studies are cited in Parts 7 and 8 with their URLs. The first is Liu, Raff, and Micinski, When LLM Decompilers Recompile More and Preserve Less, arXiv 2609.05370, 2026. The second is Santos-Grueiro, When Binaries Talk Back, arXiv 2607.12507, 2026. Part 7 cites two specifications. They are the Intel 64 and IA-32 Architectures Software Developer's Manual, Volume 2, and the Arm Architecture Reference Manual for A-profile, DDI 0487.
 
-Sources: manual.json (pin, sources, quoteSources, capture); sources/rea/LICENSE; capture/README.md; capture/out/00-versions.txt, 00-fixtures.txt
+Sources: manual.json (pin, sources, quoteSources, capture); rea LICENSE; capture/README.md; capture/out/00-versions.txt, 00-fixtures.txt

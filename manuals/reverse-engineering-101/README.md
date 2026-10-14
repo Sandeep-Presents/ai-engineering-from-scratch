@@ -7,7 +7,7 @@ rea, the `rea-agents` package at 6.4.0, with the Ghidra 12.1.4 provider, from th
 - 26 sections in 8 parts, then six reference sections. Part 1 puts rea on one page, Part 2 covers the right to analyze and the install, Parts 3 to 5 cover the artifact, the Ghidra provider, and the Evidence record, Part 6 covers JavaScript and WASM, Part 7 proves a rebuild equal, and Part 8 drives rea from an agent.
 - A cover plate and the figures that the figure index lists, drawn with the figure kit from the capture files. They animate on the web and show the final frame in print.
 - A capture kit in `capture/`, in Python with the standard library only. It runs the real `rea` command line and its MCP server with Ghidra and writes what they return to `capture/out/`.
-- Listings cut from `capture/out/`, and quotes checked word for word against the vendored README and documentation at the tag.
+- Listings cut from `capture/out/`, and quotes checked against the rea README and documentation at the tag.
 - Four fixture programs written for this manual: `ledger.c` with four functions, `ledger-main.c`, a six-file JavaScript application, and a WebAssembly text module.
 
 ## Files
@@ -18,7 +18,6 @@ rea, the `rea-agents` package at 6.4.0, with the Ghidra 12.1.4 provider, from th
 | `front.md`, `sections/` | the text, one file per section |
 | `figures/src/` | the figure sources, built to `figures/*.svg` |
 | `capture/` | the kit, its fixtures, and its recorded output in `capture/out/` |
-| `sources/rea/` | rea's README and ten documentation pages at the tag, with its MIT license, for the quote check |
 
 ## The pin
 

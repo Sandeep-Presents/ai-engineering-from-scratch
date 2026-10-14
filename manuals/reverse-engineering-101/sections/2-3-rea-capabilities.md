@@ -169,4 +169,4 @@ The catalog describes the MCP tool, not the provider operation. `xrefs` has `mut
 - Read each operation's `limitations` before you read an empty result as absence.
 ```
 
-Sources: cli Choose a provider (sources/rea/docs-cli.md); design Define the contract (sources/rea/docs-tool-design.md); rea at a56f7bb: src/cli/utilityCommands.ts, src/application/binary/BinarySessionStatus.ts, src/contracts/toolOutputSchemaPrimitives.ts, src/contracts/toolEffects.ts; capture/out/02-capabilities.json
+Sources: cli Choose a provider (rea docs/cli.md); design Define the contract (rea docs/tool-design.md); rea at a56f7bb: src/cli/utilityCommands.ts, src/application/binary/BinarySessionStatus.ts, src/contracts/toolOutputSchemaPrimitives.ts, src/contracts/toolEffects.ts; capture/out/02-capabilities.json

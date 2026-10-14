@@ -110,4 +110,4 @@ The capture target has none of those, so the 39 items are the whole file. For a 
 - Read `referenced_strings` as the text a function reaches through a load. Expect the function to use more.
 ```
 
-Sources: capture/out/10-mcp-08-list-strings.json, capture/out/04-inspect-macho.json, capture/out/05-analyze-arm64-O1.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/fixtures/ledger-arm64-O1, capture/README.md; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts; sources/rea/docs-ghidra-provider.md
+Sources: capture/out/10-mcp-08-list-strings.json, capture/out/04-inspect-macho.json, capture/out/05-analyze-arm64-O1.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/fixtures/ledger-arm64-O1, capture/README.md; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts; rea docs/ghidra-provider.md

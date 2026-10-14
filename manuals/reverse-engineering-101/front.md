@@ -34,7 +34,7 @@ Facts come from seven sources, ranked by authority. When two of them disagree, t
 | 6 | statutes and court decisions | the law of analysis and interoperability | `law` and a citation |
 | 7 | tool release notes | Ghidra and other tool versions | the release and its date |
 
-The README and ten documentation pages are vendored under `sources/rea/` with their MIT license, so the audit checks each quote from them word for word. Statutes, specifications, and papers are not vendored. Their quotes come from the official texts and have no mechanical check.
+Quotes from the rea README and documentation were checked against the pages at tag `rea-agents-6.4.0`. Quotes from statutes, specifications, and papers come from the official texts. No source file is copied into this repository.
 
 ## The capture kit
 
@@ -59,7 +59,7 @@ The kit records every one-shot command in `00-commands.txt`, each with its exit 
 
 `$CAPTURE` stands for the capture directory, `$OUT` for `capture/out/`, `$WORK` for the kit's work directory, and `$HOME` for the home directory. Values that change on every run appear as tokens such as `<hash>` and `<ts>`. Addresses are lowercase `0x` hexadecimal, as rea prints them. `_percent_change` with a leading `_` is the Mach-O symbol, and `percent_change` is the C name and the ELF symbol.
 
-Citations name a place. `{{cli Choose a provider}}` names a heading in a vendored documentation page, and `{{readme}}` names the README. The rea source files a section was written from are listed once, in the Sources line at its end, at the tag. A capture path, such as `capture/out/06-function-percent-change.json`, names the recorded file. A listing copies lines from a capture file unchanged, and a `…` marks a cut that the note explains.
+Citations name a place. `{{cli Choose a provider}}` names a heading in a rea documentation page at the tag, and `{{readme}}` names the README. The rea source files a section was written from are listed once, in the Sources line at its end, at the tag. A capture path, such as `capture/out/06-function-percent-change.json`, names the recorded file. A listing copies lines from a capture file unchanged, and a `…` marks a cut that the note explains.
 
 Figures animate on the web, where a Replay button runs the steps again, and print and reduced motion show the final frame.
 
@@ -143,4 +143,4 @@ caption: Read each numbered row from the tail of the arrow to its head, and the 
 
 The model call in row 9 belongs to the agent, which [Part 8](#p-8) draws with its own lifeline.
 
-Sources: manual.json; sources/rea/LICENSE; capture/README.md; capture/run.py; capture/fixtures/ledger.c, ledger-main.c; capture/out/00-commands.txt, 00-fixtures.txt, 00-versions.txt, 01-doctor-ghidra.json, 06-function-percent-change.json, 10-mcp-03-open-binary-O1.json, 10-mcp-09-analyze-function-percent-change-O1.json, 10-mcp-13-analyze-function-missing.json, 10-mcp-14-export-evidence-bundle-O1.json, 10-mcp-server.log, 10-mcp-session.txt
+Sources: manual.json; rea LICENSE; capture/README.md; capture/run.py; capture/fixtures/ledger.c, ledger-main.c; capture/out/00-commands.txt, 00-fixtures.txt, 00-versions.txt, 01-doctor-ghidra.json, 06-function-percent-change.json, 10-mcp-03-open-binary-O1.json, 10-mcp-09-analyze-function-percent-change-O1.json, 10-mcp-13-analyze-function-missing.json, 10-mcp-14-export-evidence-bundle-O1.json, 10-mcp-server.log, 10-mcp-session.txt

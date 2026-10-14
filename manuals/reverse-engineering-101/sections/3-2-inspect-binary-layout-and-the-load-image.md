@@ -285,4 +285,4 @@ Six exports: the five functions and `__mh_execute_header` at `0x100000000`. Six 
 - Check `exhaustive` on each collection before you say a symbol is absent.
 ```
 
-Sources: capture/out/00-commands.txt, capture/out/04-inspect-binary-layout.json, capture/out/04-inspect-macho.json; rea 6.4.0 at a56f7bb: src/contracts/errorSchemas.ts, src/native/pwntools/PwntoolsDecoder.ts, src/server/createServer.ts, src/native/NativeMachoInspection.ts; sources/rea/docs-cli.md
+Sources: capture/out/00-commands.txt, capture/out/04-inspect-binary-layout.json, capture/out/04-inspect-macho.json; rea 6.4.0 at a56f7bb: src/contracts/errorSchemas.ts, src/native/pwntools/PwntoolsDecoder.ts, src/server/createServer.ts, src/native/NativeMachoInspection.ts; rea docs/cli.md

@@ -15,7 +15,7 @@ source: readme line 327
 "REA provides tools for lawful reverse-engineering research, analysis, and reconstruction. You are responsible for obtaining any required authorization and complying with applicable laws. The project does not endorse illegal or unauthorized use."
 ```
 
-The rule is one paragraph under the heading `Disclaimer` at line 325 of the rea README. It is the whole of what rea 6.4.0 says about use. The tag has no `DISCLAIMER.md`. That file exists only on `main` after 6.4.0, at commit `6e25cc3`, and `sources/rea/` keeps a copy. Its list of uses the project will not help with names DRM, licence checks, anti-cheat systems, game cheats, bypassing authentication, and copying proprietary software. The 6.4.0 README states the principle and leaves the list to you.
+The rule is one paragraph under the heading `Disclaimer` at line 325 of the rea README. It is the whole of what rea 6.4.0 says about use. The tag has no `DISCLAIMER.md`. That file exists only on `main` after 6.4.0, at commit `6e25cc3`. Its list of uses the project will not help with names DRM, licence checks, anti-cheat systems, game cheats, bypassing authentication, and copying proprietary software. The 6.4.0 README states the principle and leaves the list to you.
 
 ## United States: 17 U.S.C. 1201
 
@@ -90,4 +90,4 @@ Check that the facts are not already published. Confine the work to the parts yo
 - Keep intermediate copies for analysis, and keep copied code out of anything you release.
 ```
 
-Sources: readme line 327 (sources/rea/README.md); sources/rea/DISCLAIMER-main-6e25cc3.md; law: 17 U.S.C. 1201(a)(1)(A), (a)(3)(A), (c)(1), (f)(1), (f)(4), (j)(1), Directive 2009/24/EC Articles 1(2), 5(1), 5(3), 6(1), 6(2)(c), 8, CJEU C-406/10 and C-13/20, Sega v. Accolade, 977 F.2d 1510, Sony v. Connectix, 203 F.3d 596; capture/out/00-fixtures.txt
+Sources: readme line 327 (rea README.md); rea DISCLAIMER.md at main 6e25cc3; law: 17 U.S.C. 1201(a)(1)(A), (a)(3)(A), (c)(1), (f)(1), (f)(4), (j)(1), Directive 2009/24/EC Articles 1(2), 5(1), 5(3), 6(1), 6(2)(c), 8, CJEU C-406/10 and C-13/20, Sega v. Accolade, 977 F.2d 1510, Sony v. Connectix, 203 F.3d 596; capture/out/00-fixtures.txt

@@ -112,4 +112,4 @@ Fourteen instructions, the same shape. The multiply is one instruction, `IMUL RA
 - Check `raw_result.limitations` for a terminal call before you trust the body size.
 ```
 
-Sources: capture/out/10-mcp-06-procedure-assembly-grade.json, capture/out/06-function-grade.json, capture/out/06-function-grade-x86_64-O1.json, capture/out/04-inspect-macho.json, capture/fixtures/ledger-arm64-O1, capture/fixtures/ledger.c; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts; sources/rea/docs-ghidra-provider.md
+Sources: capture/out/10-mcp-06-procedure-assembly-grade.json, capture/out/06-function-grade.json, capture/out/06-function-grade-x86_64-O1.json, capture/out/04-inspect-macho.json, capture/fixtures/ledger-arm64-O1, capture/fixtures/ledger.c; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts; rea docs/ghidra-provider.md

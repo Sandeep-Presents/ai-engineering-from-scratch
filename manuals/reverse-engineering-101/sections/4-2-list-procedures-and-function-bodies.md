@@ -143,4 +143,4 @@ A string with a `0x` prefix or an address-space prefix is an address. Any other 
 - Treat `end` in `body.ranges` as inclusive and every other `end` as exclusive.
 ```
 
-Sources: capture/out/10-mcp-05-list-procedures.json, capture/out/06-function-grade.json, capture/out/10-mcp-09-analyze-function-percent-change-O1.json, capture/out/10-mcp-11-analyze-function-total-O1.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/out/04-inspect-macho.json; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts; sources/rea/docs-native-investigation.md
+Sources: capture/out/10-mcp-05-list-procedures.json, capture/out/06-function-grade.json, capture/out/10-mcp-09-analyze-function-percent-change-O1.json, capture/out/10-mcp-11-analyze-function-total-O1.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/out/04-inspect-macho.json; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts; rea docs/native-investigation.md
