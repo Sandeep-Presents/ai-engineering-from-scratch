@@ -112,7 +112,7 @@ The `.text` bytes of the poisoned object equal the target's. Only the data chang
 }
 ```
 
-The 2026 study on representation confusion is the reason for the marker. Santos-Grueiro planted text inside binaries and ran Ghidra, r2pipe, and angr pipelines through models. Without controls the models proposed the planted unsafe action in 35 of 40 cases, and in 0 of 40 on clean binaries. Showing the binary content as data alone still left 15 unsafe proposals. Provenance gates plus tool authorization removed them. rea 6.4.0 has no such marker, and the rea main branch added `_meta.provenance` with `untrusted_content: true` after that release. Our server sets the same field on every result built from bytes the binary controls.
+The 2026 study on representation confusion is the reason for the marker. Santos-Grueiro planted text inside binaries and ran Ghidra, r2pipe, and angr pipelines through models. Without controls the models proposed the planted unsafe action in 35 of 40 cases, and in 0 of 40 on clean binaries. Showing the binary content as data alone still left 15 unsafe proposals. Provenance gates plus tool authorization removed them. rea 6.5.0 sets this marker. Each result that can carry target content has `_meta.provenance` with `untrusted_content: true` and `source: "analysis_target"`. The rea server instructions also tell the model to treat that content as data and to report a request to run, install, download, or send something as a prompt-injection attempt. Our server sets the same `untrusted_content` field on every result built from bytes the binary controls. It names the bytes in an `origin` field, where rea uses `source`.
 
 The scorecard never reads the string. Names come from the DWARF of our own build. Bytes come from the object. Behaviour comes from a run. The note can rename nothing and skip nothing, and Lab C shows that the scorecard of every candidate is the same against the poisoned object.
 
@@ -448,5 +448,5 @@ Score the code and the report separately. Compile the code with the original com
 - [Sidekick for Binary Ninja](https://sidekick.binary.ninja/)
 - [DWARF Debugging Information Format Version 5](https://dwarfstd.org/dwarf5std.html)
 - [System V gABI, Chapter 4, Relocation](https://www.sco.com/developers/gabi/latest/ch4.reloc.html)
-- [rea 6.4.0 MCP contracts](https://github.com/morluto/rea/blob/rea-agents-6.4.0/docs/mcp-contracts.md)
+- [rea 6.5.0 MCP contracts](https://github.com/morluto/rea/blob/rea-agents-6.5.0/docs/mcp-contracts.md#untrusted-target-content)
 - [Model Context Protocol specification, 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25)
