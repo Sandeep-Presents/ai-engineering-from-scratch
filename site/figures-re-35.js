@@ -198,7 +198,7 @@
     var detail;
     if (claim.kind === 'derived') {
       if (state.model && state.bytes) {
-        return { status: 'derived', detail: 'Computed from the observed bytes. It is a reading of the file, not a behaviour.', ids: [byKey('model').id, byKey('bytes').id], covered: 1, total: 1 };
+        return { status: 'derived', detail: 'Computed from the observed bytes. It reads the file and makes no claim about behaviour.', ids: [byKey('model').id, byKey('bytes').id], covered: 1, total: 1 };
       }
       if (state.model) {
         return { status: 'dangling', detail: 'The derived record is present, but the bytes record it links to is missing. Its basis cannot be checked.', ids: [byKey('model').id], covered: 0, total: 1 };
@@ -237,7 +237,7 @@
       if (claim.note) detail += ' ' + claim.note;
     } else {
       status = 'unknown';
-      detail = covered + ' of ' + claim.cases.length + ' inputs have an observed run. Partial coverage is unknown, not pass.';
+      detail = covered + ' of ' + claim.cases.length + ' inputs have an observed run. Partial coverage stays unknown.';
     }
     return { status: status, detail: detail, ids: support.concat(contra), covered: covered, total: claim.cases.length };
   }

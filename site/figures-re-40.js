@@ -89,7 +89,7 @@
     boxes.push({
       title: 'call site in main, ' + hex(d.call.address),
       lines: [d.call.bytes, d.call.text],
-      note: format.id === 'pe' ? 'ff 15 is call qword ptr [rip+disp32]; the target is a data slot, not code' : 'the call goes to a small piece of code the link editor made, not to puts'
+      note: format.id === 'pe' ? 'ff 15 is call qword ptr [rip+disp32]; the target is a data slot that holds an address' : 'the call goes to a small piece of code the link editor made, and that code jumps to puts'
     });
     if (d.stub) {
       boxes.push({

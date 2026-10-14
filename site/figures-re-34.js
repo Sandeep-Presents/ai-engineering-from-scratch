@@ -15,8 +15,6 @@
   var GUARD = 'if (before == 0) return 0;';
   var FOCUS = 'return (after - before) * 100 / before;';
 
-  /* Each row is [text, origin]. origin 3 = source line 3 (the division),
-     2 = source line 2 (the zero guard), 0 = structure with no source line. */
   var BYTES = [
     ['85', 2], ['ff', 2], ['74', 2], ['09', 2], ['29', 3], ['fe', 3], ['6b', 3], ['c6', 3],
     ['64', 3], ['99', 3], ['f7', 3], ['ff', 3], ['c3', 3], ['31', 2], ['c0', 2], ['c3', 2]
