@@ -232,7 +232,7 @@ function build() {
   <link rel="canonical" href="${ORIGIN}/skills.html">
   <link rel="alternate" type="text/markdown" href="${ORIGIN}/skills.md">
   <meta property="og:title" content="Skills · AI Engineering from Scratch">
-  <meta property="og:description" content="15 skills for your coding agent: course lessons, level tests, certification prep, and figure and manual tools.">
+  <meta property="og:description" content="${total} skills for your coding agent: course lessons, level tests, certification prep, and figure and manual tools.">
   <meta property="og:image" content="${ORIGIN}/og/page/skills.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -243,7 +243,7 @@ function build() {
   <meta property="og:url" content="${ORIGIN}/skills.html">
   <meta property="og:type" content="website">
   <meta name="twitter:title" content="Skills · AI Engineering from Scratch">
-  <meta name="twitter:description" content="15 skills for your coding agent: course lessons, level tests, certification prep, and figure and manual tools.">
+  <meta name="twitter:description" content="${total} skills for your coding agent: course lessons, level tests, certification prep, and figure and manual tools.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
