@@ -263,7 +263,7 @@
       "number": 6,
       "title": "Scripted and Managed Code",
       "thesis": "For JavaScript, rea reads the files without running them and returns a graph of modules and their relationships.",
-      "summary": "analyze-javascript-application and the application graph, and what the 6.4.0 build offers for WASM.",
+      "summary": "analyze-javascript-application and the application graph, and inspect-wasm-artifact with the WABT provider.",
       "accent": "olive",
       "sections": [
         {
@@ -272,7 +272,7 @@
         },
         {
           "id": "6.2",
-          "file": "sections/6-2-wasm-in-rea-6-4-0.md"
+          "file": "sections/6-2-inspect-wasm-artifact.md"
         }
       ]
     },

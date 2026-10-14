@@ -2,39 +2,42 @@
 
 const { figure, color } = require('../../../_shared/figkit.js');
 
-const sections = [
-  ['Type', '0x0a to 0x1a', 'count 3'],
-  ['Import', '0x1c to 0x27', 'count 1'],
-  ['Function', '0x29 to 0x2e', 'count 4'],
-  ['Memory', '0x30 to 0x33', 'count 1'],
-  ['Export', '0x35 to 0x6e', 'count 5'],
-  ['Code', '0x71 to 0x10f', 'count 4'],
-  ['Data', '0x111 to 0x122', 'count 1'],
-];
+function block(f, x, y, w, hue, head, lines) {
+  const h = 26 + lines.length * 15 + 6;
+  f.rect(x, y, w, h, { fill: color(`${hue}-fill`), stroke: color(`${hue}-ink`) });
+  f.text(x + 10, y + 18, head, { size: 12, weight: 700, hue });
+  lines.forEach((line, index) => f.text(x + 10, y + 36 + index * 15, line, { size: 11 }));
+  return { x, y, w, h, cx: x + w / 2, bottom: y + h };
+}
 
 module.exports = figure('fig-6-2', {
-  height: 300,
-  title: 'WebAssembly on rea 6.4.0 and with wabt directly',
-  desc: 'Left column, rea 6.4.0: the CLI command rea inspect-wasm-artifact answers COMMAND_NOT_FOUND, not a command for rea, and the MCP call tools/call inspect_wasm_artifact answers JSON-RPC error -32602, Tool inspect_wasm_artifact not found. Right column, wabt 1.0.42 with wasm-objdump -h -x on ledger.wasm, 290 bytes, wasm version 1: seven sections with their byte ranges and counts, Type 0x0a to 0x1a with 3 entries, Import 0x1c to 0x27 with 1, Function 0x29 to 0x2e with 4, Memory 0x30 to 0x33 with 1, Export 0x35 to 0x6e with 5, Code 0x71 to 0x10f with 4, and Data 0x111 to 0x122 with 1 segment. wasm2wat prints four functions, one import env.log, and a data segment at 1024.',
+  height: 416,
+  title: 'inspect_wasm_artifact on ledger.wasm',
+  desc: 'Top row: two entry points, the CLI command rea inspect-wasm-artifact and the MCP call tools/call inspect_wasm_artifact. Both reach the wabt-artifact provider, which reads REA_WABT_BIN_DIRECTORY=/opt/homebrew/bin and copies ledger.wasm, 290 bytes, SHA-256 699f6ff7, to a read-only module.wasm in a private workspace. Third row: three WABT 1.0.42 programs run on the copy, wasm-validate --enable-all, wasm-objdump -h -x, and wasm2wat --enable-all. Bottom: one Evidence record ev_b50c217f, observed, with validation valid, seven sections, an interface of one import and five exports, the decoded WAT with SHA-256 37eab56a, a tool profile, and five limitations. runtime_execution and network_fetch are not-performed. The CLI prints the record, and MCP returns the same record as structuredContent with the untrusted-content marker.',
 }, f => {
-  f.kicker(20, 18, 'A · rea 6.4.0');
-  const cli = f.box({ x: 20, y: 28, w: 290, h: 48, hue: 'blue', title: 'rea inspect-wasm-artifact', sub: 'CLI, capture 16-inspect-wasm-artifact.json' });
-  const cliError = f.box({ x: 20, y: 100, w: 290, h: 48, hue: 'rose', title: 'COMMAND_NOT_FOUND', sub: "not a command for 'rea'" });
-  f.arrow([cli.cx, 76], [cli.cx, cliError.y - 1], { style: 'fail' });
-  const mcp = f.box({ x: 20, y: 172, w: 290, h: 48, hue: 'indigo', title: 'tools/call inspect_wasm_artifact', sub: 'MCP, capture 10-mcp-24' });
-  const mcpError = f.box({ x: 20, y: 244, w: 290, h: 48, hue: 'rose', title: 'JSON-RPC error -32602', sub: 'Tool inspect_wasm_artifact not found' });
-  f.arrow([mcp.cx, 220], [mcp.cx, mcpError.y - 1], { style: 'fail' });
+  const cli = f.box({ x: 20, y: 28, w: 290, h: 48, hue: 'blue', title: 'rea inspect-wasm-artifact', sub: 'CLI, exit 0 after 1.5 s' });
+  const mcp = f.box({ x: 330, y: 28, w: 290, h: 48, hue: 'indigo', title: 'tools/call inspect_wasm_artifact', sub: 'MCP step 24, ok after 404 ms' });
+  const adapter = f.box({ x: 20, y: 104, w: 600, h: 56, hue: 'blue', title: 'wabt-artifact provider, REA_WABT_BIN_DIRECTORY=/opt/homebrew/bin', titleSize: 12, sub: ['copies ledger.wasm, 290 bytes, sha256 699f6ff7, to a read-only module.wasm'] });
+  f.arrow([cli.cx, 76], [cli.cx, adapter.y - 1], { style: 'call', label: 'path' });
+  f.arrow([mcp.cx, 76], [mcp.cx, adapter.y - 1], { style: 'call', label: 'path' });
 
-  f.kicker(330, 18, 'B · wabt 1.0.42, wasm-objdump -h -x');
-  f.box({ x: 330, y: 28, w: 290, h: 26, hue: 'olive', title: 'ledger.wasm, 290 bytes, wasm 0x1', align: 'left', titleSize: 11.5, pad: 10 });
-  sections.forEach(([name, range, count], index) => {
-    const y = 54 + index * 26;
-    f.rect(330, y, 290, 26, { fill: color('paper'), stroke: color('olive-ink') });
-    f.text(340, y + 17, name, { size: 11, weight: 700, hue: 'olive' });
-    f.text(420, y + 17, range, { size: 11 });
-    f.text(545, y + 17, count, { size: 11, hue: 'ink-soft' });
+  const programs = [
+    ['wasm-validate', '--enable-all', 'result: valid'],
+    ['wasm-objdump', '-h -x', 'result: 7 sections'],
+    ['wasm2wat', '--enable-all', 'result: decoded WAT'],
+  ].map(([tool, args, result], index) => {
+    const x = 20 + index * 205;
+    const box = f.box({ x, y: 196, w: 190, h: 62, hue: 'grey', title: tool, sub: [`${args}, banner 1.0.42`, result] });
+    f.arrow([box.cx, adapter.y + adapter.h], [box.cx, box.y - 1], { style: 'call' });
+    return box;
   });
-  f.text(330, 258, 'wasm-validate --enable-all: exit 0, no output.', { size: 11, serif: true, hue: 'ink-soft' });
-  f.text(330, 274, 'wasm2wat: 4 funcs, import env.log, data at 1024.', { size: 11, serif: true, hue: 'ink-soft' });
-  f.text(330, 290, 'From capture/out/16-wabt.txt.', { size: 11, serif: true, hue: 'ink-soft' });
+
+  const record = block(f, 20, 294, 600, 'teal', 'Evidence ev_b50c217f, confidence observed', [
+    'sections: Type, Import, Function, Memory, Export, Code, Data',
+    'interface: 1 import env.log, 5 exports with typed signatures',
+    'wat: decoded-wat, sha256 37eab56a, tool_profile: 3 commands',
+    'limitations: 5, runtime_execution and network_fetch not-performed',
+  ]);
+  programs.forEach(box => f.arrow([box.cx, box.y + box.h], [box.cx, record.y - 1], { style: 'reply' }));
+  f.text(20, record.bottom + 20, 'The CLI prints this record. MCP returns the same id as structuredContent.', { size: 11, serif: true, hue: 'ink-soft' });
 });

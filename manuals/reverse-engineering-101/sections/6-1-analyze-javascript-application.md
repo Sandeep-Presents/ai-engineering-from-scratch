@@ -1,6 +1,6 @@
 # analyze-javascript-application and the application graph
 
-> rea parses the six files of ledger-desk without running them and returns one derived record whose graph has 33 nodes and 50 edges, each edge with its own authority.
+> rea parses the six files of ledger-desk without running them and returns one derived record whose graph has 42 nodes and 59 edges, each with its own authority.
 
 You have a small Electron-style application, six files in `capture/fixtures/js-app/`. You want the map before you read code: which renderer talks to which main-process handler, and what leaves the machine. The analysis answers that without Ghidra and without running a line of the application. When you finish this section, you can run the analysis, read the record and its graph, and page through a large result with `inspect-analysis-view`.
 
@@ -8,7 +8,9 @@ You have a small Electron-style application, six files in `capture/fixtures/js-a
 
 The CLI command is `rea analyze-javascript-application PATH`. The plain `rea analyze PATH` reaches the same code for a directory: "Generic `rea analyze PATH` selects this workflow for directories and `.asar` files when neither `--provider` nor `--snapshot` is supplied." {{cli Run a command}}
 
-The inputs are `input_path`, `format` as `auto`, `asar`, or `directory`, and `integrity_policy`. Two resource limits are optional: `max_heap_mb`, 1024 MiB by default, and `analysis_timeout_ms`, 300,000 ms by default. Over MCP a `detail` of `complete` or `summary` is added. The parser is `@babel/parser` with `errorRecovery` on and comments left unattached.
+The inputs are `input_path`, `format` as `auto`, `asar`, or `directory`, and `integrity_policy`. The optional `source_paths` input names exact inventoried files. rea then analyzes only those files, and the relationships of the other files stay unknown.
+
+Four resource limits are optional. `max_heap_mb` is 1024 MiB by default, and `analysis_timeout_ms` is 300,000 ms by default. `max_semantic_nodes` is 100,000 by default, and `max_semantic_nodes_per_file` is 20,000. Over MCP, you can also set `detail` to `complete` or `summary`. The parser is `@babel/parser`. It runs with `errorRecovery` on, and it does not attach comments.
 
 ```listing
 title: the head of the analyze_javascript_application record
@@ -17,15 +19,15 @@ lang: json
 note: The kit kept the record without graph and semantic_graph, with --filter-output. The result fields follow.
 ---
 {
-  "evidence_id": "ev_96bdd75c…",
+  "evidence_id": "ev_9151392a…",
   "subject": {
     "name": "js-app",
     "digest": {
       "sha256": "bb9f726c…"
     },
+    "local_path": "$CAPTURE/fixtures/js-app",
     "format": "directory",
-    "architecture": null,
-    "local_path": "$CAPTURE/fixtures/js-app"
+    "architecture": null
   },
   "provider": {
     "id": "rea-javascript-application",
@@ -41,7 +43,7 @@ note: The kit kept the record without graph and semantic_graph, with --filter-ou
   },
 ```
 
-This is an Evidence record like the ones in Part 5, with three differences from a Ghidra dossier. The provider is rea itself, `rea-javascript-application` version `1`. The confidence is `derived`, because rea computed relationships from syntax, and the authority is `shipped-artifact`, because the six files on disk are the source. The subject is the directory, with the SHA-256 `bb9f726c…` of its inventory as the digest. The `normalized_result` has eleven fields: `input_path`, `format`, `root_artifact_sha256`, `inventory_manifest_id`, `inventory_graph_sha256`, `integrity_contradictions`, `graph`, `summary`, `statistics`, `limitations`, and `semantic_graph`.
+This is an Evidence record like the ones in Part 5, with three differences from a Ghidra dossier. The provider is rea itself, `rea-javascript-application` version `1`. The confidence is `derived`, because rea computed relationships from syntax, and the authority is `shipped-artifact`, because the six files on disk are the source. The subject is the directory, with the SHA-256 `bb9f726c…` of its inventory as the digest. The `normalized_result` has eleven fields: `input_path`, `format`, `root_artifact_sha256`, `inventory_manifest_id`, `inventory_graph_sha256`, `integrity_contradictions`, `graph`, `summary`, `statistics`, `limitations`, and `semantic_graph`. A twelfth field, `source_selection`, is present only when the request names `source_paths`.
 
 ```listing
 title: the summary and the statistics of ledger-desk
@@ -93,7 +95,7 @@ note: Events 1, 3, and 19 of the first analyze-javascript-application call. The 
 ---
 [stderr] {"rea_progress":{"phase":"analyze_javascript_application","completed":0,"total":1,"message":"Inventorying and parsing application artifacts","sequence":1}}
 …
-[stderr] {"rea_progress":{"phase":"parse_javascript_sources","completed":0,"total":1,"message":"Parsing and projecting 6 application source files","sequence":3}}
+[stderr] {"rea_progress":{"phase":"parse_javascript_sources","completed":0,"total":1,"message":"Parsing and projecting 6 selected application source files","sequence":3}}
 …
 [stderr] {"rea_progress":{"phase":"analyze_javascript_application","completed":1,"total":1,"message":"Application graph and Electron boundaries reconstructed","terminal":true,"sequence":19}}
 ```
@@ -104,11 +106,12 @@ note: Events 1, 3, and 19 of the first analyze-javascript-application call. The 
 
 The edges use a fixed vocabulary: "The directed relation vocabulary is `contains`, `loads`, `imports`, `maps_to`, `exposes`, `sends`, `invokes`, `handles`, `calls`, `persists_to`, `observed_as`, and `changed_from`." {{jsgraph Entities and relationships}}
 
-The graph for ledger-desk in `15-js-app-graph.json` has 33 nodes and 50 edges, and its own coverage is `complete` with nothing omitted.
+The graph for ledger-desk in `15-js-app-graph.json` has 42 nodes and 59 edges. Its own coverage is `complete`, and it omits nothing.
 
 | Node kind | Count | In ledger-desk |
 |---|---|---|
 | `javascript-module` | 11 | the four files as modules, plus `electron`, `node:path`, and `./ledger` as they are required |
+| `javascript-expression` | 9 | three steps (exposure, closure, terminal call) for each of the three bridge members `ledger.percentChange`, `ledger.gradeLabel`, and `ledger.log` |
 | `javascript-asset` | 4 | `main.js`, `preload.js`, `renderer.js`, `ledger.js` by content digest |
 | `artifact` | 3 | the root directory, `package.json`, `index.html` |
 | `ipc-channel` | 3 | `ledger:percent-change`, `ledger:grade-label`, `ledger:log` |
@@ -118,13 +121,15 @@ The graph for ledger-desk in `15-js-app-graph.json` has 33 nodes and 50 edges, a
 
 | Relation | Count | Evidence on the edges |
 |---|---|---|
-| `contains` | 16 | 7 observed from artifact bytes, 8 observed from the AST, 1 inferred |
+| `contains` | 19 | 7 observed from artifact bytes, 8 observed from the AST, 4 inferred |
 | `imports` | 11 | inferred |
-| `loads`, `maps_to` | 5 each | inferred |
+| `maps_to` | 8 | inferred |
+| `loads` | 5 | inferred |
+| `calls` | 4 | inferred: one `fetch` to the endpoint, and one step edge in each of the three bridge call paths |
 | `invokes` | 4 | inferred |
 | `handles` | 3 | inferred |
 | `sends`, `exposes` | 2 each | inferred |
-| `calls`, `persists_to` | 1 each | inferred, `fetch` and `localStorage.setItem` |
+| `persists_to` | 1 | inferred, `localStorage.setItem` |
 
 Every edge says how it was obtained. An AST fact has authority `ast-static-analysis`, state `observed`, confidence `exact`, and a source range. A relationship has authority `static-relationship-inference`, state `inferred`, and confidence `high` by default. It always carries the limitation "Static syntax does not prove that this relationship executes at runtime." The documentation states the rule for the Electron edges: "The `loads`, `exposes`, `invokes`, `handles`, and `imports` relationships remain static inferences." {{jsgraph Entities and relationships}}
 
@@ -174,7 +179,7 @@ id: fig-6-1
 kind: tree
 title: the application graph of ledger-desk
 claim: The graph links the package entry point to three IPC handlers and one network endpoint, and each edge names whether it was observed or inferred.
-caption: Read from the top left. Olive boxes are the application's own code, the grey box is the network endpoint outside it, and the teal box is browser storage. Relation names sit on the arrows. From capture/out/15-js-app-graph.json.
+caption: Read from the top left. Olive boxes are the application's own code, the grey box is the network endpoint outside it, and the teal box is browser storage. Relation names sit on the arrows. The nine `javascript-expression` step nodes of the three bridge call paths are not drawn. From capture/out/15-js-app-graph.json.
 ```
 
 ## Views over a large record
@@ -243,4 +248,4 @@ A page says how much of the collection it covers: 15 of 15 items here, with no n
 - Page a large record with `inspect-analysis-view` instead of reading it whole.
 ```
 
-Sources: src/cli/electronCommands.ts, src/domain/javascript/javascriptApplicationAnalysis.ts, src/domain/javascript/javascriptAnalysisResourceControls.ts, src/domain/javascript/javascriptSourceParser.ts, src/contracts/javascript/electronToolContracts.ts, src/contracts/analysisViewToolContracts.ts, src/application/javascript/JavaScriptArtifactGraphEvidence.ts at rea-agents-6.4.0 (a56f7bb); rea docs/cli.md, docs/javascript-application-graph.md, docs/mcp-contracts.md; capture/README.md; capture/fixtures/js-app/main.js, preload.js, renderer.js, ledger.js, index.html, package.json; capture/out/00-commands.txt, 15-js-app.json, 15-js-app-graph.json, 15-js-app-view-summary.json, 15-js-app-view-modules.json; rea 6.4.0 at a56f7bb: src/cli/electronCommands.ts, src/domain/javascript/javascriptApplicationAnalysis.ts, src/domain/javascript/javascriptAnalysisResourceControls.ts, src/contracts/javascript/electronToolContracts.ts, src/domain/javascript/javascriptSourceParser.ts, javascriptApplicationAnalysis.ts, src/application/javascript/JavaScriptArtifactGraphEvidence.ts, src/contracts/analysisViewToolContracts.ts
+Sources: src/cli/electronCommands.ts, src/domain/javascript/javascriptApplicationAnalysis.ts, src/domain/javascript/javascriptAnalysisResourceControls.ts, src/domain/javascript/javascriptSourceParser.ts, src/contracts/javascript/electronToolContracts.ts, src/contracts/analysisViewToolContracts.ts, src/application/javascript/JavaScriptArtifactGraphEvidence.ts, src/domain/javascript/javascriptSourceSelection.ts at rea-agents-6.5.0 (3b79af2); rea docs/cli.md, docs/javascript-application-graph.md, docs/javascript-artifact-reconstruction.md (Select sources before analysis, What is reconstructed), docs/mcp-contracts.md; capture/README.md; capture/fixtures/js-app/main.js, preload.js, renderer.js, ledger.js, index.html, package.json; capture/out/00-commands.txt, 15-js-app.json, 15-js-app-graph.json, 15-js-app-view-summary.json, 15-js-app-view-modules.json
