@@ -277,7 +277,10 @@ class GridAndFuzzTests(unittest.TestCase):
 
     @unittest.skipUnless(main.host_compiler(), "a C compiler is needed to run the grid and the corpus")
     def test_live_grid_and_fuzz_reproduce_the_recorded_run(self) -> None:
-        record = main.recorded_scorecards()
+        host_record = main.RUNS / f"scorecards-{main.host_arch()}-{main.platform.system().lower()}.json"
+        if not host_record.is_file():
+            self.skipTest(f"no recorded run for {main.host_arch()} {main.platform.system()}; the committed run is for aarch64 Darwin")
+        record = main.recorded_scorecards(host_record)
         recorded = {card["candidate"]: card for card in record["scorecards"]}
         with tempfile.TemporaryDirectory() as tmp:
             live = main.score_all(Path(tmp))

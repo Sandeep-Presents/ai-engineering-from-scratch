@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
+!phases/13-tools-and-protocols/43-bytecode-and-managed-formats/code/fixtures/python/*.pyc
 *$py.class
 *.so
 .Python
