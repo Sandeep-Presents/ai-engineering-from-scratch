@@ -219,7 +219,7 @@ Instead of majority voting, KNN for regression averages the target values of the
 \begin{aligned}
 & \text{prediction} = \frac{1}{K} \sum_{i \in K \text{ nearest neighbors}} y_i \\[6pt]
 & \text{Or with distance weighting:} \\
-& \text{prediction} = \frac{\sum_i w_i y_i}{\sum_i w_i} \quad \text{where } w_i = \frac{1}{\text{distance}_i}
+& \text{prediction} = \frac{\sum_i w_i y_i}{\sum_i w_i} \quad \text{where } w_i = \frac{1}{\text{distance}_i + \epsilon}
 \end{aligned}
 ```
 
