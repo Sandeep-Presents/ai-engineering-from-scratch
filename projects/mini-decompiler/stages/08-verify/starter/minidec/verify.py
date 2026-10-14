@@ -28,6 +28,7 @@ MEMORY_PATTERNS = {
     "minus_one": (-1,) * MEMORY_WORDS,
 }
 TRAP = "trap"
+DRIVER_TIMEOUT_SECONDS = 60
 
 
 class VerifyError(RuntimeError):
@@ -292,7 +293,10 @@ def parse_result(text: str) -> Any:
 
 def run_cells(harness: Harness, cells: list[Cell]) -> list[dict[str, Any]]:
     feed = "".join(cell.line() + "\n" for cell in cells)
-    completed = subprocess.run([str(harness.binary)], input=feed, capture_output=True, text=True)
+    try:
+        completed = subprocess.run([str(harness.binary)], input=feed, capture_output=True, text=True, timeout=DRIVER_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired as error:
+        raise VerifyError(f"driver did not finish within {DRIVER_TIMEOUT_SECONDS} s") from error
     if completed.returncode != 0:
         raise VerifyError(f"driver exited with {completed.returncode}: {completed.stderr[:400]}")
     rows: list[dict[str, Any]] = []
