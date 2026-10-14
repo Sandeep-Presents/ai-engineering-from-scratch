@@ -36,7 +36,7 @@ PATTERNS = [
 MATH_SPAN = re.compile(r"(?<![\\$\w])\$(?=[^\s$])(?:\\.|[^$\\\n])+(?<=[^\s\\])\$(?!\w)")
 LOOSE_SPAN = re.compile(r"(?<![\\$])\$(?=[^\s$])(?:\\.|[^$\\\n])+?(?<=[^\s\\])\$(?![\d$])")
 CODE_SPAN = re.compile(r"`[^`\n]+`")
-FENCE = re.compile(r"^\s*(```|~~~)\s*([\w+-]*)")
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*([\w+-]*)")
 
 
 def strip_spans(line):
@@ -57,7 +57,8 @@ def scan(path):
             fence, fence_lang = match.group(1), match.group(2).lower()
             continue
         if fence is not None:
-            if line.strip().startswith(fence):
+            closing = line.strip()
+            if closing and set(closing) == {fence[0]} and len(closing) >= len(fence):
                 fence = None
                 continue
             if fence_lang not in FORMULA_FENCES:

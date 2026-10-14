@@ -4400,7 +4400,14 @@
             script.src = KATEX_BASE + 'katex.min.js';
             script.integrity = KATEX_JS_SRI;
             script.crossOrigin = 'anonymous';
-            script.onload = function () { resolve(window.katex); };
+            script.onload = function () {
+              if (window.katex) {
+                resolve(window.katex);
+                return;
+              }
+              katexPromise = null;
+              reject(new Error('katex loaded without defining window.katex'));
+            };
             script.onerror = function () {
               katexPromise = null;
               reject(new Error('katex failed to load'));
