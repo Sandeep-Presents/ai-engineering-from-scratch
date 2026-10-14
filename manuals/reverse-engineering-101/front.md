@@ -1,8 +1,8 @@
 # How to read this manual
 
-> Every listing in this manual comes from one recorded run of rea 6.4.0 with Ghidra 12.1.4 on programs written for it, and every rule traces to a ranked source.
+> Every listing in this manual comes from one recorded run of rea 6.5.0 with Ghidra 12.1.4 on programs written for it, and every rule traces to a ranked source.
 
-This manual explains rea, the `rea-agents` package at version 6.4.0, with the Ghidra 12.1.4 provider. It follows one question from a file you compiled to an Evidence record you can check. The question is what a function does, and how the tool knows.
+This manual explains rea, the `rea-agents` package at version 6.5.0, with the Ghidra 12.1.4 provider. It follows one question from a file you compiled to an Evidence record you can check. The question is what a function does, and how the tool knows.
 
 ## Who this manual is for
 
@@ -20,13 +20,13 @@ Five lessons go deeper than rea does. [The ELF lesson](phases/13-tools-and-proto
 
 ## How it was made
 
-The manual pins `rea-agents` 6.4.0, published 2026-10-11, at the tag `rea-agents-6.4.0`, which is commit `a56f7bb668ab23fec8d33f7af353ac7ed2fe1895`. It pins Ghidra 12.1.4 PUBLIC, built 2026-Sep-21, and OpenJDK 21.0.12.1. The facts were verified on 2026-10-13. The `main` branch of rea is ahead of the release. It has a WebAssembly provider, a Go provider, a raw-binary format, and a `DISCLAIMER.md` that 6.4.0 does not have. Where this manual names `main`, it says so.
+The manual pins `rea-agents` 6.5.0, published 2026-10-14, at the tag `rea-agents-6.5.0`, which is commit `3b79af28e80785afce9f5998d8f03289402a1847`. It pins Ghidra 12.1.4 PUBLIC, built 2026-Sep-21, and OpenJDK 21.0.12.1. The facts were verified on 2026-10-14. Release 6.5.0 includes a WebAssembly provider, a Go provider, a raw-binary format, and a `DISCLAIMER.md`. The release 6.4.0 had none of them. This manual describes 6.5.0 only.
 
 Facts come from seven sources, ranked by authority. When two of them disagree, the higher one wins and the text says so.
 
 | Rank | Source | What the manual takes from it | Cited as |
 |---|---|---|---|
-| 1 | the rea source at the tag, `a56f7bb` | every claim about how rea works | the file list in the Sources line at the end of each section |
+| 1 | the rea source at the tag, `3b79af2` | every claim about how rea works | the file list in the Sources line at the end of each section |
 | 2 | the rea documentation at the tag | documented behaviour, limits, and the use rule | `readme`, `cli`, `mcp`, `ghidra`, `native`, `install`, `readiness`, `ledgers`, `jsgraph`, or `design` and a heading |
 | 3 | the captured runs in `capture/out/` | every listing and every number in a figure | the capture file name |
 | 4 | the ELF, Mach-O, x86-64, and AArch64 specifications | formats, encodings, and calling conventions | `spec` and a section |
@@ -34,28 +34,28 @@ Facts come from seven sources, ranked by authority. When two of them disagree, t
 | 6 | statutes and court decisions | the law of analysis and interoperability | `law` and a citation |
 | 7 | tool release notes | Ghidra and other tool versions | the release and its date |
 
-Quotes from the rea README and documentation were checked against the pages at tag `rea-agents-6.4.0`. Quotes from statutes, specifications, and papers come from the official texts. No source file is copied into this repository.
+Quotes from the rea README, `DISCLAIMER.md`, and documentation were checked against the pages at tag `rea-agents-6.5.0`. Quotes from statutes, specifications, and papers come from the official texts. No source file is copied into this repository.
 
 ## The capture kit
 
 The capture kit in `capture/` drives the real `rea` command line and its MCP server with the Ghidra provider. It writes what they return to `capture/out/`, and it uses the Python standard library only. `python3 capture/run.py` records everything, and `python3 capture/run.py --check` records again into a temporary directory and compares with `capture/out/` after masking the values that change on every run.
 
-The subject needs Ghidra, a JDK, and Node, so the kit cannot run in the repository CI. Where rea 6.4.0, Ghidra 12.1.4, or JDK 21 is absent, `--check` prints `skipped` with the reason and exits 0. Every file in `capture/out/` was recorded on one machine:
+The subject needs Ghidra, a JDK, and Node, so the kit cannot run in the repository CI. Where rea 6.5.0, Ghidra 12.1.4, or JDK 21 is absent, `--check` prints `skipped` with the reason and exits 0. Every file in `capture/out/` was recorded on one machine:
 
 | Item | Value |
 |---|---|
 | Host | an Apple silicon laptop, macOS 26.2, build 25C56, arm64 |
-| rea | `rea-agents` 6.4.0 from the npx cache, Node 22.22.0 |
+| rea | `rea-agents` 6.5.0 from the npx cache, Node 22.22.0 |
 | Ghidra | 12.1.4 PUBLIC from Homebrew, `GHIDRA_INSTALL_DIR=/opt/homebrew/Cellar/ghidra/12.1.4/libexec` |
 | JDK | OpenJDK 21.0.12.1 from Homebrew, `JAVA_HOME=/opt/homebrew/opt/openjdk@21` |
 | clang | Apple clang 17.0.0, target `arm64-apple-darwin25.2.0` |
-| Recorded on | 2026-10-13 |
+| Recorded on | 2026-10-14 |
 
 The kit records every one-shot command in `00-commands.txt`, each with its exit status and time. It records one MCP session of 25 exchanges in `10-mcp-*.json`, and two Evidence bundles. A full run takes about 110 s, and each one-shot command that needs Ghidra takes 7 to 9 s. Two runs on the recording host produced identical records (capture/README.md). Every fixture is a program written for this manual, and `00-fixtures.txt` lists their hashes.
 
 ## Conventions
 
-`rea` names the 6.4.0 command line in every command. The kit started it from the npx cache as `node .../node_modules/rea-agents/scripts/rea.mjs`, and `rea mcp` names the MCP server of the same package.
+`rea` names the 6.5.0 command line in every command. The kit started it from the npx cache as `node .../node_modules/rea-agents/scripts/rea.mjs`, and `rea mcp` names the MCP server of the same package.
 
 `$CAPTURE` stands for the capture directory, `$OUT` for `capture/out/`, `$WORK` for the kit's work directory, and `$HOME` for the home directory. Values that change on every run appear as tokens such as `<hash>` and `<ts>`. Addresses are lowercase `0x` hexadecimal, as rea prints them. `_percent_change` with a leading `_` is the Mach-O symbol, and `percent_change` is the C name and the ELF symbol.
 
@@ -65,7 +65,7 @@ Figures animate on the web, where a Replay button runs the steps again, and prin
 
 ## A first run
 
-You need rea 6.4.0, Ghidra 12.1.4, and a JDK 21 on `PATH` or in `JAVA_HOME`. After the install, nothing in this run uses the network. Export the two paths, then ask the doctor:
+You need rea 6.5.0, Ghidra 12.1.4, and a JDK 21 on `PATH` or in `JAVA_HOME`. After the install, nothing in this run uses the network. Export the two paths, then ask the doctor:
 
 ```bash
 export GHIDRA_INSTALL_DIR=/opt/homebrew/Cellar/ghidra/12.1.4/libexec
@@ -119,7 +119,7 @@ Open `capture/out/06-function-percent-change.json` next to your own output. [Sec
 
 ## How the parts are ordered
 
-Part 1 puts rea on one page. Part 2 covers the right to analyze and the install. Parts 3 to 5 take one investigation apart: the file itself, the Ghidra provider, and the Evidence record. Part 6 covers JavaScript and the WASM gap of 6.4.0. Part 7 proves a rebuild equal outside rea. Part 8 drives rea from an agent, and the Reference holds the lookup tables:
+Part 1 puts rea on one page. Part 2 covers the right to analyze and the install. Parts 3 to 5 take one investigation apart: the file itself, the Ghidra provider, and the Evidence record. Part 6 covers JavaScript and WebAssembly. Part 7 proves a rebuild equal outside rea. Part 8 drives rea from an agent, and the Reference holds the lookup tables:
 
 ```parts
 ```
@@ -143,4 +143,4 @@ caption: Read each numbered row from the tail of the arrow to its head, and the 
 
 The model call in row 9 belongs to the agent, which [Part 8](#p-8) draws with its own lifeline.
 
-Sources: manual.json; rea LICENSE; capture/README.md; capture/run.py; capture/fixtures/ledger.c, ledger-main.c; capture/out/00-commands.txt, 00-fixtures.txt, 00-versions.txt, 01-doctor-ghidra.json, 06-function-percent-change.json, 10-mcp-03-open-binary-O1.json, 10-mcp-09-analyze-function-percent-change-O1.json, 10-mcp-13-analyze-function-missing.json, 10-mcp-14-export-evidence-bundle-O1.json, 10-mcp-server.log, 10-mcp-session.txt
+Sources: manual.json; rea LICENSE, DISCLAIMER.md; capture/README.md; capture/run.py; capture/fixtures/ledger.c, ledger-main.c; capture/out/00-commands.txt, 00-fixtures.txt, 00-versions.txt, 01-doctor-ghidra.json, 06-function-percent-change.json, 10-mcp-03-open-binary-O1.json, 10-mcp-09-analyze-function-percent-change-O1.json, 10-mcp-13-analyze-function-missing.json, 10-mcp-14-export-evidence-bundle-O1.json, 10-mcp-server.log, 10-mcp-session.txt

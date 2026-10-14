@@ -5,7 +5,7 @@ const { figure } = require('../../../_shared/figkit.js');
 module.exports = figure('fig-3-2', {
   height: 232,
   title: 'Two layout commands on the capture Mac',
-  desc: 'Left: rea inspect-binary-layout on ledger-x86_64-O1.o reaches the pwntools-elf provider, which answers capability_unavailable with category unsupported_provider because its profile supports Linux x64 only, and the command exits 1. Right: rea inspect-macho on ledger-arm64-O1 reaches the native-macos provider, which runs otool, nm, dyld_info, dwarfdump, file, lipo and vtool through xcrun and returns an Evidence record with 17 load commands and 4 segments, exit 0.',
+  desc: 'Left: rea inspect-binary-layout on ledger-x86_64-O1.o reaches the pwntools-elf provider, which answers capability_unavailable with category unsupported_provider because its profile supports Linux x64 only, and the command exits 1. Right: rea inspect-macho on ledger-arm64-O1 reaches the native-macos provider, which runs lipo, otool, nm, dyld_info, dwarfdump, and vtool, found through xcrun, and returns an Evidence record with 17 load commands and 4 segments, exit 0.',
 }, f => {
   f.kicker(20, 18, 'A · inspect-binary-layout');
   f.kicker(336, 18, 'B · inspect-macho');
@@ -17,8 +17,8 @@ module.exports = figure('fig-3-2', {
   ];
   const right = [
     { hue: 'blue', title: 'rea inspect-macho', sub: 'fixtures/ledger-arm64-O1' },
-    { hue: 'grey', title: 'otool nm dyld_info dwarfdump', sub: 'and file, lipo, vtool through xcrun' },
-    { hue: 'green', title: 'Evidence ev_9728c3b6', sub: '17 load commands · 4 segments · exit 0' },
+    { hue: 'grey', title: 'otool nm dyld_info dwarfdump', sub: 'and lipo, vtool, found through xcrun' },
+    { hue: 'green', title: 'Evidence ev_73d56781', sub: '17 load commands · 4 segments · exit 0' },
   ];
   [[left, 20, ['call', 'fail']], [right, 336, ['call', 'reply']]].forEach(([column, x, styles]) => {
     column.forEach((item, index) => {

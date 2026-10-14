@@ -1,6 +1,6 @@
 # Reverse Engineering 101
 
-rea, the `rea-agents` package at 6.4.0, with the Ghidra 12.1.4 provider, from the first `rea doctor` to an agent that keeps an evidence ledger over MCP. The web edition is at [aiengineeringfromscratch.com/manual-reverse-engineering-101.html](https://aiengineeringfromscratch.com/manual-reverse-engineering-101.html), and each release of the course attaches the PDF as `aiefs-manual-reverse-engineering-101.pdf`.
+rea, the `rea-agents` package at 6.5.0, with the Ghidra 12.1.4 provider, from the first `rea doctor` to an agent that keeps an evidence ledger over MCP. The web edition is at [aiengineeringfromscratch.com/manual-reverse-engineering-101.html](https://aiengineeringfromscratch.com/manual-reverse-engineering-101.html), and each release of the course attaches the PDF as `aiefs-manual-reverse-engineering-101.pdf`.
 
 ## What is in it
 
@@ -24,12 +24,12 @@ rea, the `rea-agents` package at 6.4.0, with the Ghidra 12.1.4 provider, from th
 
 | Item | Value |
 |---|---|
-| rea | `rea-agents` 6.4.0, published 2026-10-11, tag `rea-agents-6.4.0`, commit `a56f7bb668ab23fec8d33f7af353ac7ed2fe1895` |
+| rea | `rea-agents` 6.5.0, published 2026-10-14, tag `rea-agents-6.5.0`, commit `3b79af28e80785afce9f5998d8f03289402a1847` |
 | Ghidra | 12.1.4 PUBLIC, built 2026-Sep-21 |
 | JDK | OpenJDK 21.0.12.1 |
-| Verified | 2026-10-13 |
+| Verified | 2026-10-14 |
 
-The `main` branch of rea at `6e25cc3` is ahead of the release. Its WebAssembly and Go providers, its raw-binary format, and its `DISCLAIMER.md` are not in 6.4.0. Every claim in this manual describes 6.4.0.
+Release 6.5.0 includes the WebAssembly and Go providers, the raw-binary format, and `DISCLAIMER.md`. Every claim in this manual describes 6.5.0.
 
 ## The recording host
 
@@ -37,11 +37,11 @@ The kit was recorded on one Mac with macOS 26.2 on Apple silicon, with these ver
 
 | Item | Version |
 |---|---|
-| rea | `rea-agents` 6.4.0 from the npx cache, Node 22.22.0 |
+| rea | `rea-agents` 6.5.0 from the npx cache, Node 22.22.0 |
 | Ghidra | 12.1.4 from Homebrew, `GHIDRA_INSTALL_DIR=/opt/homebrew/Cellar/ghidra/12.1.4/libexec` |
 | JDK | OpenJDK 21.0.12.1 from Homebrew, `JAVA_HOME=/opt/homebrew/opt/openjdk@21` |
 | clang | Apple clang 17.0.0 |
-| WABT | 1.0.42 from Homebrew, used only to record what 6.4.0 does not do |
+| WABT | 1.0.42 from Homebrew. `inspect-wasm-artifact` runs its tools through `REA_WABT_BIN_DIRECTORY`. |
 
 ## Run the kit
 
@@ -50,7 +50,7 @@ cd manuals/reverse-engineering-101
 python3 capture/run.py --check
 ```
 
-The check captures again into a temporary directory. Then it compares each file with `capture/out/` after it masks timestamps, durations, run ids, temporary paths, and process ids. If rea 6.4.0, Ghidra 12.1.4, or JDK 21 is absent, the check prints `skipped` with the reason and exits 0. A full run takes about 110 s on the recording host, and `capture/README.md` lists every file it writes and every cut it makes.
+The check captures again into a temporary directory. Then it compares each file with `capture/out/` after it masks timestamps, durations, run ids, temporary paths, and process ids. If rea 6.5.0, Ghidra 12.1.4, or JDK 21 is absent, the check prints `skipped` with the reason and exits 0. A full run takes about 110 s on the recording host, and `capture/README.md` lists every file it writes and every cut it makes.
 
 Run `python3 capture/run.py` to record the files again, and `python3 capture/run.py --build-fixtures` to rebuild the fixture binaries. Another clang changes the executables and the objects, and with them every SHA-256, `evidence_id`, and bundle digest in `capture/out/`, so a rebuild needs a new recording.
 

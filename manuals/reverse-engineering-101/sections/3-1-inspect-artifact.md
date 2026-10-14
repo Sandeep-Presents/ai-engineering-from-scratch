@@ -29,15 +29,15 @@ lang: json
 note: The substeps array and everything after it are cut. The capture kit masks local_path.
 ---
 {
-  "evidence_id": "ev_768902c5…",
+  "evidence_id": "ev_3823d30d…",
   "subject": {
     "name": "ledger-arm64-O1",
     "digest": {
       "sha256": "01b5d08b…"
     },
+    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
     "format": "mach-o",
-    "architecture": null,
-    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+    "architecture": null
   },
   "provider": {
     "id": "rea-artifact-graph",
@@ -114,7 +114,7 @@ note: The hypotheses and contradictions arrays are empty and are cut with the co
 ---
 "unexplored_branches": [
   {
-    "branch_id": "aib_a0c2bfaf…",
+    "branch_id": "aib_38d39810…",
     "reason": "format-specific-analysis-required",
     "detail": "open_binary was not run by provider-neutral artifact inspection.",
     "next_probe": {
@@ -147,7 +147,7 @@ caption: Read from the top. The teal box is the record, the green boxes are what
 
 ## What the record is not
 
-The record is not a format parse. It holds no load commands, no sections, no symbols, and no entry point. For those, [the next section](#s-inspect-binary-layout-and-the-load-image) runs `inspect-macho`. For a function, [Part 4](#s-open-binary-and-the-headless-bridge) binds Ghidra with `open_binary`, the tool the branch names. The whole record is 191 lines, and most of them repeat the subject digest. That repetition is the point: every nested record can stand alone and still name the same bytes.
+The record is not a format parse. It holds no load commands, no sections, no symbols, and no entry point. For those, [the next section](#s-inspect-binary-layout-and-the-load-image) runs `inspect-macho`. For a function, [Part 4](#s-open-binary-and-the-headless-bridge) binds Ghidra with `open_binary`, the tool the branch names. The whole record is 198 lines, and most of them repeat the subject digest. That repetition is the point: every nested record can stand alone and still name the same bytes.
 
 ```takeaways
 - Run `inspect-artifact` first: it needs no engine and returns in about a second.
@@ -156,4 +156,4 @@ The record is not a format parse. It holds no load commands, no sections, no sym
 - Carry the subject `sha256` into every later record about the same file.
 ```
 
-Sources: capture/out/00-commands.txt, capture/out/00-fixtures.txt, capture/out/03-inspect-artifact.json; rea 6.4.0 at a56f7bb: src/application/InvestigationProviders.ts, src/domain/artifactInspection.ts
+Sources: capture/out/00-commands.txt, capture/out/00-fixtures.txt, capture/out/03-inspect-artifact.json; rea 6.5.0 at 3b79af2: src/application/InvestigationProviders.ts, src/domain/artifactInspection.ts, src/artifacts/inventory/reader.ts

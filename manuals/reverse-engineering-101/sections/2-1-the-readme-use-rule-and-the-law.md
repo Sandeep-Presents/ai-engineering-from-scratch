@@ -2,7 +2,7 @@
 
 > You analyze a program only when you have the right to, and in this manual that right comes from writing every target yourself.
 
-A vendor sent you a binary, and an agent at your side can decompile it in eight seconds. Before the first command, two questions stand. Who owns the program, and what does the law allow you to do with a copy you did not write? rea asks neither question. Its README puts the answer on you, and the statutes and decisions below say what the answer has to contain.
+A vendor sent you a binary, and an agent at your side can decompile it in eight seconds. Before the first command, two questions stand. Who owns the program, and what does the law allow you to do with a copy you did not write? rea asks neither question. Its `DISCLAIMER.md` puts the answer on you, and the statutes and decisions below say what the answer has to contain.
 
 When you finish this section, you can say which rule lets you analyze a program, and why every target in this manual passes that test. This section reads primary sources and gives no legal advice.
 
@@ -10,12 +10,14 @@ When you finish this section, you can say which rule lets you analyze a program,
 
 ```rule
 label: the use rule
-source: readme line 327
+source: readme DISCLAIMER.md, Responsible use
 ---
-"REA provides tools for lawful reverse-engineering research, analysis, and reconstruction. You are responsible for obtaining any required authorization and complying with applicable laws. The project does not endorse illegal or unauthorized use."
+"You are responsible for obtaining any required authorization and for complying with applicable laws, license agreements and terms of service. Reverse engineering may be restricted in your jurisdiction or by the license of the software you analyze."
 ```
 
-The rule is one paragraph under the heading `Disclaimer` at line 325 of the rea README. It is the whole of what rea 6.4.0 says about use. The tag has no `DISCLAIMER.md`. That file exists only on `main` after 6.4.0, at commit `6e25cc3`. Its list of uses the project will not help with names DRM, licence checks, anti-cheat systems, game cheats, bypassing authentication, and copying proprietary software. The 6.4.0 README states the principle and leaves the list to you.
+The rule is a paragraph under the heading `Responsible use` in `DISCLAIMER.md` at the tag. The README has a `Disclaimer` heading that sends you to that file. It also says: "REA is for lawful research, education, interoperability, software preservation, and analysis of software you own or are authorized to examine." {{readme Disclaimer}} It adds that this position covers all REA versions and distribution channels.
+
+`DISCLAIMER.md` also lists the uses that the project does not support. The first item is the circumvention of DRM, licence checks, anti-cheat systems, and other protection measures. Then come game cheats, the bypass of authentication or access controls, and copies of proprietary software. The last two items are the evasion of AI provider usage policies and the resale or sharing of AI accounts.
 
 ## United States: 17 U.S.C. 1201
 
@@ -84,10 +86,10 @@ For any other program, answer the five questions first and write the answers dow
 Check that the facts are not already published. Confine the work to the parts you need, and make the final product your own expression. Where a licence or a contract says more, read it. Section 1201(f) does not override contract law, and Article 8 voids only terms contrary to Articles 5(2), 5(3), and 6.
 
 ```takeaways
-- Read README.md line 327 once. Getting authorization is your task, and rea does not check it.
+- Read `DISCLAIMER.md` once. Getting authorization is your task, and rea does not check it.
 - Write down the lawful copy, the named purpose, and the missing facts before the first command.
 - Analyze only programs you wrote or are authorized to examine, as every section of this manual does.
 - Keep intermediate copies for analysis, and keep copied code out of anything you release.
 ```
 
-Sources: readme line 327 (rea README.md); rea DISCLAIMER.md at main 6e25cc3; law: 17 U.S.C. 1201(a)(1)(A), (a)(3)(A), (c)(1), (f)(1), (f)(4), (j)(1), Directive 2009/24/EC Articles 1(2), 5(1), 5(3), 6(1), 6(2)(c), 8, CJEU C-406/10 and C-13/20, Sega v. Accolade, 977 F.2d 1510, Sony v. Connectix, 203 F.3d 596; capture/out/00-fixtures.txt
+Sources: readme Disclaimer (rea README.md); rea DISCLAIMER.md, Responsible use, at 3b79af2; law: 17 U.S.C. 1201(a)(1)(A), (a)(3)(A), (c)(1), (f)(1), (f)(4), (j)(1), Directive 2009/24/EC Articles 1(2), 5(1), 5(3), 6(1), 6(2)(c), 8, CJEU C-406/10 and C-13/20, Sega v. Accolade, 977 F.2d 1510, Sony v. Connectix, 203 F.3d 596; capture/out/00-fixtures.txt

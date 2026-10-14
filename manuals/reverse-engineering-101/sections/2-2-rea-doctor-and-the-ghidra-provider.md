@@ -41,7 +41,7 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21
 rea doctor --provider ghidra --format json
 ```
 
-`--provider ghidra` narrows the report to one scope. Without it, the report also covers the Hopper and IDA providers, the installed skill, and the agent registrations on the machine.
+`--provider ghidra` narrows the report to one scope. Without it, the report also covers the Hopper, IDA, and JADX providers, the installed skill, and the agent registrations on the machine.
 
 ## The nine checks
 
@@ -68,7 +68,11 @@ note: Cut to the head, the first check, and the two checks that read the install
       "name": "node",
       "ok": true,
       "classification": "healthy",
-      "detail": "22.22.0"
+      "detail": "22.22.0",
+      "details": {
+        "runtime": "node",
+        "version": "22.22.0"
+      }
     },
     …
     {
@@ -133,4 +137,4 @@ One check has no fix in rea. Every Ghidra record on macOS carries the limitation
 - Read `environment_healthy` as a report on the whole machine, and `healthy` as the verdict for your scope.
 ```
 
-Sources: install Ghidra (rea docs/installation.md); cli Output and exit status (rea docs/cli.md); rea at a56f7bb: src/config/environment.ts, src/ghidra/GhidraInstallationPolicy.ts, src/ghidra/GhidraInstallation.ts, src/ghidra/GhidraDoctor.ts, src/application/Doctor.ts, src/application/DoctorDiagnostics.ts, src/domain/providerSelectionError.ts, src/domain/analysisErrorProjection.ts; capture/README.md; capture/out/00-commands.txt, 00-versions.txt, 01-doctor-ghidra.json, 06-function-percent-change.json
+Sources: install Ghidra (rea docs/installation.md); cli Output and exit status (rea docs/cli.md); rea at 3b79af2: src/config/environment.ts, src/ghidra/GhidraInstallationPolicy.ts, src/ghidra/GhidraInstallation.ts, src/ghidra/GhidraDoctor.ts, src/application/Doctor.ts, src/application/DoctorDiagnostics.ts, src/application/DoctorProviderIds.ts, src/domain/providerSelectionError.ts, src/domain/analysisErrorProjection.ts; capture/README.md; capture/out/00-commands.txt, 00-versions.txt, 01-doctor-ghidra.json, 06-function-percent-change.json

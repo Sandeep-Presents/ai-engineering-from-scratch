@@ -2,7 +2,7 @@
 
 > On macOS, inspect-binary-layout refuses with capability_unavailable, and inspect-macho is the engine-free reader of segments, sections, load commands, imports, and exports.
 
-You ran `rea inspect-binary-layout fixtures/ledger-x86_64-O1.o --format json` on the capture Mac. It exited 1 and printed a JSON error instead of a layout. Nothing is broken. rea 6.4.0 has two engine-free layout readers, and this one runs on Linux x64 only.
+You ran `rea inspect-binary-layout fixtures/ledger-x86_64-O1.o --format json` on the capture Mac. It exited 1 and printed a JSON error instead of a layout. Nothing is broken. rea 6.5.0 has two engine-free layout readers, and this one runs on Linux x64 only.
 
 When you finish this section, you can read that error envelope and name the host rule behind it. You can also read the load image of `ledger-arm64-O1` from `inspect-macho`: four segments, 17 load commands, six imports, and six exports.
 
@@ -36,7 +36,7 @@ The capture kit gave the tool the ELF object because `inspect_binary_layout` is 
 
 ## inspect-macho and the tools it runs
 
-`inspect-macho` is the macOS reader, from the provider `native-macos`, "macOS native inspection utilities". It runs eight host commands and records each one as provenance.
+`inspect-macho` is the macOS reader, from the provider `native-macos`, "macOS native inspection utilities". It runs seven host commands and records each one as provenance.
 
 ```listing
 title: the provenance of one inspect-macho run
@@ -46,16 +46,12 @@ note: Cut to the tool names and three of the commands. Each entry also records t
 ---
 "provenance": [
   {
-    "tool": "file",
+    "tool": "lipo",
     "command": [
-      "/usr/bin/file",
-      "-b",
+      "/Library/Developer/CommandLineTools/usr/bin/lipo",
+      "-detailed_info",
       "$ARTIFACT"
     ],
-    …
-  },
-  {
-    "tool": "lipo",
     …
   },
   {
@@ -96,7 +92,7 @@ note: Cut to the tool names and three of the commands. Each entry also records t
 ],
 ```
 
-The command list is fixed in the provider. It runs `file -b` and `lipo -detailed_info` to discover the slices. For each slice it runs `otool -h -l`, `nm -gjU`, `dyld_info -imports`, `dyld_info -exports`, and `dwarfdump --uuid`, with `vtool -show-build` as an optional extra. The run starts no Java and takes a few seconds. Keep one limitation of the record in mind when a name you expect is missing: "Imports and exports combine dyld_info and nm; stripped or toolchain-hidden symbols may be absent."
+The command list is fixed in the provider. It runs `lipo -detailed_info` to discover the slices. For each slice it runs `otool -h -l`, `nm -gjU --no-dyldinfo`, `dyld_info -imports`, `dyld_info -exports`, and `dwarfdump --uuid`. It runs `vtool -show-build` as an optional extra. The run starts no Java and takes a few seconds. Keep one limitation of the record in mind when a name you expect is missing: "Imports and exports combine dyld_info and nm; stripped or toolchain-hidden symbols may be absent."
 
 ```figure
 id: fig-3-2
@@ -112,10 +108,14 @@ caption: Left to right in each column. Solid arrows are calls, the dashed rose a
 title: header facts and the entry point
 source: capture/out/04-inspect-macho.json
 lang: json
-note: Cut from normalized_result to the header, the entry point, and the build metadata. Values that otool prints as text stay strings here.
+note: Cut from normalized_result to the header, the entry point, and the build metadata. rea names the build platform and tool codes from loader.h.
 ---
 "format": "mach-o",
-"endian": null,
+"selected_architecture": {
+  "name": "arm64",
+  "container_file_offset": 0
+},
+"endian": "little",
 "word_size": 64,
 "file_type": "2",
 "flags": [
@@ -134,7 +134,7 @@ note: Cut from normalized_result to the header, the entry point, and the build m
 "build_metadata": {
   "items": [
     {
-      "platform": "1",
+      "platform": "MACOS",
       "minimum_os": "26.0",
       "sdk": "26.2",
       …
@@ -276,7 +276,11 @@ note: Cut from the exports collection. The __mh_execute_header entry and the wea
 },
 ```
 
-Six exports: the five functions and `__mh_execute_header` at `0x100000000`. Six imports from `libSystem`: `___stack_chk_fail`, `___stack_chk_guard`, `___stderrp`, `_atoi`, `_fwrite`, and `_printf`. Two dependencies: `/usr/lib/dyld` and `/usr/lib/libSystem.B.dylib`. Both the imports and the exports collections say `exhaustive: false`, because each merges the text of two tools. The record does not promise that the list is complete, and you should not promise it either. [Section 4.2](#s-list-procedures-and-function-bodies) shows the same names as Ghidra sees them, and [the next section](#s-address-to-file-offset) turns `0x100000518` into a file offset.
+Six exports: the five functions and `__mh_execute_header` at `0x100000000`. Six imports from `libSystem`: `___stack_chk_fail`, `___stack_chk_guard`, `___stderrp`, `_atoi`, `_fwrite`, and `_printf`.
+
+One dependency: `/usr/lib/libSystem.B.dylib`. rea lists only dylib load commands as dependencies. The dynamic linker `/usr/lib/dyld` stays in the `LC_LOAD_DYLINKER` row of the load commands.
+
+Both the imports and the exports collections say `exhaustive: false`, because each merges the text of two tools. The record does not promise that the list is complete, and you should not promise it either. [Section 4.2](#s-list-procedures-and-function-bodies) shows the same names as Ghidra sees them, and [the next section](#s-address-to-file-offset) turns `0x100000518` into a file offset.
 
 ```takeaways
 - Expect `capability_unavailable` from `inspect-binary-layout` on any host that is not Linux x64.
@@ -285,4 +289,4 @@ Six exports: the five functions and `__mh_execute_header` at `0x100000000`. Six 
 - Check `exhaustive` on each collection before you say a symbol is absent.
 ```
 
-Sources: capture/out/00-commands.txt, capture/out/04-inspect-binary-layout.json, capture/out/04-inspect-macho.json; rea 6.4.0 at a56f7bb: src/contracts/errorSchemas.ts, src/native/pwntools/PwntoolsDecoder.ts, src/server/createServer.ts, src/native/NativeMachoInspection.ts; rea docs/cli.md
+Sources: capture/out/00-commands.txt, capture/out/04-inspect-binary-layout.json, capture/out/04-inspect-macho.json; rea 6.5.0 at 3b79af2: src/contracts/errorSchemas.ts, src/native/pwntools/PwntoolsDecoder.ts, src/server/createServer.ts, src/native/NativeMachoInspection.ts, src/native/parsers/otool.ts; rea docs/cli.md

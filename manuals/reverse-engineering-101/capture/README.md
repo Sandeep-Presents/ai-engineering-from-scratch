@@ -1,6 +1,6 @@
 # Reverse Engineering 101 capture kit
 
-Every listing in the manual is cut from a file in `out/`. This kit drives the real `rea` 6.4.0 command line and its MCP server on the host that runs it, with the Ghidra 12.1.4 provider, and records what they return. It uses the Python standard library only.
+Every listing in the manual is cut from a file in `out/`. This kit drives the real `rea` 6.5.0 command line and its MCP server on the host that runs it, with the Ghidra 12.1.4 provider, and records what they return. It uses the Python standard library only.
 
 ```bash
 python3 run.py                   # writes out/
@@ -8,23 +8,23 @@ python3 run.py --check           # captures again into a temporary directory and
 python3 run.py --build-fixtures  # rebuilds the fixture binaries and the WASM module, then prints their SHA-256
 ```
 
-The subject needs Ghidra, a JDK, and Node, so it cannot run in the repository CI. `--check` prints `skipped: <reason>` and exits 0 when rea 6.4.0, Ghidra 12.1.4, or JDK 21 is absent. A plain run prints the reason and exits 1. A run removes every file in `out/` first, so `out/` always holds one complete capture.
+The subject needs Ghidra, a JDK, and Node, so it cannot run in the repository CI. `--check` prints `skipped: <reason>` and exits 0 when rea 6.5.0, Ghidra 12.1.4, or JDK 21 is absent. A plain run prints the reason and exits 1. A run removes every file in `out/` first, so `out/` always holds one complete capture.
 
 ## Recorded with
 
 | Item | Value |
 |---|---|
 | Host | Apple silicon laptop, macOS 26.2 (build 25C56), arm64 |
-| rea | rea-agents 6.4.0 from the npx cache, started as `node .../node_modules/rea-agents/scripts/rea.mjs`, Node 22.22.0 |
+| rea | rea-agents 6.5.0 from the npx cache, started as `node .../node_modules/rea-agents/scripts/rea.mjs`, Node 22.22.0 |
 | Ghidra | 12.1.4 PUBLIC (build 2026-Sep-21) from Homebrew, `GHIDRA_INSTALL_DIR=/opt/homebrew/Cellar/ghidra/12.1.4/libexec` |
 | JDK | OpenJDK 21.0.12.1 from Homebrew, `JAVA_HOME=/opt/homebrew/opt/openjdk@21` |
 | clang | Apple clang 17.0.0 (clang-1700.6.3.2), target arm64-apple-darwin25.2.0 |
 | WABT | 1.0.42 (Homebrew formula `wabt` 1.0.42_1), `REA_WABT_BIN_DIRECTORY=/opt/homebrew/bin` |
-| Recorded on | 2026-10-13 |
+| Recorded on | 2026-10-14 |
 
 `00-versions.txt` holds the version output of each tool as printed on the recording host.
 
-How `run.py` finds the tools, in order: `REA_COMMAND` (an argv string) when set, then `rea` on `PATH` when its `--version` prints 6.4.0, then the npx cache `~/.npm/_npx/*/node_modules/rea-agents` with version 6.4.0. Ghidra comes from `GHIDRA_INSTALL_DIR` or the Homebrew path, and `Ghidra/application.properties` must say `application.version=12.1.4`. The JDK comes from `JAVA_HOME` or `/opt/homebrew/opt/openjdk@21`. WABT comes from `REA_WABT_BIN_DIRECTORY` or `/opt/homebrew/bin` and is optional.
+How `run.py` finds the tools, in order: `REA_COMMAND` (an argv string) when set, then `rea` on `PATH` when its `--version` prints 6.5.0, then the npx cache `~/.npm/_npx/*/node_modules/rea-agents` with version 6.5.0. Ghidra comes from `GHIDRA_INSTALL_DIR` or the Homebrew path, and `Ghidra/application.properties` must say `application.version=12.1.4`. The JDK comes from `JAVA_HOME` or `/opt/homebrew/opt/openjdk@21`. WABT comes from `REA_WABT_BIN_DIRECTORY` or `/opt/homebrew/bin`. Without WABT, `inspect-wasm-artifact` cannot run its tools.
 
 Every rea command runs with this directory as its working directory, with `GHIDRA_INSTALL_DIR`, `JAVA_HOME`, and `REA_WABT_BIN_DIRECTORY` set, and with `PWD` and `JAVA_TOOL_OPTIONS` removed from the environment. Paths are passed absolute and shown relative in `00-commands.txt`.
 
@@ -66,10 +66,10 @@ A full run takes about 110 s on the recording host. Each one-shot CLI call that 
 | `13-evidence-import.json` | `rea evidence-import` of bundle O1 |
 | `14-compare-bundles.json` | `rea compare` of bundle O1 and bundle O2 |
 | `15-js-app.json` | the `analyze_javascript_application` record without `graph` and `semantic_graph`, selected with `--filter-output` |
-| `15-js-app-graph.json` | `normalized_result.graph` of the same record: 33 nodes and 50 edges |
+| `15-js-app-graph.json` | `normalized_result.graph` of the same record: 42 nodes and 59 edges |
 | `15-js-app-view-summary.json`, `15-js-app-view-modules.json` | `rea inspect-analysis-view` summary and modules page over the complete record |
-| `16-inspect-wasm-artifact.json` | the error envelope `COMMAND_NOT_FOUND` |
-| `16-wabt.txt` | the three WABT commands rea would run on the module, run directly |
+| `16-inspect-wasm-artifact.json` | `inspect-wasm-artifact` on `wasm/ledger.wasm`: the Evidence record of the provider `wabt-artifact` |
+| `16-wabt.txt` | the three WABT commands that rea runs on the module, run directly |
 | `17-harness-grid.json` | the 92 input cells of the lesson 36 harness: the `percent_change` pairs, the `grade` scores, the hazard class counts, and the ten naive cases |
 | `17-harness-execute-plausible.json`, `17-harness-execute-equal.json` | execute-and-compare runs: the original and a candidate compiled into one program and run over the grid, with every row, the mismatches, and the model disagreements. Plausible is `percent_change_wide.c` with `grade_thresholds.c`, equal is `percent_change_mul_first.c` with `grade_switch.c` |
 | `17-harness-bytes.json` | recompile-and-compare for eight candidates against `ledger-x86_64-O1.o`: function bytes, relocation records, masked ranges, the referenced table, status, and reasons |
@@ -79,7 +79,7 @@ A full run takes about 110 s on the recording host. Each one-shot CLI call that 
 
 `Mcp` in `run.py` is a small JSON-RPC 2.0 client over newline-delimited stdio. It starts `rea mcp`, sends `initialize` with protocol version 2025-06-18, the `notifications/initialized` notification, then the calls below. The session records every call in order:
 
-1. `tools/list`, 170 tools.
+1. `tools/list`, 207 tools.
 2. `open_binary` on `fixtures/ledger-arm64-O1` with `provider_id: "ghidra"`, then `binary_session`.
 3. `list_procedures`, `procedure_assembly` for `_grade`, `xrefs` for the entry of `_grade`, `list_strings`.
 4. `analyze_function` for the four ledger functions, then for `_nothing`, which fails with `invalid_request`.
@@ -87,7 +87,7 @@ A full run takes about 110 s on the recording host. Each one-shot CLI call that 
 6. `open_binary` on `fixtures/ledger-arm64-O2`, `analyze_function` for `_percent_change` and `_total`, `export_evidence_bundle` to `11-bundle-O2.json`.
 7. `compare_functions` for `_percent_change` (all eight dimensions unchanged) and for `_total` (five dimensions changed).
 8. `verify_reconstruction` with four `structural-function` claims over those two comparison records: the two `percent_change` claims pass, the two `total` claims fail.
-9. `import_evidence_bundle` of bundle O1, `inspect_wasm_artifact` (tool not found), `close_binary`.
+9. `import_evidence_bundle` of bundle O1, `inspect_wasm_artifact` on `wasm/ledger.wasm`, `close_binary`.
 
 ## The lesson 36 harness
 
@@ -97,8 +97,8 @@ The `17-*` files are not rea output. `run.py` loads `phases/13-tools-and-protoco
 
 Each cut is marked in place with a string that starts `<cut by run.py:`.
 
-- `tools/list`: `inputSchema` and `outputSchema` are kept only for the twelve tools the session calls. The other 158 tools keep `name`, `title`, `description`, and `annotations`.
-- `binary_session`: `tool_availability` and `server_identity.catalog.tools` keep three of their 170 entries.
+- `tools/list`: `inputSchema` and `outputSchema` are kept only for the twelve tools the session calls. The other 195 tools keep `name`, `title`, `description`, and `annotations`.
+- `binary_session`: the kit keeps three entries of `tool_availability` or `server_identity.catalog.tools` when either is a list. At 6.5.0 `tool_availability` holds groups and the catalog holds only counts and digests, so this cut removes nothing.
 - Every tool result whose `content[0].text` is the JSON text of `structuredContent` keeps `structuredContent` and replaces the text copy. The marker names the byte count of the copy.
 - The `compare_functions` request keeps `evidence_id` for `left` and `right` and names the file that holds each complete dossier.
 
@@ -114,9 +114,8 @@ Written files never hold a host path or user name. At write time the kit replace
 
 - `04-inspect-binary-layout.json`: `capability_unavailable`, category `unsupported_provider`. The pwntools ELF profile supports Linux x64 only, so the kit records `inspect-macho` as the macOS layout tool.
 - `10-mcp-13-analyze-function-missing.json`: `analyze_function` with `procedure: "_nothing"` returns `isError: true` and the `invalid_request` envelope in `content[0].text`.
-- `10-mcp-24-inspect-wasm-artifact.json` and `16-inspect-wasm-artifact.json`: the published rea-agents 6.4.0 package has no `inspect_wasm_artifact` tool and no `inspect-wasm-artifact` command. The source tree at the pinned commit `6e25cc3c761da358f799e306c2be3545830b6a3b` has `src/wasm/` and `src/cli/wasmCommands.ts`, and the npm package `dist/` has neither, so `REA_WABT_BIN_DIRECTORY` has no effect. The CLI answers `COMMAND_NOT_FOUND`, the MCP server answers JSON-RPC error -32602 `Tool inspect_wasm_artifact not found`. WABT 1.0.42 was installed with Homebrew for this capture, and `16-wabt.txt` holds the output of `wasm-validate --enable-all`, `wasm-objdump -h -x`, and `wasm2wat --enable-all` on the module, the three commands `src/wasm/WabtArtifactProvider.ts` runs.
 - `12-evidence-export.txt`: the canonical file `rea evidence-export` writes has the same JSON content as the file `export_evidence_bundle` wrote over MCP, with a different byte order. The CLI sorts keys and writes no trailing newline.
-- `14-compare-bundles.json`: `status: "unknown"` with 12 unresolved records. The two bundles come from different builds, so no record is a member of both, and the bundle carries no inventory completeness marker.
+- `14-compare-bundles.json`: `status: "unknown"` with 10 unresolved records. The two bundles come from different builds, so no record is a member of both, and the bundle carries no inventory completeness marker.
 
 ## Fixtures
 

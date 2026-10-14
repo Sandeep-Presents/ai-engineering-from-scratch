@@ -8,7 +8,7 @@ When you finish this section, you can run `rea analyze` on both builds and read 
 
 ## One CLI verb, one composed operation
 
-`analyze` and `inspect` are aliases of the MCP operation `binary_overview`. The operation is composed from three others. It calls `list_segments`, `list_procedures`, and `list_strings` on the bound provider at the same time. Then it returns the segments with their lengths and the two counts. The output schema has five fields: `document`, `segments`, `segment_count`, `procedure_count`, and `string_count`.
+`analyze` and `inspect` are aliases of the MCP operation `binary_overview`. The operation is composed from three others. It calls `list_segments`, `list_procedures`, and `list_strings` on the bound provider at the same time. Then it returns the segments with their lengths and the two counts. The output schema has six fields: `document`, `image_base`, `segments`, `segment_count`, `procedure_count`, and `string_count`. Each segment can also carry `image_base` and `address_space`.
 
 ```listing
 title: the two overview commands
@@ -22,7 +22,7 @@ $ rea analyze fixtures/ledger-x86_64-O1.o --provider ghidra --format json
 [exit 0] (…) -> 05-analyze-x86_64-O1.json
 ```
 
-**Composed operation:** a rea operation whose result is built from other operations. Its Evidence record names the provider `rea-workflow`, carries the Ghidra profile as `upstream_analysis_profile`, and has `confidence: "derived"` with the limitation "Derived by an REA composed workflow.". A primitive operation such as `list_procedures` is `observed`.
+**Composed operation:** a rea operation whose result is built from other operations. Its Evidence record names the provider `rea-workflow`, carries the Ghidra profile as `upstream_analysis_profile`, and has `confidence: "derived"`. Its first limitation is "Derived by an REA composed workflow.", and the limitations of the Ghidra records follow it. A primitive operation such as `list_procedures` is `observed`.
 
 ```listing
 title: the provider block of a composed record
@@ -54,7 +54,7 @@ note: Cut to the provider and the start of the analysis profile. The remaining p
       },
       …
     },
-    "workflow_revision": 2
+    "workflow_revision": 3
   },
   …
 },
@@ -66,29 +66,36 @@ note: Cut to the provider and the start of the analysis profile. The remaining p
 title: binary_overview of ledger-arm64-O1
 source: capture/out/05-analyze-arm64-O1.json
 lang: json
-note: Cut to the result. Nine of the twelve segment entries are cut.
+note: Cut to the result. Nine of the twelve segment entries and ten of the eleven limitations are cut.
 ---
 "normalized_result": {
   "document": "target-01b5d08b08fb.bin",
+  "image_base": "0x100000000",
   "segments": [
     {
       "name": "__TEXT",
       "start": "0x100000000",
       "end": "0x100000500",
-      "length": 1280
+      "length": 1280,
+      "image_base": "0x100000000",
+      "address_space": "ram"
     },
     {
       "name": "__text",
       "start": "0x100000500",
       "end": "0x100000740",
-      "length": 576
+      "length": 576,
+      "image_base": "0x100000000",
+      "address_space": "ram"
     },
     …
     {
       "name": "EXTERNAL",
       "start": "0x10000c000",
       "end": "0x10000c200",
-      "length": 512
+      "length": 512,
+      "image_base": "0x100000000",
+      "address_space": "ram"
     }
   ],
   "segment_count": 12,
@@ -99,7 +106,8 @@ note: Cut to the result. Nine of the twelve segment entries are cut.
 "authority": "shipped-artifact",
 "environment": null,
 "limitations": [
-  "Derived by an REA composed workflow."
+  "Derived by an REA composed workflow.",
+  …
 ],
 ```
 
@@ -121,31 +129,40 @@ note: Cut to the result. The .comment, .rela.rodata, .rela.text, .strtab, .symta
 ---
 "normalized_result": {
   "document": "target-9a4a8082ba5e.o",
+  "image_base": "0x100000",
   "segments": [
     {
       "name": ".text",
       "start": "0x100000",
       "end": "0x10009f",
-      "length": 159
+      "length": 159,
+      "image_base": "0x100000",
+      "address_space": "ram"
     },
     {
       "name": ".rodata",
       "start": "0x1000a0",
       "end": "0x1000f0",
-      "length": 80
+      "length": 80,
+      "image_base": "0x100000",
+      "address_space": "ram"
     },
     {
       "name": ".rodata.str1.1",
       "start": "0x1000f0",
       "end": "0x1000fa",
-      "length": 10
+      "length": 10,
+      "image_base": "0x100000",
+      "address_space": "ram"
     },
     …
     {
       "name": "_elfSectionHeaders",
       "start": "_elfSectionHeaders:0x0",
       "end": "_elfSectionHeaders:0x2c0",
-      "length": 704
+      "length": 704,
+      "image_base": "0x100000",
+      "address_space": "_elfSectionHeaders"
     }
   ],
   "segment_count": 10,
@@ -154,7 +171,9 @@ note: Cut to the result. The .comment, .rela.rodata, .rela.text, .strtab, .symta
 },
 ```
 
-The object has three loaded blocks and seven others. `.text` holds 159 bytes of code for the four functions. `.rodata` holds 80 bytes, with the value table of `grade` at `0x1000b4` and the offset table of `grade_label`. `.rodata.str1.1` holds ten bytes: the five labels `F`, `D`, `C`, `B`, `A`, each with its terminator. The other seven blocks live in their own address spaces, written as `.comment:0x0` or `_elfSectionHeaders:0x0`. That spelling is the rule from the Ghidra limitation that every record carries: "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>."
+The object has three loaded blocks and seven others. `.text` holds 159 bytes of code for the four functions. `.rodata` holds 80 bytes, with the value table of `grade` at `0x1000b4` and the offset table of `grade_label`. `.rodata.str1.1` holds ten bytes: the five labels `F`, `D`, `C`, `B`, `A`, each with its terminator.
+
+The other seven blocks live in their own address spaces. The record names each space in `address_space` and writes the addresses as `.comment:0x0` or `_elfSectionHeaders:0x0`. That spelling is the rule from the Ghidra limitation that every record carries: "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>."
 
 Four procedures, not 13. An object file has no `main`, no stubs, and no imports, so there is nothing external to list. The 704 bytes of `_elfSectionHeaders` are eleven section headers of 64 bytes, the table that [lesson 32](phases/13-tools-and-protocols/32-program-anatomy-elf-from-scratch) parses first.
 
@@ -166,7 +185,7 @@ Four procedures, not 13. An object file has no `main`, no stubs, and no imports,
 | code block | `__text`, 576 bytes | `.text`, 159 bytes |
 | `procedure_count` | 13 | 4 |
 | `string_count` | 39 | 20 |
-| profile `digest` | `20565088` and 56 more digits | `a04af771` and 56 more digits |
+| profile `digest` | `966e6016` and 56 more digits | `9c7f6b24` and 56 more digits |
 
 ```figure
 id: fig-3-5
@@ -178,9 +197,9 @@ caption: Read each column top to bottom. The green box names the Ghidra document
 
 ## What the overview does not say
 
-The record has no function sizes, no entry point, and no image base. The output schema of `binary_overview` in rea 6.4.0 has no `image_base` field. Each memory region that `list_segments` returns has an optional `image_base` field.
+The record has no function sizes and no entry point. It reports the image base: `0x100000000` for the executable and `0x100000` for the object. For the object, that base is the placement that Ghidra chose.
 
-For sizes, use the `body` of each function in [section 4.2](#s-list-procedures-and-function-bodies). For the entry point, use `LC_MAIN` in [section 3.2](#s-inspect-binary-layout-and-the-load-image). The two profile digests differ, `20565088` against `a04af771`, because `target_format` and `architecture` are inside the profile parameters. [Section 5.3](#s-snapshots-and-the-answer-cache) shows that a cached answer replays only when the whole digest matches.
+For sizes, use the `body` of each function in [section 4.2](#s-list-procedures-and-function-bodies). For the entry point, use `LC_MAIN` in [section 3.2](#s-inspect-binary-layout-and-the-load-image). The two profile digests differ, `966e6016` against `9c7f6b24`, because `target_format` and `architecture` are inside the profile parameters. [Section 5.3](#s-snapshots-and-the-answer-cache) shows that a cached answer replays only when the whole digest matches.
 
 ```takeaways
 - Run `rea analyze` once per build and keep the `document` name with the record.
@@ -189,4 +208,4 @@ For sizes, use the `body` of each function in [section 4.2](#s-list-procedures-a
 - Read `confidence: "derived"` as a sign that three primitive records stand behind this one.
 ```
 
-Sources: capture/out/00-commands.txt, capture/out/05-analyze-arm64-O1.json, capture/out/05-analyze-x86_64-O1.json; rea 6.4.0 at a56f7bb: src/cliCommandNames.ts, src/application/EnhancedTools.ts, src/application/WorkflowEvidence.ts, src/contracts/toolOutputSchemaGroups.ts, src/contracts/toolOutputSchemaPrimitives.ts, src/ghidra/GhidraTargetSnapshot.ts
+Sources: capture/out/00-commands.txt, capture/out/05-analyze-arm64-O1.json, capture/out/05-analyze-x86_64-O1.json; rea 6.5.0 at 3b79af2: src/cliCommandNames.ts, src/application/InvestigationProviders.ts, src/application/EnhancedTools.ts, src/application/WorkflowEvidence.ts, src/contracts/toolOutputSchemaGroups.ts, src/contracts/toolOutputSchemaPrimitives.ts, src/ghidra/GhidraTargetSnapshot.ts
