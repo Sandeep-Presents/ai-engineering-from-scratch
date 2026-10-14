@@ -692,7 +692,12 @@ def build_fixtures():
                 continue
             argv = [os.path.join(directory, "wat2wasm")] + argv[1:]
         proc = subprocess.run(argv, cwd=FIXTURES, capture_output=True, text=True)
-        state = "unchanged" if before[target] == sha256_of(target) else "changed"
+        if not os.path.exists(target):
+            state = "missing"
+        elif before[target] == sha256_of(target):
+            state = "unchanged"
+        else:
+            state = "changed"
         print(f"[exit {proc.returncode}] {state}  {shlex.join([program] + argv[1:])}")
         if proc.stderr.strip():
             print(proc.stderr.strip())
