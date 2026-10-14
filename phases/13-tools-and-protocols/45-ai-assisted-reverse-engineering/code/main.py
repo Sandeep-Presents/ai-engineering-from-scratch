@@ -1,12 +1,8 @@
-"""Companion code for docs/en.md: score an AI-produced reconstruction of a fixture
-function against ground truth we own. Six fields per candidate: recompiled bytes after
-relocation masking (lesson 36 leg two), a differential grid (lesson 36 leg one), a seeded
-fuzz corpus (McKeeman 1998, Decompile-Diverge 2026), name and type agreement against
-DWARF 5, a citation check for functions, addresses, strings, and immediates that the
-report names, and provenance. The candidates in fixtures/candidates are hand-written for
-this lesson and are not the output of any model. Run `python3 main.py` for the demo,
-`python3 main.py mcp-serve` to expose the harness to an agent over stdio, or
-`python3 -m unittest discover -s tests`.
+"""Companion code for docs/en.md: score a hand-written, non-model reconstruction of a fixture
+function on six fields: masked recompiled bytes and a differential grid (lesson 36), a seeded
+fuzz corpus (McKeeman 1998, Decompile-Diverge 2026), DWARF 5 name and type agreement,
+report citations, and provenance. Run `python3 main.py`, `python3 main.py mcp-serve`
+(MCP 2025-11-25 over stdio), or `python3 -m unittest discover -s tests`.
 """
 
 from __future__ import annotations
@@ -39,6 +35,7 @@ RECORDED_SCORECARDS = RUNS / "scorecards-aarch64-darwin.json"
 FIXTURE_FLAGS = ("-target", "x86_64-unknown-linux-gnu", "-O1", "-fno-asynchronous-unwind-tables", "-c")
 RENAMES = ("-Dpercent_change=f1", "-Dgrade=f2", "-Dtotal=f3", "-Dgrade_label=f4")
 FIXTURE_OBJECTS = ("ledger-x86_64-O1-renamed.o", "ledger-x86_64-O1-g.o", "ledger-x86_64-O1-poisoned.o")
+CANDIDATE_IDS = ("f1_base_64", "f1_mul_first", "f1_safe_div", "f1_wide_long", "f2_case10_wrong", "f2_clamp", "f2_switch", "f2_thresholds")
 INT_MIN = -(2**31)
 INT_MAX = 2**31 - 1
 TRAP = "trap"
@@ -673,15 +670,15 @@ class Candidate:
 
 
 def load_candidate(candidate_id: str) -> Candidate:
+    if candidate_id not in CANDIDATE_IDS:
+        raise FileNotFoundError(f"no shipped candidate named {candidate_id}")
     report_path = CANDIDATES / f"{candidate_id}.report.json"
-    if not report_path.exists():
-        raise FileNotFoundError(f"no candidate named {candidate_id}")
     report = json.loads(report_path.read_text(encoding="utf-8"))
     return Candidate(candidate_id, report, CANDIDATES / report["source"], CANDIDATES / (Path(report["source"]).stem + ".o"))
 
 
 def load_candidates() -> list[Candidate]:
-    return [load_candidate(path.name[: -len(".report.json")]) for path in sorted(CANDIDATES.glob("*.report.json"))]
+    return [load_candidate(candidate_id) for candidate_id in CANDIDATE_IDS]
 
 
 def host_arch() -> str:
@@ -1113,7 +1110,7 @@ TOOLS: list[dict[str, Any]] = [
     {
         "name": "score_candidate",
         "description": "Run the six-field scorecard on one candidate: bytes, grid, fuzz, names, citations, provenance. Fields that need a C compiler are unknown when none is present.",
-        "inputSchema": {"type": "object", "properties": {"candidate": {"type": "string"}, "run_programs": {"type": "boolean"}}, "required": ["candidate"]},
+        "inputSchema": {"type": "object", "properties": {"candidate": {"type": "string", "enum": list(CANDIDATE_IDS)}, "run_programs": {"type": "boolean"}}, "required": ["candidate"]},
     },
 ]
 
@@ -1177,7 +1174,10 @@ def serve_mcp(stdin: BinaryIO, stdout: BinaryIO) -> int:
         except json.JSONDecodeError:
             response: dict[str, Any] | None = {"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "parse error"}}
         else:
-            response = handle_request(message)
+            if isinstance(message, dict):
+                response = handle_request(message)
+            else:
+                response = {"jsonrpc": "2.0", "id": None, "error": {"code": -32600, "message": "invalid request"}}
         if response is not None:
             stdout.write((json.dumps(response) + "\n").encode("utf-8"))
             stdout.flush()

@@ -959,6 +959,7 @@ def jvm_structure(instructions: list[JvmInstruction]) -> dict[str, int]:
 
 WASM_MAGIC = b"\x00asm"
 WASM_SECTION_NAMES = {0: "Custom", 1: "Type", 2: "Import", 3: "Function", 4: "Table", 5: "Memory", 6: "Global", 7: "Export", 8: "Start", 9: "Elem", 10: "Code", 11: "Data", 12: "DataCount", 13: "Tag"}
+WASM_SECTION_ORDER = (1, 2, 3, 4, 5, 13, 6, 7, 8, 9, 12, 10, 11)
 WASM_VALTYPES = {0x7F: "i32", 0x7E: "i64", 0x7D: "f32", 0x7C: "f64", 0x7B: "v128", 0x70: "funcref", 0x6F: "externref"}
 WASM_EXPORT_KINDS = {0: "func", 1: "table", 2: "memory", 3: "global", 4: "tag"}
 WASM_CONTROL = {0x00: "unreachable", 0x01: "nop", 0x02: "block", 0x03: "loop", 0x04: "if", 0x05: "else", 0x0B: "end", 0x0C: "br", 0x0D: "br_if", 0x0E: "br_table", 0x0F: "return", 0x10: "call", 0x11: "call_indirect"}
@@ -1061,7 +1062,7 @@ class WasmModule:
 
     def _read_sections(self) -> None:
         reader = Reader(self.data, 8)
-        last_id = 0
+        last_position = -1
         while not reader.at_end():
             start = reader.position
             section_id = reader.u8()
@@ -1076,9 +1077,12 @@ class WasmModule:
                 custom_name = name_reader.take(name_reader.uleb()).decode("utf-8")
                 self._read_custom(custom_name, Reader(self.data, name_reader.position, end))
             else:
-                if section_id <= last_id and section_id not in (12,):
-                    raise FormatError(f"section id {section_id} out of order after {last_id}")
-                last_id = section_id
+                if section_id not in WASM_SECTION_ORDER:
+                    raise FormatError(f"section id {section_id} is not known")
+                position = WASM_SECTION_ORDER.index(section_id)
+                if position <= last_position:
+                    raise FormatError(f"section id {section_id} out of order after {WASM_SECTION_ORDER[last_position]}")
+                last_position = position
                 self._read_known(section_id, Reader(self.data, payload_start, end))
             self.sections.append(WasmSection(section_id, WASM_SECTION_NAMES.get(section_id, f"id{section_id}"), start, end, payload_start, custom_name))
             reader.position = end

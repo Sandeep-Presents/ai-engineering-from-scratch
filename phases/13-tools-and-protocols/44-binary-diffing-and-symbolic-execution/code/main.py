@@ -413,7 +413,9 @@ class Image:
     addresses: dict[str, int]
     data: dict[str, bytearray]
 
-    def address_of(self, symbol: Symbol) -> int:
+    def address_of(self, symbol: Symbol) -> int | None:
+        if symbol.shndx >= len(self.elf.sections) or self.elf.sections[symbol.shndx].name not in self.addresses:
+            return None
         return self.addresses[self.elf.sections[symbol.shndx].name] + symbol.value
 
 
@@ -435,6 +437,8 @@ def load_image(elf: ElfObject, base: int = IMAGE_BASE) -> Image:
             continue
         for relocation in relocations:
             symbol_value = image.address_of(relocation.symbol)
+            if symbol_value is None:
+                continue
             place = addresses[target] + relocation.offset
             if relocation.type in PC_RELATIVE:
                 struct.pack_into("<i", data[target], relocation.offset, symbol_value + relocation.addend - place)

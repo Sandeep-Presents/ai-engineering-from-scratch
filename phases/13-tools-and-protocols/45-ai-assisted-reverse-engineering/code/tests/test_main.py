@@ -17,7 +17,7 @@ import main
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 SITE_MODULE = Path(__file__).resolve().parents[5] / "site" / "figures-re-45.js"
-LESSON_36_OBJECT = Path(__file__).resolve().parents[4] / "36-rebuild-and-prove-equal" / "code" / "fixtures" / "ledger-x86_64-O1.o"
+LESSON_36_OBJECT = Path(__file__).resolve().parents[3] / "36-rebuild-and-prove-equal" / "code" / "fixtures" / "ledger-x86_64-O1.o"
 EXPECTED_STATUSES = {
     "f1_mul_first": ("pass", "pass", "pass", "pass", "pass", "pass"),
     "f1_wide_long": ("fail", "fail", "fail", "partial", "pass", "pass"),
@@ -40,8 +40,8 @@ class ElfTests(unittest.TestCase):
         self.assertEqual(len(texts[0]), 159)
         self.assertEqual(texts[0], texts[1])
         self.assertEqual(texts[0], texts[2])
-        if LESSON_36_OBJECT.exists():
-            self.assertEqual(texts[0], text_section(LESSON_36_OBJECT))
+        self.assertTrue(LESSON_36_OBJECT.exists(), LESSON_36_OBJECT)
+        self.assertEqual(texts[0], text_section(LESSON_36_OBJECT))
 
     def test_symbol_table_names_four_renamed_functions_at_the_captured_offsets(self) -> None:
         elf = main.ElfObject(main.TARGET_OBJECT)
@@ -190,6 +190,17 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual(sorted({c.kind for c in candidates}), ["correct", "invented helper", "plausible but wrong", "wrong constant"])
         with self.assertRaises(FileNotFoundError):
             main.load_candidate("f9_missing")
+        self.assertEqual(sorted(path.name[: -len(".report.json")] for path in main.CANDIDATES.glob("*.report.json")), list(main.CANDIDATE_IDS))
+
+    def test_candidate_ids_outside_the_shipped_list_are_rejected(self) -> None:
+        for candidate_id in ("../../x", "../candidates/f1_mul_first", "f1_mul_first/"):
+            with self.assertRaises(FileNotFoundError):
+                main.load_candidate(candidate_id)
+        schema = next(tool for tool in main.TOOLS if tool["name"] == "score_candidate")["inputSchema"]
+        self.assertEqual(schema["properties"]["candidate"]["enum"], list(main.CANDIDATE_IDS))
+        failed = main.handle_request({"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "score_candidate", "arguments": {"candidate": "../../x"}}})
+        assert failed is not None
+        self.assertTrue(failed["result"]["isError"])
 
     @unittest.skipUnless(shutil.which("clang"), "clang is needed to rebuild the candidates")
     def test_committed_candidate_objects_match_a_fresh_build(self) -> None:
@@ -429,6 +440,11 @@ class McpServerTests(unittest.TestCase):
         lines = [json.loads(line) for line in out.getvalue().splitlines()]
         self.assertEqual(lines[0]["error"]["code"], -32700)
         self.assertEqual(lines[1], {"jsonrpc": "2.0", "id": 1, "result": {}})
+        out = io.BytesIO()
+        main.serve_mcp(io.BytesIO(b"[1, 2]\n42\n" + json.dumps({"jsonrpc": "2.0", "id": 4, "method": "ping"}).encode() + b"\n"), out)
+        lines = [json.loads(line) for line in out.getvalue().splitlines()]
+        self.assertEqual([line.get("error", {}).get("code") for line in lines[:2]], [-32600, -32600])
+        self.assertEqual(lines[2], {"jsonrpc": "2.0", "id": 4, "result": {}})
         failed = main.handle_request({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "score_candidate", "arguments": {"candidate": "f9_missing"}}})
         assert failed is not None
         self.assertTrue(failed["result"]["isError"])

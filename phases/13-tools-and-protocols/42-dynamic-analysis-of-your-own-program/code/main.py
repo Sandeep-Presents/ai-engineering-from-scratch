@@ -1122,7 +1122,8 @@ def live(variant: str) -> dict[str, Any]:
         subprocess.run(["clang", "-g", f"-{variant}", "-o", str(directory / binary), str(FIXTURES / PROGRAM)], check=True)
         listing_text = subprocess.run([objdump, "-d", str(directory / binary)], capture_output=True, text=True, check=True).stdout
         (directory / f"{binary}.objdump.txt").write_text(listing_text)
-        dwarf = subprocess.run(["dwarfdump", "--debug-info", str(directory / f"{binary}.dSYM")], capture_output=True, text=True, check=False).stdout
+        dwarfdump = shutil.which("dwarfdump")
+        dwarf = subprocess.run([dwarfdump, "--debug-info", str(directory / f"{binary}.dSYM")], capture_output=True, text=True, check=False).stdout if dwarfdump else ""
         plan = make_plan(variant, Listing(listing_text))
         (directory / plan.session_name()).write_text("\n".join(plan.commands()) + "\n")
         output = run_lldb(plan.lldb_command(), directory)

@@ -135,6 +135,22 @@ class LoaderTests(unittest.TestCase):
         self.assertEqual(first, image.addresses[".rodata.str1.1"])
         self.assertEqual(third, image.addresses[".rodata.str1.1"] + 4)
 
+    def test_relocations_to_undefined_and_absolute_symbols_are_left_unpatched(self):
+        elf = main.load_fixture(O1)
+        undefined = main.Symbol("external_call", 0, 0, 0, 1, 0)
+        absolute = main.Symbol("absolute_value", 0x1234, 0, 0, 1, 0xFFF1)
+        elf.relocations.setdefault(".text", []).extend(
+            [
+                main.Relocation(0, main.R_X86_64_PLT32, undefined, -4, ".text"),
+                main.Relocation(4, main.R_X86_64_64, absolute, 0, ".text"),
+            ]
+        )
+        image = main.load_image(elf)
+        self.assertIsNone(image.address_of(undefined))
+        self.assertIsNone(image.address_of(absolute))
+        self.assertEqual(bytes(image.data[".text"][0:12]), elf.section(".text").data[0:12])
+        self.assertEqual(struct.unpack_from("<i", image.data[".text"], 0x36)[0], 122)
+
 
 class MatcherTests(unittest.TestCase):
     def test_o1_vs_o2_matches_three_functions_on_exact_bytes_and_total_on_its_name(self):

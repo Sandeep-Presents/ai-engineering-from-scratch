@@ -1,11 +1,8 @@
-"""Companion code for docs/en.md: prove a rebuilt C function equal to the original two ways.
-Leg one runs the original and the rebuild over an input grid with C integer semantics.
-Leg two recompiles the rebuild with the fixture flags and compares function bytes after
-relocation masking, then compares the constants the relocations point at.
-The agent loop drives rea's MCP server over stdio when rea and Ghidra are installed and
-replays the captured run in fixtures/runs/agent-run.json otherwise.
-Run `python3 main.py` for the finite demo, `python3 main.py --live` to drive rea,
-or `python3 -m unittest discover -s tests`.
+"""Companion code for docs/en.md: prove a rebuilt C function equal to the original two ways,
+a differential grid with C integer semantics (McKeeman 1998) and recompiled bytes after
+relocation masking (System V gABI chapter 4, x86-64 psABI), with an agent loop over rea's
+MCP server (MCP 2025-11-25) or the captured run in fixtures/runs/agent-run.json.
+Run `python3 main.py`, `python3 main.py --live`, or `python3 -m unittest discover -s tests`.
 """
 
 from __future__ import annotations
@@ -566,7 +563,7 @@ class McpStdioClient:
 
     def start(self) -> None:
         self.process = subprocess.Popen(
-            self.command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env
+            self.command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=self.env
         )
         threading.Thread(target=self._pump, daemon=True).start()
         result = self.request(
@@ -631,9 +628,8 @@ class McpStdioClient:
             self.process.wait(timeout=20)
         except Exception:
             self.process.kill()
-        for stream in (self.process.stdout, self.process.stderr):
-            if stream:
-                stream.close()
+        if self.process.stdout:
+            self.process.stdout.close()
         self.process = None
 
 

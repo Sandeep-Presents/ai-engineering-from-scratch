@@ -250,6 +250,22 @@ class WasmTests(unittest.TestCase):
         with self.assertRaises(main.FormatError):
             main.WasmModule(b"\0asm\x01\0\0\0\x01\x7f")
 
+    def test_wasm_section_order_uses_canonical_positions(self) -> None:
+        preamble = b"\0asm\x01\0\0\0"
+        types = bytes.fromhex("01 04 01 60 00 00")
+        functions = bytes.fromhex("03 02 01 00")
+        data_count = bytes.fromhex("0c 01 00")
+        code = bytes.fromhex("0a 04 01 02 00 0b")
+        module = main.WasmModule(preamble + types + functions + data_count + code)
+        self.assertEqual([section.name for section in module.sections], ["Type", "Function", "DataCount", "Code"])
+        self.assertEqual(len(module.functions), 1)
+        tagged = main.WasmModule(preamble + bytes.fromhex("05 03 01 00 01") + bytes.fromhex("0d 01 00") + bytes.fromhex("06 01 00"))
+        self.assertEqual([section.name for section in tagged.sections], ["Memory", "Tag", "Global"])
+        with self.assertRaises(main.FormatError):
+            main.WasmModule(preamble + types + functions + code + data_count)
+        with self.assertRaises(main.FormatError):
+            main.WasmModule(preamble + bytes.fromhex("06 01 00") + bytes.fromhex("0d 01 00"))
+
 
 class CliAssemblyTests(unittest.TestCase):
     def test_pe_and_cli_headers(self) -> None:
