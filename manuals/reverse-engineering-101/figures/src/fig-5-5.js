@@ -5,17 +5,17 @@ const { figure } = require('../../../_shared/figkit.js');
 module.exports = figure('fig-5-5', {
   height: 296,
   title: 'One bundle from the MCP session to four readers',
-  desc: 'Left: the MCP session on ledger-arm64-O1 holds eight records and no unknowns, and export_evidence_bundle writes them. Middle: bundle-O1.json, 172,153 bytes as written, 171,730 bytes in the masked kit copy, seven arrays of canonical JSON. Right: four readers. rea inspect-evidence-bundle prints eight rows and zero unknown revisions. rea evidence-export writes canonical-O1.json with 171,729 bytes and the same JSON. rea evidence-import validates it and reports imported 8 and total 8. import_evidence_bundle in the O2 MCP session reports imported 6 and total 14, because two of the eight records were already in that ledger.',
+  desc: 'Left: the MCP session on ledger-arm64-O1 holds eight records and no unknowns, and export_evidence_bundle writes them. Middle: bundle-O1.json, 178,629 bytes as written, 178,206 bytes in the masked kit copy, seven arrays of canonical JSON. Right: four readers. rea inspect-evidence-bundle prints eight rows and zero unknown revisions. rea evidence-export writes canonical-O1.json with 178,205 bytes and the same JSON. rea evidence-import validates it and reports imported 8 and total 8. import_evidence_bundle in the O2 MCP session reports imported 6 and total 14, because two of the eight records were already in that ledger.',
 }, f => {
   f.kicker(20, 18, 'the ledger');
   f.kicker(260, 18, 'the file');
   f.kicker(440, 18, 'the readers');
   const session = f.box({ x: 20, y: 62, w: 180, h: 72, hue: 'indigo', title: 'MCP session, O1', sub: ['8 records, 0 unknowns', 'ledger of one connection'] });
-  const bundle = f.box({ x: 260, y: 62, w: 160, h: 72, hue: 'teal', title: 'bundle-O1.json', sub: ['172,153 bytes written', 'kit copy 171,730 bytes', '7 arrays, canonical'] });
+  const bundle = f.box({ x: 260, y: 62, w: 160, h: 72, hue: 'teal', title: 'bundle-O1.json', sub: ['178,629 bytes written', 'kit copy 178,206 bytes', '7 arrays, canonical'] });
   f.arrow(session.right(), [bundle.x - 1, session.cy], { style: 'write', label: 'export' });
   const readers = [
     { y: 28, hue: 'blue', title: 'inspect-evidence-bundle', sub: '8 rows, 0 unknowns' },
-    { y: 88, hue: 'blue', title: 'evidence-export', sub: ['171,729 bytes, same JSON', 'sha256 9659bb79c304'] },
+    { y: 88, hue: 'blue', title: 'evidence-export', sub: ['178,205 bytes, same JSON', 'sha256 5d058cb9'] },
     { y: 148, hue: 'blue', title: 'evidence-import', sub: 'imported 8, total 8' },
     { y: 208, hue: 'indigo', title: 'import_evidence_bundle', sub: ['into the O2 session', 'imported 6, total 14'] },
   ];

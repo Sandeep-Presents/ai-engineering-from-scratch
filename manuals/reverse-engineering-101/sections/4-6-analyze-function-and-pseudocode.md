@@ -1,14 +1,14 @@
 # analyze_function and pseudocode
 
-> analyze_function returns one dossier with fourteen facets, and its pseudocode is a decompiler's reading that you check against the assembly and the bytes in the same record.
+> analyze_function returns one dossier with sixteen facets, and its pseudocode is a decompiler's reading that you check against the assembly and the bytes in the same record.
 
 You asked for `percent_change` and got a function that returns `ulong` and tests `iVar2 != 0` twice. The source returns `int` and tests once. The instructions in the same record are right, and the text around them is a reading of those instructions. Learning to tell the two apart is what this section is for.
 
-When you finish this section, you can read the fourteen facets of a dossier. You can mark which lines of pseudocode follow from an instruction and which are a guess. You can also read the error for a name that does not exist.
+When you finish this section, you can read the sixteen facets of a dossier. You can mark which lines of pseudocode follow from an instruction and which are a guess. You can also read the error for a name that does not exist.
 
 ## The dossier
 
-`rea function` is the CLI name of `analyze_function`. The CLI run on `_grade` and the MCP call in the same session produced the same `evidence_id`, `ev_d3ea35a5` and 56 more digits. The id is a hash of the record's semantic content, and the file path and the display name are left out of it. [Section 5.1](#s-the-evidence-record) reads every field of the record. This section reads its `normalized_result`, which has fourteen facets.
+`rea function` is the CLI name of `analyze_function`. The CLI run on `_grade` and the MCP call in the same session produced the same `evidence_id`, `ev_15244427` and 56 more digits. The id is a hash of the record's semantic content, and the file path and the display name are left out of it. [Section 5.1](#s-the-evidence-record) reads every field of the record. This section reads its `normalized_result`, which has sixteen facets.
 
 ```listing
 title: the pseudocode, the blocks, and the signature facts of _grade
@@ -78,10 +78,12 @@ undefined4 _grade(int param_1)
 | `comments` | empty | database comments at the entry |
 | `callers`, `callees` | empty, empty | resolved functions only |
 | `incoming_references`, `outgoing_references` | 1, 2 | typed edges, as in [section 4.4](#s-xrefs-and-the-jump-table) |
+| `unresolved_calls` | empty | call sites whose destination has no known procedure |
 | `referenced_strings`, `referenced_names` | empty, 2 | `LAB_10000054c`, `DAT_1000007d0` |
 | `basic_blocks` | 3 | starts, exclusive ends, successors |
 | `native_api` | `__cdecl`, `signature_source` default | types, storage, confidence, `jump_tables` |
 | `native_value_flow` | 14 operations, 12 def-use edges | high p-code, `truncated: false` |
+| `facet_availability` | eight facets, all `available: true` | whether each facet was observed |
 | `limitations` | 4 | the facet's own limits |
 
 **Dossier:** rea's name for the composed record of one function. The bridge builds it from five Ghidra sources: the FunctionManager, the Listing, the ReferenceManager, the BasicBlockModel, and the decompiler. The record-level limitation names all five. The record carries ten limitations, the result four more, `native_api` three, and `native_value_flow` five. Read them once. They say in rea's words what this section shows with examples.
@@ -91,7 +93,7 @@ The signature facts are the first thing to read. `signature_source` is `default`
 ```figure
 id: fig-4-8
 kind: structure
-title: the fourteen facets of the _grade dossier
+title: the sixteen facets of the _grade dossier
 claim: One record holds the identity, the text, the edges, the blocks, the signature facts, and the value flow of one function, each with its own limits.
 caption: Read top to bottom. The left column is the facet name, the middle column is its value for _grade, the right column says what the facet holds. From capture/out/06-function-grade.json.
 ```
@@ -206,7 +208,7 @@ The rule from the three cases is short. The assembly facet is observed. The pseu
 title: analyze_function for a procedure that is not there
 source: capture/out/10-mcp-13-analyze-function-missing.json
 lang: json
-note: The request arguments, the error flag, and the decoded error. The text content is the same JSON on one line.
+note: The request arguments, the error flag, and the decoded error. The text content is the same JSON on one line. The `diagnostics` object in `details` is cut. It holds the run id, the temporary paths, the process id, the Ghidra output, and `remote_code: "not_found"`.
 ---
 "name": "analyze_function",
 "arguments": {
@@ -232,13 +234,14 @@ note: The request arguments, the error flag, and the decoded error. The text con
           "reason": "invalid_value",
           "message": "Unknown Ghidra procedure name or address: _nothing"
         }
-      ]
+      ],
+      …
     }
   }
 }
 ```
 
-The bridge tried `_nothing` as a symbol name, then as an address, and failed with `not_found`. The client maps the remote codes `invalid_request`, `not_found`, and `ambiguous` to `AnalysisInputError`. That error projects to the code `invalid_request`. An error reaches the MCP client as text with `isError: true` and no result. The server log shows where the time went.
+The bridge tried `_nothing` as a symbol name, then as an address, and failed with `not_found`. The `diagnostics` object in the error shows the remote code `not_found` that the bridge sent. The client maps the remote codes `invalid_request`, `not_found`, and `ambiguous` to `AnalysisInputError`. That error projects to the code `invalid_request`. An error reaches the MCP client as text with `isError: true` and no result. The server log shows where the time went.
 
 ```listing
 title: the failed call in the server log
@@ -254,7 +257,7 @@ The lookup was a round trip on the socket to Ghidra, a couple of milliseconds in
 
 ## What to do with a dossier
 
-Read the fourteen facets in this order. Start with `procedure` for the body and `assembly` for what the processor does. Then read `basic_blocks` for the shape and the references for the edges, and `pseudocode` last. [Section 5.5](#s-compare-and-compare-functions) compares two dossiers of the same function from two builds. [Section 7.2](#s-a-proof-harness-outside-rea) shows the test that decides whether a rebuild from this text is equal to the original.
+Read the sixteen facets in this order. Start with `procedure` for the body and `assembly` for what the processor does. Then read `basic_blocks` for the shape and the references for the edges, and `pseudocode` last. [Section 5.5](#s-compare-and-compare-functions) compares two dossiers of the same function from two builds. [Section 7.2](#s-a-proof-harness-outside-rea) shows the test that decides whether a rebuild from this text is equal to the original.
 
 ```takeaways
 - Read `signature_source` and the parameter `confidence` before you trust a type in the pseudocode.
@@ -263,4 +266,4 @@ Read the fourteen facets in this order. Start with `procedure` for the body and 
 - Expect `invalid_request` with `retryable: true` for an unknown name, then fix the name.
 ```
 
-Sources: capture/out/06-function-grade.json, capture/out/10-mcp-10-analyze-function-grade-O1.json, capture/out/07-decompile-total.json, capture/out/07-decompile-grade-x86_64-O1.json, capture/out/10-mcp-09-analyze-function-percent-change-O1.json, capture/out/10-mcp-11-analyze-function-total-O1.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/out/10-mcp-13-analyze-function-missing.json, capture/out/10-mcp-server.log, capture/fixtures/ledger.c, capture/fixtures/ledger-arm64-O1; rea 6.4.0 at a56f7bb: src/cliCommandNames.ts, src/domain/evidence.ts, src/ghidra/GhidraProviderCapabilities.ts, src/ghidra/GhidraProviderClient.ts, src/domain/analysisErrorProjection.ts, src/server/toolResult.ts, bridge/ghidra/ReaGhidraBridge.java
+Sources: capture/out/06-function-grade.json, capture/out/10-mcp-10-analyze-function-grade-O1.json, capture/out/07-decompile-total.json, capture/out/07-decompile-grade-x86_64-O1.json, capture/out/10-mcp-09-analyze-function-percent-change-O1.json, capture/out/10-mcp-11-analyze-function-total-O1.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/out/10-mcp-13-analyze-function-missing.json, capture/out/10-mcp-server.log, capture/fixtures/ledger.c, capture/fixtures/ledger-arm64-O1; rea 6.5.0 at 3b79af2: src/cliCommandNames.ts, src/domain/evidence.ts, src/ghidra/GhidraProviderCapabilities.ts, src/ghidra/GhidraProviderClient.ts, src/domain/analysisErrorProjection.ts, src/server/toolResult.ts, bridge/ghidra/ReaGhidraBridge.java

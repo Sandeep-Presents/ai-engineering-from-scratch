@@ -85,7 +85,7 @@ note: Cut from incoming_references to the addresses and the reference types.
 "type": "DATA",
 ```
 
-The call that the source makes, `grade_label` to `grade`, is gone. At `-O1` clang inlined `grade` into `grade_label`. The assembly of `_grade_label` repeats the whole multiply and compare sequence of [section 4.3](#s-procedure-assembly) at `0x100000588` to `0x1000005a4`. The dossier of `_grade` says the same from the other side: `callers` is an empty list. `_grade` still exists as a function because it is exported, and the only thing that refers to it is a table the linker wrote.
+The call that the source makes, `grade_label` to `grade`, is gone. At `-O1` clang inlined `grade` into `grade_label`. The assembly of `_grade_label` repeats the whole multiply and compare sequence of [section 4.3](#s-procedure-assembly) at `0x100000588` to `0x1000005a4`. The dossier of `_grade` says the same from the other side: `callers` is an empty list, and `relationship_coverage.status` is `complete`. Ghidra returned every resolved call reference, and none of them targets `_grade`. `_grade` still exists as a function because it is exported, and the only thing that refers to it is a table the linker wrote.
 
 ```figure
 id: fig-4-6
@@ -117,7 +117,9 @@ claim: At -O0 an indirect jump through five relocated entries reaches five case 
 caption: Read each column top to bottom. The left column comes from the lesson 33 fixture ledger-x86_64-O0.o, the right from the arm64 dossier. The green boxes are data in the file, the violet boxes are what Ghidra saw. From phases/13-tools-and-protocols/33-disassembly-and-control-flow/code/fixtures and capture/out/06-function-grade.json.
 ```
 
-[Lesson 33](phases/13-tools-and-protocols/33-disassembly-and-control-flow) recovers the `-O0` table from the relocations with the rule `S + A - P`. It shows the control-flow graph with and without the table: 8 blocks and 11 edges against 3 blocks and one unresolved jump. When Ghidra does not resolve a jump table, the case blocks are missing from `callers`, `callees`, and `basic_blocks`. The dossier limitation then says only that unresolved computed flows are not represented as edges. An empty `jump_tables` list does not prove the function has no switch. Read the transfer instruction and the table bytes, as you did here.
+[Lesson 33](phases/13-tools-and-protocols/33-disassembly-and-control-flow) recovers the `-O0` table from the relocations with the rule `S + A - P`. It shows the control-flow graph with and without the table: 8 blocks and 11 edges against 3 blocks and one unresolved jump.
+
+When Ghidra does not resolve a jump table, the case blocks are missing from `callers`, `callees`, and `basic_blocks`. The dossier limitation says that unresolved computed flows are not represented as edges. The `unresolved_calls` facet lists each call site whose destination has no known procedure. An unresolved indirect jump through a table is not a call, so it does not appear in that facet. An empty `jump_tables` list does not prove the function has no switch. Read the transfer instruction and the table bytes, as you did here.
 
 ```takeaways
 - Resolve an `xrefs` address to its segment and load command before you call it a caller.
@@ -126,4 +128,4 @@ caption: Read each column top to bottom. The left column comes from the lesson 3
 - Name what the bytes show: a jump table changes the graph, a value table changes a load.
 ```
 
-Sources: capture/out/10-mcp-07-xrefs-grade.json, capture/out/06-function-grade.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/out/10-mcp-09-analyze-function-percent-change-O1.json, capture/out/10-mcp-11-analyze-function-total-O1.json, capture/out/06-function-grade-x86_64-O1.json, capture/out/04-inspect-macho.json, capture/fixtures/ledger-arm64-O1; phases/13-tools-and-protocols/33-disassembly-and-control-flow/code/fixtures/ledger-x86_64-O0.objdump.txt; rea 6.4.0 at a56f7bb: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts
+Sources: capture/out/10-mcp-07-xrefs-grade.json, capture/out/06-function-grade.json, capture/out/10-mcp-12-analyze-function-grade-label-O1.json, capture/out/10-mcp-09-analyze-function-percent-change-O1.json, capture/out/10-mcp-11-analyze-function-total-O1.json, capture/out/06-function-grade-x86_64-O1.json, capture/out/04-inspect-macho.json, capture/fixtures/ledger-arm64-O1; phases/13-tools-and-protocols/33-disassembly-and-control-flow/code/fixtures/ledger-x86_64-O0.objdump.txt; rea 6.5.0 at 3b79af2: bridge/ghidra/ReaGhidraBridge.java, src/ghidra/GhidraProviderCapabilities.ts

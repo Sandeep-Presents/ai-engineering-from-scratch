@@ -39,10 +39,10 @@ function column(f, x, kicker, head, hue, rows) {
 module.exports = figure('fig-5-6', {
   height: 300,
   title: 'compare_functions on two functions across the -O1 and -O2 builds',
-  desc: 'Two tables of the eight comparison dimensions. Left, _percent_change: identity, pseudocode 272 to 272 code points, assembly 161 to 161, comments 0 to 0, calls 1 to 1, references 3 to 3, strings_names 1 to 1 and cfg 3 to 3 are all unchanged, so the status is unchanged. Right, _total: identity, comments and calls are unchanged, while pseudocode grows from 300 to 2904 code points, assembly from 336 to 1866, references from 4 to 13, strings_names from 2 to 11 and cfg from 5 to 16 basic blocks, so five dimensions are changed and the status is changed. A note repeats the assembly limitation: assembly is opaque provider text and relocation normalization is unavailable.',
+  desc: 'Two tables of the eight comparison dimensions. Left, _percent_change: identity, pseudocode 272 to 272 code points, assembly 161 to 161, comments 0 to 0, calls 1 to 1, references 3 to 3, strings_names 1 to 1 and cfg 3 to 3 are all unchanged, so the status is unchanged. Right, _total: identity, comments and calls are unchanged, while pseudocode grows from 300 to 2904 code points, assembly from 336 to 1866, references from 4 to 13, strings_names from 2 to 11 and cfg from 5 to 16 basic blocks, so five dimensions are changed and the status is changed. A note repeats the text limitations: both text dimensions compare exact provider text without address or generated-name normalization, and assembly also says that relocation normalization is unavailable.',
 }, f => {
   column(f, 20, 'A · _percent_change, -O1 against -O2', 'status unchanged, 8 of 8 dimensions', 'grey', left);
   column(f, 330, 'B · _total, -O1 against -O2', 'status changed, 5 of 8 dimensions', 'amber', right);
   f.text(20, 268, 'Counts are code points for the two text dimensions and items for the others.', { size: 11, serif: true, hue: 'ink-soft' });
-  f.text(20, 284, 'Both assembly rows carry: Assembly is opaque provider text; relocation normalization is unavailable.', { size: 11, serif: true, hue: 'ink-soft' });
+  f.text(20, 284, 'Text rows carry an exact-text limitation, and assembly adds: relocation normalization is unavailable.', { size: 11, serif: true, hue: 'ink-soft' });
 });

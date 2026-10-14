@@ -19,7 +19,7 @@ note: The request and the text copy of the result are cut.
 "structuredContent": {
   "result": {
     "path": "$WORK/bundle-O1.json",
-    "bytes": 172153,
+    "bytes": 178629,
     "records": 8,
     "unknowns": 0
   }
@@ -36,8 +36,8 @@ source: capture/out/11-bundles.txt
 lang: text
 note: Nothing is cut.
 ---
-28b743a3…  171730  11-bundle-O1.json (the bytes export_evidence_bundle wrote, with the capture path masked and a newline added)
-961261da…  283753  11-bundle-O2.json (the bytes export_evidence_bundle wrote, with the capture path masked and a newline added)
+5e912392…  178206  11-bundle-O1.json (the bytes export_evidence_bundle wrote, with the capture path masked and a newline added)
+74f1d786…  286385  11-bundle-O2.json (the bytes export_evidence_bundle wrote, with the capture path masked and a newline added)
 ```
 
 ## inspect-evidence-bundle
@@ -58,22 +58,22 @@ note: The subject and provider of the first record and the seven other records a
   "unknown_revisions": 0,
   "records": [
     {
-      "evidence_id": "ev_0000b698…",
+      "evidence_id": "ev_15244427…",
       …
       "operation": "analyze_function",
       "confidence": "observed",
       "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088…",
+      "analysis_profile_digest": "966e6016…",
       "retention": "complete-record",
       "limitation_count": 10,
       "native_dossier": {
         "available": true,
-        "procedure_address": "0x100000500",
-        "procedure_name": "_percent_change",
+        "procedure_address": "0x100000518",
+        "procedure_name": "_grade",
         …
 ```
 
-The eight rows name four `analyze_function` dossiers, `_percent_change`, `_grade`, `_total`, and `_grade_label`, and one record each for `list_procedures`, `procedure_assembly`, `xrefs`, and `list_strings`. Every row carries the same profile digest, `20565088…`, because one Ghidra session produced them all. The O2 bundle has two rows, the `_total` and `_percent_change` dossiers of the -O2 build (`11-inspect-evidence-bundle-O2.json`). The contract names the filters a summary accepts: "Optional `filters` match exact `evidence_id`, `operation`, `target_sha256`, `analysis_profile_digest` or `procedure_address`." {{mcp Tool results}}
+The eight rows name four `analyze_function` dossiers, `_percent_change`, `_grade`, `_total`, and `_grade_label`, and one record each for `list_procedures`, `procedure_assembly`, `xrefs`, and `list_strings`. Every row carries the same profile digest, `966e6016…`, because one Ghidra session produced them all. The O2 bundle has two rows, the `_total` and `_percent_change` dossiers of the -O2 build (`11-inspect-evidence-bundle-O2.json`). The contract names the filters a summary accepts: "Optional `filters` match exact `evidence_id`, `operation`, `target_sha256`, `analysis_profile_digest` or `procedure_address`." {{mcp Tool results}}
 
 ## evidence-export and evidence-import on the CLI
 
@@ -85,13 +85,13 @@ source: capture/out/12-evidence-export.txt
 lang: text
 note: Nothing is cut.
 ---
-28b743a3…  171730  export_evidence_bundle over MCP, out/11-bundle-O1.json
-9659bb79…  171729  evidence-export over the CLI, $WORK/canonical-O1.json
+5e912392…  178206  export_evidence_bundle over MCP, out/11-bundle-O1.json
+5d058cb9…  178205  evidence-export over the CLI, $WORK/canonical-O1.json
 same bytes as the MCP export: no
 same JSON content as the MCP export: yes
 ```
 
-The one byte of difference is the newline the kit appended to its copy. Strip it, and the copy has 171,729 bytes and the digest `9659bb79`, the digest of the CLI file. The MCP server and the CLI write the same canonical bytes for the same records, which is what the thesis of this section promised.
+The one byte of difference is the newline the kit appended to its copy. Strip it, and the copy has 178,205 bytes and the digest `5d058cb9`, the digest of the CLI file. The MCP server and the CLI write the same canonical bytes for the same records, which is what the thesis of this section promised.
 
 `rea evidence-import PATH` validates a bundle and reports its counts. On the CLI there is no session, so `imported` and `total` are both the number of records in the file: `{"imported": 8, "unknowns_added": 0, "total": 8}` in `13-evidence-import.json`. The CLI documentation draws the line: "Separate CLI calls consume full saved records." {{cli Import, export and compare Evidence}}
 
@@ -112,7 +112,7 @@ note: The request and the text copy of the result are cut.
 }
 ```
 
-Six of eight, and a total of fourteen. The session had closed O1 before, and `close_binary` empties the ledger: "Opening another target preserves retained records; `close_binary` clears them, even when no binary is active." {{mcp Retained application Evidence inputs}}
+Six of eight, and a total of fourteen. The session had closed O1 before, and `close_binary` empties the ledger: "`close_binary` clears them, even when no binary is active." {{mcp Retained application Evidence inputs}} Opening another target or restarting the current target keeps the records.
 
 So the O1 records were gone when O2 opened. Then `compare_functions` ran twice, with the O1 dossiers of `_percent_change` and `_total` passed inline. The tool records both sides before its own result. Those two O1 records were back in the ledger, so the import added the other six.
 
@@ -141,4 +141,4 @@ caption: Read left to right. Solid teal is a durable write, solid ink a call. Fr
 - Expect `imported` below the record count when the session already holds some of the records.
 ```
 
-Sources: src/domain/evidenceBundle.ts, src/server/registerSessionRecordTools.ts, src/application/EvidenceBundleFiles.ts, src/application/EvidenceBundleCommands.ts, src/application/JsonFiles.ts, src/cliEvidenceCommands.ts, src/cli/analysisViewCommands.ts, src/application/investigation/EvidenceLedger.ts, src/server/registerFunctionComparisonTool.ts, src/server/sessionEvidence.ts at rea-agents-6.4.0 (a56f7bb); rea docs/mcp-contracts.md, docs/cli.md; capture/README.md; capture/out/10-mcp-14-export-evidence-bundle-O1.json, 10-mcp-23-import-evidence-bundle-O1.json, 11-bundle-O1.json, 11-bundles.txt, 11-inspect-evidence-bundle-O1.json, 11-inspect-evidence-bundle-O2.json, 12-evidence-export.json, 12-evidence-export.txt, 13-evidence-import.json; rea 6.4.0 at a56f7bb: src/domain/evidenceBundle.ts, src/server/registerSessionRecordTools.ts, src/application/EvidenceBundleFiles.ts, src/application/JsonFiles.ts, src/cli/analysisViewCommands.ts, src/cliEvidenceCommands.ts, src/application/EvidenceBundleCommands.ts, EvidenceBundleCommands.ts, src/application/investigation/EvidenceLedger.ts, src/server/registerFunctionComparisonTool.ts, sessionEvidence.ts
+Sources: capture/README.md; capture/out/10-mcp-14-export-evidence-bundle-O1.json, capture/out/10-mcp-23-import-evidence-bundle-O1.json, capture/out/11-bundle-O1.json, capture/out/11-bundles.txt, capture/out/11-inspect-evidence-bundle-O1.json, capture/out/11-inspect-evidence-bundle-O2.json, capture/out/12-evidence-export.json, capture/out/12-evidence-export.txt, capture/out/13-evidence-import.json; rea 6.5.0 at 3b79af2: src/domain/evidenceBundle.ts, src/server/registerSessionRecordTools.ts, src/application/EvidenceBundleFiles.ts, src/application/EvidenceBundleCommands.ts, src/application/JsonFiles.ts, src/cliEvidenceCommands.ts, src/cli/analysisViewCommands.ts, src/application/investigation/EvidenceLedger.ts, src/server/registerFunctionComparisonTool.ts, src/server/sessionEvidence.ts; rea docs/mcp-contracts.md, rea docs/cli.md
