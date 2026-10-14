@@ -118,12 +118,15 @@ test('lesson math stays portable to GitHub, the book and the translation pipelin
       }
       const parts = splitInlineMath(prose);
       let emphasis = 0;
+      let stars = 0;
       parts.forEach((part, at) => {
         if (part.math == null) return;
         emphasis += (part.math.match(/[}\])]_[{(\\[]/g) || []).length;
+        stars += (part.math.match(/\^\*/g) || []).length;
         const before = at > 0 ? parts[at - 1].text || '' : '';
         if (/\w-$/.test(before)) problems.push(`${rel}:${index + 1}: GitHub does not render math opened right after a hyphen as in rank-$k$`);
       });
+      if (stars > 1) problems.push(`${rel}:${index + 1}: GitHub pairs two "^*" in one line as emphasis; write ^{\\ast}`);
       if (emphasis > 1) problems.push(`${rel}:${index + 1}: GitHub pairs two "}_{" in one line as emphasis; write "} _{" with a space`);
     });
     for (const item of extractMath(md)) {
