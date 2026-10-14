@@ -112,6 +112,10 @@ test('lesson math stays portable to GitHub, the book and the translation pipelin
       if (/^```/.test(line)) inCode = !inCode;
       if (inCode) return;
       if (/^\s*\$\$.+\$\$\s*$/.test(line)) problems.push(`${rel}:${index + 1}: write display math as a $$ block on its own lines`);
+      const prose = line.replace(/`[^`]+`/g, ' ').replace(/\\\$/g, ' ');
+      if (/[)\]]\$[)\]"]|"\$[^\s$][^$]*\$"|(?:^|\s)-\$[^\s$][^$]*\$-/.test(prose)) {
+        problems.push(`${rel}:${index + 1}: GitHub does not render math closed as ")$)", "$...$" in quotes or -$...$-; rephrase the punctuation around the span`);
+      }
     });
     for (const item of extractMath(md)) {
       const where = `${rel}:${item.line}`;
