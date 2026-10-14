@@ -1,13 +1,13 @@
 {
-  "evidence_id": "ev_9728c3b6d1557c8e4d042a0aee095d9e582d20d3240ce698efa6b1ef79030e2c",
+  "evidence_id": "ev_73d5678193a1c01525e985e68274977b4fc4eaf60d6e344d97cdcbb0ca702ffc",
   "subject": {
     "name": "ledger-arm64-O1",
     "digest": {
       "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
     },
+    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
     "format": "mach-o",
-    "architecture": "arm64",
-    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+    "architecture": "arm64"
   },
   "provider": {
     "id": "native-macos",
@@ -21,7 +21,11 @@
   "raw_result": null,
   "normalized_result": {
     "format": "mach-o",
-    "endian": null,
+    "selected_architecture": {
+      "name": "arm64",
+      "container_file_offset": 0
+    },
+    "endian": "little",
     "word_size": 64,
     "file_type": "2",
     "flags": [
@@ -56,12 +60,12 @@
     "build_metadata": {
       "items": [
         {
-          "platform": "1",
+          "platform": "MACOS",
           "minimum_os": "26.0",
           "sdk": "26.2",
           "tools": [
             {
-              "name": "3",
+              "name": "LD",
               "version": "1230.1"
             }
           ]
@@ -300,19 +304,13 @@
     "dependencies": {
       "items": [
         {
-          "path": "/usr/lib/dyld",
-          "kind": "LC_LOAD_DYLINKER",
-          "current_version": null,
-          "compatibility_version": null
-        },
-        {
           "path": "/usr/lib/libSystem.B.dylib",
           "kind": "LC_LOAD_DYLIB",
           "current_version": "1356.0.0",
           "compatibility_version": "1.0.0"
         }
       ],
-      "total": 2,
+      "total": 1,
       "exhaustive": true,
       "limitations": []
     },
@@ -606,23 +604,6 @@
     },
     "provenance": [
       {
-        "tool": "file",
-        "command": [
-          "/usr/bin/file",
-          "-b",
-          "$ARTIFACT"
-        ],
-        "tool_version": null,
-        "version_reason": "Tool exposes no uniform stable version flag; executable SHA-256 is a prelaunch file sample and does not prove atomic OS image binding.",
-        "executable_sha256": "ce7d524c2c4537c5e577dd30ee1b16186627463dfb7306036e4b218bf42d416b",
-        "exit": {
-          "code": 0,
-          "signal": null
-        },
-        "stdout_bytes": 31,
-        "stderr_bytes": 0
-      },
-      {
         "tool": "lipo",
         "command": [
           "/Library/Developer/CommandLineTools/usr/bin/lipo",
@@ -662,6 +643,7 @@
         "command": [
           "/Library/Developer/CommandLineTools/usr/bin/llvm-nm",
           "-gjU",
+          "--no-dyldinfo",
           "$ARTIFACT"
         ],
         "tool_version": null,
@@ -755,11 +737,11 @@
     "Imports and exports combine dyld_info and nm; stripped or toolchain-hidden symbols may be absent.",
     "vtool output is retained as provenance but only otool build metadata is normalized."
   ],
+  "relationship_coverage": null,
   "locations": [
     {
-      "kind": "file-offset-range",
-      "start": 0,
-      "end": 0
+      "kind": "file-offset",
+      "offset": 1488
     },
     {
       "kind": "file-offset-range",

@@ -7,11 +7,11 @@
       "name": "compare_functions",
       "arguments": {
         "left": {
-          "evidence_id": "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
+          "evidence_id": "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
           "record": "<cut by run.py: the complete analyze_function record, see 10-mcp-11-analyze-function-total-O1.json>"
         },
         "right": {
-          "evidence_id": "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8",
+          "evidence_id": "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41",
           "record": "<cut by run.py: the complete analyze_function record, see 10-mcp-18-analyze-function-total-O2.json>"
         }
       }
@@ -19,14 +19,20 @@
   },
   "response": {
     "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
       "content": [
         {
           "type": "text",
-          "text": "<cut by run.py: the text copy of structuredContent, 16151 bytes>"
+          "text": "<cut by run.py: the text copy of structuredContent, 16750 bytes>"
         }
       ],
       "structuredContent": {
-        "evidence_id": "ev_0fe621b65771a5ee1f08d48f852a1463b591e96cbc14da05f2a1bb4c16672ab6",
+        "evidence_id": "ev_c33c0c81f349d7a31130f68bd5d1289baff4d86c4fc26a256c68f18b76dbd674",
         "subject": null,
         "provider": {
           "id": "rea-function-comparison",
@@ -37,8 +43,8 @@
         "predicate_type": "rea.function-comparison",
         "operation": "compare_functions",
         "parameters": {
-          "left_evidence_id": "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-          "right_evidence_id": "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+          "left_evidence_id": "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+          "right_evidence_id": "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
         },
         "raw_result": null,
         "normalized_result": {
@@ -62,8 +68,8 @@
               "left_count": null,
               "right_count": null,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "unchanged",
@@ -77,10 +83,12 @@
               "left_count": 300,
               "right_count": 2904,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
-              "limitations": [],
+              "limitations": [
+                "Exact provider text is compared without address or generated-name normalization; layout-only differences do not establish a behavior change."
+              ],
               "status": "changed",
               "left_digest": "2790348596ff9631598fa4c3d24a159dbddc18bedd1947ca720b4487cd443077",
               "right_digest": "5557354d75d8afbfc23eaee1f198c6f46998d5bafa3e6638d322b77a81f09090",
@@ -96,10 +104,11 @@
               "left_count": 336,
               "right_count": 1866,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [
+                "Exact provider text is compared without address or generated-name normalization; layout-only differences do not establish a behavior change.",
                 "Assembly is opaque provider text; relocation normalization is unavailable."
               ],
               "status": "changed",
@@ -117,8 +126,8 @@
               "left_count": 0,
               "right_count": 0,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "unchanged",
@@ -132,8 +141,8 @@
               "left_count": 1,
               "right_count": 1,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "unchanged",
@@ -147,8 +156,8 @@
               "left_count": 4,
               "right_count": 13,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [
                 "Reference endpoints differ independently of provider reference-kind metadata."
@@ -164,8 +173,8 @@
               "left_count": 2,
               "right_count": 11,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "changed",
@@ -179,8 +188,8 @@
               "left_count": 5,
               "right_count": 16,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "changed",
@@ -196,10 +205,12 @@
               "left_count": 300,
               "right_count": 2904,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
-              "limitations": [],
+              "limitations": [
+                "Exact provider text is compared without address or generated-name normalization; layout-only differences do not establish a behavior change."
+              ],
               "status": "changed",
               "left_digest": "2790348596ff9631598fa4c3d24a159dbddc18bedd1947ca720b4487cd443077",
               "right_digest": "5557354d75d8afbfc23eaee1f198c6f46998d5bafa3e6638d322b77a81f09090",
@@ -215,10 +226,11 @@
               "left_count": 336,
               "right_count": 1866,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [
+                "Exact provider text is compared without address or generated-name normalization; layout-only differences do not establish a behavior change.",
                 "Assembly is opaque provider text; relocation normalization is unavailable."
               ],
               "status": "changed",
@@ -236,8 +248,8 @@
               "left_count": 4,
               "right_count": 13,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [
                 "Reference endpoints differ independently of provider reference-kind metadata."
@@ -253,8 +265,8 @@
               "left_count": 2,
               "right_count": 11,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "changed",
@@ -268,8 +280,8 @@
               "left_count": 5,
               "right_count": 16,
               "evidence_links": [
-                "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-                "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+                "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+                "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
               ],
               "limitations": [],
               "status": "changed",
@@ -340,10 +352,11 @@
           "Right: Unresolved computed or indirect flows without target addresses are not represented as reference edges.",
           "Right: macOS sessions require a matching executable Ghidra native decompiler; REA checks for it but does not build native components or change Gatekeeper quarantine state."
         ],
+        "relationship_coverage": null,
         "locations": [],
         "evidence_links": [
-          "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-          "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8"
+          "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+          "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41"
         ]
       }
     },

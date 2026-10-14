@@ -1,13 +1,13 @@
 {
-  "evidence_id": "ev_768902c59a4a95715d0e059a9f10a7f1760bca27983089ca26d9a704a75f9fb1",
+  "evidence_id": "ev_3823d30db26636be3ec68e26e64ec88aeab3608fb20d02d25d222e4582a771b6",
   "subject": {
     "name": "ledger-arm64-O1",
     "digest": {
       "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
     },
+    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
     "format": "mach-o",
-    "architecture": null,
-    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+    "architecture": null
   },
   "provider": {
     "id": "rea-artifact-graph",
@@ -22,7 +22,7 @@
   },
   "raw_result": null,
   "normalized_result": {
-    "inspection_id": "ai_cd9f8c786b3157a5b10b97ebfcb5f12f3d52dde688e0694cf6038c42c2c92c1a",
+    "inspection_id": "ai_27d6f0e1e5f63de411ac58b3dcbe3b5cd06b1a6cee76f7809a5a06f41d49eaaf",
     "subject": {
       "manifest_id": "agm_8e2e5c4c5d396d3f2e72bec33b13243b76697c2cc4b467ed1954d7955189df0a",
       "root_artifact_id": "art_8906b5a777ab042d64b1b558797274ee4d1736bf46693b809657ebbcb5f382f7",
@@ -31,20 +31,20 @@
     },
     "substeps": [
       {
-        "substep_id": "ais_b6023347ee803059a10f50b7b08cfb417373b652ef3f30da2bba5f1616dce544",
+        "substep_id": "ais_d1129f212324a8f87bfa12d2031ce168a01500dc3cdb759e47e5ff87a00d40c0",
         "operation": "inventory_artifact",
         "status": "completed",
-        "evidence_id": "ev_ca71e52d0ebf13e061dcca0409afc7817c3a26dc1bc0a1fdcee62bd0a27ce2a3",
+        "evidence_id": "ev_88616401bc08a5e8bb7f6cfe1b3980bf604beb977d417ff342b5536a6c6751b7",
         "evidence": {
-          "evidence_id": "ev_ca71e52d0ebf13e061dcca0409afc7817c3a26dc1bc0a1fdcee62bd0a27ce2a3",
+          "evidence_id": "ev_88616401bc08a5e8bb7f6cfe1b3980bf604beb977d417ff342b5536a6c6751b7",
           "subject": {
             "name": "ledger-arm64-O1",
             "digest": {
               "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
             },
+            "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
             "format": "mach-o",
-            "architecture": null,
-            "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+            "architecture": null
           },
           "provider": {
             "id": "rea-artifact-graph",
@@ -102,9 +102,14 @@
             "edges": [],
             "provenance": [],
             "integrity_contradictions": [],
+            "coverage": {
+              "scope": "root",
+              "status": "complete"
+            },
             "limitations": [
               "Artifact has no child container entries."
-            ]
+            ],
+            "coverage_status": "complete"
           },
           "confidence": "observed",
           "authority": "shipped-artifact",
@@ -112,6 +117,7 @@
           "limitations": [
             "Artifact has no child container entries."
           ],
+          "relationship_coverage": null,
           "locations": [],
           "evidence_links": []
         }
@@ -119,7 +125,7 @@
     ],
     "observations": [
       {
-        "observation_id": "aio_a95fff738e299eeeb6980958ed3c5de5139466d680b1853f3b86ac79d53aae3b",
+        "observation_id": "aio_0d5d14130f510098639dcf624e8a6009be916f4b7226669314b98130419a414e",
         "kind": "root-manifest",
         "subject": "art_8906b5a777ab042d64b1b558797274ee4d1736bf46693b809657ebbcb5f382f7",
         "value": {
@@ -132,14 +138,14 @@
           "occurrence_count": 1,
           "edge_count": 0
         },
-        "evidence_id": "ev_ca71e52d0ebf13e061dcca0409afc7817c3a26dc1bc0a1fdcee62bd0a27ce2a3"
+        "evidence_id": "ev_88616401bc08a5e8bb7f6cfe1b3980bf604beb977d417ff342b5536a6c6751b7"
       }
     ],
     "hypotheses": [],
     "contradictions": [],
     "unexplored_branches": [
       {
-        "branch_id": "aib_a0c2bfaf2712f080d4e4374df38de2930f6b44115542efe095111da5435be51f",
+        "branch_id": "aib_38d39810669e79062c97ccf6df2307f5ef614307123aae21c677e7a8a6cd8c85",
         "reason": "format-specific-analysis-required",
         "detail": "open_binary was not run by provider-neutral artifact inspection.",
         "next_probe": {
@@ -147,7 +153,7 @@
           "rationale": "Bind one deep native provider before function-level analysis.",
           "authority": "native-analysis-provider"
         },
-        "evidence_id": "ev_ca71e52d0ebf13e061dcca0409afc7817c3a26dc1bc0a1fdcee62bd0a27ce2a3"
+        "evidence_id": "ev_88616401bc08a5e8bb7f6cfe1b3980bf604beb977d417ff342b5536a6c6751b7"
       }
     ],
     "next_probes": [
@@ -170,7 +176,7 @@
       "next_probes_omitted": 0
     },
     "evidence_links": [
-      "ev_ca71e52d0ebf13e061dcca0409afc7817c3a26dc1bc0a1fdcee62bd0a27ce2a3"
+      "ev_88616401bc08a5e8bb7f6cfe1b3980bf604beb977d417ff342b5536a6c6751b7"
     ],
     "limitations": [
       "Artifact has no child container entries.",
@@ -184,8 +190,9 @@
     "Artifact has no child container entries.",
     "Inspection derives bounded static hypotheses and next probes; it does not execute the artifact or claim format-specific semantics."
   ],
+  "relationship_coverage": null,
   "locations": [],
   "evidence_links": [
-    "ev_ca71e52d0ebf13e061dcca0409afc7817c3a26dc1bc0a1fdcee62bd0a27ce2a3"
+    "ev_88616401bc08a5e8bb7f6cfe1b3980bf604beb977d417ff342b5536a6c6751b7"
   ]
 }

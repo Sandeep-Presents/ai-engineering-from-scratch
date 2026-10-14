@@ -1,13 +1,13 @@
 {
-  "evidence_id": "ev_f183be090be5aba448f5c89f5a65e285e317fadbea3613dd154af8b8d3fb9e39",
+  "evidence_id": "ev_471ff484769bf30cad51856a24c0a42838b8dc7f641a310d56ea70981fd917aa",
   "subject": {
     "name": "js-app",
     "digest": {
       "sha256": "bb9f726c3aafe026e6cc871b8de16cd81db9f03b4c2bab05f494307f8ebb42a2"
     },
+    "local_path": "$CAPTURE/fixtures/js-app",
     "format": "directory",
-    "architecture": null,
-    "local_path": "$CAPTURE/fixtures/js-app"
+    "architecture": null
   },
   "provider": {
     "id": "rea-analysis-view",
@@ -18,7 +18,7 @@
   "predicate_type": "rea.analysis-view",
   "operation": "inspect_analysis_view",
   "parameters": {
-    "parent_evidence_id": "ev_96bdd75ccb4b15538c6c00cfb5a161a74c0548372c27b68103fa80446cba5ba0",
+    "parent_evidence_id": "ev_9151392a390762f97690351a62f08e71a5b717dfd27891c47aa517ae6be55117",
     "view": {
       "kind": "page",
       "collection": "modules",
@@ -112,10 +112,10 @@
         "path": "renderer.js"
       }
     ],
-    "parent_evidence_id": "ev_96bdd75ccb4b15538c6c00cfb5a161a74c0548372c27b68103fa80446cba5ba0",
+    "parent_evidence_id": "ev_9151392a390762f97690351a62f08e71a5b717dfd27891c47aa517ae6be55117",
     "parent_operation": "analyze_javascript_application",
-    "parent_digest": "96bdd75ccb4b15538c6c00cfb5a161a74c0548372c27b68103fa80446cba5ba0",
-    "view_digest": "bf7121c4540b46e1a49e3da651df1c732b79e1a867cdbd11022381956d05c4a6",
+    "parent_digest": "9151392a390762f97690351a62f08e71a5b717dfd27891c47aa517ae6be55117",
+    "view_digest": "2101a83b3fe15560d18d3237a23039e3db2f6a5b695b7289825370b98e70fa7d",
     "artifact": {
       "path": "$CAPTURE/fixtures/js-app",
       "sha256": "bb9f726c3aafe026e6cc871b8de16cd81db9f03b4c2bab05f494307f8ebb42a2"
@@ -132,7 +132,7 @@
       "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
       "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
       "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
-      "Electron API identity follows proven lexical module aliases. Reassigned bindings, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
+      "Electron API identity follows proven lexical module aliases and structurally verified module-namespace interop. Other reassignments, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
       "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
       "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
       "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
@@ -153,7 +153,7 @@
       "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
       "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
       "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
-      "Electron API identity follows proven lexical module aliases. Reassigned bindings, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
+      "Electron API identity follows proven lexical module aliases and structurally verified module-namespace interop. Other reassignments, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
       "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
       "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
       "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
@@ -178,7 +178,7 @@
     "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
     "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
     "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
-    "Electron API identity follows proven lexical module aliases. Reassigned bindings, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
+    "Electron API identity follows proven lexical module aliases and structurally verified module-namespace interop. Other reassignments, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
     "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
     "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
     "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
@@ -193,6 +193,7 @@
     "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation.",
     "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
   ],
+  "relationship_coverage": null,
   "locations": [
     {
       "kind": "artifact-path",
@@ -200,6 +201,6 @@
     }
   ],
   "evidence_links": [
-    "ev_96bdd75ccb4b15538c6c00cfb5a161a74c0548372c27b68103fa80446cba5ba0"
+    "ev_9151392a390762f97690351a62f08e71a5b717dfd27891c47aa517ae6be55117"
   ]
 }

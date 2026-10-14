@@ -6,15 +6,15 @@
   "unknown_revisions": 0,
   "records": [
     {
-      "evidence_id": "ev_0000b698c9b0cfc40a11bf8f609d4dd136c0fb468a551bf970d1521fbcb413d0",
+      "evidence_id": "ev_1524442745f556e2c2f041648c72314f3d06a47d1f58e332c684325ac02d9c60",
       "subject": {
         "name": "ledger-arm64-O1",
         "digest": {
           "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
         },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
         "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+        "architecture": "arm64"
       },
       "provider": {
         "id": "ghidra",
@@ -24,193 +24,7 @@
       "operation": "analyze_function",
       "confidence": "observed",
       "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
-      "retention": "complete-record",
-      "limitation_count": 10,
-      "native_dossier": {
-        "available": true,
-        "procedure_address": "0x100000500",
-        "procedure_name": "_percent_change",
-        "value_flow": {
-          "status": "observed",
-          "truncated": false,
-          "omitted_operations_lower_bound": 0,
-          "known_omitted_inputs": 0,
-          "known_omitted_edges": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_0f6b287a3f97cdcd15f0c227680aa018ad02797a45baf47caa3354b4b884f6fc",
-      "subject": {
-        "name": "ledger-arm64-O1",
-        "digest": {
-          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
-        },
-        "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
-      },
-      "provider": {
-        "id": "ghidra",
-        "name": "Ghidra",
-        "version": "12.1.4"
-      },
-      "operation": "list_strings",
-      "confidence": "observed",
-      "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
-      "retention": "complete-record",
-      "limitation_count": 7,
-      "native_dossier": {
-        "available": false,
-        "reason": "different-operation"
-      }
-    },
-    {
-      "evidence_id": "ev_4c2f020b378297935c737659e7abac4be91d6379a3b4445ab15af6872d8794cb",
-      "subject": {
-        "name": "ledger-arm64-O1",
-        "digest": {
-          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
-        },
-        "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
-      },
-      "provider": {
-        "id": "ghidra",
-        "name": "Ghidra",
-        "version": "12.1.4"
-      },
-      "operation": "analyze_function",
-      "confidence": "observed",
-      "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
-      "retention": "complete-record",
-      "limitation_count": 10,
-      "native_dossier": {
-        "available": true,
-        "procedure_address": "0x100000554",
-        "procedure_name": "_total",
-        "value_flow": {
-          "status": "observed",
-          "truncated": false,
-          "omitted_operations_lower_bound": 0,
-          "known_omitted_inputs": 0,
-          "known_omitted_edges": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_9101f891d736b174030fce6d536f11818faf528065d7604d0e58593365d7131f",
-      "subject": {
-        "name": "ledger-arm64-O1",
-        "digest": {
-          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
-        },
-        "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
-      },
-      "provider": {
-        "id": "ghidra",
-        "name": "Ghidra",
-        "version": "12.1.4"
-      },
-      "operation": "xrefs",
-      "confidence": "observed",
-      "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
-      "retention": "complete-record",
-      "limitation_count": 7,
-      "native_dossier": {
-        "available": false,
-        "reason": "different-operation"
-      }
-    },
-    {
-      "evidence_id": "ev_a6703a897e91942bc6e8e0ba17032d293e23f71c2bd830be711cf5fdafd57792",
-      "subject": {
-        "name": "ledger-arm64-O1",
-        "digest": {
-          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
-        },
-        "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
-      },
-      "provider": {
-        "id": "ghidra",
-        "name": "Ghidra",
-        "version": "12.1.4"
-      },
-      "operation": "procedure_assembly",
-      "confidence": "observed",
-      "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
-      "retention": "complete-record",
-      "limitation_count": 6,
-      "native_dossier": {
-        "available": false,
-        "reason": "different-operation"
-      }
-    },
-    {
-      "evidence_id": "ev_b9de4066c547bced9d8639ffa4145f04b73cc974b00f6ee5e027c35473865d8c",
-      "subject": {
-        "name": "ledger-arm64-O1",
-        "digest": {
-          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
-        },
-        "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
-      },
-      "provider": {
-        "id": "ghidra",
-        "name": "Ghidra",
-        "version": "12.1.4"
-      },
-      "operation": "analyze_function",
-      "confidence": "observed",
-      "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
-      "retention": "complete-record",
-      "limitation_count": 10,
-      "native_dossier": {
-        "available": true,
-        "procedure_address": "0x100000588",
-        "procedure_name": "_grade_label",
-        "value_flow": {
-          "status": "observed",
-          "truncated": false,
-          "omitted_operations_lower_bound": 0,
-          "known_omitted_inputs": 0,
-          "known_omitted_edges": 0
-        }
-      }
-    },
-    {
-      "evidence_id": "ev_d3ea35a51f358cb7681bab1fb66ffe93b623bae8339f2cb09d4af2872611b9c0",
-      "subject": {
-        "name": "ledger-arm64-O1",
-        "digest": {
-          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
-        },
-        "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
-      },
-      "provider": {
-        "id": "ghidra",
-        "name": "Ghidra",
-        "version": "12.1.4"
-      },
-      "operation": "analyze_function",
-      "confidence": "observed",
-      "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
       "retention": "complete-record",
       "limitation_count": 10,
       "native_dossier": {
@@ -227,15 +41,85 @@
       }
     },
     {
-      "evidence_id": "ev_f543d5a23db9c44fbb7ec632e9f6c86844e2278ec871f713a421a28cfac9544f",
+      "evidence_id": "ev_172d39ff37ab60d9e0e1dd33ba7486cb2ee789a46b00d600cd083a825edd1350",
       "subject": {
         "name": "ledger-arm64-O1",
         "digest": {
           "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
         },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
         "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "operation": "analyze_function",
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
+      "retention": "complete-record",
+      "limitation_count": 10,
+      "native_dossier": {
+        "available": true,
+        "procedure_address": "0x100000500",
+        "procedure_name": "_percent_change",
+        "value_flow": {
+          "status": "observed",
+          "truncated": false,
+          "omitted_operations_lower_bound": 0,
+          "known_omitted_inputs": 0,
+          "known_omitted_edges": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_1d2de0237766b05a23285f7609e1935eefa120efee84bb1776c1d311b0533b04",
+      "subject": {
+        "name": "ledger-arm64-O1",
+        "digest": {
+          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
+        },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
+        "format": "mach-o",
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "operation": "analyze_function",
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
+      "retention": "complete-record",
+      "limitation_count": 10,
+      "native_dossier": {
+        "available": true,
+        "procedure_address": "0x100000588",
+        "procedure_name": "_grade_label",
+        "value_flow": {
+          "status": "observed",
+          "truncated": false,
+          "omitted_operations_lower_bound": 0,
+          "known_omitted_inputs": 0,
+          "known_omitted_edges": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_231b5398a37af922f9e3d226e729989d937d2cf7b6a0006d28c61b5ae169ea17",
+      "subject": {
+        "name": "ledger-arm64-O1",
+        "digest": {
+          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
+        },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
+        "format": "mach-o",
+        "architecture": "arm64"
       },
       "provider": {
         "id": "ghidra",
@@ -245,7 +129,123 @@
       "operation": "list_procedures",
       "confidence": "observed",
       "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
+      "retention": "complete-record",
+      "limitation_count": 6,
+      "native_dossier": {
+        "available": false,
+        "reason": "different-operation"
+      }
+    },
+    {
+      "evidence_id": "ev_5cee80f7af7e99abf443f69eeac0fdad0d09180158bbe85914a5e6f226f7df1d",
+      "subject": {
+        "name": "ledger-arm64-O1",
+        "digest": {
+          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
+        },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
+        "format": "mach-o",
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "operation": "list_strings",
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
+      "retention": "complete-record",
+      "limitation_count": 7,
+      "native_dossier": {
+        "available": false,
+        "reason": "different-operation"
+      }
+    },
+    {
+      "evidence_id": "ev_71bb96a48a5b17e05e5800f1cb9a7367a968765a0da02dc407545427a603e5b9",
+      "subject": {
+        "name": "ledger-arm64-O1",
+        "digest": {
+          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
+        },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
+        "format": "mach-o",
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "operation": "xrefs",
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
+      "retention": "complete-record",
+      "limitation_count": 7,
+      "native_dossier": {
+        "available": false,
+        "reason": "different-operation"
+      }
+    },
+    {
+      "evidence_id": "ev_7c94981bed0147c3d265eb822a26e48ec13e4d7a4ae1eee958fe9758b483b033",
+      "subject": {
+        "name": "ledger-arm64-O1",
+        "digest": {
+          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
+        },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
+        "format": "mach-o",
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "operation": "analyze_function",
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
+      "retention": "complete-record",
+      "limitation_count": 10,
+      "native_dossier": {
+        "available": true,
+        "procedure_address": "0x100000554",
+        "procedure_name": "_total",
+        "value_flow": {
+          "status": "observed",
+          "truncated": false,
+          "omitted_operations_lower_bound": 0,
+          "known_omitted_inputs": 0,
+          "known_omitted_edges": 0
+        }
+      }
+    },
+    {
+      "evidence_id": "ev_8ef5da766d34603d47be42379c99b41c6d055d8333a49264f3476c99414bbb05",
+      "subject": {
+        "name": "ledger-arm64-O1",
+        "digest": {
+          "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
+        },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
+        "format": "mach-o",
+        "architecture": "arm64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.4"
+      },
+      "operation": "procedure_assembly",
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
       "retention": "complete-record",
       "limitation_count": 6,
       "native_dossier": {

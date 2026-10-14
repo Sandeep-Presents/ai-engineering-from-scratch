@@ -22,7 +22,7 @@ OUT = os.path.join(HERE, "out")
 FIXTURES = os.path.join(HERE, "fixtures")
 HOME = os.path.realpath(os.path.expanduser("~"))
 USER = os.path.basename(HOME)
-REA_VERSION = "6.4.0"
+REA_VERSION = "6.5.0"
 GHIDRA_VERSION = "12.1.4"
 WABT_VERSION = "1.0.42"
 GHIDRA_CANDIDATES = ["/opt/homebrew/Cellar/ghidra/12.1.4/libexec", "/opt/homebrew/opt/ghidra/libexec", "/usr/local/opt/ghidra/libexec"]
@@ -712,7 +712,7 @@ def build_fixtures():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Capture kit for Reverse Engineering 101: rea 6.4.0 with the Ghidra 12.1.4 provider")
+    parser = argparse.ArgumentParser(description="Capture kit for Reverse Engineering 101: rea 6.5.0 with the Ghidra 12.1.4 provider")
     parser.add_argument("--check", action="store_true", help="capture into a temporary directory and compare with out/ after masking")
     parser.add_argument("--build-fixtures", action="store_true", help="rebuild the committed fixture binaries and the WASM module, then print their SHA-256")
     args = parser.parse_args()

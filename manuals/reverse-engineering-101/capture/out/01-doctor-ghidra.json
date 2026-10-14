@@ -15,7 +15,11 @@
       "name": "node",
       "ok": true,
       "classification": "healthy",
-      "detail": "22.22.0"
+      "detail": "22.22.0",
+      "details": {
+        "runtime": "node",
+        "version": "22.22.0"
+      }
     },
     {
       "name": "ghidra",

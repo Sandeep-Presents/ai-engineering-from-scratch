@@ -13,6 +13,12 @@
   },
   "response": {
     "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
       "content": [
         {
           "type": "text",

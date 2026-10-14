@@ -1,13 +1,13 @@
 {
-  "evidence_id": "ev_96bdd75ccb4b15538c6c00cfb5a161a74c0548372c27b68103fa80446cba5ba0",
+  "evidence_id": "ev_9151392a390762f97690351a62f08e71a5b717dfd27891c47aa517ae6be55117",
   "subject": {
     "name": "js-app",
     "digest": {
       "sha256": "bb9f726c3aafe026e6cc871b8de16cd81db9f03b4c2bab05f494307f8ebb42a2"
     },
+    "local_path": "$CAPTURE/fixtures/js-app",
     "format": "directory",
-    "architecture": null,
-    "local_path": "$CAPTURE/fixtures/js-app"
+    "architecture": null
   },
   "provider": {
     "id": "rea-javascript-application",
@@ -65,7 +65,7 @@
     },
     "limitations": [
       "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
-      "Electron API identity follows proven lexical module aliases. Reassigned bindings, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
+      "Electron API identity follows proven lexical module aliases and structurally verified module-namespace interop. Other reassignments, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
       "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
       "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
       "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
@@ -78,7 +78,7 @@
   "environment": null,
   "limitations": [
     "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
-    "Electron API identity follows proven lexical module aliases. Reassigned bindings, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
+    "Electron API identity follows proven lexical module aliases and structurally verified module-namespace interop. Other reassignments, dynamic selections, and visibly overwritten namespace members are unresolved; missing findings do not establish absence. Arbitrary call side effects and runtime registration are not evaluated.",
     "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
     "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
     "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",

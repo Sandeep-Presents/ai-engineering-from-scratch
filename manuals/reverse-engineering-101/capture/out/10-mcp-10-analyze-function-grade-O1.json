@@ -12,22 +12,28 @@
   },
   "response": {
     "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
       "content": [
         {
           "type": "text",
-          "text": "<cut by run.py: the text copy of structuredContent, 30027 bytes>"
+          "text": "<cut by run.py: the text copy of structuredContent, 31343 bytes>"
         }
       ],
       "structuredContent": {
-        "evidence_id": "ev_d3ea35a51f358cb7681bab1fb66ffe93b623bae8339f2cb09d4af2872611b9c0",
+        "evidence_id": "ev_1524442745f556e2c2f041648c72314f3d06a47d1f58e332c684325ac02d9c60",
         "subject": {
           "name": "ledger-arm64-O1",
           "digest": {
             "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
           },
+          "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
           "format": "mach-o",
-          "architecture": "arm64",
-          "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+          "architecture": "arm64"
         },
         "provider": {
           "id": "ghidra",
@@ -52,10 +58,14 @@
             "load_image_observations": "source-mappings-entry-context-v2",
             "function_body_evidence": "complete-inclusive-ranges-v1",
             "function_references": "complete-body-and-entry-reference-manager-v2",
+            "call_relationship_coverage": "function-body-call-coverage-v5",
+            "function_dossier_coverage": "observed-facets-and-call-relationships-v1",
             "string_inventory_evidence": "defined-data-coverage-v1",
             "location_resolution": "explicit-address-exact-entry-symbol-first-v3",
+            "procedure_file_offset_resolution": "address-first-unique-target-source-mapping-v2",
             "instruction_flow_evidence": "decoded-return-pcode-v1",
-            "function_boundary_observations": "ghidra-terminal-call-limitations-v1",
+            "instruction_references": "exact-address-incoming-v1",
+            "function_boundary_observations": "ghidra-function-boundary-limitations-v3",
             "no_return_repair": "returning-imports-decoded-return-v2",
             "process_launch": "inspected-jvm-launch-support-v1",
             "jump_table_evidence": "typed-case-default-blocks-v1",
@@ -65,7 +75,7 @@
             "compiler_spec_id": "auto-default",
             "analyzer_preset": "ghidra-default"
           },
-          "digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c"
+          "digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28"
         },
         "predicate_type": "rea.analysis",
         "operation": "analyze_function",
@@ -864,6 +874,33 @@
                 "Known omitted-edge counts cover links omitted from retained operations; omitted operations may contain additional uncounted links."
               ]
             },
+            "facet_availability": {
+              "pseudocode": {
+                "available": true
+              },
+              "comments": {
+                "available": true
+              },
+              "callers": {
+                "available": true
+              },
+              "callees": {
+                "available": true
+              },
+              "references": {
+                "available": true
+              },
+              "strings_names": {
+                "available": true
+              },
+              "cfg": {
+                "available": true
+              },
+              "assembly": {
+                "available": true
+              }
+            },
+            "unresolved_calls": [],
             "limitations": [
               "Unresolved computed or indirect flows without target addresses are not represented as reference edges.",
               "Thunk and external classifications are Ghidra FunctionManager observations; they do not resolve targetless calls.",
@@ -871,7 +908,13 @@
               "Synthetic Ghidra entry-point references without actionable memory sources are omitted."
             ]
           },
-          "limitations": []
+          "limitations": [],
+          "relationship_coverage": {
+            "status": "complete",
+            "diagnostics": [
+              "Only resolved Ghidra call references are returned; unresolved computed or indirect calls remain unknown, while function classifications distinguish thunks and externals."
+            ]
+          }
         },
         "normalized_result": {
           "procedure": {
@@ -1089,6 +1132,7 @@
               }
             }
           ],
+          "unresolved_calls": [],
           "referenced_strings": [],
           "referenced_names": [
             {
@@ -1664,6 +1708,32 @@
               "Known omitted-edge counts cover links omitted from retained operations; omitted operations may contain additional uncounted links."
             ]
           },
+          "facet_availability": {
+            "pseudocode": {
+              "available": true
+            },
+            "assembly": {
+              "available": true
+            },
+            "comments": {
+              "available": true
+            },
+            "callers": {
+              "available": true
+            },
+            "callees": {
+              "available": true
+            },
+            "references": {
+              "available": true
+            },
+            "strings_names": {
+              "available": true
+            },
+            "cfg": {
+              "available": true
+            }
+          },
           "limitations": [
             "Unresolved computed or indirect flows without target addresses are not represented as reference edges.",
             "Thunk and external classifications are Ghidra FunctionManager observations; they do not resolve targetless calls.",
@@ -1686,6 +1756,12 @@
           "The Java bridge serializes one function request per Program and lets each decompilation run until it completes or the caller cancels.",
           "macOS sessions require a matching executable Ghidra native decompiler; REA checks for it but does not build native components or change Gatekeeper quarantine state."
         ],
+        "relationship_coverage": {
+          "status": "complete",
+          "diagnostics": [
+            "Only resolved Ghidra call references are returned; unresolved computed or indirect calls remain unknown, while function classifications distinguish thunks and externals."
+          ]
+        },
         "locations": [],
         "evidence_links": []
       }

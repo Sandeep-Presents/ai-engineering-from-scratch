@@ -6,15 +6,15 @@
   "unknown_revisions": 0,
   "records": [
     {
-      "evidence_id": "ev_6b95d417dd77d1a5f848f88cc7e1a84387e46443d50b9a29b53cbe10320bb0d8",
+      "evidence_id": "ev_1f3bca22a69485fa2eaf7bdd59847e92fb77517bac6c01e657e143c14870013f",
       "subject": {
         "name": "ledger-arm64-O2",
         "digest": {
           "sha256": "8bbbaa5866c3fc9f6f598943350b55b5c11669dd1d5e41005efdfe44241915b3"
         },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O2",
         "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O2"
+        "architecture": "arm64"
       },
       "provider": {
         "id": "ghidra",
@@ -24,13 +24,13 @@
       "operation": "analyze_function",
       "confidence": "observed",
       "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
       "retention": "complete-record",
       "limitation_count": 10,
       "native_dossier": {
         "available": true,
-        "procedure_address": "0x100000554",
-        "procedure_name": "_total",
+        "procedure_address": "0x100000500",
+        "procedure_name": "_percent_change",
         "value_flow": {
           "status": "observed",
           "truncated": false,
@@ -41,15 +41,15 @@
       }
     },
     {
-      "evidence_id": "ev_b84b923e786e233da8b57ebed31f16db218648fa57595cd893e92c01caa5e71d",
+      "evidence_id": "ev_a36b5090a55390a6a2b689d6f50bed679628395e6331ca55bd726a54f21f8c41",
       "subject": {
         "name": "ledger-arm64-O2",
         "digest": {
           "sha256": "8bbbaa5866c3fc9f6f598943350b55b5c11669dd1d5e41005efdfe44241915b3"
         },
+        "local_path": "$CAPTURE/fixtures/ledger-arm64-O2",
         "format": "mach-o",
-        "architecture": "arm64",
-        "local_path": "$CAPTURE/fixtures/ledger-arm64-O2"
+        "architecture": "arm64"
       },
       "provider": {
         "id": "ghidra",
@@ -59,13 +59,13 @@
       "operation": "analyze_function",
       "confidence": "observed",
       "authority": "shipped-artifact",
-      "analysis_profile_digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c",
+      "analysis_profile_digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28",
       "retention": "complete-record",
       "limitation_count": 10,
       "native_dossier": {
         "available": true,
-        "procedure_address": "0x100000500",
-        "procedure_name": "_percent_change",
+        "procedure_address": "0x100000554",
+        "procedure_name": "_total",
         "value_flow": {
           "status": "observed",
           "truncated": false,

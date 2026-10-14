@@ -1,13 +1,13 @@
 {
-  "evidence_id": "ev_aaa60a75b9054f18e8f5b871d9b3ef253b97ac1773c15e87853ac2607a6f2408",
+  "evidence_id": "ev_2e049a4a5583eb44ad709794f83b0ab31a6af3dc47c70fd26c656361a888202f",
   "subject": {
     "name": "ledger-arm64-O1",
     "digest": {
       "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
     },
+    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
     "format": "mach-o",
-    "architecture": "arm64",
-    "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+    "architecture": "arm64"
   },
   "provider": {
     "id": "ghidra",
@@ -32,10 +32,14 @@
       "load_image_observations": "source-mappings-entry-context-v2",
       "function_body_evidence": "complete-inclusive-ranges-v1",
       "function_references": "complete-body-and-entry-reference-manager-v2",
+      "call_relationship_coverage": "function-body-call-coverage-v5",
+      "function_dossier_coverage": "observed-facets-and-call-relationships-v1",
       "string_inventory_evidence": "defined-data-coverage-v1",
       "location_resolution": "explicit-address-exact-entry-symbol-first-v3",
+      "procedure_file_offset_resolution": "address-first-unique-target-source-mapping-v2",
       "instruction_flow_evidence": "decoded-return-pcode-v1",
-      "function_boundary_observations": "ghidra-terminal-call-limitations-v1",
+      "instruction_references": "exact-address-incoming-v1",
+      "function_boundary_observations": "ghidra-function-boundary-limitations-v3",
       "no_return_repair": "returning-imports-decoded-return-v2",
       "process_launch": "inspected-jvm-launch-support-v1",
       "jump_table_evidence": "typed-case-default-blocks-v1",
@@ -45,7 +49,7 @@
       "compiler_spec_id": "auto-default",
       "analyzer_preset": "ghidra-default"
     },
-    "digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c"
+    "digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28"
   },
   "predicate_type": "rea.analysis",
   "operation": "procedure_pseudo_code",
@@ -69,6 +73,7 @@
     "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
     "macOS sessions require a matching executable Ghidra native decompiler; REA checks for it but does not build native components or change Gatekeeper quarantine state."
   ],
+  "relationship_coverage": null,
   "locations": [],
   "evidence_links": []
 }

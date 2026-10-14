@@ -12,22 +12,28 @@
   },
   "response": {
     "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
       "content": [
         {
           "type": "text",
-          "text": "<cut by run.py: the text copy of structuredContent, 2920 bytes>"
+          "text": "<cut by run.py: the text copy of structuredContent, 3223 bytes>"
         }
       ],
       "structuredContent": {
-        "evidence_id": "ev_9101f891d736b174030fce6d536f11818faf528065d7604d0e58593365d7131f",
+        "evidence_id": "ev_71bb96a48a5b17e05e5800f1cb9a7367a968765a0da02dc407545427a603e5b9",
         "subject": {
           "name": "ledger-arm64-O1",
           "digest": {
             "sha256": "01b5d08b08fb94678be5919d0e753d44b505a53107c95b94634f0e5d41c9e375"
           },
+          "local_path": "$CAPTURE/fixtures/ledger-arm64-O1",
           "format": "mach-o",
-          "architecture": "arm64",
-          "local_path": "$CAPTURE/fixtures/ledger-arm64-O1"
+          "architecture": "arm64"
         },
         "provider": {
           "id": "ghidra",
@@ -52,10 +58,14 @@
             "load_image_observations": "source-mappings-entry-context-v2",
             "function_body_evidence": "complete-inclusive-ranges-v1",
             "function_references": "complete-body-and-entry-reference-manager-v2",
+            "call_relationship_coverage": "function-body-call-coverage-v5",
+            "function_dossier_coverage": "observed-facets-and-call-relationships-v1",
             "string_inventory_evidence": "defined-data-coverage-v1",
             "location_resolution": "explicit-address-exact-entry-symbol-first-v3",
+            "procedure_file_offset_resolution": "address-first-unique-target-source-mapping-v2",
             "instruction_flow_evidence": "decoded-return-pcode-v1",
-            "function_boundary_observations": "ghidra-terminal-call-limitations-v1",
+            "instruction_references": "exact-address-incoming-v1",
+            "function_boundary_observations": "ghidra-function-boundary-limitations-v3",
             "no_return_repair": "returning-imports-decoded-return-v2",
             "process_launch": "inspected-jvm-launch-support-v1",
             "jump_table_evidence": "typed-case-default-blocks-v1",
@@ -65,7 +75,7 @@
             "compiler_spec_id": "auto-default",
             "analyzer_preset": "ghidra-default"
           },
-          "digest": "20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c"
+          "digest": "966e6016724421ad282356f583a9d5bf24577db4ac77a75c7099d236b88bcc28"
         },
         "predicate_type": "rea.analysis",
         "operation": "xrefs",
@@ -90,6 +100,7 @@
           "Synthetic Ghidra entry-point references without actionable memory sources are omitted.",
           "macOS sessions require a matching executable Ghidra native decompiler; REA checks for it but does not build native components or change Gatekeeper quarantine state."
         ],
+        "relationship_coverage": null,
         "locations": [],
         "evidence_links": []
       }
