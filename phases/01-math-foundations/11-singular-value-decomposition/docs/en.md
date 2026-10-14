@@ -147,7 +147,7 @@ The Eckart-Young-Mirsky theorem states that the best $\text{rank-}k$ approximati
 & \quad \Sigma_k \text{ is } k \times k \quad \text{(top-left } k \times k \text{ block of } \Sigma\text{)} \\
 & \quad V_k \text{ is } n \times k \quad \text{(first } k \text{ columns of } V\text{)} \\[6pt]
 & \text{Approximation error} = \sigma_{k+1} \quad \text{(in spectral norm)} \\
-& \phantom{\text{Approximation error}} = \sqrt{\sigma_{k+1}^2 + \cdots + \sigma_r^2} \quad \text{(in Frobenius norm)}
+& \text{Approximation error} = \sqrt{\sigma_{k+1}^2 + \cdots + \sigma_r^2} \quad \text{(in Frobenius norm)}
 \end{aligned}
 ```
 
