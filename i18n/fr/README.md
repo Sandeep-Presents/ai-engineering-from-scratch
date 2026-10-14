@@ -247,7 +247,7 @@ Les commandes indiquées dans les leçons utilisent des chemins relatifs à la r
 
 ## Choisissez un parcours
 
-Vous n’avez pas besoin de parcourir les 528 leçons avant de commencer. Choisissez un objectif. Chaque lien ouvre le même programme sur GitHub ou sur le site Web, et les deux versions utilisent le même code de leçon.
+Vous n’avez pas besoin de parcourir les 542 leçons avant de commencer. Choisissez un objectif. Chaque lien ouvre le même programme sur GitHub ou sur le site Web, et les deux versions utilisent le même code de leçon.
 
 | Votre objectif | Sur GitHub | Sur le site Web |
 |---|---|---|

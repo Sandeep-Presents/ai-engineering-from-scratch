@@ -247,7 +247,7 @@ python3 phases/01-math-foundations/01-linear-algebra-intuition/code/vectors.py
 
 ## 选择学习路径
 
-开始前不必先浏览 528 节课。选一个目标即可。每个链接都会打开同一套课程的 GitHub 或网站版本，两边使用相同的课程代码。
+开始前不必先浏览 542 节课。选一个目标即可。每个链接都会打开同一套课程的 GitHub 或网站版本，两边使用相同的课程代码。
 
 | 你的目标 | 在 GitHub 学习 | 在网站学习 |
 |---|---|---|

@@ -247,7 +247,7 @@ Oppituntisivujen komentojen polut ovat suhteessa koodivaraston juureen, ellei op
 
 ## Valitse oppimispolku
 
-Sinun ei tarvitse käydä läpi 528 oppituntia ennen aloittamista. Valitse yksi tavoite. Jokainen linkki avaa saman opetussuunnitelman GitHubissa tai verkkosivustolla, ja molemmissa versioissa käytetään samaa oppituntien koodia.
+Sinun ei tarvitse käydä läpi 542 oppituntia ennen aloittamista. Valitse yksi tavoite. Jokainen linkki avaa saman opetussuunnitelman GitHubissa tai verkkosivustolla, ja molemmissa versioissa käytetään samaa oppituntien koodia.
 
 | Tavoitteesi | Opi GitHubissa | Opi verkkosivustolla |
 |---|---|---|

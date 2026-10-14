@@ -247,7 +247,7 @@ Paden in de commando's op lespagina's zijn relatief aan de hoofdmap van de repos
 
 ## Kies een leerpad
 
-Je hoeft niet alle 528 lessen door te nemen voordat je begint. Kies één doel. Elke link opent hetzelfde leerprogramma op GitHub of de website, en beide versies gebruiken dezelfde lescode.
+Je hoeft niet alle 542 lessen door te nemen voordat je begint. Kies één doel. Elke link opent hetzelfde leerprogramma op GitHub of de website, en beide versies gebruiken dezelfde lescode.
 
 | Jouw doel | Leren op GitHub | Leren op de website |
 |---|---|---|

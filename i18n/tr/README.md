@@ -247,7 +247,7 @@ Ders sayfalarındaki komutlar, ders açıkça başka bir dizine geçmenizi söyl
 
 ## Bir öğrenme yolu seçin
 
-Başlamadan önce 528 dersin hepsine göz atmanız gerekmez. Bir hedef seçin. Her bağlantı aynı müfredatı GitHub'da ya da web sitesinde açar; iki sürüm de aynı ders kodunu kullanır.
+Başlamadan önce 542 dersin hepsine göz atmanız gerekmez. Bir hedef seçin. Her bağlantı aynı müfredatı GitHub'da ya da web sitesinde açar; iki sürüm de aynı ders kodunu kullanır.
 
 | Hedefiniz | GitHub'da öğrenin | Web sitesinde öğrenin |
 |---|---|---|

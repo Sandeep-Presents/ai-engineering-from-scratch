@@ -247,7 +247,7 @@ Ang mga path sa mga command ng aralin ay mula sa root directory ng repository ma
 
 ## Pumili ng landas ng pag-aaral
 
-Hindi mo kailangang tingnan ang lahat ng 528 aralin bago magsimula. Pumili ng isang layunin. Binubuksan ng bawat link ang parehong kurikulum sa GitHub o sa website, at pareho ang code ng aralin sa dalawang bersiyon.
+Hindi mo kailangang tingnan ang lahat ng 542 aralin bago magsimula. Pumili ng isang layunin. Binubuksan ng bawat link ang parehong kurikulum sa GitHub o sa website, at pareho ang code ng aralin sa dalawang bersiyon.
 
 | Layunin mo | Matuto sa GitHub | Matuto sa website |
 |---|---|---|

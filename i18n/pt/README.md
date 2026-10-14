@@ -247,7 +247,7 @@ Os comandos nas páginas das lições usam caminhos relativos à raiz do reposit
 
 ## Escolha um percurso de aprendizagem
 
-Você não precisa percorrer as 528 lições antes de começar. Escolha um objetivo. Cada link abre o mesmo currículo no GitHub ou no site, e as duas versões usam o mesmo código das lições.
+Você não precisa percorrer as 542 lições antes de começar. Escolha um objetivo. Cada link abre o mesmo currículo no GitHub ou no site, e as duas versões usam o mesmo código das lições.
 
 | Seu objetivo | Estude no GitHub | Estude no site |
 |---|---|---|

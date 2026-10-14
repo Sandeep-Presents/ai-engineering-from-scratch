@@ -247,7 +247,7 @@ I comandi nelle lezioni usano percorsi relativi alla radice del repository, salv
 
 ## Scegli un percorso di apprendimento
 
-Non serve scorrere tutte le 528 lezioni prima di cominciare. Scegli un obiettivo: ogni link apre lo stesso programma su GitHub o sul sito web, e le due versioni usano lo stesso codice delle lezioni.
+Non serve scorrere tutte le 542 lezioni prima di cominciare. Scegli un obiettivo: ogni link apre lo stesso programma su GitHub o sul sito web, e le due versioni usano lo stesso codice delle lezioni.
 
 | Il tuo obiettivo | Su GitHub | Sul sito web |
 |---|---|---|

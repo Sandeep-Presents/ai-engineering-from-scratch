@@ -247,7 +247,7 @@ Stier i kommandoer på lektionssiderne tager udgangspunkt i projektarkivets rod,
 
 ## Vælg et læringsforløb
 
-Du behøver ikke gennemgå 528 lektioner, før du går i gang. Vælg et mål. Hvert link åbner det samme pensum på GitHub eller hjemmesiden, og begge versioner bruger samme lektionskode.
+Du behøver ikke gennemgå 542 lektioner, før du går i gang. Vælg et mål. Hvert link åbner det samme pensum på GitHub eller hjemmesiden, og begge versioner bruger samme lektionskode.
 
 | Dit mål | Lær på GitHub | Lær på hjemmesiden |
 |---|---|---|

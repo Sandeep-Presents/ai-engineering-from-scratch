@@ -247,7 +247,7 @@ Befehle auf den Lektionsseiten verwenden Pfade relativ zum Repository-Stammverze
 
 ## Wähle einen Lernpfad
 
-Du musst nicht erst alle 528 Lektionen durchsehen. Wähle ein Ziel. Jeder Link führt zum selben Lehrplan auf GitHub oder auf der Website; beide Fassungen verwenden denselben Lektionencode.
+Du musst nicht erst alle 542 Lektionen durchsehen. Wähle ein Ziel. Jeder Link führt zum selben Lehrplan auf GitHub oder auf der Website; beide Fassungen verwenden denselben Lektionencode.
 
 | Dein Ziel | Auf GitHub lernen | Auf der Website lernen |
 |---|---|---|

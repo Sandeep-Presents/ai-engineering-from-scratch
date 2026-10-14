@@ -247,7 +247,7 @@ A leckék parancsaiban szereplő útvonalak a kódtár gyökérkönyvtárához k
 
 ## Válassz tanulási útvonalat
 
-Nem kell végignézned mind az 528 leckét, mielőtt elkezded. Válassz egy célt. Minden hivatkozás ugyanazt a tananyagot nyitja meg a GitHub felületén vagy a weboldalon, és mindkét változat ugyanazt a leckekódot használja.
+Nem kell végignézned mind az 542 leckét, mielőtt elkezded. Válassz egy célt. Minden hivatkozás ugyanazt a tananyagot nyitja meg a GitHub felületén vagy a weboldalon, és mindkét változat ugyanazt a leckekódot használja.
 
 | A célod | Tanulás a GitHub felületén | Tanulás a weboldalon |
 |---|---|---|

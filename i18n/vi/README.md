@@ -247,7 +247,7 @@ Các lệnh trong trang bài học dùng đường dẫn tính từ thư mục g
 
 ## Chọn lộ trình học
 
-Bạn không cần xem qua cả 528 bài học trước khi bắt đầu. Hãy chọn một mục tiêu. Mỗi liên kết mở cùng một chương trình trên GitHub hoặc trang web, và cả hai phiên bản đều dùng cùng mã nguồn bài học.
+Bạn không cần xem qua cả 542 bài học trước khi bắt đầu. Hãy chọn một mục tiêu. Mỗi liên kết mở cùng một chương trình trên GitHub hoặc trang web, và cả hai phiên bản đều dùng cùng mã nguồn bài học.
 
 | Mục tiêu của bạn | Học trên GitHub | Học trên trang web |
 |---|---|---|

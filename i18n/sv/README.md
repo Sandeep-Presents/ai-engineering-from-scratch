@@ -247,7 +247,7 @@ Sökvägar i lektionssidornas kommandon utgår från kodarkivets rot om lektione
 
 ## Välj en lärväg
 
-Du behöver inte gå igenom 528 lektioner innan du börjar. Välj ett mål. Varje länk öppnar samma läroplan på GitHub eller webbplatsen, och båda versionerna använder samma lektionskod.
+Du behöver inte gå igenom 542 lektioner innan du börjar. Välj ett mål. Varje länk öppnar samma läroplan på GitHub eller webbplatsen, och båda versionerna använder samma lektionskod.
 
 | Ditt mål | Lär dig på GitHub | Lär dig på webbplatsen |
 |---|---|---|

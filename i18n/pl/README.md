@@ -247,7 +247,7 @@ Kontrola wstępna oddziela wymagania potrzebne teraz od narzędzi potrzebnych p�
 
 ## Wybierz ścieżkę nauki
 
-Nie musisz przeglądać wszystkich 528 lekcji, zanim zaczniesz. Wybierz jeden cel. Każdy odnośnik otwiera ten sam program nauki na GitHub lub stronie internetowej, a obie wersje korzystają z tego samego kodu lekcji.
+Nie musisz przeglądać wszystkich 542 lekcji, zanim zaczniesz. Wybierz jeden cel. Każdy odnośnik otwiera ten sam program nauki na GitHub lub stronie internetowej, a obie wersje korzystają z tego samego kodu lekcji.
 
 | Twój cel | Nauka na GitHub | Nauka na stronie |
 |---|---|---|

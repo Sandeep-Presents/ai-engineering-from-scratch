@@ -247,7 +247,7 @@ Stier i kommandoer på leksjonssidene tar utgangspunkt i roten av prosjektarkive
 
 ## Velg et læringsløp
 
-Du trenger ikke gå gjennom 528 leksjoner før du begynner. Velg et mål. Hver lenke åpner det samme pensumet på GitHub eller nettstedet, og begge versjonene bruker samme leksjonskode.
+Du trenger ikke gå gjennom 542 leksjoner før du begynner. Velg et mål. Hver lenke åpner det samme pensumet på GitHub eller nettstedet, og begge versjonene bruker samme leksjonskode.
 
 | Målet ditt | Lær på GitHub | Lær på nettstedet |
 |---|---|---|

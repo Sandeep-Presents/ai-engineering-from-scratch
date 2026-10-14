@@ -364,7 +364,7 @@ Total estimated time: ~332 hours, at your own pace.
 | 33 | [Disassembly and Control-Flow Graphs](phases/13-tools-and-protocols/33-disassembly-and-control-flow/) | ✅ | ~150 min |
 | 34 | [Lifting Machine Code to Pseudocode](phases/13-tools-and-protocols/34-lifting-to-pseudocode/) | ✅ | ~150 min |
 | 35 | [Evidence, Confidence, and Unknowns in Binary Analysis](phases/13-tools-and-protocols/35-evidence-confidence-and-unknowns/) | ✅ | ~105 min |
-| 36 | [Rebuild and Prove Equal](phases/13-tools-and-protocols/36-rebuild-and-prove-equal/) | ✅ | ~120 min |
+| 36 | [Rebuild and Prove Equal](phases/13-tools-and-protocols/36-rebuild-and-prove-equal/) | ✅ | ~110 min |
 | 37 | [The Reverse Engineering Landscape](phases/13-tools-and-protocols/37-the-reverse-engineering-landscape/) | ✅ | ~150 min |
 | 38 | [Calling Conventions and Stack Frames](phases/13-tools-and-protocols/38-calling-conventions-and-stack-frames/) | ✅ | ~140 min |
 | 39 | [Compiler Idioms and Optimization](phases/13-tools-and-protocols/39-compiler-idioms-and-optimization/) | ✅ | ~150 min |

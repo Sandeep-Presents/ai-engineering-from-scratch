@@ -247,7 +247,7 @@ Los comandos de las lecciones usan rutas relativas a la raíz del repositorio, s
 
 ## Elige una ruta de aprendizaje
 
-No hace falta recorrer las 528 lecciones antes de empezar. Elige un objetivo. Cada enlace abre el mismo plan de estudios en GitHub o en el sitio web, y ambas versiones usan el mismo código de las lecciones.
+No hace falta recorrer las 542 lecciones antes de empezar. Elige un objetivo. Cada enlace abre el mismo plan de estudios en GitHub o en el sitio web, y ambas versiones usan el mismo código de las lecciones.
 
 | Tu objetivo | Aprende en GitHub | Aprende en el sitio web |
 |---|---|---|

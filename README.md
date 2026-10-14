@@ -305,7 +305,7 @@ run the implementation for the language you are learning.
 
 ## Choose a learning path
 
-You do not need to scan 528 lessons before beginning. Pick one goal. Each link
+You do not need to scan 542 lessons before beginning. Pick one goal. Each link
 opens the same curriculum on GitHub or the website, and both versions use the
 same lesson code.
 
@@ -799,20 +799,20 @@ Twenty phases. Click any phase to expand its lesson list.
 | 29 | [MCP Reliability, Cancellation, and Flow Control](phases/13-tools-and-protocols/29-mcp-reliability-cancellation-and-flow-control/) | Build | Python |
 | 30 | [MCP Registry Supply Chain: Admission, Drift, and Rollback](phases/13-tools-and-protocols/30-mcp-registry-supply-chain-and-drift/) | Build | Python |
 | 31 | [MCP Conformance Engineering: Versioning, Evidence, and Operations](phases/13-tools-and-protocols/31-mcp-conformance-versioning-and-operations/) | Build | Python |
-| 32 | [Program Anatomy: Reading ELF From Scratch](phases/13-tools-and-protocols/32-program-anatomy-elf-from-scratch/) | Build | Python |
-| 33 | [Disassembly and Control-Flow Graphs](phases/13-tools-and-protocols/33-disassembly-and-control-flow/) | Build | Python |
-| 34 | [Lifting Machine Code to Pseudocode](phases/13-tools-and-protocols/34-lifting-to-pseudocode/) | Build | Python |
+| 32 | [Program Anatomy: An ELF Reader From Scratch](phases/13-tools-and-protocols/32-program-anatomy-elf-from-scratch/) | Build | Python |
+| 33 | [Disassembly and Control Flow: From Bytes to a Graph You Can Check](phases/13-tools-and-protocols/33-disassembly-and-control-flow/) | Build | Python |
+| 34 | [Lifting to Pseudocode: IR, SSA, and Structuring From Scratch](phases/13-tools-and-protocols/34-lifting-to-pseudocode/) | Build | Python |
 | 35 | [Evidence, Confidence, and Unknowns in Binary Analysis](phases/13-tools-and-protocols/35-evidence-confidence-and-unknowns/) | Build | Python |
-| 36 | [Rebuild and Prove Equal](phases/13-tools-and-protocols/36-rebuild-and-prove-equal/) | Build | Python |
-| 37 | [The Reverse Engineering Landscape](phases/13-tools-and-protocols/37-the-reverse-engineering-landscape/) | Build | Python |
-| 38 | [Calling Conventions and Stack Frames](phases/13-tools-and-protocols/38-calling-conventions-and-stack-frames/) | Build | Python |
-| 39 | [Compiler Idioms and Optimization](phases/13-tools-and-protocols/39-compiler-idioms-and-optimization/) | Build | Python |
-| 40 | [Linking, Loading, and Stripped Binaries](phases/13-tools-and-protocols/40-linking-loading-and-stripped-binaries/) | Build | Python |
-| 41 | [Recovering Data and Types](phases/13-tools-and-protocols/41-recovering-data-and-types/) | Build | Python |
-| 42 | [Dynamic Analysis of Your Own Program](phases/13-tools-and-protocols/42-dynamic-analysis-of-your-own-program/) | Build | Python |
-| 43 | [Bytecode and Managed Formats](phases/13-tools-and-protocols/43-bytecode-and-managed-formats/) | Build | Python |
-| 44 | [Binary Diffing and Symbolic Execution](phases/13-tools-and-protocols/44-binary-diffing-and-symbolic-execution/) | Build | Python |
-| 45 | [AI-Assisted Reverse Engineering](phases/13-tools-and-protocols/45-ai-assisted-reverse-engineering/) | Build | Python |
+| 36 | [Rebuild and Prove Equal: Differential Tests, Byte Comparison, and the Evidence Loop](phases/13-tools-and-protocols/36-rebuild-and-prove-equal/) | Build | Python |
+| 37 | [The Reverse Engineering Landscape: History, Tool Families, and How a Decompiler Is Built](phases/13-tools-and-protocols/37-the-reverse-engineering-landscape/) | Build | Python |
+| 38 | [Calling Conventions and Stack Frames: System V, Windows x64, and AArch64](phases/13-tools-and-protocols/38-calling-conventions-and-stack-frames/) | Build | Python |
+| 39 | [Compiler Idioms: What Optimization Does to Your Code and How to Read It Back](phases/13-tools-and-protocols/39-compiler-idioms-and-optimization/) | Build | Python |
+| 40 | [Linking, Loading, and Stripped Binaries: PLT, GOT, Imports, Fixups, and Function Identification](phases/13-tools-and-protocols/40-linking-loading-and-stripped-binaries/) | Build | Python |
+| 41 | [Recovering Data and Types: Structs, Arrays, C++ Objects, and DWARF](phases/13-tools-and-protocols/41-recovering-data-and-types/) | Build | Python |
+| 42 | [Dynamic Analysis of Your Own Program: Debuggers, Traces, and Confirming Static Claims](phases/13-tools-and-protocols/42-dynamic-analysis-of-your-own-program/) | Build | Python |
+| 43 | [Beyond Native Code: Python, JVM, .NET, and WebAssembly Bytecode](phases/13-tools-and-protocols/43-bytecode-and-managed-formats/) | Build | Python |
+| 44 | [Binary Diffing and Symbolic Execution: Matching Functions and Solving for Inputs](phases/13-tools-and-protocols/44-binary-diffing-and-symbolic-execution/) | Build | Python |
+| 45 | [AI-Assisted Reverse Engineering: LLM Decompilers, Analysis Agents, and Ground Truth](phases/13-tools-and-protocols/45-ai-assisted-reverse-engineering/) | Build | Python |
 
 Lessons 06-18 and 28-31 form the focused
 [Model Context Protocol (MCP) path](learning-paths/model-context-protocol.json). Its manifest order

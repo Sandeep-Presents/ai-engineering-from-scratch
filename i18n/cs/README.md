@@ -247,7 +247,7 @@ Cesty v příkazech na stránkách lekcí vycházejí z kořenového adresáře 
 
 ## Vyberte si vzdělávací cestu
 
-Než začnete, nemusíte procházet všech 528 lekcí. Vyberte si jeden cíl. Každý odkaz otevře stejný vzdělávací program na GitHub nebo na webu a obě verze používají stejný kód lekcí.
+Než začnete, nemusíte procházet všech 542 lekcí. Vyberte si jeden cíl. Každý odkaz otevře stejný vzdělávací program na GitHub nebo na webu a obě verze používají stejný kód lekcí.
 
 | Váš cíl | Učení na GitHub | Učení na webu |
 |---|---|---|

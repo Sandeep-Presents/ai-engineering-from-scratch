@@ -247,7 +247,7 @@ Perintah pada halaman pelajaran menggunakan jalur dari akar repositori, kecuali 
 
 ## Pilih jalur pembelajaran
 
-Anda tidak perlu menelusuri 528 pelajaran sebelum mulai. Pilih satu tujuan. Setiap tautan membuka kurikulum yang sama di GitHub atau situs web, dan kedua versi menggunakan kode pelajaran yang sama.
+Anda tidak perlu menelusuri 542 pelajaran sebelum mulai. Pilih satu tujuan. Setiap tautan membuka kurikulum yang sama di GitHub atau situs web, dan kedua versi menggunakan kode pelajaran yang sama.
 
 | Tujuan Anda | Belajar di GitHub | Belajar di situs web |
 |---|---|---|

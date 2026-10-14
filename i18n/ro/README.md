@@ -247,7 +247,7 @@ Căile din comenzile paginilor de lecție pornesc de la rădăcina depozitului, 
 
 ## Alege un traseu de învățare
 
-Nu trebuie să parcurgi toate cele 528 de lecții înainte să începi. Alege un obiectiv. Fiecare link deschide același program pe GitHub sau pe site, iar ambele versiuni folosesc același cod al lecțiilor.
+Nu trebuie să parcurgi toate cele 542 de lecții înainte să începi. Alege un obiectiv. Fiecare link deschide același program pe GitHub sau pe site, iar ambele versiuni folosesc același cod al lecțiilor.
 
 | Obiectivul tău | Învață pe GitHub | Învață pe site |
 |---|---|---|
