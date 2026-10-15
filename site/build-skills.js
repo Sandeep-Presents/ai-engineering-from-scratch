@@ -267,7 +267,7 @@ function build() {
         <a href="index.html#contents">Contents</a>
         <a href="catalog.html">Catalog</a>
         <a href="skills.html">Skills</a>
-        <a href="prereqs.html">Roadmap</a>
+        <a href="roadmap.html">Roadmap</a>
         <a href="glossary.html">Glossary</a>
         <a href="about.html">About</a>
         <a href="${GITHUB}" target="_blank" rel="noopener" class="header-github">GitHub <span class="star-count" data-loading="true" aria-label="GitHub stars">…</span></a>
