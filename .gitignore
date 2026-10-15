@@ -101,3 +101,7 @@ site/manuals-data.js
 site/manuals.html
 
 !manuals/*/capture/out/*.log
+
+phases/05-nlp-foundations-to-advanced/01-text-processing-tokenizer/notebook/bert_tokenizer_local
+phases/05-nlp-foundations-to-advanced/03-word-embeddings-word2vec/notebook/bert_model
+phases/05-nlp-foundations-to-advanced/03-word-embeddings-word2vec/notebook/glove_data
