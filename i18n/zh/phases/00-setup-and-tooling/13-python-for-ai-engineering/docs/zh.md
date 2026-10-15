@@ -1,62 +1,62 @@
-# 基于AI工程的Python
+# AI 工程中的 Python
 
-> 在这个课程中,大多数代码都使用相同的小小的Python语法. 在数学和模型课程取决于它之前,请在这里学习这个集合.
+> 本课程的大多数代码都使用同一小组 Python 惯用写法。先在这里掌握它们，再学习依赖这些写法的数学和模型课程。
 
 **Type:** Build
 **Languages:** Python
-**Prerequisites:** Dev Environment, Python Environments
-**Time:** ~120 minutes
+**Prerequisites:** 开发环境、Python 环境
+**Time:** ~120 分钟
 
 ## 学习目标
 
-- 阅读和写出大多数课程代码使用的语法,从解包和f字符串到数据类和理解.
-- 找出三个错误的Python结果,没有错误:共享列表,可变的默认和使用式生成器.
-- 建立一个CSV和JSON加载器,一个种子分区,以及一个只有标准库的迷你批量生成器.
-- 在纯Python中写点产量,平均值和标准偏差,并测量它们的速度和内存使用.
-- 解释为什么纯字thon循环在数字上是缓慢的,以及NumPy广播如何将循环转化为编译代码.
+- 读懂并写出本课程大多数代码使用的惯用写法，从解包、f 字符串到数据类和推导式。
+- 识别三种不会报错却会产生错误结果的 Python 问题：共享列表、可变默认值和已经耗尽的生成器。
+- 仅使用标准库，构建 CSV 和 JSON 加载器、带种子的数据划分函数，以及小批量生成器。
+- 用纯 Python 编写点积、均值和标准差函数，并测量它们的运行速度和内存用量。
+- 解释为什么用纯 Python 循环处理数字很慢，以及 NumPy 广播如何把循环交给编译后的代码执行。
 
-## 问题
+## 要解决的问题
 
-在此阶段之后的课程中,使用平凡的Python来进行数学和模型.`dataclasses`另外,187个文件的电话`random.seed`或创建一个`random.Random`如果你对这些语法不太了解,你需要读数学时就读语法.
+本阶段之后的课程使用普通 Python 实现数学运算和模型。课程的 541 个 Python 文件中，有 276 个导入了 `dataclasses`。此外，有 187 个文件调用 `random.seed` 或创建 `random.Random` 生成器。如果你不熟悉这些惯用写法，本想理解数学，却得先琢磨语法。
 
-字符串也具有没有错误信息的错误结果行为.两个名称可以指向一个列表,因此通过一个名称的变化也会改变另一个.默认参数将其值从一个调用到另一个调用.一个传输后,生成器是空的,因此第二次训练时代没有数据,损失不会改变.
+Python 的一些行为也会在不报错的情况下产生错误结果。两个名称可以指向同一个列表，通过一个名称修改列表，也会影响另一个名称所看到的内容。默认参数会在多次调用之间保留其值。生成器遍历一遍后就空了，因此第二个训练轮次读不到数据，损失也不会变化。
 
-最后一个问题是速度.在我们的测试笔记本电脑上,一个纯Python循环超过百万个浮动的时间约为30毫秒.NumPy在不到一毫秒内计算出了相同的点产品.你需要知道原因,这样你就可以选择一个清晰的循环和一个阵列操作.
+最后一个问题是速度。在我们的测试笔记本电脑上，用纯 Python 循环处理一百万个浮点数大约需要 30 毫秒。NumPy 计算同样的点积用时不到一毫秒。理解原因后，你才能在清晰的循环写法和数组运算之间作出选择。
 
-## 概念
+## 核心概念
 
-### 课程代码所使用的内容
+### 课程代码使用哪些写法
 
-我们分析了所有541个Python文件.`phases/*/*/code/`随着`ast`计算时间是从我们写这门课程的那一天起,随着课程的增加而变化.
+我们用 `ast` 模块解析了 `phases/*/*/code/` 下的全部 541 个 Python 文件。下表统计了至少使用一次各项语法结构的文件数。这些数字来自编写本课时的统计，会随着课程增加而变化。
 
-| Construct | Files | Share |
+| 语法结构 | 文件数 | 占比 |
 |-----------|-------|-------|
-| Function definitions | 541 | 100% |
+| 函数定义 | 541 | 100% |
 | `if __name__ == "__main__":` | 529 | 98% |
-| f-strings | 517 | 96% |
-| Tuple unpacking | 448 | 83% |
-| Classes | 379 | 70% |
-| List comprehensions | 375 | 69% |
-| Type hints on functions | 342 | 63% |
-| Generator expressions | 326 | 60% |
-| Slices | 314 | 58% |
+| f 字符串 | 517 | 96% |
+| 元组解包 | 448 | 83% |
+| 类 | 379 | 70% |
+| 列表推导式 | 375 | 69% |
+| 函数类型提示 | 342 | 63% |
+| 生成器表达式 | 326 | 60% |
+| 切片 | 314 | 58% |
 | `lambda` | 175 | 32% |
-| `try` and `except` | 120 | 22% |
-| `with` statements | 96 | 18% |
-| Dict comprehensions | 93 | 17% |
-| Generator functions with `yield` | 14 | 3% |
+| `try` 和 `except` | 120 | 22% |
+| `with` 语句 | 96 | 18% |
+| 字典推导式 | 93 | 17% |
+| 使用 `yield` 的生成器函数 | 14 | 3% |
 
-进口显示了哪些标准模块是重要的.`from __future__ import annotations`其他国家`dataclasses`现在,我们要去.`math`现在`random`其他`json`模块出现在187,175和126文件中.`collections`模块出现在70个文件中,`itertools`只有4个.
+导入语句可以看出哪些标准模块更重要。在这 541 个文件中，有 340 个以 `from __future__ import annotations` 开头，276 个导入了 `dataclasses`。`math`、`random` 和 `json` 模块分别出现在 187、175 和 126 个文件中。`collections` 模块出现在 70 个文件中，而 `itertools` 只出现在 4 个文件中。
 
-没有课程的电话`map()`或`filter()`了解是这样的.`sorted`现在`min`现在`max`其他`.sort`具有一个`key=`课程中最多的时间都花在这些名单上头的语法上.
+没有课程调用 `map()` 或 `filter()`，这些工作由推导式完成。超过 140 个文件在调用 `sorted`、`min`、`max` 或 `.sort` 时使用了 `key=` 函数。本课会把最多的篇幅用于这些统计中最常见的惯用写法。
 
-### 名称指对象
+### 名称指向对象
 
-在Python中,一个变量是指对象的名称.分配将一个名称绑定到对象.它不会复制对象.当两个名称指一个列表时,通过任何一个名称的变化都可通过两者来看出.数字,字符串和组不能改变,因此这个规则不会给它们带来任何问题.列表,字符串和集合可以改变,所以当你需要独立版本时,请复制.
+在 Python 中，变量是指向某个对象的名称。赋值把名称绑定到对象，并不会复制对象。当两个名称指向同一个列表时，通过任一名称进行的修改，都能通过两个名称观察到。数字、字符串和元组不可变，因此这条规则不会给它们带来问题。列表、字典和集合可变，所以需要独立副本时，应当进行复制。
 
-### 一个列包含指针,一个数组包含数字
+### 列表存放指针，数组存放数字
 
-字符串列表不会直接存储数字.它存储指针,每个指针指的是一个完整的字符串对象.在CPython的64位构建中,每个指针需要8字节,每个指针需要8字节.`float`需要24字节的对象.`float64`列存储原始8字节值,并存在一个内存区块中.
+Python 列表并不直接存储数字，而是存储指针，每个指针都指向一个完整的 Python 对象。在 64 位 CPython 中，每个指针占 8 字节，每个 `float` 对象占 24 字节。NumPy 的 `float64` 数组则把原始的 8 字节数值连续存放在同一块内存中。
 
 ```mermaid
 graph LR
@@ -70,38 +70,38 @@ graph LR
     end
 ```
 
-一个单单的循环对每个元素进行了很多工作.解释器一次运行一个字节码说明.对于每个元素,它遵循一个指针,检查每个操作符的类型.然后它调用浮动乘码,并使一个字节字节对象保持结果.
+遍历列表时，循环需要为每个元素做很多工作。解释器逐条执行字节码指令。对于每个元素，它先沿着指针找到对象，检查每个操作数的类型，再调用浮点乘法代码，并创建一个 Python 浮点对象来保存结果。
 
-NumPy 在编译代码的循环中对原始值进行相同的算术.它检查整个数组的数据类型一次,并且不会为每个元素构建任何Python对象.向量化代码描述整个数组上的一个操作,例如`(x - mean) / std`它们都会执行一个数组操作,所以你可以以一个NumPy调用后.
+NumPy 则用编译后的代码循环处理原始数值，完成相同的运算。它只对整个数组检查一次数据类型，不会为每个元素创建 Python 对象。向量化代码描述作用于整个数组的一项运算，例如 `(x - mean) / std`，循环则由库来执行。本课的向量函数也遵循这一原则：每个函数完成一项数组运算，因此之后可以用一次 NumPy 调用来替换。
 
-### 一个列表包含每个项目,一个发电机包含一个
+### 列表保存所有元素，生成器逐个生成
 
-一个列表理解程序在下一行运行之前构建每个项目.一个发电机每次调用者要求下一个项目时构建一个项目.一列表的内存随着项目数量增加而增长.一个发电机的内存对任何项目保持不变.
+列表推导式会在下一行代码执行前构建所有元素。生成器则在调用方请求下一个元素时才构建一个元素。列表的内存用量随着元素数量增长，而生成器的内存用量在元素数量变化时大致保持不变。
 
-发电机只能运行一次,最后一项后,它会升级`StopIteration`在每一个请求上,所以一个秒`for`训练代码每时代读取数据集一次,因此必须为每时代创建一个新的生成器.
+生成器只能遍历一次。最后一个元素之后，每次请求都会引发 `StopIteration`，所以第二个 `for` 循环无法从中取得任何元素。训练代码每个轮次都会读取一遍数据集，因此必须在每个轮次创建新的生成器。
 
-发电机功能在课程代码中很少存在.深度学习课程使用的数据加载器是批次的可反复性,因此这个想法在每个训练循环中.图表显示了两个方法在同一八行上.
+生成器函数在课程代码中并不常见。不过，深度学习课程使用的数据加载器是由批次组成的可迭代对象，因此每个训练循环都涉及这个概念。下图用同样的八行数据展示了两种方式。
 
 ```figure
 s0-list-vs-generator
 ```
 
-## 你需要的语句
+## 需要掌握的惯用写法
 
-按此节目中的每个块自行运行.`python3`区块需要Python 3.11或更新的版本,我们在开发环境课程中安装的版本.
+本节的每个代码块都能独立运行。将其保存为文件，再用 `python3` 运行。这些代码块需要 Python 3.11 或更新版本，也就是开发环境课中安装的版本。
 
-### 1. 价值,收藏和解包
+### 1. 值、容器与解包
 
- Python 有四个集,请学习何时使用每一个集.
+Python 有四种内置容器。你需要知道各自适用于什么场景。
 
-| Type | Example | Ordered | Can change | Typical use in the course |
+| 类型 | 示例 | 是否有序 | 是否可变 | 课程中的典型用途 |
 |------|---------|---------|------------|---------------------------|
-| `list` | `[0.5, 1.2]` | Yes | Yes | Samples, losses, weights |
-| `tuple` | `(32, 784)` | Yes | No | Shapes, fixed records, dict keys |
-| `dict` | `{"lr": 0.01}` | Insertion order | Yes | Configs, vocabularies, JSON rows |
-| `set` | `{"cat", "dog"}` | No | Yes | Unique tokens, overlap checks |
+| `list` | `[0.5, 1.2]` | 是 | 是 | 样本、损失、权重 |
+| `tuple` | `(32, 784)` | 是 | 否 | 形状、固定记录、字典键 |
+| `dict` | `{"lr": 0.01}` | 按插入顺序 | 是 | 配置、词表、JSON 记录 |
+| `set` | `{"cat", "dog"}` | 否 | 是 | 不重复的词元、重叠检查 |
 
-列表中的列表
+下面的代码展示了赋值不会复制列表。
 
 ```python
 weights = [0.5, -1.2, 3.0]
@@ -129,9 +129,9 @@ print(grid)
 [[1, 0, 0], [0, 0, 0]]
 ```
 
-字体`[[0] * 3] * 2`对于每一行,理解构建一个新的内部列表.数学阶段从列表中构建矩阵,所以使用理解形式.
+表达式 `[[0] * 3] * 2` 创建的外层列表包含两个引用，它们指向同一个内层列表。推导式则会为每一行创建新的内层列表。数学阶段会用列表构建矩阵，因此应使用推导式写法。
 
-解包将序列的项目分配给一个行中的几个名称.一个明星名收集剩余的项目.一个f字符串将表达式的值放入一个字符串中,在长之后,一个可选格式.
+解包可以在一行中把序列的元素赋给多个名称。带星号的名称收集剩余元素。f 字符串把表达式的值插入字符串，还可以在冒号后指定格式。
 
 ```python
 shape = (32, 784)
@@ -156,9 +156,9 @@ print(f"lr={config['lr']:.0e} loss={0.123456:.3f} n={60_000:,} {batch_size=}")
 lr=1e-02 loss=0.123 n=60,000 batch_size=32
 ```
 
-`dict.get`返回默认值,当键缺失时.`in`测试在一个集体上需要大约同样的时间,`{batch_size=}`打印名称和值,帮助你调试.
+键不存在时，`dict.get` 返回默认值。对集合进行 `in` 检查，无论集合大小如何，所需时间都大致相同。`{batch_size=}` 写法会同时打印名称和值，有助于调试。
 
-一片`a[start:stop:step]`包括`start`并且不包括`stop`负指数从最后开始计算. 一个单单的片段是新的单单,所以一个大单单单的片段复制了所有指针.
+切片 `a[start:stop:step]` 包含 `start`，不包含 `stop`。负索引从末尾开始计数。列表切片是一个新列表，因此对大列表切片会复制其中所有相应的指针。
 
 ```python
 tokens = ["<s>", "the", "cat", "sat", "on", "the", "mat", "</s>"]
@@ -178,9 +178,9 @@ print(len(windows), windows[0])
 6 ['<s>', 'the', 'cat']
 ```
 
-### 2. 了解
+### 2. 推导式
 
-理解从一个单词中构建一个单词,一个单词,一个单词,一个单词.
+推导式用一个表达式从可迭代对象构建列表、字典或集合，读起来很像它所描述的数学运算。
 
 ```python
 scores = [0.91, 0.42, 0.77, 0.15, 0.66]
@@ -203,13 +203,13 @@ print(transposed, flat)
 [[1, 4], [2, 5], [3, 6]] [1, 2, 3, 4, 5, 6]
 ```
 
-后续的路径`if`现在,我们只能把一些东西留下来.`for`能是条件式的表达式,`a if condition else b`两个`for`条款的顺序与两个嵌套循环相同.
+末尾的 `if` 只保留符合条件的元素。`for` 前面的表达式可以是条件表达式，即 `a if condition else b`。两个 `for` 子句的执行顺序与两层嵌套循环相同。
 
-圆子形成一个发电表达.`sum(s * s for s in scores)`现在`sum`字符串的编程是从一个字符串中读到一个字符串,而Python则没有构建任何列表.`zip(*matrix)`星球通过每一行作为一个独立的参数,`zip`在每个位置对物.
+圆括号构成生成器表达式。在 `sum(s * s for s in scores)` 中，`sum` 每次读取一个平方值，Python 不会构建列表。在 `zip(*matrix)` 中，星号把每一行作为单独的参数传入，`zip` 再将相同位置的元素配对。
 
-### 3. 函数,参数和关闭
+### 3. 函数、参数与闭包
 
-默认值使参数可选.一个关键字参数在调用时命名参数.`*`只有关键字才能使用下一个参数.
+默认值让参数变为可选参数。关键字参数在调用时指定参数名称。参数列表中单独出现的 `*` 表示后面的参数只能通过关键字传入。
 
 ```python
 def clip(value, low=0.0, high=1.0):
@@ -238,13 +238,13 @@ print(to_percent([0.25, 0.5]))
 [25.0, 50.0]
 ```
 
-通过单独关键字的参数,`train(data, 0.1, 3)`增加`TypeError`呼叫者必须写下`lr=0.1`两个数字不能偶然地换位.
+使用仅限关键字的参数时，像 `train(data, 0.1, 3)` 这样的调用会引发 `TypeError`。调用方必须写出 `lr=0.1`，从而避免不小心把两个数字的位置颠倒。
 
-内部功能`scale`使用`factor`根据它所创建的函数.`factor`长时间`scale`构建它中的标准化器使用一个关闭来保存训练统计数据.
+内部函数 `scale` 使用创建它的函数中的 `factor`。只要 `scale` 仍然存在，Python 就会保留 `factor`。保留创建方函数中变量的函数称为闭包。“动手实现”中的标准化器会使用闭包保存训练数据的统计量。
 
-`lambda`课程代码主要用它作为一个`key=`部分8显示的功能.
+`lambda` 是只有一个表达式的匿名函数。课程代码主要把它用作 `key=` 函数，第 8 部分会展示这一用法。
 
- Python 评估一个默认值,当它运行了`def`每次使用默认的电话都会得到相同的对象.
+Python 在执行 `def` 语句时只计算一次默认值。每次使用该默认值的调用，得到的都是同一个对象。
 
 ```python
 def add_bad(item, bucket=[]):
@@ -270,11 +270,11 @@ print(add_good("b"))
 ['b']
 ```
 
-使用`None`创建函数内部的新对象.
+列表、字典或集合的默认值应使用 `None`，在函数内部再创建新对象。
 
-### 4. 类和数据类
+### 4. 类与数据类
 
-其他`@dataclass`装饰师写道`__init__`现在`__repr__`其他`__eq__`通过 `frozen=True`创建后,对象不能改变,你可以用它作为一个键或将它放在一个集合中.
+`@dataclass` 装饰器根据带类型注解的字段生成 `__init__`、`__repr__` 和 `__eq__` 方法。设置 `frozen=True` 后，对象创建后便不可更改，也可以用作字典键或放入集合。
 
 ```python
 from dataclasses import dataclass, field
@@ -313,9 +313,9 @@ lr=0.01 epochs=10 hidden=[64, 32]
 FrozenInstanceError
 ```
 
-`field(default_factory=...)`解决了数据类内部的共享默认问题.
+`field(default_factory=...)` 为每个实例创建一个新列表，解决了第 3 部分所述的共享默认值问题在数据类中的对应情况。
 
-特殊方法将一个类连接到Python语法. `len(ds)`电话`__len__`其他`ds[2]`电话`__getitem__`现在,我们要去.
+特殊方法将类与 Python 语法连接起来。`len(ds)` 调用 `__len__`，而 `ds[2]` 调用 `__getitem__`。
 
 ```python
 class SquaresDataset:
@@ -341,11 +341,11 @@ print(list(ds))
 [(0, 0), (1, 1), (2, 4), (3, 9)]
 ```
 
-其他`for`内部的循环`list(ds)`没有工作`__iter__`通过Python来调用`__getitem__`只有一个,一个,两个,等等等.`IndexError`皮托尔奇地图类数据集使用相同的两种方法,`__len__`其他`__getitem__`现在,我们要去.
+即使没有 `__iter__` 方法，`list(ds)` 内部的 `for` 循环也能运行。Python 会依次用 0、1、2 等索引调用 `__getitem__`，直到遇到 `IndexError`。PyTorch 的映射式数据集也使用这两个方法：`__len__` 和 `__getitem__`。
 
-### 5. 电动电源
+### 5. 迭代器与生成器
 
-可循环是任何对象的`for`循环接受.`iter()`它们可以得到一个反复发射器,`next()`并且在一个代代码中,它会增加一个代码.`StopIteration` `for`环节调用`next()`为了你,我们在`StopIteration`现在,我们要去.
+可迭代对象是任何能被 `for` 循环接受的对象。`iter()` 从中取得迭代器，`next()` 向迭代器请求一个元素。没有更多元素时，迭代器会引发 `StopIteration`。`for` 循环会替你调用 `next()`，并在遇到 `StopIteration` 时停止。
 
 ```python
 numbers = [10, 20, 30]
@@ -377,9 +377,9 @@ generator
 []
 ```
 
-具有一个函数`yield`电话给它运行没有它的代码,然后返回一个电源对象.`next()`运行身体到下一个`yield`接着,第二个`list(gen)`由于第一台用了发电机,所以它是空的.
+函数体中包含 `yield` 的函数就是生成器函数。调用它不会执行函数体中的代码，而是返回一个生成器对象。每次 `next()` 都会把函数体执行到下一个 `yield`，然后暂停。第二次 `list(gen)` 为空，是因为第一次调用已经耗尽了生成器。
 
-发电机可以读取一个文件一行一行.
+生成器可以逐行读取文件。
 
 ```python
 import os
@@ -408,7 +408,7 @@ with tempfile.TemporaryDirectory() as tmp:
 4
 ```
 
-`read_rows`文件的存储时间是一个行.`read_rows`实际的CSV文件可以包含引用字段内的逗号,所以Build It使用了`csv`模块
+`read_rows` 每次只把文件的一行保留在内存中，它就是图中展示的 `read_rows`。为了让示例保持简短，它直接按逗号拆分。真实 CSV 文件的引号字段内也可能含有逗号，所以“动手实现”使用 `csv` 模块。
 
 ```python
 import sys
@@ -419,13 +419,13 @@ print(sys.getsizeof(as_list), sys.getsizeof(as_generator))
 print(sum(as_list) == sum(as_generator))
 ```
 
-在64位CPython上,列表报告约8MB,生成器约200字节. `sys.getsizeof`构建它测量实际峰值的数量.`tracemalloc`通过"选"的方法,我们在调试和配置文件课中使用了它.
+在 64 位 CPython 上，列表报告的大小约为 8 MB，生成器约为 200 字节。`sys.getsizeof` 只统计列表中的指针，整数对象还会占用更多内存。“动手实现”会使用调试与性能剖析课中介绍过的 `tracemalloc` 测量实际峰值。
 
-### 6. 环境管理器和例外
+### 6. 上下文管理器与异常
 
-`with`清理运行即使身体提出了一个例外. 文件对象从`open()`是一个封闭文件的语境管理器.
+`with` 语句先执行准备代码，再执行语句体，最后执行清理代码。即使语句体引发异常，清理代码也会执行。`open()` 返回的文件对象就是一个会关闭文件的上下文管理器。
 
-在调试和配置文件课程中,我们写了一个`Timer`课程`__enter__`其他`__exit__`现在,我们要去.`contextlib.contextmanager`装饰师从发电机中制造相同类型的物体.`yield`设置,和`finally`区块是清理.
+在调试与性能剖析课中，我们编写了带有 `__enter__` 和 `__exit__` 的 `Timer` 类。`contextlib.contextmanager` 装饰器可以从生成器创建同类对象。`yield` 之前的代码负责准备，`finally` 块负责清理。
 
 ```python
 import time
@@ -464,11 +464,11 @@ sum of squares: 9.4 ms
 rejected: label must be an integer, got 'cat'
 ```
 
-您的机器上的时间将会不同.`except`条款如`ValueError`或`KeyError`,我很高兴.`except:`没有例外类型的条款也处理`KeyboardInterrupt`输入错误时,请通过明确的消息提出例外.`from None`当你的消息取代原始追踪.
+你的机器上的耗时会有所不同。在 `except` 子句中明确指定预期的异常，例如 `ValueError` 或 `KeyError`。没有异常类型的 `except:` 子句也会捕获 `KeyboardInterrupt`，因此 Ctrl+C 可能无法停止包含它的循环。输入有误时，应引发带有清晰消息的异常。如果你的消息用于替代原始回溯信息，可以加上 `from None`。
 
-### 7. 输入提示,模块和主防护器
+### 7. 类型提示、模块与主入口判断
 
-字符提示告诉读者函数所取并返回的内容.Python不会在代码运行时检查它们.一个类型检查器,如mypy,在代码运行之前会读取它们.
+类型提示告诉读者函数接受什么、返回什么。Python 运行代码时不会检查这些提示。mypy 等类型检查器会在运行代码之前读取它们。
 
 ```python
 from __future__ import annotations
@@ -502,13 +502,13 @@ if __name__ == "__main__":
 {'values': 'Sequence[float]', 'return': 'float'}
 ```
 
-随着`from __future__ import annotations`字符串将每一个提示作为一个字符串,`Sequence`意思是任何物体`len()`其他类型的指数,如列表或图普尔.`Iterable`意思是指任何一个`for`许多课程文件从 `typing`它们也可以.
+使用 `from __future__ import annotations` 时，Python 会把每个类型提示保存为字符串，如输出的最后一行所示。`Sequence` 表示支持 `len()` 和索引的对象，例如列表或元组。`Iterable` 表示能被 `for` 循环接受的对象。许多课程文件从 `typing` 导入这些同名类型，这样也可以。
 
-每一个`.py`文件是模块.当你运行一个文件时`python3 file.py` Python 设置了它的`__name__`为了`"__main__"`当另一个文件进口时,`__name__`监护人员打电话`main()`由于警卫,`code/tests/`能进口`main.py`没有开始演示.
+每个 `.py` 文件都是一个模块。用 `python3 file.py` 运行文件时，Python 会把它的 `__name__` 设为 `"__main__"`。另一个文件导入它时，`__name__` 则是模块名。主入口判断只在第一种情况下调用 `main()`。有了这个判断，`code/tests/` 中的测试就能导入 `main.py`，而不会启动演示。
 
-### 8. 文件,JSON,CSV,和排序
+### 8. 文件、JSON、CSV 与排序
 
-`pathlib.Path`连接路径与`/`总是给一个人一个文件.`encoding="utf-8"`由于默认编码取决于操作系统.
+`pathlib.Path` 用 `/` 拼接路径，还能通过一次调用读写整个文件。务必指定 `encoding="utf-8"`，因为默认编码取决于操作系统。
 
 ```python
 import csv
@@ -552,13 +552,13 @@ great movie
 ['fine acting', 'great movie', 'boring plot']
 ```
 
-转换到一个字符串,所以必须将每个字符串转换到一个字符串.`newline=""`作为一个`csv`文件告诉你.
+JSON 会保留数字类型。CSV 读取出的每个字段都是字符串，因此你必须逐个转换。按照 `csv` 文档的要求，打开 CSV 文件时应使用 `newline=""`。
 
-`key=`函数返回Python对每个项进行比较的值. `sorted`现在`min`其他`max`字符符号是字符号的,所以字符号的排序是稳定的,所以相同的字符符号的元素保持原始顺序.
+`key=` 函数返回 Python 用来比较每个元素的值。`sorted`、`min` 和 `max` 都接受这样的函数。元组键先按第一个值排序，仅在相等时比较第二个值。负号使较大的标签排在前面。Python 的排序是稳定的，因此键相等的元素会保持原有顺序。
 
-### 9. 计数,组组和代工具
+### 9. 计数、分组与迭代器工具
 
-这些两个模块包含了简单列表和直达数据不提供的数据结构和代工具.
+这两个模块提供了普通列表和字典所没有的数据结构与迭代器工具。
 
 ```python
 from collections import Counter, defaultdict, deque
@@ -592,13 +592,13 @@ print(list(islice(range(100), 5, 10)))
 [5, 6, 7, 8, 9]
 ```
 
-`Counter`计数可被取的物品,如标签或代币. `defaultdict(list)`在使用新键时创建一个空清单,所以一个组合循环不需要键检查. `deque(maxlen=3)`增加第四个时,将最古老的项目移除,`enumerate`给每项项目一个指数.
+`Counter` 对标签、词元等可哈希元素计数。`defaultdict(list)` 在首次使用一个新键时创建空列表，因此分组循环无需检查键是否存在。向 `deque(maxlen=3)` 添加第四个元素时，它会移除最旧的元素，从而形成最近几次损失的滑动窗口。`enumerate` 同时给出每个元素及其索引。
 
-`product`给出了其输入的每一个组合,这是一个超参数格.`chain`连接可循序的终结.`islice`构建它中的小型批量发电器使用`islice`现在,我们要去.
+`product` 给出输入的所有组合，可用于构建超参数网格。`chain` 将多个可迭代对象首尾相接。`islice` 可以对包括生成器在内的任意迭代器取切片。“动手实现”中的小批量生成器就使用了 `islice`。
 
-### 10. 为什么数字循环是缓慢的
+### 10. 为什么用循环处理数字很慢
 
-其他`dis`模块打印了解释器为函数运行的字节码指令.
+`dis` 模块会打印解释器执行函数时使用的字节码指令。
 
 ```python
 import dis
@@ -614,17 +614,17 @@ def dot(a, b):
 dis.dis(dot)
 ```
 
-关于`FOR_ITER`按下下列列字母,然后再跳回,每个元素都运行一次. 这就像每次乘和加的10个指令.
+从 `FOR_ITER` 到跳回该指令的跳转指令，每处理一个元素都会执行一遍。也就是说，每次乘法和加法大约需要十条指令。具体指令名称会因 Python 版本而异。
 
-循环的步骤较少时会运行为字节码.`sum`现在`map`其他`zip`构建它以纯 Python 来测量这种效果,使用它将整个循环移动到 NumPy.
+循环中以字节码执行的步骤越少，运行就越快。`sum`、`map` 和 `zip` 等内置函数用 C 编写。“动手实现”会在纯 Python 中测量这种效果，“实际使用”则把整个循环交给 NumPy。
 
-## 建立它
+## 动手实现
 
-现在,你要做一些后来的课程.`code/main.py`其他`code/tests/test_main.py`测试它. 下面的每块都自行运行.
+现在来构建后续课程需要的组件。完整版本位于 `code/main.py`，测试位于 `code/tests/test_main.py`。下面的每个代码块都能独立运行。
 
-### 步骤1:记录类型和数据集加载器
+### 步骤 1：记录类型与数据集加载器
 
-载体将CSV文件或JSON文件读取成一个形状:一个浮动功能的图普尔和整数标签.
+加载器把 CSV 或 JSON 文件读入统一结构：由浮点特征组成的元组，加上一个整数标签。
 
 ```python
 import csv
@@ -677,9 +677,9 @@ with tempfile.TemporaryDirectory() as tmp:
 [Record(features=(1.5, 60.0), label=1)]
 ```
 
-第一个行设定了特征名称及其顺序. `DictReader`其他`json.loads`按文件顺序保存键,并且一个字符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符符`row_to_record`读取每行名称,按第一行顺序. 缺失标签,缺失或额外的功能,或未知的文件类型提升`ValueError`通过一个消息,所以一个坏的文件在开始就停止运行.`main.py`现在,`save_records`它们的格式是相同的.
+第一行确定特征名称及其顺序。`DictReader` 和 `json.loads` 保留文件中键的顺序，字典则保留键的插入顺序。JSON 标准没有定义对象中键的顺序，因此 `row_to_record` 会按照第一行的顺序，按名称读取每一行。缺少标签、缺少或多出特征，以及未知文件类型，都会引发带消息的 `ValueError`，让错误文件在运行开始时就被发现。`main.py` 还提供了 `save_records`，用于写入这两种格式。
 
-### 步骤2:种子列车和测试分开
+### 步骤 2：带种子的训练集与测试集划分
 
 ```python
 import random
@@ -712,11 +712,11 @@ True
 [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-`random.Random(seed)`创建一个私人随机数生成器.`random.seed(seed)`调整所有模块共享的单个全球发电机,这样一个在另一个库中的调用可以改变你的序列.`random.seed`其他国家`random.Random`用私人发电机在新的代码中.
+`random.Random(seed)` 创建独立的随机数生成器。`random.seed(seed)` 则重置所有模块共享的全局生成器，因此其他库的一次调用可能改变你的序列。课程中有 100 个课时文件调用 `random.seed`，96 个创建 `random.Random`。新代码应使用独立生成器。
 
-函数将一个索引列表混,因此输入列表保持不变.相同的种子总是会产生相同的分区.每个侧保持至少一个项,因此一个列表少于2项会增加.`ValueError`在调试和配置课程中,我们看到,火车和测试数据之间的重叠给出了过高的测试分数.
+函数打乱的是索引列表，所以输入列表保持不变。相同种子总会产生相同的划分。两部分各保留至少一个元素，因此少于 2 个元素的列表会引发 `ValueError`。在标准化等任何需要从数据中学习的步骤之前，先划分数据。在调试与性能剖析课中，我们已经看到，训练数据与测试数据重叠会让测试得分虚高。
 
-### 步骤3:一个小型批量发电机
+### 步骤 3：小批量生成器
 
 ```python
 from itertools import islice
@@ -754,11 +754,11 @@ epoch 0: [4, 4, 2]
 epoch 1: [4, 4, 2]
 ```
 
-`islice`需要的时间`batch_size`通过代器的项目.`batches`需要`iter()`后一批量较小,如果长度不等于批量大小的乘倍. `drop_last=True`对于需要固定批量形状的模型来说,
+`islice` 从迭代器中取得至多 `batch_size` 个元素。`batches` 只需要 `iter()`，因此接受列表、文件和其他生成器。长度不是批量大小的整数倍时，最后一个批次会更小。对于需要固定批次形状的模型，`drop_last=True` 会丢弃这个批次。
 
-工作是两个函数,因为一个生成器函数直到第一个运行没有代码.`next()`电源内存的支票,`batches(data, 0)`错误将会在训练循环内部出现. 外部函数是正常的函数,所以它会立即检查参数.`batches()`由于发电机只能一次提供其物品.
+这里拆成两个函数，是因为生成器函数在第一次 `next()` 之前不会执行任何代码。如果把检查放在生成器内部，`batches(data, 0)` 会直接返回而不报错，错误要到之后的训练循环中才会出现。外层函数是普通函数，因此能立即检查参数。生成器只提供一遍元素，所以轮次循环会在每个轮次重新调用 `batches()`。
 
-### 步骤4:向量数学和标准化器
+### 步骤 4：向量运算与标准化器
 
 ```python
 import math
@@ -807,17 +807,17 @@ print([round(v, 3) for v in standardize((4.0, 700.0))])
 [2.449, 2.449]
 ```
 
-随着`strict=True`现在`zip`增加`ValueError`没有它, 没有它,`zip`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             `strict`参数需要Python 3.10或更新的版本.
+设置 `strict=True` 后，两个向量长度不同时，`zip` 会引发 `ValueError`。否则，`zip` 会在较短输入结束时停止，不报错却得到错误答案。`strict` 参数需要 Python 3.10 或更新版本。
 
-`std`分为 `n`于是给出了人口的标准偏差,`statistics.pstdev`按分数分为`n - 1`在一个样本中估计一个更大的人口的分布时.
+`std` 除以 `n`，因此得到的是总体标准差，与 `statistics.pstdev` 相同。用样本估计更大总体的离散程度时，应除以 `n - 1`。
 
-`make_standardizer`通过计算从训练行列中的一次的手段和标准偏差,`standardize`测试数据对统计没有影响. 一个常数列的标准偏差是0,所以标准化器使用1的尺度.
+`make_standardizer` 是一个闭包。它只计算一次训练数据各列的均值和标准差，随后由 `standardize` 保留这些统计量。把同一个函数应用于测试数据，测试数据就不会影响统计量。常量列的标准差为 0，因此标准化器对该列使用的缩放系数为 1。
 
-### 步骤5:完整的运行
+### 步骤 5：完整运行
 
-`code/main.py`通过将两个集群进行连接,它将400个记录从两个集群中创建,将它们保存为CSV和JSON,然后将两个文件重新加载.
+`code/main.py` 将这些组件连接起来。它从两个簇生成 400 条记录，将其保存为 CSV 和 JSON，再读回这两个文件。随后划分记录，用训练集拟合标准化器，并以每批 48 条记录计算各类别的质心。
 
-最接近的中位数分类器存储每个类的平均特征向量. 它预测了最接近输入的平均值的类. `fit_centroids`它们每次都会在一批中加上一排,因此它们永远不需要记忆中的全部训练.`predict`使用`min()`具有一个`key=`它们可以找到最接近的中位.
+最近质心分类器保存每个类别的平均特征向量，预测时选择均值向量与输入最接近的类别。`fit_centroids` 逐批累加记录，因此不需要把完整训练集放入内存。`predict` 使用带 `key=` 函数的 `min()` 找出最近的质心。
 
 ```bash
 python3 phases/00-setup-and-tooling/13-python-for-ai-engineering/code/main.py
@@ -839,9 +839,9 @@ memory   peak bytes to sum 100,000 squares:
            generator               472
 ```
 
-它们的尺寸非常不同.第二个特征的扩散是第一个的十倍,所以它控制了原始距离,原始精度更低.你的速度和内存数量将与这些数字不同.
+两个特征的尺度差异很大。第二个特征的离散程度是第一个的十倍，因此它主导了原始距离，未经标准化时的准确率也更低。你的速度和内存测量值会与这里不同。
 
-### 步骤 6:测量速度和内存
+### 步骤 6：测量速度与内存
 
 ```python
 import operator
@@ -893,23 +893,23 @@ print(peak_bytes(lambda: sum([i * i for i in range(100_000)])))
 print(peak_bytes(lambda: sum(i * i for i in range(100_000))))
 ```
 
-`best_time`其他机器上的程序只能增加时间,因此最低是最接近实际成本的.`timeit`模块提供了同样的建议.
+`best_time` 报告多次运行中的最快耗时。机器上的其他程序只会增加耗时，因此最小值最接近实际开销。`timeit` 模块的文档也给出了相同建议。
 
-在我们使用Python 3.111的测试笔记本电脑上,索引循环需要大约33ms.`map`它们都在做相同的算法.`map`版本更快,因为`map`其他`operator.mul`记忆数字重复这个数字:列表大约4MB,发电机小于1KB.
+在运行 Python 3.11 的测试笔记本电脑上，索引循环约需 33 毫秒，zip 版本约需 30 毫秒，`map` 版本约需 14 毫秒。三者执行相同的运算。`map` 版本更快，是因为 `map` 和 `operator.mul` 用 C 编写，每个元素所需执行的字节码指令更少。内存测量结果与图中一致：列表约占 4 MB，生成器不到 1 KB。
 
-## 用它
+## 实际使用
 
-### 标准图书馆版本
+### 标准库版本
 
-标准图书馆有你建造的大部分作品的测试版本.
+你构建的大多数组件，在标准库中都有经过测试的实现。
 
-| You built | Standard library | Note |
+| 自己构建的组件 | 标准库实现 | 说明 |
 |-----------|------------------|------|
-| `mean`, `std` | `statistics.fmean`, `statistics.pstdev` | The tests compare against these |
-| `dot` | `math.sumprod` | Python 3.12 or newer |
-| `batches` | `itertools.batched` | Python 3.12 or newer, gives tuples |
-| `best_time` | `timeit.repeat` | Also turns off garbage collection during the runs |
-| `peak_bytes` | `tracemalloc` | The same module, with snapshots and per-line statistics |
+| `mean`, `std` | `statistics.fmean`, `statistics.pstdev` | 测试会与这些实现对比 |
+| `dot` | `math.sumprod` | Python 3.12 或更新版本 |
+| `batches` | `itertools.batched` | Python 3.12 或更新版本，返回元组 |
+| `best_time` | `timeit.repeat` | 运行期间还会关闭垃圾回收 |
+| `peak_bytes` | `tracemalloc` | 同一个模块，还支持快照和逐行统计 |
 
 ```python
 import statistics
@@ -932,11 +932,11 @@ if sys.version_info >= (3, 12):
 [(0, 1, 2, 3), (4, 5, 6, 7), (8, 9)]
 ```
 
-课程支持Python 3.11,所以`main.py`使用自己的`dot`其他`batches`在Python 3.11,区块只打印第一行.
+课程支持 Python 3.11，因此 `main.py` 使用自己实现的 `dot` 和 `batches`。在 Python 3.11 上，这个代码块只打印第一行。
 
-### 复式数组的数学
+### 用编译后的数组运算完成相同计算
 
-通过 Python 环境课程安装 NumPy 在虚拟环境中,例如使用 `uv pip install numpy`课程代码和测试不需要它.
+在 Python 环境课创建的虚拟环境中安装 NumPy，例如使用 `uv pip install numpy`。本课的代码和测试不依赖它。
 
 ```python
 import time
@@ -963,19 +963,19 @@ print(f"difference  {abs(slow - fast):.1e}")
 print(a.dtype, a.itemsize, a.nbytes)
 ```
 
-在我们的测试笔记本电脑上,NumPy需要不到1ms,而纯字thon版本需要大约30ms.两个结果在最后的数字中不同,因为两个版本在不同的顺序中添加产品.浮点的添加在不同的顺序中给出了略有不同的结果.
+在我们的测试笔记本电脑上，NumPy 用时不到 1 毫秒，纯 Python 版本约需 30 毫秒。两个结果的末尾几位不同，是因为两种实现累加乘积的顺序不同。浮点加法的顺序不同，结果也会有细微差异。
 
-由于三个原因,NumPy更快:
+NumPy 更快有三个原因：
 
-- 阵列存储原料`float64`单个存储区块中每个值需要一个8字节指针和一个24字节的浮动对象.
-- 循环运行在编译代码中.NumPy检查整个数组的数据类型一次,并没有为每个元素构建任何Python对象.
-- 值在内存中坐在一起的值使NumPy使用SIMD指令,该指令可以用一个指令处理多个值.
+- 数组将原始 `float64` 值存放在一块连续内存中，每个值占 8 字节。浮点数列表则为每个值保存一个 8 字节的指针和一个 24 字节的浮点对象。
+- 循环由编译后的代码执行。NumPy 对整个数组只检查一次数据类型，不会为每个元素创建 Python 对象。
+- 连续存放的数值让 NumPy 能使用 SIMD 指令，一条指令同时处理多个值。
 
-对于非常小的数组,一个NumPy调用的固定成本可能比一个短的Python循环大. 4练习会找到NumPy在机器上变得更快的尺寸.
+对于很小的数组，一次 NumPy 调用的固定开销可能比短小的 Python 循环还大。练习 4 会找出在你的机器上 NumPy 开始更快的规模。
 
 ### 广播
 
-广播允许NumPy 结合不同形状的阵列,而不需要循环在代码中.`make_standardizer`从第4步.
+广播让 NumPy 能组合不同形状的数组，而无需你在代码中编写循环。下面的代码与步骤 4 中的 `make_standardizer` 完成相同的工作。
 
 ```python
 import numpy as np
@@ -999,73 +999,73 @@ print(norms.shape, (X / norms).shape)
 (3, 1) (3, 2)
 ```
 
-NumPy将两个形状从最后一个维度进行比较.当两个维度等于或其中一个是1.一个缺失的领先维度被计算为1.在更大的维度上再次使用一个尺寸1.NumPy没有复制数据.
+NumPy 从最后一维向前比较两个形状。两个维度大小相等，或其中一个为 1 时，它们就是兼容的。缺少的前导维度按 1 处理。大小为 1 的维度会沿较大的维度重复使用，NumPy 不会复制数据。
 
-| Shape of `X` | Shape of the other array | Result |
+| `X` 的形状 | 另一个数组的形状 | 结果 |
 |--------------|--------------------------|--------|
-| `(3, 2)` | `(2,)`, column means | `(3, 2)` |
-| `(3, 2)` | `(3, 1)`, row norms with `keepdims=True` | `(3, 2)` |
-| `(3, 2)` | `(3,)`, row norms without `keepdims` | `ValueError` |
+| `(3, 2)` | `(2,)`，各列均值 | `(3, 2)` |
+| `(3, 2)` | `(3, 1)`，使用 `keepdims=True` 的各行范数 | `(3, 2)` |
+| `(3, 2)` | `(3,)`，未使用 `keepdims` 的各行范数 | `ValueError` |
 
-后行是一个常见的错误.NumPy将后行2与3进行比较,没有一个是1. Keep `keepdims=True`结果与原始数组相结合.
+最后一行是常见错误。NumPy 比较末尾的 2 和 3，而两者都不为 1。对每一行进行归约，再把结果与原数组组合时，应保留 `keepdims=True`。
 
-## 运送它
+## 交付成果
 
-这一课产生了`outputs/prompt-python-review.md`它是人工智能和数据项目中的Python代码的回顾提示.给它一个文件或一个差异.它检查了本课中的语法和默认错误代码:
+本课产出 `outputs/prompt-python-review.md`，这是一个用于审查 AI 和数据项目中 Python 代码的提示词。向它提供文件或差异，它会检查本课介绍的惯用写法和静默错误：
 
-- 共同引用和可变的默认参数
-- 经过使用后,第二个时代读取的发电机
-- 随机数量没有种子,或者只有全球种子
-- 测试分区的统计数据
-- 纯字thon 循环在大数组上
+- 共享引用与可变默认参数
+- 第二个轮次读取已经耗尽的生成器
+- 未设置种子，或仅设置全局种子的随机数
+- 来自测试集的统计量
+- 对大型数值数组使用纯 Python 循环
 
-它报告每一个发现,一个位置,问题,和解决方案.
+它会为每个发现报告位置、问题及修复方法。
 
-## 运动
+## 练习
 
-1. 跑步`run_demo(seed=8)`其他`main.py`找出出口线的变化和保持相同的线.解释为什么分区尺寸保持相同.
-2. 写下`median(values)`试试它与`statistics.median`在奇数长度和偶长度的列表上.
-3. 写下`stream_records(path)`能产生一个发电机.`Record`通过 CSV 文件,创建一个200,000行的文件.`stream_records`其他`load_records`随着`tracemalloc`现在,我们要去.
-4. 写下`matvec(matrix, vector)`在纯 Python 和 NumPy 中测量它们.`best_time`在机器上, NumPy 变得更快的尺寸.
-5. 写出从概念的构建扫描.`ast.parse`其他`ast.walk`在每一个文件中`phases/*/*/code/*.py`计算包含的文件`ast.ListComp`现在`ast.Yield`其他`ast.With`现在,你和表表进行比较.
+1. 运行 `main.py` 中的 `run_demo(seed=8)`。找出输出中哪些行发生变化、哪些保持不变，并解释为什么划分后的数据量不变。
+2. 用纯 Python 编写 `median(values)`。使用奇数和偶数长度的列表，将结果与 `statistics.median` 对照测试。
+3. 编写 `stream_records(path)` 生成器，每次从 CSV 文件产出一个 `Record`。创建一个包含 200,000 行的文件，用 `tracemalloc` 比较 `stream_records` 和 `load_records` 的峰值内存。
+4. 分别用纯 Python 和 NumPy 编写 `matvec(matrix, vector)`。对 4、64 和 1024 的规模使用 `best_time` 测量，找出在你的机器上 NumPy 开始更快的规模。
+5. 编写“核心概念”中的语法结构扫描程序。对 `phases/*/*/code/*.py` 中的每个文件使用 `ast.parse` 和 `ast.walk`，统计包含 `ast.ListComp`、`ast.Yield` 和 `ast.With` 的文件数，并与表中数据比较。
 
-### 暗示
+### 提示
 
-**Exercise 1.**进口`run_demo`其他`code/main.py`现在,我们要做什么?`seed=7`子`seed=8`然后打印两个结果`format_report`随机数据的值变化; 分类尺寸仅取决于`n`其他`test_fraction`它们仍然是相同的.
+**练习 1。** 从 `code/main.py` 导入 `run_demo`，分别以 `seed=7` 和 `seed=8` 调用，再用 `format_report` 打印两个结果。源自随机数据的值会变化，而划分后的数据量只取决于 `n` 和 `test_fraction`，因此保持不变。
 
-**Exercise 2.**首先排列列表的副本,然后把中部项为奇数长度和中部项的平均值为偶数长度.`statistics.median`在列表中,如`[3, 1, 2]`其他`[4, 1, 3, 2]`两者都必须提供相同的数字.
+**练习 2。** 先对列表的副本排序。长度为奇数时取中间元素，长度为偶数时取中间两个元素的均值。用 `[3, 1, 2]` 和 `[4, 1, 3, 2]` 等列表，将你的结果与 `statistics.median` 比较；两种实现必须给出相同的数值。
 
-**Exercise 3.**阅读`load_records`在`code/main.py`,我不停地看着它,`yield`每个`Record`使用 `save_records`随着`make_dataset(200_000)`为了制作文件,然后比较`peak_bytes(lambda: load_records(path))`随着`peak_bytes(lambda: sum(1 for _ in your_generator(path)))`电源必须在电话机内消耗,或者`peak_bytes`只有创建,必须报告一个更小的峰值.
+**练习 3。** 阅读 `code/main.py` 中的 `load_records`，保留解析步骤，但改为用 `yield` 逐个产出 `Record`，而不是追加到列表。用 `save_records` 和 `make_dataset(200_000)` 创建文件，再比较 `peak_bytes(lambda: load_records(path))` 与 `peak_bytes(lambda: sum(1 for _ in your_generator(path)))`。必须在传入的可调用对象内部消耗生成器，否则 `peak_bytes` 只会测量创建生成器的开销。它应报告小得多的峰值。
 
-**Exercise 4.**使用`dot`作为纯Python版本的模型,然后为每行打一个字,然后使用`np.array(matrix) @ np.array(vector)`时间与两个.`best_time`按每个尺寸打印一个表排列;在比较时间之前,两个结果必须是相同的.
+**练习 4。** 纯 Python 版本以 `dot` 为范例，对每一行调用一次；NumPy 版本则使用 `np.array(matrix) @ np.array(vector)`。用 `best_time` 测量两者，并为每种规模打印一行表格；比较耗时之前，两者的结果必须相等。
 
-**Exercise 5.**阅读每个文件`Path.read_text`分析它.`ast.parse`,使用`any(isinstance(node, ast.ListComp) for node in ast.walk(tree))`计算每个文件一次,因为概念中的表计算文件.
+**练习 5。** 用 `Path.read_text` 读取每个文件，用 `ast.parse` 解析，再用 `any(isinstance(node, ast.ListComp) for node in ast.walk(tree))` 检查某一种语法结构。每个文件只计数一次，因为“核心概念”中的表统计的是文件数。
 
-## 关键词
+## 关键术语
 
-| Term | What people say | What it means |
+| 术语 | 常见说法 | 含义 |
 |------|----------------|----------------------|
-| Iterable | "Something you can loop over" | An object that `iter()` accepts, such as a list, a file, or a generator |
-| Iterator | "A cursor" | An object whose `__next__` method returns one item per call and raises `StopIteration` at the end |
-| Generator | "A lazy list" | An iterator from a `yield` function or a generator expression. It makes each item on request and runs only once. |
-| Comprehension | "A one-line loop" | An expression that builds a list, dict, or set from an iterable, with an optional filter |
-| Closure | "A function inside a function" | A function that keeps variables from the function that created it |
-| Dataclass | "A struct" | A class whose `__init__`, `__repr__`, and `__eq__` methods Python writes from the annotated fields |
-| Context manager | "A with block" | An object that runs setup code at the start of a `with` block and cleanup code at the end, even after an exception |
-| Seed | "The random number" | The start value of a pseudo-random generator. The same seed gives the same sequence. |
-| Vectorized code | "Fast code" | Code that applies one operation to a whole array, so that compiled code runs the loop |
-| Broadcasting | "Automatic shape matching" | The NumPy rules that combine arrays of different shapes by using size-1 dimensions again, with no copy |
+| 可迭代对象（Iterable） | “可以循环遍历的东西” | 能被 `iter()` 接受的对象，例如列表、文件或生成器 |
+| 迭代器（Iterator） | “游标” | 其 `__next__` 方法每次调用返回一个元素，并在结束时引发 `StopIteration` 的对象 |
+| 生成器（Generator） | “惰性列表” | 来自 `yield` 函数或生成器表达式的迭代器。它按需生成元素，只能遍历一次。 |
+| 推导式（Comprehension） | “一行循环” | 从可迭代对象构建列表、字典或集合的表达式，可以带筛选条件 |
+| 闭包（Closure） | “函数里的函数” | 保留创建它的函数中变量的函数 |
+| 数据类（Dataclass） | “结构体” | Python 根据带类型注解的字段，为其生成 `__init__`、`__repr__` 和 `__eq__` 方法的类 |
+| 上下文管理器（Context manager） | “with 代码块” | 在 `with` 块开始时执行准备代码，结束时执行清理代码的对象，即使发生异常也会清理 |
+| 种子（Seed） | “那个随机数” | 伪随机生成器的初始值。相同种子产生相同序列。 |
+| 向量化代码（Vectorized code） | “快速的代码” | 将一项运算应用于整个数组，由编译后的代码执行循环 |
+| 广播（Broadcasting） | “自动匹配形状” | NumPy 通过重复使用大小为 1 的维度、无需复制数据来组合不同形状数组的规则 |
 
-## 进一步阅读
+## 延伸阅读
 
-- [The Python Tutorial: Data Structures](https://docs.python.org/3/tutorial/datastructures.html)列表,双数,集合,指令和理解.
-- [The Python Tutorial: Classes](https://docs.python.org/3/tutorial/classes.html)它们的范围,类,代器和生成器.
-- [dataclasses](https://docs.python.org/3/library/dataclasses.html)装饰师的每一个选择,包括`frozen`其他`field`现在,我们要去.
-- [collections](https://docs.python.org/3/library/collections.html)其他`Counter`现在`defaultdict`现在`deque`其他容器类型.
-- [itertools](https://docs.python.org/3/library/itertools.html)其他`islice`现在`chain`现在`product`现在`batched`它们的配方.
-- [Sorting Techniques](https://docs.python.org/3/howto/sorting.html)按键:关键函数,稳定类型,以及多个键类型.
-- [timeit](https://docs.python.org/3/library/timeit.html)如何测量小代码,以及为什么要报告最低值.
-- [random](https://docs.python.org/3/library/random.html)全球发电机`random.Random`其他类型的产品,
-- [PEP 255: Simple Generators](https://peps.python.org/pep-0255/)建议增加了`yield`根据其设计的原因.
-- [NumPy: Broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html)图形规则,图形.
-- [Harris et al., Array programming with NumPy, Nature 585, 2020](https://doi.org/10.1038/s41586-020-2649-2)图:NumPy阵列的设计及其速度的原因.
+- [Python 教程：数据结构](https://docs.python.org/3/tutorial/datastructures.html)：列表、元组、集合、字典与推导式。
+- [Python 教程：类](https://docs.python.org/3/tutorial/classes.html)：作用域、类、迭代器与生成器。
+- [dataclasses](https://docs.python.org/3/library/dataclasses.html)：装饰器的各项选项，包括 `frozen` 和 `field`。
+- [collections](https://docs.python.org/3/library/collections.html)：`Counter`、`defaultdict`、`deque` 及其他容器类型。
+- [itertools](https://docs.python.org/3/library/itertools.html)：`islice`、`chain`、`product`、`batched` 以及组合它们的实用写法。
+- [排序技巧](https://docs.python.org/3/howto/sorting.html)：键函数、稳定排序和多键排序。
+- [timeit](https://docs.python.org/3/library/timeit.html)：如何测量小段代码，以及为什么报告最小值。
+- [random](https://docs.python.org/3/library/random.html)：全局生成器、`random.Random` 实例与可复现性。
+- [PEP 255：简单生成器](https://peps.python.org/pep-0255/)：引入 `yield` 的提案及其设计理由。
+- [NumPy：广播](https://numpy.org/doc/stable/user/basics.broadcasting.html)：完整的形状规则及图解。
+- [Harris 等，Array programming with NumPy，Nature 585，2020](https://doi.org/10.1038/s41586-020-2649-2)：NumPy 数组的设计及其速度优势的原因。
