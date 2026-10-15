@@ -120,7 +120,6 @@ class ToolRegistry:
             for t in self._tools.values()
         ]
 
-
     def dispatch(self, call: ToolCall) -> ToolResult:
         tool = self._tools.get(call.name)
         if tool is None:
