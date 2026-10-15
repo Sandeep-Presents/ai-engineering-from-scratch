@@ -442,7 +442,7 @@ Run `code/fourier.py` to generate `outputs/prompt-spectral-analyzer.md`.
 
 ### Hints
 
-**Exercise 1.** With 128 samples over 1 second, bin $k$ is $k$ Hz, so the index of the largest value in bins 1 to 63 is the frequency. Use `generate_signal` and `magnitude_spectrum`. After you add noise, check that the peak is still at the same bin while the other bins rise.
+**Exercise 1.** With 128 samples over 1 second, bin $k$ is $k$ Hz, so for an integer frequency the index of the largest value in bins 1 to 63 is the frequency. Pick an integer number of hertz. A frequency between two bins spreads into its neighbors, and the peak gives only the nearest bin. Use `generate_signal` and `magnitude_spectrum`. After you add noise, check that the peak is still at the same bin while the other bins rise.
 
 **Exercise 2.** Use a power of two length, because `fft` splits the signal in halves. Check `max(abs(a - b))` over all coefficients. The time ratio should grow roughly as $N / \log_2 N$.
 

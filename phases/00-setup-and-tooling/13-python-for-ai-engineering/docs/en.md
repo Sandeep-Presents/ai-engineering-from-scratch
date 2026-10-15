@@ -1035,7 +1035,7 @@ It reports each finding with a location, the problem, and a fix.
 
 **Exercise 2.** Sort a copy of the list first, then take the middle item for odd lengths and the mean of the two middle items for even lengths. Compare your result with `statistics.median` on lists such as `[3, 1, 2]` and `[4, 1, 3, 2]`; both must give the same numbers.
 
-**Exercise 3.** Read `load_records` in `code/main.py` and keep its parsing step, but `yield` each `Record` instead of appending it to a list. Use `save_records` with `make_dataset(200_000)` to make the file, then compare the two functions with `peak_bytes`; the generator must report a much smaller peak.
+**Exercise 3.** Read `load_records` in `code/main.py` and keep its parsing step, but `yield` each `Record` instead of appending it to a list. Use `save_records` with `make_dataset(200_000)` to make the file, then compare `peak_bytes(lambda: load_records(path))` with `peak_bytes(lambda: sum(1 for _ in your_generator(path)))`. The generator must be consumed inside the callable, or `peak_bytes` measures only its creation. It must report a much smaller peak.
 
 **Exercise 4.** Use `dot` as the model for the pure Python version and call it once for each row, then use `np.array(matrix) @ np.array(vector)` for NumPy. Time both with `best_time` and print one table row for each size; the two results must be equal before you compare the times.
 

@@ -406,4 +406,4 @@ See `outputs/prompt-debug-ai-code.md` for a prompt that helps diagnose AI-specif
 
 **Exercise 4.** Log the training loss and the validation loss to a `SummaryWriter` at each epoch, then run `tensorboard --logdir=runs`. If the training loss continues to go down while the validation loss goes up, the model overfits.
 
-**Exercise 5.** Put `breakpoint()` inside the loop after the forward pass and run the script. At the `(Pdb)` prompt, print `x.shape`, `x.device`, and `next(model.parameters()).grad` after `loss.backward()`, then type `c` to continue to the next step.
+**Exercise 5.** Put `breakpoint()` inside the loop after `loss.backward()` and run the script. At the `(Pdb)` prompt, print `x.shape`, `x.device`, and `next(model.parameters()).grad`, then type `c` to continue to the next step.

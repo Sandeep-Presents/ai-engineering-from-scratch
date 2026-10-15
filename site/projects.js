@@ -381,9 +381,7 @@
       [community, 'from the community'],
     ].map(function (s) { return '<div><strong>' + formatCount(s[0]) + '</strong><span>' + s[1] + '</span></div>'; }).join('');
 
-    var first = DATA.projects[0];
     var start = document.getElementById('pjStartLink');
-    if (first && start) start.href = projectHref(first.id);
 
     var roleSelect = document.getElementById('pjRole');
     var roleNote = document.getElementById('pjRoleNote');
@@ -410,6 +408,8 @@
         if (picked && picked.projects.indexOf(item.id) === -1) return false;
         return current === 'all' || item.source === current;
       };
+      var first = DATA.projects.filter(function (p) { return !picked || picked.projects.indexOf(p.id) !== -1; })[0];
+      if (first && start) start.href = projectHref(first.id);
       if (roleNote) {
         roleNote.hidden = !picked;
         roleNote.innerHTML = picked
@@ -430,6 +430,9 @@
           '<header class="pj-level-head"><div class="pj-level-n">' + level.level + '</div><div><h3>' + esc(level.name) + '</h3><p>' + esc(level.summary) + '</p></div></header>' +
           '<div class="pj-level-cards">' + cards + '</div></section>';
       }).join('');
+      if (picked && !ladder.innerHTML) {
+        ladder.innerHTML = '<div class="pj-empty">No ' + esc(current) + ' projects for this role yet. Choose All to see its projects.</div>';
+      }
     }
 
     filter.addEventListener('click', function (event) {

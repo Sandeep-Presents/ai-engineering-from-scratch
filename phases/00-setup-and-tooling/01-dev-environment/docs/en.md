@@ -227,4 +227,4 @@ See `outputs/prompt-env-check.md` for a prompt that helps AI assistants diagnose
 
 **Exercise 2.** Make the environment with `uv venv` in the repository root, activate it, then install PyTorch with the command from Step 6 that matches your hardware. Run `python -c "import torch; print(torch.__version__)"` inside the environment; a version number means the install worked.
 
-**Exercise 3.** Use the four runtimes from the stack in The Concept: Python, TypeScript on Node.js, Rust, and Julia. Write one small file for each and run it with `python3`, `node` (or `npx tsx`), `cargo run` or `rustc`, and `julia`. Each run must print your message and exit with code 0.
+**Exercise 3.** Use the four runtimes from the stack in The Concept: Python, TypeScript on Node.js, Rust, and Julia. Write one small file for each and run it with `python3`, `npx tsx` (Node.js cannot run a `.ts` file directly), `cargo run` or `rustc`, and `julia`. Each run must print your message and exit with code 0.

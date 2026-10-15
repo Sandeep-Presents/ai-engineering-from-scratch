@@ -344,7 +344,7 @@ Here's when each tool comes into play during this course:
 
 **Exercise 3.** First run `tail -5 fake_train.log` to see the line format. Then filter with `grep loss` and print only the last field with `awk '{print $NF}'`; the output must be 100 numbers that get smaller.
 
-**Exercise 4.** Copy the `Host gpu` block from the lesson into `~/.ssh/config` and change `HostName` and `User` to your server, or to `localhost` and your user name. Run `ssh -G gpu` to print the settings that SSH will use, then `ssh gpu` to connect.
+**Exercise 4.** Copy the `Host gpu` block from the lesson into `~/.ssh/config` and change `HostName` and `User` to your server, or to `localhost` and your user name. Run `ssh -G gpu` to print the settings that SSH will use. If you have a reachable SSH server that accepts your key, run `ssh gpu` to connect.
 
 ## Key Terms
 

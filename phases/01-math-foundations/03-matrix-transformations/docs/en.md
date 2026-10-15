@@ -443,7 +443,7 @@ This lesson builds the geometric foundation for PCA (Phase 2) and neural network
 
 **Exercise 2.** Write the characteristic equation $\lambda^2 - (\text{trace})\lambda + \det = 0$ and solve it. Check that your two values add up to the trace (7) and multiply to the determinant (10), then compare with `eigenvalues_2x2` and `np.linalg.eigvals`.
 
-**Exercise 3.** Build the three matrices, multiply them with `mat_mul` in the order of application, and apply the result to 8 points $(\cos\theta, \sin\theta)$. The rotation has a determinant of 1 and the shear has a determinant of 1, so `det_2x2` of the composition must equal $1.5 \times 0.8 = 1.2$.
+**Exercise 3.** Build the three matrices, with `shearing_2d(0.3, 0)` for the shear, multiply them with `mat_mul` in the order of application, and apply the result to 8 points $(\cos\theta, \sin\theta)$. The rotation has a determinant of 1 and the shear has a determinant of 1, so `det_2x2` of the composition must equal $1.5 \times 0.8 = 1.2$.
 
 ## Key Terms
 

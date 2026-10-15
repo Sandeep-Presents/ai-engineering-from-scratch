@@ -361,7 +361,7 @@ This lesson produces:
 
 **Exercise 2.** Fit `sklearn.manifold.TSNE` three times on the same subset, changing only `perplexity`, and use the same `random_state`. Low perplexity looks at few neighbors, so expect small tight groups; high perplexity looks at more neighbors, so expect larger, smoother groups.
 
-**Exercise 3.** Call `make_classification(n_features=50, n_informative=5, n_redundant=0)`, fit `PCA`, and print the cumulative explained variance. The curve must rise fast for about the first 5 components and then stay almost flat.
+**Exercise 3.** Call `make_classification(n_features=50, n_informative=5, n_redundant=45)`, fit `PCA`, and print the cumulative explained variance. Redundant features are linear combinations of the informative ones, so the curve reaches almost 1.0 at 5 components. Then try `n_redundant=0`: the other 45 features are independent noise, and the curve does not flatten.
 
 ## Key Terms
 
