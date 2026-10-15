@@ -100,6 +100,10 @@
       "destination": "/skills.html"
     },
     {
+      "source": "/how-to-learn",
+      "destination": "/how-to-learn.html"
+    },
+    {
       "source": "/catalog",
       "has": [
         {
@@ -563,7 +567,7 @@
       "permanent": true
     },
     {
-      "source": "/:page(about|catalog|glossary|roadmap|developer|contact|privacy|sponsors|projects|project|learning-paths|certifications|assessment|inside-an-ai-agent|skills).html",
+      "source": "/:page(about|catalog|glossary|roadmap|developer|contact|privacy|sponsors|projects|project|learning-paths|certifications|assessment|inside-an-ai-agent|skills|how-to-learn).html",
       "destination": "/:page",
       "permanent": true
     },
