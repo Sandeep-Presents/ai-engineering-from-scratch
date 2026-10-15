@@ -146,6 +146,14 @@ This lesson produces:
 2. Try the raw HTTP version and compare the response format to the SDK version
 3. Intentionally use a wrong API key and read the error message
 
+### Hints
+
+**Exercise 1.** Create a key in the Anthropic Console, put it in `ANTHROPIC_API_KEY` as shown in the lesson, and run `code/first_api_call.py`. The call works when the script prints the model reply and no error.
+
+**Exercise 2.** Run `call_with_sdk()` and `call_raw_http()` from `code/first_api_call.py` and print both full responses. Compare the field names: the raw JSON has the same `content`, `usage`, and `stop_reason` fields that the SDK turns into object attributes.
+
+**Exercise 3.** Set `ANTHROPIC_API_KEY` to a fake value in one terminal only, then run the script again. Find the HTTP status code and the error type in the output; an authentication failure returns a 401 status.
+
 ## Key Terms
 
 | Term | What people say | What it actually means |
