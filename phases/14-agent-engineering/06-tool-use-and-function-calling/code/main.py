@@ -120,6 +120,7 @@ class ToolRegistry:
             for t in self._tools.values()
         ]
 
+
     def dispatch(self, call: ToolCall) -> ToolResult:
         tool = self._tools.get(call.name)
         if tool is None:
@@ -136,14 +137,16 @@ class ToolRegistry:
                               f"execution error: {type(e).__name__}: {e}")
 
     def dispatch_many(self, calls: list[ToolCall]) -> list[ToolResult]:
-    from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import ThreadPoolExecutor
 
-    if not calls:
-        return []
+        if not calls:
+            return []
 
-    with ThreadPoolExecutor(max_workers=min(len(calls), 10)) as executor:
-        futures = [executor.submit(self.dispatch, call) for call in calls]
-        return [future.result() for future in futures]
+        with ThreadPoolExecutor(max_workers=min(len(calls), 10)) as executor:
+            futures = [executor.submit(self.dispatch, call) for call in calls]
+            return [future.result() for future in futures]
+
+
 
 
 def add(a: int, b: int) -> str:
