@@ -1,23 +1,17 @@
 """Toy ReAct agent loop — stdlib only.
 
-Implements the five ingredients from docs/en.md:
-  1. message buffer
-  2. tool registry
-  3. stop condition
-  4. turn budget
-  5. observation formatter
-
-Also implements Exercises 1, 2, 3, and 5 from docs/en.md — all from scratch,
-no external API calls:
-  1. max_tool_calls_per_turn cap (see AgentLoop.max_tool_calls_per_turn)
-  2. no_tool_calls -> done stop path (see AgentLoop.run, "implicit stop")
-  3. malformed-argument recovery (see ToolRegistry.dispatch + demo_malformed_args)
-  5. tool_use_id correlator for out-of-order results (see ToolCall.id)
-
-ToyLLM is a scripted policy so the loop runs offline and deterministic. Swap
-ToyLLM for a real provider client and the control flow is identical
-(Exercise 4 — deliberately left for later, once this file is well understood).
+Lesson: phases/14-agent-engineering/01-the-agent-loop/docs/en.md
+Ingredients: message buffer, tool registry, stop condition, turn budget, observation formatter.
+ToyLLM is a scripted policy, so the loop runs offline and deterministically.
+Source: ReAct (Yao et al., 2022), https://arxiv.org/abs/2210.03629
 """
+
+# Exercises from docs/en.md, all implemented offline with no external API calls:
+#   1. max_tool_calls_per_turn cap (see AgentLoop.max_tool_calls_per_turn)
+#   2. no_tool_calls -> done stop path (see AgentLoop.run, "implicit stop")
+#   3. malformed-argument recovery (see ToolRegistry.dispatch + build_malformed_args_demo)
+#   5. tool_use_id correlator for out-of-order results (see ToolCall.id)
+# Exercise 4 (swap ToyLLM for a real provider client) is left for later.
 
 from __future__ import annotations
 
@@ -106,26 +100,41 @@ class AgentLoop:
         self._next_call_id += 1
         return f"call-{self._next_call_id}"
 
-    def _run_calls(self, raw_calls: list[dict[str, Any]]) -> None:
+    def _make_call(self, raw: dict[str, Any]) -> ToolCall:
+        # Keep the model-supplied id so results can be matched back to it.
+        call_id = raw.get("id") or self._new_call_id()
+        return ToolCall(id=call_id, name=raw["name"], args=raw.get("args", {}))
+
+    def _run_calls(
+        self, raw_calls: list[dict[str, Any]], arrival: list[str] | None = None
+    ) -> None:
         to_run = raw_calls[: self.max_tool_calls_per_turn]
         dropped = raw_calls[self.max_tool_calls_per_turn:]
 
+        results: list[Turn] = []
         for raw in to_run:
-            call = ToolCall(id=self._new_call_id(), name=raw["name"], args=raw.get("args", {}))
+            call = self._make_call(raw)
             observation = self.tools.dispatch(call)
-            self.history.append(
+            results.append(
                 Turn(kind="action", content=call.name, tool_call=call, observation=observation)
             )
 
         for raw in dropped:
-            call = ToolCall(id=self._new_call_id(), name=raw["name"], args=raw.get("args", {}))
+            call = self._make_call(raw)
             observation = (
                 f"error: dropped — turn exceeded max_tool_calls_per_turn="
                 f"{self.max_tool_calls_per_turn}"
             )
-            self.history.append(
+            results.append(
                 Turn(kind="action", content=call.name, tool_call=call, observation=observation)
             )
+
+        if arrival:
+            # Simulate results landing in a different order than the calls were issued.
+            # Unlisted ids keep their issue order after the listed ones.
+            rank = {cid: i for i, cid in enumerate(arrival)}
+            results.sort(key=lambda t: rank.get(t.tool_call.id, len(rank)))
+        self.history.extend(results)
 
     def run(self, user_message: str) -> str:
         self.history.append(Turn(kind="user", content=user_message))
@@ -140,14 +149,17 @@ class AgentLoop:
 
             calls = reply.get("calls", [])
             if not calls:
-                msg = "stopped: assistant turn had no tool calls"
+                msg = reply.get("content") or "stopped: assistant turn had no tool calls"
                 self.history.append(Turn(kind="final", content=msg))
                 return msg
 
-            self._run_calls(calls)
+            self._run_calls(calls, reply.get("arrival"))
 
         self.history.append(Turn(kind="final", content="budget exhausted"))
         return "budget exhausted"
+
+def observations_by_id(history: list[Turn]) -> dict[str, str | None]:
+    return {t.tool_call.id: t.observation for t in history if t.tool_call is not None}
 
 def pretty_trace(history: list[Turn]) -> None:
     for i, turn in enumerate(history):
@@ -228,9 +240,10 @@ def build_out_of_order_demo() -> AgentLoop:
     script: list[dict[str, Any]] = [
         {"kind": "action", "thought": "compute two independent sums",
          "calls": [
-             {"name": "calculator", "args": {"expr": "1 + 1"}},
-             {"name": "calculator", "args": {"expr": "2 + 2"}},
-         ]},
+             {"id": "tool-42", "name": "calculator", "args": {"expr": "1 + 1"}},
+             {"id": "tool-7", "name": "calculator", "args": {"expr": "2 + 2"}},
+         ],
+         "arrival": ["tool-7", "tool-42"]},
         {"kind": "finish", "content": "computed both sums"},
     ]
     return AgentLoop(llm=ToyLLM(script), tools=tools, max_turns=5, max_tool_calls_per_turn=2)

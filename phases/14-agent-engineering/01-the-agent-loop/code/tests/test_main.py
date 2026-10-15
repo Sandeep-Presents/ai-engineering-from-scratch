@@ -73,6 +73,35 @@ class AgentLoopTests(unittest.TestCase):
         ids = [t.tool_call.id for t in actions]
         self.assertEqual(len(ids), len(set(ids)))
 
+    def test_supplied_call_ids_are_preserved(self):
+        agent = module.build_out_of_order_demo()
+        agent.run("compute two sums")
+        ids = {t.tool_call.id for t in agent.history if t.kind == "action"}
+        self.assertEqual(ids, {"tool-42", "tool-7"})
+
+    def test_out_of_order_results_correlate_by_id(self):
+        agent = module.build_out_of_order_demo()
+        agent.run("compute two sums")
+        order = [t.tool_call.id for t in agent.history if t.kind == "action"]
+        self.assertEqual(order, ["tool-7", "tool-42"])
+        by_id = module.observations_by_id(agent.history)
+        self.assertEqual(by_id["tool-42"], "2")
+        self.assertEqual(by_id["tool-7"], "4")
+
+    def test_missing_ids_are_generated(self):
+        agent = module.build_parallel_calls_demo()
+        agent.run("store three values")
+        ids = [t.tool_call.id for t in agent.history if t.kind == "action"]
+        self.assertEqual(ids, ["call-1", "call-2", "call-3"])
+
+    def test_implicit_stop_returns_reply_content_when_present(self):
+        agent = module.AgentLoop(
+            llm=module.ToyLLM([{"kind": "action", "thought": "done", "calls": [],
+                                "content": "the answer is 4"}]),
+            tools=_calculator_only_registry(),
+        )
+        self.assertEqual(agent.run("2 + 2"), "the answer is 4")
+
     def test_budget_exhausted_when_llm_never_finishes(self):
         agent = module.AgentLoop(
             llm=module.ToyLLM([{"kind": "action", "thought": "keep going", "calls": [
