@@ -610,6 +610,7 @@
       review: 'confirmed',
       confidence: 1,
       orphanHash: '',
+      originalQuote: null,
       lang: state.ctx.lang
     }));
     state.findAgain = '';
@@ -764,6 +765,7 @@
         if (painted.marks.length) {
           painted.marks[painted.marks.length - 1].classList.add('aifs-hl-end');
           makeFocusable(painted.marks[0], entry);
+          if (runtime[entry.id]) runtime[entry.id].marks = true;
         }
         for (var a = 0; a < painted.atoms.length; a++) {
           var atom = painted.atoms[a];
@@ -825,8 +827,8 @@
       var broken = false;
       for (var id in state.runtime) {
         if (!Object.prototype.hasOwnProperty.call(state.runtime, id) || !/^(anchored|moved|approx)$/.test(state.runtime[id].status)) continue;
-        var anchorNode = document.getElementById('hl-' + id);
-        if (!anchorNode || !state.article.contains(anchorNode)) {
+        var hasMark = !!state.article.querySelector('mark.aifs-hl[data-hl-id="' + id + '"]');
+        if (state.runtime[id].marks ? !hasMark : !firstMark(id)) {
           broken = true;
           break;
         }
@@ -1465,7 +1467,7 @@
       if (Store.remove(state.ctx.path, id)) announce('Highlight deleted.');
       ui.list.focus();
     } else if (action === 'confirm') {
-      Store.update(state.ctx.path, id, { status: 'anchored', review: 'confirmed' });
+      Store.update(state.ctx.path, id, { status: 'anchored', review: 'confirmed', originalQuote: null });
       announce('Re-anchor confirmed.');
       ui.list.focus();
     } else if (action === 'reject' && item) {

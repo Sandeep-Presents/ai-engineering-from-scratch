@@ -509,3 +509,11 @@ test('a share with the same words in two places keeps both notes, once', () => {
   assert.equal(reader.addShared(shared), 0);
   assert.deepEqual(reader.items(LESSON_PATH).map(item => item.note).sort(), ['', 'first', 'second']);
 });
+
+test('confirming or re-attaching a highlight clears its saved original quote', () => {
+  const { store } = storeWith();
+  const item = store.add(LESSON_PATH, sampleItem({ originalQuote: { exact: 'old text', prefix: '', suffix: '', position: { start: 1, end: 9, length: 99 } } }));
+  assert.equal(store.items(LESSON_PATH)[0].originalQuote.exact, 'old text');
+  store.update(LESSON_PATH, item.id, { status: 'anchored', review: 'confirmed', originalQuote: null });
+  assert.equal(store.items(LESSON_PATH)[0].originalQuote, null);
+});
