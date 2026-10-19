@@ -208,6 +208,10 @@
     return { schemaVersion: SCHEMA_VERSION, pages: pages, updatedAt: raw.updatedAt };
   }
 
+  function shareKey(quote, note) {
+    return [quote.exact, quote.prefix, quote.suffix, note].join('\u0000');
+  }
+
   function contentKey(item) {
     return [item.color, item.note, item.quote.exact, item.quote.prefix, item.quote.suffix, item.position.start].join('\u0000');
   }
@@ -370,6 +374,7 @@
     }
     var memory = null;
     var dirty = false;
+    var unsavedRemovals = Object.create(null);
     var persistent = !!storage;
     var readOnly = false;
     var lastError = '';
@@ -441,8 +446,16 @@
       return memory;
     }
 
+    function mergeStored() {
+      var unsaved = dirty && memory ? memory : null;
+      memory = null;
+      readOnly = false;
+      load();
+      if (unsaved && !readOnly) memory = keepUnsaved(memory, unsaved);
+    }
+
     function fresh() {
-      if (storage && persistent && !dirty) memory = fromStorage();
+      if (storage) mergeStored();
       return load();
     }
 
@@ -473,6 +486,7 @@
           storage.setItem(STORAGE_KEY, JSON.stringify(state));
           persistent = true;
           dirty = false;
+          unsavedRemovals = Object.create(null);
           if (lastError === 'quota' || lastError === 'write-failed') lastError = '';
         } catch (error) {
           persistent = false;
@@ -585,6 +599,8 @@
       for (var path in selection) {
         if (!own(selection, path) || !own(state.pages, path)) continue;
         var ids = selection[path] || [];
+        if (!own(unsavedRemovals, path)) unsavedRemovals[path] = Object.create(null);
+        ids.forEach(function (id) { unsavedRemovals[path][id] = true; });
         var before = state.pages[path].items.length;
         state.pages[path].items = state.pages[path].items.filter(function (item) { return ids.indexOf(item.id) < 0; });
         removed += before - state.pages[path].items.length;
@@ -723,13 +739,13 @@
       var target = ensurePage(state, shared.path, isNew ? { title: shared.title } : null);
       var keys = Object.create(null);
       target.items.forEach(function (item) {
-        keys[item.quote.exact] = true;
-        if (item.originalExact) keys[item.originalExact] = true;
+        keys[shareKey(item.quote, item.note)] = true;
+        if (item.originalQuote) keys[shareKey(item.originalQuote, item.note)] = true;
       });
       var added = 0;
       shared.items.forEach(function (item, index) {
         if (indexes && indexes.indexOf(index) < 0) return;
-        var key = item.quote.exact;
+        var key = shareKey(item.quote, item.note);
         if (keys[key] || target.items.length >= MAX_ITEMS_PER_PAGE) return;
         keys[key] = true;
         var copy = normalizeItem(Object.assign({}, item, { id: newId(), createdAt: Date.now(), updatedAt: Date.now() }));
@@ -781,15 +797,17 @@
         });
         sortItems(target.items);
       }
+      for (var removedPath in unsavedRemovals) {
+        if (!own(unsavedRemovals, removedPath) || !own(base.pages, removedPath)) continue;
+        var gone = unsavedRemovals[removedPath];
+        base.pages[removedPath].items = base.pages[removedPath].items.filter(function (item) { return !own(gone, item.id); });
+        if (!base.pages[removedPath].items.length) delete base.pages[removedPath];
+      }
       return base;
     }
 
     function reload() {
-      var unsaved = dirty && memory ? memory : null;
-      memory = null;
-      readOnly = false;
-      load();
-      if (unsaved && !readOnly) memory = keepUnsaved(memory, unsaved);
+      mergeStored();
       notify({ external: true });
     }
 

@@ -467,3 +467,45 @@ test('the quote before a re-anchor is kept whole so a rejection can restore it',
   assert.deepEqual(item.originalQuote, { exact: 'before', prefix: 'p ', suffix: ' s', position: { start: 4, end: 10, length: 99 } });
   assert.equal(StoreModule.normalizeItem({ quote: { exact: 'x' }, originalQuote: { exact: '' } }).originalQuote, null);
 });
+
+test('a tab that could not save merges the stored record before its next write', () => {
+  const storage = memoryStorage();
+  const tabA = StoreModule.create(fakeWindow(storage));
+  const realSet = storage.setItem;
+  storage.setItem = () => { const error = new Error('quota'); error.name = 'QuotaExceededError'; throw error; };
+  tabA.add(LESSON_PATH, sampleItem({ note: 'a1' }));
+  storage.setItem = realSet;
+  StoreModule.create(fakeWindow(storage)).add(LESSON_PATH, sampleItem({ note: 'b1', quote: { exact: 'b1' } }));
+  tabA.add(LESSON_PATH, sampleItem({ note: 'a2', quote: { exact: 'a2' } }));
+  const saved = JSON.parse(storage.getItem(KEY)).pages[LESSON_PATH].items.map(item => item.note).sort();
+  assert.deepEqual(saved, ['a1', 'a2', 'b1']);
+});
+
+test('a deletion that could not be saved stays deleted after another tab writes', () => {
+  const storage = memoryStorage();
+  const win = fakeWindow(storage);
+  const store = StoreModule.create(win);
+  const doomed = store.add(LESSON_PATH, sampleItem({ note: 'delete me' }));
+  const realSet = storage.setItem;
+  storage.setItem = () => { const error = new Error('quota'); error.name = 'QuotaExceededError'; throw error; };
+  assert.equal(store.remove(LESSON_PATH, doomed.id), true);
+  storage.setItem = realSet;
+  StoreModule.create(fakeWindow(storage)).add(LESSON_PATH, sampleItem({ note: 'other tab', quote: { exact: 'other' } }));
+  win.dispatch('storage', { key: KEY });
+  assert.deepEqual(store.items(LESSON_PATH).map(item => item.note), ['other tab']);
+  store.add(LESSON_PATH, sampleItem({ note: 'later', quote: { exact: 'later' } }));
+  const saved = JSON.parse(storage.getItem(KEY)).pages[LESSON_PATH].items.map(item => item.note).sort();
+  assert.deepEqual(saved, ['later', 'other tab']);
+});
+
+test('a share with the same words in two places keeps both notes, once', () => {
+  const owner = storeWith().store;
+  owner.add(LESSON_PATH, sampleItem({ note: 'first', quote: { exact: 'Try again', prefix: 'one ', suffix: ' two' } }));
+  owner.add(LESSON_PATH, sampleItem({ note: 'second', quote: { exact: 'Try again', prefix: 'three ', suffix: ' four' }, position: { start: 400, end: 409, length: 600 } }));
+  const shared = owner.decodeShare(owner.share(LESSON_PATH));
+  const reader = storeWith().store;
+  reader.add(LESSON_PATH, sampleItem({ note: '', quote: { exact: 'Try again', prefix: 'one ', suffix: ' two' } }));
+  assert.equal(reader.addShared(shared), 2);
+  assert.equal(reader.addShared(shared), 0);
+  assert.deepEqual(reader.items(LESSON_PATH).map(item => item.note).sort(), ['', 'first', 'second']);
+});

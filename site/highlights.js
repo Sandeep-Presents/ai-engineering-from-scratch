@@ -19,6 +19,7 @@
   var state = {
     article: null,
     ctx: null,
+    pressSelection: null,
     pending: null,
     runtime: {},
     painting: false,
@@ -339,6 +340,7 @@
       scheduleSelection(coarsePointer() ? 350 : 250);
     });
     document.addEventListener('keydown', onKeydown, true);
+    document.addEventListener('pointerdown', function () { state.pressSelection = selectionSignature(); }, true);
     document.addEventListener('click', onSelectingClick, true);
     document.addEventListener('click', onDocumentClick);
     document.addEventListener('copy', onCopy);
@@ -882,8 +884,21 @@
     return '';
   }
 
+  function selectionSignature() {
+    var selection = window.getSelection();
+    if (!selection || selection.isCollapsed || !selection.rangeCount) return null;
+    return { anchor: selection.anchorNode, anchorOffset: selection.anchorOffset, focus: selection.focusNode, focusOffset: selection.focusOffset };
+  }
+
+  function selectionUnchangedSincePress() {
+    var before = state.pressSelection;
+    var now = selectionSignature();
+    return !!before && !!now && before.anchor === now.anchor && before.anchorOffset === now.anchorOffset && before.focus === now.focus && before.focusOffset === now.focusOffset;
+  }
+
   function onSelectingClick(event) {
     if (!event.detail) return;
+    if (selectionUnchangedSincePress()) return;
     var control = event.target && event.target.closest ? event.target.closest(TEXT_BUTTONS) : null;
     if (!control || !state.article || !state.article.contains(control)) return;
     var selection = window.getSelection();
@@ -1424,8 +1439,8 @@
   function revealHashTarget() {
     var hash = window.location.hash || '';
     if (!/^#hl-[A-Za-z0-9_-]+$/.test(hash)) return;
-    var target = document.getElementById(hash.slice(1));
-    if (target && state.article && state.article.contains(target)) {
+    var target = firstMark(hash.slice(4));
+    if (target) {
       revealDetails(target);
       target.scrollIntoView({ behavior: 'auto', block: 'center' });
     }
