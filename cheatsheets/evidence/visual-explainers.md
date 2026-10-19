@@ -36,7 +36,12 @@ Abbreviations. CS = projects/chart-storyboard-builder. DR = projects/diagram-rea
 - Markdown anchors and declared dependencies: IP/solution/main.py:186,191,204-208
 
 ## Action sequences (command-table)
-- create, update, delete, replace both orders, read, no-op, forget: IP/solution/main.py:109-118, IP/API.md:19
+- create: IP/solution/main.py:110
+- update: IP/solution/main.py:111
+- delete then create is replace: IP/solution/main.py:113
+- create then delete is replace: IP/solution/main.py:114
+- delete: IP/solution/main.py:112
+- read, no-op, forget: IP/solution/main.py:115-117, IP/API.md:19
 - update in place: IP/README.md:3
 - unsupported action sequence: IP/solution/main.py:122
 
@@ -67,7 +72,8 @@ Abbreviations. CS = projects/chart-storyboard-builder. DR = projects/diagram-rea
 - local runbook links must exist: SO/solution/main.ts:228-230
 
 ## Defaults and limits (defaults)
-- reducer sum, grammar bar: CS/solution/cli.py:25,27, CS/solution/main.py:40
+- reducer sum: CS/solution/cli.py:25, CS/solution/main.py:40
+- grammar bar: CS/solution/cli.py:27, CS/solution/main.py:40
 - schema_version 1: CS/solution/main.py:73, IP/solution/main.py:211
 - SVG 500000 characters: DR/solution/main.ts:16-17
 - rule source CODEOWNERS: SO/solution/main.ts:54

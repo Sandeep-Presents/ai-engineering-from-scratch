@@ -84,7 +84,8 @@ Abbreviations. L = phases/05-nlp-foundations-to-advanced/18-multilingual-nlp. SD
 - joeddav/xlm-roberta-large-xnli: L/docs/en.md:155
 - facebook/nllb-200-distilled-600M: L/docs/en.md:157
 - XLM-V or related-language fine-tune: L/docs/en.md:159
-- num_train_epochs=5, learning_rate=2e-5: L/docs/en.md:130-131,139
+- num_train_epochs=5: L/docs/en.md:130,139
+- learning_rate=2e-5: L/docs/en.md:131,139
 - byte_fallback=True: L/docs/en.md:173
 
 ## Source language choice (qa)

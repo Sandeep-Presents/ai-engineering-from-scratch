@@ -76,13 +76,20 @@ Abbreviations: P = phases/16-multi-agent-and-swarms/19-swarm-optimization-pso-ac
 ## CTDE pattern (architecture, 6 nodes, 5 edges)
 - Global state, all obs + joint action: R/d:38, M/d:32
 - Centralized critic at training time: M/d:39, R/d:38
-- Agent obs o_i, actor mu_i(o_i): M/d:32, 39, 82
+- Agent 1 obs o_i: M/d:32, 82
+- Actor 1 mu_i(o_i): M/d:32, 35
+- Agent 2 obs o_i: M/d:32, 82
+- Actor 2 mu_i(o_i): M/d:32, 35
 
 ## Defaults in the lesson code (defaults, 8)
-- n_particles 20, iterations 30: P/c:34
-- decay 0.05, reinforce 0.2, quality_threshold 0.6: P/c:77-78
+- n_particles 20: P/c:34
+- iterations 30: P/c:34
+- decay 0.05: P/c:77
+- reinforce 0.2: P/c:77
+- quality_threshold 0.6: P/c:78
 - n_tasks 200: P/c:116
-- epsilon 0.15, gamma 0.95, alpha 0.1: R/c:41
+- epsilon 0.15: R/c:41
+- gamma 0.95, alpha 0.1: R/c:41
 
 ## Failure modes (troubleshooting, 8)
 - Fast-but-wrong agent, quality gate: P/d:63, 124

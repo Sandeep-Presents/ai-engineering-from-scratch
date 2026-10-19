@@ -36,7 +36,8 @@ Abbreviations: P07 = phases/07-transformers-deep-dive, P19 = phases/19-capstone-
 - Attention: P07/02-self-attention-from-scratch/docs/en.md:163
 - Head width: P07/03-multi-head-attention/docs/en.md:22
 - Causal mask M_ij: P07/07-gpt-causal-language-modeling/docs/en.md:29
-- Sinusoidal even and odd: P07/04-positional-encoding/docs/en.md:34-35
+- Sinusoidal even: P07/04-positional-encoding/docs/en.md:34
+- Sinusoidal odd: P07/04-positional-encoding/docs/en.md:35
 - RoPE angle, (m - n): P07/04-positional-encoding/docs/en.md:47, 50
 - ALiBi: P07/04-positional-encoding/docs/en.md:59
 - Stable softmax: P10G/docs/en.md:261

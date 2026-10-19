@@ -13,9 +13,12 @@ Abbreviations: P04 = phases/04-computer-vision. L17 = P04/17-self-supervised-vis
 - Category level works off-the-shelf, instance level needs metric learning: L20/d:100-101
 
 ## CLIP two towers (architecture, 8 nodes)
-- Image, image encoder ViT or ResNet: M02/d:33
-- Caption, text encoder small transformer: M02/d:34, L18/d:32
-- L2 normalise to unit length, D-dim: M02/d:33-36, L18/d:41
+- Image, batch of N pairs: M02/d:38
+- Image encoder ViT or ResNet: M02/d:33
+- Image L2 normalise to unit length, D-dim: M02/d:36, L18/d:41
+- Caption, N captions: M02/d:38
+- Text encoder small transformer: M02/d:34, L18/d:32
+- Text L2 normalise to unit length, D-dim: M02/d:36, L18/d:41
 - Similarity S (N, N) divided by tau: M02/d:38-42
 - Symmetric CE (i2t + t2i) / 2, diagonal targets: L18/d:47-55, M02/d:50-54
 

@@ -32,9 +32,12 @@ Abbreviations: P0 = phases/00-setup-and-tooling. J = P0/05-jupyter-notebooks/doc
 - Colab 90 minutes inactivity, drive.mount('/content/drive'): J:199-200, NH:34-36
 
 ## Data pipeline (architecture, 6 nodes, 5 edges)
-- Hugging Face Hub -> datasets library -> Load / Stream -> Local Cache ~/.cache/huggingface/: D9:25-27
+- Hugging Face Hub node: D9:24
+- datasets library node, load or stream: D9:25-26
+- Local Cache ~/.cache/huggingface/: D9:27
 - Format Conversion CSV, JSON, Parquet, Arrow: D9:28
-- Data Splits train / val / test -> Your Training Pipeline: D9:29-30
+- Data Splits train / val / test: D9:29
+- Your Training Pipeline: D9:30
 - Cache after the first download: D9:57
 
 ## Load, stream, convert, split (annotated-code, 8 lines)

@@ -47,9 +47,12 @@ Abbreviations: G = phases/11-llm-engineering/12-guardrails, LG = phases/15-auton
 - hosted API: G/d:132. self-hosted: G/d:133. S14 code abuse: LG/d:34-37. research use: MS/d:51
 
 ## Output router (architecture, 6 nodes, 7 edges)
-- model output to toxicity, pii, instruction-leakage, then router: CC/d:29-36
-- toxicity slur and harassment: CC/d:16. pii email, phone, ssn, card, ip: CC/d:16. instruction-leakage trigram overlap: CC/d:16, 47
-- router max severity: CC/d:43. actions block, redact, warn, log: CC/d:37-40, CC/code/main.py:4
+- model output feeds toxicity, pii, instruction-leakage, then router: CC/d:31-36
+- toxicity slur and harassment: CC/d:16
+- pii email, phone, ssn, card, ip: CC/d:16
+- instruction-leakage trigram overlap: CC/d:16
+- router max severity: CC/d:43
+- actions block, redact, warn, log: CC/d:24-27
 
 ## Severity rules (concepts, 8)
 - high block, policy refusal: CC/d:24

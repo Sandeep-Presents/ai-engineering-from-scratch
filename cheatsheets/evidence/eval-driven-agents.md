@@ -43,7 +43,11 @@ Abbreviations: L30 = phases/14-agent-engineering/30-eval-driven-agent-developmen
 - verify_signature(entry) with HMAC: L38/c:194-197, 171
 
 ## Reviewer rubric (concepts, 8)
-- Problem fit, scope discipline, assumptions, verification quality, handoff readiness: L39/d:38-44
+- Problem fit: L39/d:40
+- Scope discipline: L39/d:41
+- Assumptions: L39/d:42
+- Verification quality: L39/d:43
+- Handoff readiness: L39/d:44
 - Scores 0 to 2, total out of 10: L39/d:36, 46
 - pass at 7 or more, else soft_fail: L39/c:97-100
 - hard_fail below 5 or any dimension 0: L39/c:94-96, L39/d:123

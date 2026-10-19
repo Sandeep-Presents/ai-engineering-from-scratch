@@ -20,7 +20,12 @@ Abbreviations: L47 = phases/14-agent-engineering/47-outcomes-before-output, L48 
 - Production owned continuously: L53/d:23, 25
 
 ## Outcome frame (concepts, 7)
-- User, Situation, Current behavior, Desired outcome, Constraints, Non-goals: L47/d:29-36
+- User: L47/d:31
+- Situation: L47/d:32
+- Current behavior: L47/d:33
+- Desired outcome: L47/d:34
+- Constraints: L47/d:35
+- Non-goals: L47/d:36
 - Solution leakage, product form, interface, model, framework, architecture: L47/d:49
 
 ## Formulas from the labs (concepts, 7)
@@ -33,7 +38,11 @@ Abbreviations: L47 = phases/14-agent-engineering/47-outcomes-before-output, L48 
 - at-least value >= threshold: L52/c:54-55
 
 ## Assumptions and evidence (concepts, 7)
-- Value, Usability, Feasibility, Viability, Safety: L49/d:31-37
+- Value: L49/d:33
+- Usability: L49/d:34
+- Feasibility: L49/d:35
+- Viability: L49/d:36
+- Safety: L49/d:37
 - evidence ladder direct behavior, artifact, reported behavior, inference: L48/d:40-43
 - only the first two prove current behavior: L48/d:45
 

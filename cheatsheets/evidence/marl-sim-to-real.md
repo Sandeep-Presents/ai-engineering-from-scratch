@@ -22,11 +22,12 @@ Abbreviations: MA = phases/09-reinforcement-learning/10-multi-agent-rl, S2R = ph
 - Status: MADDPG introduced CTDE MX/d:3, QMIX dominant on SMAC MX/d:3, MAPPO default baseline MX/d:65
 
 ## CTDE: train central, act local (architecture, 6 nodes)
-- agent observations, local only at deploy: MX/d:39, MX/d:82
-- actors mu_i(o_i) map own observation to action: MX/d:32
+- Agent 1 obs, local only at deploy: MX/d:39, MX/d:82
+- Agent 2 obs, local only at deploy: MX/d:82
+- Actor 1 mu_i(o_i) maps own observation to action: MX/d:32
+- Actor 2 mu_i(o_i) maps own observation to action: MX/d:39
 - environment, joint action, shared reward: MA/d:56, MA/d:78
 - centralized critic sees all observations and actions in training: MX/d:3, MX/d:32
-- actor updated by policy gradient against the critic: MX/d:32-35
 
 ## Sim-to-real recipe (flow, 6 steps)
 1. parallel sim with randomized gravity, friction, motor gains, payload: S2R/d:43

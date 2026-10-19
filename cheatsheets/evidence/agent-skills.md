@@ -3,7 +3,14 @@
 Abbreviations: P = phases/13-tools-and-protocols. L22 = P/22-skills-and-agent-sdks, L24 = P/24-skill-discovery-and-progressive-disclosure, L25 = P/25-skill-invocation-and-routing, SR = projects/skill-router, SI = projects/skill-installer, SV = projects/skill-validator. d = docs/en.md, c = code/main.py, sm = solution/main.ts, sc = solution/cli.ts.
 
 ## Skill lifecycle (flow, 8 steps)
-- steps 1 to 8, Discovery, Validation, Cataloging, Selection, Activation, Disclosure, Execution, Verification: L22/d:305-312
+- Discovery: L22/d:305
+- Validation: L22/d:306
+- Cataloging: L22/d:307
+- Selection: L22/d:308
+- Activation: L22/d:309
+- Disclosure: L22/d:310
+- Execution: L22/d:311
+- Verification: L22/d:312
 
 ## Install, invoke, remove (command-table, 7)
 - npx skills add ... --skill skill-contract-reviewer --full-depth, nested bundle: L22/d:91, 95-97
@@ -46,7 +53,10 @@ Abbreviations: P = phases/13-tools-and-protocols. L22 = P/22-skills-and-agent-sd
 - install(root, bundle, agent, expectedDigest) staged rename with backup: SI/sm:76-81, 134-156
 
 ## Human and model invocation (comparison, 4 rows)
-- matrix rows and examples: L25/d:60-65
+- Human can invoke row, shared and human-only: L25/d:62-65
+- Model can invoke row, shared and model-only: L25/d:62-65
+- One host field row, default both: L25/d:69
+- Example row, test planning, publish preparation, internal style guide, deprecated package: L25/d:62-65
 - default both, disable-model-invocation: true human-only, user-invocable: false model-only: L25/d:69
 
 ## Limits and defaults (defaults, 8)

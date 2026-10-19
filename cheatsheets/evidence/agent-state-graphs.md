@@ -20,10 +20,11 @@ Abbreviations: L16 = phases/11-llm-engineering/16-langgraph-state-machines, L13 
 - compile with MemorySaver and interrupt_before=["tools"]: L16/c:99-102. pause before side effect: L16/c:8-9
 
 ## ReAct loop with a checkpointer (architecture, 5 nodes, 5 edges)
-- agent calls LLM, tools runs tool_calls, conditional edge to END, static edge back: L16/d:48-51
 - user invokes with thread_id: L16/d:28
+- agent calls the LLM: L16/d:48
+- tools runs tool_calls via ToolNode: L16/d:49, L16/d:90
+- END when no tool_calls, static edge back from tools: L16/d:50-51
 - checkpointer writes state after every node transition: L16/d:32
-- ToolNode: L16/d:90
 
 ## Graph tasks (task-table, 8)
 - configurable thread_id: L16/d:107
@@ -36,8 +37,9 @@ Abbreviations: L16 = phases/11-llm-engineering/16-langgraph-state-machines, L13 
 - PostgresSaver.from_conn_string: L16/d:157-159
 
 ## Stream modes (comparison, 3 rows)
-- updates deltas for UI, messages tokens in model nodes, values full snapshots for eval: L16/d:36, L16/d:177
-- `{node_name: state_delta}`: L16/d:116
+- Yields: deltas, tokens, full snapshots: L16/d:36
+- Shape: `{node_name: state_delta}`: L16/d:116
+- Use for: UI, token streaming, eval: L16/d:177
 
 ## Pause, approve, resume (flow, 6)
 1. interrupt_before=["tools"] with checkpointer: L16/d:123-126
@@ -74,10 +76,12 @@ Abbreviations: L16 = phases/11-llm-engineering/16-langgraph-state-machines, L13 
 - go run . demo: P/README.md:51
 
 ## Worker defaults (defaults, 7)
-- --lease-ms 30000, --max-attempts 3, --max-jobs 1, --delay-ms 0..60000, --now-ms -1 wall time: P/API.md:14
-- delay default 0: P/s/main.go:71
+- --lease-ms 30000: P/API.md:14, P/s/main.go:68
+- --max-attempts 3, job stays visible at the cap: P/s/main.go:69, P/README.md:72
+- --max-jobs 1: P/s/main.go:70
+- --delay-ms 0, range 0..60000: P/s/main.go:71, P/API.md:14
+- --now-ms -1 means wall time: P/s/main.go:67
 - --store jobs-data: P/s/main.go:65
-- jobs remain visible at attempt cap: P/README.md:72
 - 4 MiB snapshot, ErrLimit: P/README.md:72, P/s/stage4.go:35-36
 
 ## Troubleshooting (troubleshooting, 8)

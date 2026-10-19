@@ -22,7 +22,8 @@ Abbreviations. DT = projects/decision-tradeoff-explorer. WB = projects/web-chang
 - --all --solution --strict: DT/README.md:17, WB/README.md:20, AT/README.md:45, LE/README.md:31
 
 ## Decision scoring rules (concepts)
-- benefit and cost normalization: DT/solution/main.ts:84-88
+- Benefit: DT/solution/main.ts:86
+- Cost: DT/solution/main.ts:87
 - weighted sum over total: DT/solution/main.ts:100-103,124
 - missing value ineligible even at zero weight: DT/solution/main.ts:118-121,134, DT/README.md:32
 - hard limit, cost above or benefit below: DT/solution/main.ts:125-129, DT/README.md:32

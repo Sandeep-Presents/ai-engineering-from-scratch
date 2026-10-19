@@ -954,6 +954,7 @@ function checkTopic(topic, root = REPO_ROOT, cache = new Map()) {
   for (const block of topic.blocks) {
     for (const source of block.from) {
       if (path.posix.normalize(source) !== source || source.split('/').includes('..') || path.isAbsolute(source)) problems.push(`${topic.file}: block "${block.title}" names ${source}, which is not a plain repository path`);
+      else if (!topic.sources.some(allowed => source === allowed || source.startsWith(`${allowed.replace(/\/+$/, '')}/`))) problems.push(`${topic.file}: block "${block.title}" names ${source}, which is not a source of this topic`);
     }
     const missing = block.from.filter(source => !fs.existsSync(path.join(root, source)));
     for (const source of missing) problems.push(`${topic.file}: block "${block.title}" names ${source}, which does not exist`);

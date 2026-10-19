@@ -4,9 +4,11 @@ Abbreviations: L44 = phases/14-agent-engineering/44-plan-from-evidence, L45 = ph
 
 ## Plan, delegate, integrate (architecture, 7 nodes, 7 edges)
 - Approved plan: L45/d:53. Waves from dependencies: L44/d:89, L45/d:14
-- API work unit, Docs work unit: L45/d:53-54. Exclusive paths: L45/d:36
-- Proof and handoff per unit: L45/d:55-56
-- Read-only integration review: L45/d:57-58
+- API work unit, owns its paths: L45/d:53. Exclusive paths: L45/d:36
+- Docs work unit, owns its paths: L45/d:54. Exclusive paths: L45/d:36
+- Proof and handoff for the API unit: L45/d:55
+- Proof and handoff for the docs unit: L45/d:56
+- Read-only integration review: L45/d:57
 - Full verification gate: L45/d:59. Cross-unit gate: L45/d:69
 
 ## The ratchet loop (flow, 6 steps)
@@ -18,7 +20,11 @@ Abbreviations: L44 = phases/14-agent-engineering/44-plan-from-evidence, L45 = ph
 6. review whether the control remains, keep, revise, or retire: L54/d:29, 155
 
 ## Five commitments per work item (concepts, 7)
-- Identifier, Change, Evidence, Dependencies, Proof: L44/d:29-35
+- Identifier: L44/d:31
+- Change: L44/d:32
+- Evidence: L44/d:33
+- Dependencies: L44/d:34
+- Proof: L44/d:35
 - Wave, ready items whose deps are complete: L44/c:56-60, L44/d:49
 - Contract first, implementation and docs wait: L44/d:39, 49, 98
 
@@ -29,7 +35,9 @@ Abbreviations: L44 = phases/14-agent-engineering/44-plan-from-evidence, L45 = ph
 - Lab example: api and docs units with disjoint paths: L45/c:74-75. Docs unit owns app/ and the plan blocks: L45/d:92
 
 ## Three isolation layers (concepts, 5)
-- Filesystem, Ownership, State: L45/d:45-47
+- Filesystem: L45/d:45
+- Ownership: L45/d:46
+- State: L45/d:47
 - two clean worktrees can produce conflicting designs: L45/d:49
 - Integrator reads proof output, dependency order, full gate: L45/d:67-69
 
@@ -76,12 +84,13 @@ Abbreviations: L44 = phases/14-agent-engineering/44-plan-from-evidence, L45 = ph
 
 ## Defaults and limits (defaults, 8)
 - minimumSessions 2: WH/solution/main.ts:87
-- c.rule.length 500, c.source.length 2000, "too large": WH/solution/main.ts:37-38
+- c.rule.length 500, "too large": WH/solution/main.ts:37-38
+- c.source.length 2000, "too large": WH/solution/main.ts:37-38
 - store version 1, "invalid store": WH/solution/main.ts:119, 131-132
 - mode 0o600: WH/solution/main.ts:121
 - recurrence < 1 skipped: L46/c:88-89
 - fingerprint hexdigest()[:12]: L46/c:72
-- severity range(1, 6), frequency positive: L54/c:48-49
+- severity range(1, 6), frequency positive: L54/c:48
 
 ## Errors and fixes (troubleshooting, 8)
 - has no repository evidence: L44/c:31

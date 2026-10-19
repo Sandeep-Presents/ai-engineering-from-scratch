@@ -34,8 +34,11 @@ Abbreviations: E12 = phases/17-infrastructure-and-production/12-edge-inference. 
 - 4K-8K unless Q4 KV: E12/docs/en.md:75
 
 ## Quantization formats, Llama 3 70B (comparison)
-- Size, perplexity, MMLU, tokens/sec rows: Q11/docs/en.md:200-206
-- FP8 H100: Q11/docs/en.md:71, 212. AWQ/GPTQ GPU: Q11/docs/en.md:179-180. GGUF CPU + Metal: Q11/docs/en.md:171, 181
+- Size row 140GB, 70GB, 35GB, 40GB: Q11/docs/en.md:202-206
+- Perplexity row 3.12, 3.14, 4.18, 4.25: Q11/docs/en.md:202-206
+- MMLU row 79.5, 79.3, 78.1, 77.9: Q11/docs/en.md:202-206
+- Tokens/sec row 38, 55, 75 on A100, 28 on CPU: Q11/docs/en.md:202-206
+- Best for: FP8 H100 Q11/docs/en.md:71, 212. AWQ/GPTQ GPU: Q11/docs/en.md:179-180. GGUF CPU + Metal: Q11/docs/en.md:171, 181
 
 ## Quantize and dequantize (annotated-code)
 - scale / 127, clamp round -128 127: Q11/docs/en.md:100-101
@@ -72,7 +75,8 @@ Abbreviations: E12 = phases/17-infrastructure-and-production/12-edge-inference. 
 
 ## Format glossary (glossary)
 - BF16 8 exponent, 7 mantissa, FP32 range: Q11/docs/en.md:49, 865
-- FP8 E4M3 inference, E5M2 training: Q11/docs/en.md:51
+- FP8 E4M3 inference: Q11/docs/en.md:51
+- FP8 E5M2 training: Q11/docs/en.md:51
 - INT8 256 values -128 to 127, scale factor: Q11/docs/en.md:53
 - INT4 16 levels, GPTQ/AWQ: Q11/docs/en.md:55, 868
 - GGUF llama.cpp mixed precision: Q11/docs/en.md:163

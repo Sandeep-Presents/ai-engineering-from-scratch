@@ -17,7 +17,9 @@ Abbreviations: P07 = phases/07-transformers-deep-dive. L05 = P07/05-full-transfo
 - Encoder block LN, MHA(self), LN, FFN: L05/d:40
 - Encoder output (N_src, d_model), runs once: L08/d:42, L08/d:52
 - Target tokens, shift by one: L08/d:19, L08/d:44
-- Masked self-attention, cross-attention, FFN as three decoder sublayers: L05/d:51, L05/d:54, L08/d:45-47
+- Masked self-attention, sublayer 1: L05/d:51, L08/d:45
+- Cross-attention, sublayer 2: L05/d:54, L08/d:46
+- FFN, sublayer 3: L05/d:51, L08/d:47
 - K, V from encoder into cross-attention: L05/d:29
 - Next-token logits, final LN before output projection: L08/d:49, L05/d:101
 

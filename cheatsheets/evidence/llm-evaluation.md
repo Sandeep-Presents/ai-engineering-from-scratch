@@ -43,7 +43,12 @@ Abbreviations: P10 = phases/10-llms-from-scratch/10-evaluation, P11 = phases/11-
 - render_markdown(rows), paste into a PR: L74/c:241, L75/d:104
 
 ## Post-process rules (command-table, 6)
-- none, strip_whitespace, lower, extract_letter [A-E], extract_code_block, extract_first_line: L70/d:105-110, L70/c:25-32
+- none returns the string unchanged: L70/d:105, L70/c:26
+- strip_whitespace: L70/d:106, L70/c:27
+- lower: L70/d:107, L70/c:28
+- extract_letter [A-E], for MCQ: L70/d:108, L70/c:29
+- extract_code_block, for code: L70/d:109, L70/c:30
+- extract_first_line, for summary classes: L70/d:110, L70/c:31
 
 ## Key formulas (concepts, 8)
 - Perplexity: P10/d:71
@@ -56,7 +61,11 @@ Abbreviations: P10 = phases/10-llms-from-scratch/10-evaluation, P11 = phases/11-
 - Brier mean((p_i - y_i)^2), penalizes spread: L73/d:56-58
 
 ## Sample size and confidence (command-table, 5)
-- 50 / 100 / 200 / 500 / 1000 cases at 90%, 19 / 12 / 9 / 5 / 3 points: P11/d:160-166
+- 50 cases, 19 points, cannot detect a 5% regression: P11/d:162
+- 100 cases, 12 points, barely: P11/d:163
+- 200 cases, 9 points, yes: P11/d:164
+- 500 cases, 5 points, confidently: P11/d:165
+- 1000 cases, 3 points, precisely: P11/d:166
 
 ## Defaults in the code (defaults, 8)
 - DEFAULT_TIMEOUT_S 3.0, MAX_TIMEOUT_S 30.0: L72/c:30-31

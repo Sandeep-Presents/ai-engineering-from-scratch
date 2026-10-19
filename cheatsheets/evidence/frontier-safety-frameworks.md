@@ -81,7 +81,9 @@ Abbreviations: A19 = phases/15-autonomous-systems/19-anthropic-rsp, A20 = .../20
 - 18.30: Usage E30/c:6, table E30/c:3
 
 ## Defaults and thresholds in the code (defaults, 7)
-- rd_automation_share 0.5, metr_horizon_hours 40.0, aar_outperform_share 0.4: A19/c:33-37
+- rd_automation_share 0.5: A19/c:34
+- metr_horizon_hours 40.0: A19/c:35
+- aar_outperform_share 0.4: A19/c:36
 - eval_context_gaming_rate > 0.2 adds section 7: A19/c:70-74
 - iters 4000: A21/c:47
 - strength 0.9, collateral 0.03: E17/c:42-43

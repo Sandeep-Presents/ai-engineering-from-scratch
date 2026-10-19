@@ -3,9 +3,10 @@
 Abbreviations: P11 = phases/11-llm-engineering, P05 = phases/05-nlp-foundations-to-advanced, P19 = phases/19-capstone-projects, L64 = phases/19-capstone-projects/64-chunking-strategies-advanced, L65 = phases/19-capstone-projects/65-hybrid-retrieval-bm25-dense, L66 = phases/19-capstone-projects/66-reranker-cross-encoder, L67 = phases/19-capstone-projects/67-query-rewriting-hyde, L68 = phases/19-capstone-projects/68-rag-eval-precision-recall, L69 = phases/19-capstone-projects/69-end-to-end-rag-system, d = docs/en.md, c = code/main.py.
 
 ## Architecture: End-to-end RAG pipeline (8 nodes, 7 edges)
-- Documents, Chunker, Hybrid Index, Query, Rewriter, Retriever, Reranker, Generator, cited answer: L69/d:24-37
+- Documents, source documents: L69/d:26
 - Chunker recursive split: L69/d:94, L69/c:130-138
 - HybridIndex BM25 + dense: L69/d:95, L69/c:212-223
+- User query: L69/d:28
 - Rewriter HyDE, multi-query, decompose: L69/d:96, L69/c:249-255
 - Retriever RRF, top_n 12: L69/c:200, 220, 476
 - Reranker cross-encoder, top_k 5: L69/d:97, L69/c:477, 515

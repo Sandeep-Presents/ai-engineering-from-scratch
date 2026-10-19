@@ -8,7 +8,8 @@ Abbreviations: L11 = phases/07-transformers-deep-dive/11-mixture-of-experts, L14
 - scores + bias for selection only: L11/d:52, L11/d:110
 - Top-k selection, k of E per token: L11/d:36, L14/d:121
 - Shared expert, every token passes: L11/d:56
-- Routed experts are independent SwiGLU FFNs: L11/d:42
+- First routed expert is a SwiGLU FFN: L11/d:42
+- Second routed expert is a SwiGLU FFN: L11/d:42
 - Weighted sum, gates from raw scores: L11/d:52, L14/d:125
 
 ## Aux-loss-free balance loop (flow, 7 steps)

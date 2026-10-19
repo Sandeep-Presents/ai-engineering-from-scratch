@@ -56,7 +56,7 @@ from: phases/01-math-foundations/08-optimization/docs/en.md, phases/01-math-foun
 
 ## Tasks in NumPy
 type: task-table
-from: phases/01-math-foundations/02-vectors-matrices-operations/docs/en.md, phases/01-math-foundations/11-singular-value-decomposition/docs/en.md, phases/01-math-foundations/17-linear-systems/docs/en.md, phases/01-math-foundations/14-norms-and-distances/docs/en.md, phases/01-math-foundations/12-tensor-operations/docs/en.md, phases/01-math-foundations/01-linear-algebra-intuition/docs/en.md
+from: phases/01-math-foundations/02-vectors-matrices-operations/docs/en.md, phases/01-math-foundations/11-singular-value-decomposition/docs/en.md, phases/01-math-foundations/17-linear-systems/docs/en.md, phases/01-math-foundations/14-norms-and-distances/docs/en.md, phases/01-math-foundations/12-tensor-operations/docs/en.md
 
 | Task | Code |
 |---|---|

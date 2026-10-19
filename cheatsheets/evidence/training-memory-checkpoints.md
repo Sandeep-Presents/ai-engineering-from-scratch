@@ -46,8 +46,10 @@ Abbreviations: L34 = phases/10-llms-from-scratch/34-gradient-checkpointing, L45 
 - `load_sharded(src_dir, expected_world_size)`: L80/c:159
 
 ## Sharded atomic save (architecture, 7 nodes, 6 edges)
-- rank states, one file per rank: L80/d:21, L80/d:27-30
-- rank0.bin.tmp, rank1.bin.tmp, write, flush, fsync: L80/d:27-28, L80/c:123-128
+- rank 0 state, param and optimiser shard: L80/d:21, L80/d:27
+- rank 1 state, one file per rank: L80/d:28-30
+- rank0.bin.tmp, write, flush, fsync: L80/d:27, L80/c:123-128
+- rank1.bin.tmp, write, flush, fsync: L80/d:28, L80/c:123-128
 - manifest.json.tmp with world_size, step, shards: L80/d:31, L80/d:38-48, L80/c:140-148
 - os.replace shards first, manifest last: L80/c:151-154, L80/d:32
 - load_sharded sha256 per shard: L80/c:159, L80/c:198-203

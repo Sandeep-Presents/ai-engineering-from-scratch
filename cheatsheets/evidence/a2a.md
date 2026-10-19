@@ -60,12 +60,25 @@ Abbreviations: S = manuals/a2a-101/sections, C = manuals/a2a-101/capture, O = ma
 - 7: S/1-2-one-task-request-by-request.md:95,99
 
 ## Task states (concepts, 8, all S/r-3)
-- SUBMITTED S/r-3-task-states.md:10, WORKING S/r-3-task-states.md:11, INPUT_REQUIRED S/r-3-task-states.md:12, AUTH_REQUIRED S/r-3-task-states.md:13
-- COMPLETED S/r-3-task-states.md:14, FAILED S/r-3-task-states.md:15, CANCELED S/r-3-task-states.md:16, REJECTED S/r-3-task-states.md:17
+- TASK_STATE_SUBMITTED, active: S/r-3-task-states.md:10
+- TASK_STATE_WORKING, active: S/r-3-task-states.md:11
+- TASK_STATE_INPUT_REQUIRED, interrupted: S/r-3-task-states.md:12
+- TASK_STATE_AUTH_REQUIRED, interrupted: S/r-3-task-states.md:13
+- TASK_STATE_COMPLETED, terminal: S/r-3-task-states.md:14
+- TASK_STATE_FAILED, terminal: S/r-3-task-states.md:15
+- TASK_STATE_CANCELED, terminal: S/r-3-task-states.md:16
+- TASK_STATE_REJECTED, terminal: S/r-3-task-states.md:17
 - UNSPECIFIED left out (S/r-3-task-states.md:9) for the 8-line limit
 
 ## Error codes (command-table, 8, all S/r-4)
-- -32001 S/r-4-errors.md:9, -32002 S/r-4-errors.md:10, -32003 S/r-4-errors.md:11, -32004 S/r-4-errors.md:12, -32005 S/r-4-errors.md:13, -32009 S/r-4-errors.md:17, -32601 S/r-4-errors.md:20, -32602 S/r-4-errors.md:21
+- -32001 TaskNotFoundError: S/r-4-errors.md:9
+- -32002 TaskNotCancelableError: S/r-4-errors.md:10
+- -32003 PushNotificationNotSupportedError: S/r-4-errors.md:11
+- -32004 UnsupportedOperationError: S/r-4-errors.md:12
+- -32005 ContentTypeNotSupportedError: S/r-4-errors.md:13
+- -32009 VersionNotSupportedError: S/r-4-errors.md:17
+- -32601 MethodNotFoundError: S/r-4-errors.md:20
+- -32602 InvalidParamsError: S/r-4-errors.md:21
 
 ## Defaults (8)
 - returnImmediately false: S/4-1-send-message.md:29 (proto makes false the default)
@@ -88,7 +101,14 @@ Abbreviations: S = manuals/a2a-101/sections, C = manuals/a2a-101/capture, O = ma
 - TCK trailing slash gives 404: S/7-3-conformance-testing.md:25
 
 ## Glossary (8, all S/r-5)
-- Agent card S/r-5-glossary.md:8, Task S/r-5-glossary.md:34, Context S/r-5-glossary.md:13, Message S/r-5-glossary.md:21, Part S/r-5-glossary.md:23, Artifact S/r-5-glossary.md:9, Push notification S/r-5-glossary.md:26, Service parameter S/r-5-glossary.md:30
+- Agent card: S/r-5-glossary.md:8
+- Task: S/r-5-glossary.md:34
+- Context: S/r-5-glossary.md:13
+- Message: S/r-5-glossary.md:21
+- Part: S/r-5-glossary.md:23
+- Artifact: S/r-5-glossary.md:9
+- Push notification: S/r-5-glossary.md:26
+- Service parameter: S/r-5-glossary.md:30
 
 ## Q&A (5)
 - task or message, direct reply: S/r-1-operations-by-binding.md:23, S/r-5-glossary.md:14

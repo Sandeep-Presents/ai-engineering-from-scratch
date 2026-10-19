@@ -75,9 +75,12 @@ Abbreviations: L09 = phases/15-autonomous-systems/09-coding-agent-landscape. C01
 - --candidates recorded-findings.json: PRR/README.md:44
 
 ## Budgets in the code (defaults, 6)
-- max_turns 50, max_tokens 200_000, max_dollars 5.00: C01/c:55-57
+- max_turns 50: C01/c:55
+- max_tokens 200_000: C01/c:56
+- max_dollars 5.00: C01/c:57
 - TRUNCATE_BYTES 4096: C01/c:104
-- BUDGET_TURNS 20, BUDGET_USD 8.0: C09/c:69-70
+- BUDGET_TURNS 20: C09/c:70
+- BUDGET_USD 8.0: C09/c:69
 - step_budget 12: C29/c:692
 
 ## Gate chain and sandbox (29) (annotated-code, 6 lines)

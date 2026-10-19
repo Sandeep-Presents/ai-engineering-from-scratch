@@ -21,15 +21,20 @@ Abbreviations: L11 = phases/11-llm-engineering/11-caching-cost, L15 = phases/11-
 - paid at 1.25x, paid at 0.1x: L15/d:90, L15/d:98
 
 ## Two cache layers (architecture, 6 nodes, 5 edges)
-- User query, L1 semantic cache embed and cosine 0.95+: L14/d:43
+- User query: L14/d:43
+- L1 semantic cache, embed and cosine 0.95+: L14/d:43
 - L2 prefix cache, provider KV reuse: L14/d:31
 - Model, full price on a miss: L14/d:43 (on miss, call LLM)
 - Cached response, no LLM call: L14/d:43 (on hit, return the cached response)
 - Cost tracker, tokens, cost, user_id: L11/d:137-147, L11/d:470
 
 ## Provider prompt caching (comparison, 6 rows)
-- API style, hit price, write cost, default TTL, min prefix: L15/d:28-30
-- Use when rows: L15/d:180, 182, 183
+- API style row: L15/d:28-30
+- Hit price row: L15/d:28-30
+- Write cost row: L15/d:28-30
+- Default TTL row: L15/d:28-30
+- Min prefix row: L15/d:28-30
+- Use when row: L15/d:180, 182, 183
 
 ## Defaults in the code (defaults, 8 rows)
 - similarity_threshold 0.85: L11/code/caching_cost.py:116. Demo 0.75: line 368

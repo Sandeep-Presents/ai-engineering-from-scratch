@@ -17,13 +17,13 @@ Abbreviations: S = manuals/docker-sandboxes-101/sections, C = manuals/docker-san
 - allowed hosts by policy rules: S/3-4-sbx-policy-log-and-the-proxy.md:33 (both paths enforce policies)
 
 ## One request leaves the sandbox (flow, 7)
-- 1: S/2-1 create listing lines 19-31 (image pull, created)
-- 2: S/3-4-sbx-policy-log-and-the-proxy.md:19,33
-- 3: S/3-3-sbx-policy-init-allow-deny-and-check-network.md:84 (deny wins), S/3-3-sbx-policy-init-allow-deny-and-check-network.md:118 (implicit names no rule)
-- 4: S/3-4-sbx-policy-log-and-the-proxy.md:47-64 (403 inside TLS, approval body)
-- 5: S/3-4-sbx-policy-log-and-the-proxy.md:64-66 (forward-bypass after allow)
-- 6: S/3-5-sbx-secret-set-import-and-set-custom.md:74 (swap of placeholder on bound host)
-- 7: S/3-4-sbx-policy-log-and-the-proxy.md:70,104 (one row per host, proxy_type, rule)
+- 1 sbx create pulls the template and boots the microVM: S/2-1-sbx-run-create-stop-and-rm.md:19-31
+- 2 agent sends the request to the forward proxy: S/3-4-sbx-policy-log-and-the-proxy.md:19, S/3-4-sbx-policy-log-and-the-proxy.md:33
+- 3 deny wins, no matching allow is an implicit deny: S/3-3-sbx-policy-init-allow-deny-and-check-network.md:84, S/3-3-sbx-policy-init-allow-deny-and-check-network.md:118
+- 4 blocked gives 403 inside TLS with approval body: S/3-4-sbx-policy-log-and-the-proxy.md:47-64
+- 5 allowed host tunnels as forward-bypass: S/3-4-sbx-policy-log-and-the-proxy.md:64-66
+- 6 bound secret, proxy swaps the placeholder: S/3-5-sbx-secret-set-import-and-set-custom.md:74
+- 7 policy log gives one row per host with proxy type and rule: S/3-4-sbx-policy-log-and-the-proxy.md:70, S/3-4-sbx-policy-log-and-the-proxy.md:104
 
 ## Sandbox lifecycle (task-table, 7)
 - create shell <path> --name: O/04-create.txt:1
@@ -78,8 +78,12 @@ Abbreviations: S = manuals/docker-sandboxes-101/sections, C = manuals/docker-san
 - kit.allowedSources ["docker.io/"]: S/r-3-settings-keys-environment-variables-and-paths.md:17
 
 ## Key concepts (6)
-- Sandbox: S/r-8-glossary-and-index-of-figures.md:48. Clone mode: S/r-8-glossary-and-index-of-figures.md:20. Preset: S/r-8-glossary-and-index-of-figures.md:42. Policy scope: S/r-8-glossary-and-index-of-figures.md:41. Sentinel: S/r-8-glossary-and-index-of-figures.md:51
+- Sandbox, a microVM with its own kernel: S/r-8-glossary-and-index-of-figures.md:48
+- Clone mode, --clone: S/r-8-glossary-and-index-of-figures.md:20
+- Preset, allow-all, balanced or deny-all: S/r-8-glossary-and-index-of-figures.md:42
+- Policy scope, global or one sandbox: S/r-8-glossary-and-index-of-figures.md:41
 - Deny wins: S/3-3-sbx-policy-init-allow-deny-and-check-network.md:84
+- Sentinel, placeholder in place of a secret: S/r-8-glossary-and-index-of-figures.md:51
 
 ## Troubleshooting (6)
 - Approval required, no allow rule: O/09-blocked.txt:12, S/3-4-sbx-policy-log-and-the-proxy.md:106

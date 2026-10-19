@@ -18,8 +18,11 @@ Abbreviations: L28 = phases/14-agent-engineering/28-orchestration-patterns, L12 
 5. Debate when accuracy matters more than cost: L28/d:74
 
 ## Supervisor with parallel workers (architecture)
-- User query, `Lead.plan(query)` splits into 3 sub-questions: L05/d:83, L05/c:74-80
-- Workers 0, 1, 2 with fresh context: L05/d:34, 44, L05/c:94-98
+- User query goes to Lead.run(query): L05/d:85, L05/c:87
+- Lead.plan(query) splits into 3 sub-questions: L05/d:83, L05/c:74-80
+- Worker 0 with fresh context: L05/d:34, 44, L05/c:95-98
+- Worker 1 with fresh context: L05/d:34, 44, L05/c:95-98
+- Worker 2 with fresh context: L05/d:34, 44, L05/c:95-98
 - Lead synthesizes from worker summaries only: L05/d:14, 38, L05/c:82-85, 104
 - Edges sub_q and summary: L05/c:54, 57-61, 84
 

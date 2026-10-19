@@ -22,7 +22,8 @@ Abbreviations: P12 = phases/12-multimodal-ai. VAR = phases/08-generative-ai/19-v
 - MIO speech in and out, <500ms TTFAB: MIO/d:26, MIO/d:151
 
 ## Janus-Pro decoupled routing (architecture, 8 nodes)
-- Input image, understand path to SigLIP-SO400m then 2-layer MLP: JP/d:32
+- Input image, understand path starts here: JP/d:32
+- SigLIP-SO400m then 2-layer MLP: JP/d:32
 - Generation path through VQ tokenizer, optional conditioning image: JP/d:33, JP/c:79-80
 - Text prompt, task tag routes: JP/d:38, JP/c:50-61
 - Shared body, init DeepSeek-MoE-7B: JP/d:36, JP/d:72
@@ -88,7 +89,8 @@ Abbreviations: P12 = phases/12-multimodal-ai. VAR = phases/08-generative-ai/19-v
 - 34B diverged, logit magnitude explosion, QK-Norm and dropout after every residual-add: CH/d:67-71
 - PSNR 26-28 dB ceiling, better tokenizer: CH/d:75-77, continuous patches TF/d:19-25
 - one head dominates, schedule mismatch, tune loss weights: TF/d:94
-- artifacts when too high, mode collapse when too low, 0.8 for image gen: EMU/d:54
+- image artifacts when temperature is too high, 0.8 for image gen: EMU/d:54
+- mode collapse when temperature is too low: EMU/d:54
 - ~2 minutes per 512x512, 4096 tokens at 30 tok/s, speculative decoding and KV-cache: EMU/d:80
 - skip stage 2 loses cross-modality context: MIO/d:69, MIO/d:73
 - skip stage 3 speech is poor: MIO/d:70, MIO/d:73

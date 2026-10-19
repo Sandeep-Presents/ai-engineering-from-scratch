@@ -28,10 +28,15 @@ Abbreviations: G = phases/04-computer-vision/09-image-generation-gans, D = phase
 - VAR class-conditional ImageNet, fewer passes, scaling: V/d:80, 89
 
 ## Stable Diffusion pipeline (architecture, 8 nodes, 7 edges)
-- Text prompt, Text encoder (CLIP-L or T5), Text embedding: S/d:31-32
-- Noise 4x64x64, UNet with cross-attention: S/d:34-35
+- Text prompt: S/d:31
+- Text encoder, CLIP-L or T5: S/d:31
+- Noise 4x64x64: S/d:34
+- UNet with cross-attention to text: S/d:34
 - Scheduler DPM-Solver++, Euler: S/d:37
-- Clean latent 4x64x64, VAE decoder, 512x512 RGB image: S/d:38-40
+- Clean latent 4x64x64: S/d:38
+- VAE decoder: S/d:39
+- Image 512x512 RGB: S/d:40
+- Text embedding edge from encoder to UNet: S/d:32
 
 ## Tasks in code (task-table, 7 rows)
 - build_sn_discriminator(): G/d:262, 274

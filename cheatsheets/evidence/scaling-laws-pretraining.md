@@ -67,11 +67,13 @@ Abbreviations: L13 = phases/07-transformers-deep-dive/13-scaling-laws, L03 = pha
 - memory_estimate(): L04/c:300
 
 ## Defaults (defaults, 8)
-- min_words 50, max_ratio_caps 0.3, max_ratio_special 0.1: L03/c:17. Stub pages, ALL CAPS, special chars: L03/d:218
+- min_words 50: L03/c:17. Stub pages: L03/d:218
+- max_ratio_caps 0.3: L03/c:17. ALL CAPS: L03/d:218
+- max_ratio_special 0.1: L03/c:17. Symbol noise: L03/d:218
 - num_hashes 128: L03/c:37, L03/c:61
 - bands 16: L03/c:50, L03/c:61. More bands increase recall: L03/d:289
 - threshold 0.8: L03/c:61
-- MiniGPT vocab_size=50257, embed_dim=768, num_heads=12, num_layers=12: L04/c:82-83
+- vocab_size 50257, MiniGPT 768 dims, 12 heads, 12 layers: L04/c:82-83
 - max_seq_len=1024: L04/c:83. Context window 1024 for GPT-2: L04/d:465
 
 ## Troubleshooting (troubleshooting, 8)

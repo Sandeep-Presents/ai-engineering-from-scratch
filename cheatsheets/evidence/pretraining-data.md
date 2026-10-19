@@ -53,9 +53,12 @@ Abbreviations: L03 = phases/10-llms-from-scratch/03-data-pipelines, L31 = phases
 6. _write_checkpoint with os.replace before out.write(buf): L42/c:290-293, 378-379
 
 ## Dedup and filter defaults (defaults, 8)
-- min_words 50, max_ratio_caps 0.3, max_ratio_special 0.1: L03/c:17
-- threshold 0.8: L03/c:61
-- num_hashes 128, bands 16: L03/c:61. DEFAULT_BANDS = 32: L42/c:40
+- min_words 50, stub pages fail: L03/c:17, 19
+- max_ratio_caps 0.3, ALL CAPS spam fails: L03/c:17, 22
+- max_ratio_special 0.1, symbol noise fails: L03/c:17, 25
+- threshold 0.8, Jaccard to drop a copy: L03/c:61, 90
+- num_hashes 128, signature length: L03/c:61, 37
+- bands 16: L03/c:61, 50. DEFAULT_BANDS = 32: L42/c:40
 - DEFAULT_SHINGLE_WIDTH 5: L42/c:41. shingle_width=3 in demo: L42/c:521
 - CHUNK_BYTES 1 << 16: L42/c:38
 

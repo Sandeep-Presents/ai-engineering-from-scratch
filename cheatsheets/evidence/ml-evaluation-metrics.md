@@ -13,10 +13,14 @@ Abbreviations: P2 = phases/02-ml-fundamentals. EV = P2/09-model-evaluation, BV =
 - best value at search boundary, widen range: HT/d:527
 
 ## Split, tune, report (architecture)
-- full dataset to train 60-70%, validation 15-20%, test 15-20%: EV/d:31-33
-- fit model, tune hyperparameters, final model, report performance: EV/d:34-40
-- validation selects models: EV/d:46
-- test used exactly once: EV/d:47
+- Full dataset: EV/d:29
+- Train set 60-70%: EV/d:30
+- Validation set 15-20%: EV/d:31
+- Test set 15-20%, use once: EV/d:32, EV/d:47
+- Fit model: EV/d:33
+- Tune hyperparameters, select models: EV/d:35, EV/d:46
+- Final model: EV/d:37
+- Report performance: EV/d:38
 
 ## Metric formulas (concepts)
 - accuracy, misleading when imbalanced: EV/d:103

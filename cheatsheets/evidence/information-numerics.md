@@ -14,6 +14,7 @@ Abbreviations: P1 = phases/01-math-foundations. L09 = P1/09-information-theory, 
 - 1 nat = 1.4427 bits, PyTorch and TensorFlow use nats: L09/d:271
 
 ## Stable loss path (architecture)
+- Logits raw scores z: L13/d:173
 - Subtract max, c = max(x): L13/d:142-145, 162
 - Log-sum-exp, largest term exp(0) = 1: L13/d:148
 - log_softmax_stable, z - lse: c13:28-31

@@ -23,11 +23,14 @@ Abbreviations: P04 = phases/04-computer-vision. L12 = P04/12-video-understanding
 - SAM 3.1 Object Multiplex for many instances of one class in a crowd: L27/d:256
 
 ## Tracking by detection (architecture, 8 nodes)
-- Frame t, Detector, Detections at t: L27/d:31
-- Tracks up to t-1, Kalman motion predict: L27/d:32-33
-- Kalman constant velocity: L27/d:58
+- Frame t: L27/d:31
+- Detector, detections at t: L27/d:31
 - Hungarian assignment IoU / cosine / motion: L27/d:34
-- Update matched, birth new, age unmatched and delete after N: L27/d:36-38
+- Update matched tracks: L27/d:36
+- Tracks up to t-1: L27/d:32
+- Kalman predict, constant velocity: L27/d:32-33, 58
+- Birth new tracks: L27/d:37
+- Age unmatched tracks, delete after N: L27/d:38
 
 ## Formulas (concepts, 8)
 - PointNet f(P) = max MLP(p), permutation invariance: L13/d:42-48

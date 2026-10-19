@@ -39,12 +39,14 @@ Abbreviations: A = phases/16-multi-agent-and-swarms/07-society-of-mind-debate, B
 - if crep.approved and vrep.passed: B/c:102
 
 ## Software team architecture (architecture, 8 nodes, 7 edges)
-- GitHub issue URL, Architect plan with subtasks + interfaces: D/d:28-32
+- GitHub issue URL: D/d:28
+- Architect plan with subtasks + interfaces: D/d:31-32
 - Task board file / Redis: D/d:35
 - Coders A to D, worktree + Daytona: D/d:39-42
 - Merge coordinator three-way merge: D/d:46
 - Reviewer: D/d:49, approve or request changes: D/d:19
-- Tester clean sandbox, open PR: D/d:52, 83
+- Tester clean sandbox: D/d:83
+- Open PR after tests pass: D/d:52
 - Edge labels plan_request, subtask, diff_ready, review_needed, approved, test_passed: D/c:25-32, 119, 126, 136, 140, 146, 166
 
 ## Task board messages (command-table, 8)

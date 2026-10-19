@@ -54,9 +54,13 @@ Abbreviations: L34 = phases/14-agent-engineering/34-repo-memory-and-state, L35 =
 - review total below 7 adds warn risk: L40/c:68-69
 
 ## Seven handoff fields (concepts, 8)
-- summary, changed_files, commands_run, failed_attempts, open_risks, next_action, verdict_pointer: L40/d:37-45
-- next_action is the load-bearing field: L40/d:47
-- verdict_pointer outputs/verification/<task_id>.json and review: L40/c:87-90
+- summary, one paragraph of what was done: L40/d:39, L40/c:32
+- changed_files, the diff at a glance: L40/d:40, L40/c:33
+- commands_run, what was actually executed: L40/d:41, L40/c:34
+- failed_attempts, what was tried and why it failed: L40/d:42, L40/c:35
+- open_risks, what can bite next session with severity: L40/d:43, L40/c:36
+- next_action is the load-bearing field: L40/d:44, 47
+- verdict_pointer outputs/verification/<task_id>.json and review: L40/d:45, L40/c:87-90
 - feedback_tail, last K plus nonzero exits: L40/c:39, 42-53, L40/d:59
 
 ## Prompt-only versus workbench (comparison, 6 rows)
@@ -75,7 +79,10 @@ Abbreviations: L34 = phases/14-agent-engineering/34-repo-memory-and-state, L35 =
 - render Status READY or BLOCKED: L43/c:46-49
 
 ## Classify each unknown (concepts, 4)
-- Discoverable, Decidable, Human, Deferred: L43/d:69-72
+- Discoverable, the repository or running system can answer it: L43/d:69
+- Decidable, the task contract gives the agent authority: L43/d:70
+- Human, changes product behavior, cost, risk or public compatibility: L43/d:71
+- Deferred, outside this slice, goes in non-goals: L43/d:72
 - continue through discoverable and delegated, pause at human: L43/d:74
 
 ## Troubleshooting (troubleshooting, 8)

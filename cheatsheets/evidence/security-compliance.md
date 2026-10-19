@@ -20,7 +20,8 @@ Abbreviations: L25 = phases/17-infrastructure-and-production/25-security-secrets
 ## Security numbers (defaults)
 - Rotation ≤ 90 days, keys, root tokens, CI/CD: L25/docs/en.md:37-39
 - Short-lived tokens hours not days: L25/docs/en.md:54
-- SOC 2 1 year, HIPAA 6 years: L25/docs/en.md:93
+- Audit retention SOC 2 1 year: L25/docs/en.md:93
+- Audit retention HIPAA 6 years: L25/docs/en.md:93
 - 5*time.Minute skew, both sides: SWI/solution/main.go:250, 68
 - 1..65536 bytes: SWI/solution/main.go:51-52
 - WEBHOOK_SECRET at least 16 bytes: SWI/README.md:31, SWI/solution/main.go:63

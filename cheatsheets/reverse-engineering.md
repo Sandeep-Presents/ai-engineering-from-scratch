@@ -2,7 +2,7 @@
 id: reverse-engineering
 title: Reverse Engineering with rea
 code: RE
-subtitle: Read a compiled program and prove what you found. Pinned to rea-agents 6.5.0 with Ghidra 12.1.4.
+subtitle: Read a compiled program and prove what you found. Pinned to rea-agents 6.7.0 with Ghidra 12.1.4.
 hue: 350
 sources: manuals/reverse-engineering-101, phases/13-tools-and-protocols/32-program-anatomy-elf-from-scratch, phases/13-tools-and-protocols/33-disassembly-and-control-flow, phases/13-tools-and-protocols/34-lifting-to-pseudocode, phases/13-tools-and-protocols/35-evidence-confidence-and-unknowns, phases/13-tools-and-protocols/36-rebuild-and-prove-equal, phases/13-tools-and-protocols/37-the-reverse-engineering-landscape, phases/13-tools-and-protocols/38-calling-conventions-and-stack-frames, phases/13-tools-and-protocols/39-compiler-idioms-and-optimization, phases/13-tools-and-protocols/40-linking-loading-and-stripped-binaries, phases/13-tools-and-protocols/41-recovering-data-and-types, phases/13-tools-and-protocols/42-dynamic-analysis-of-your-own-program, phases/13-tools-and-protocols/43-bytecode-and-managed-formats, phases/13-tools-and-protocols/44-binary-diffing-and-symbolic-execution, phases/13-tools-and-protocols/45-ai-assisted-reverse-engineering
 source_hash: cebf6402c4ec1489
@@ -33,9 +33,9 @@ from: manuals/reverse-engineering-101/sections/r-1-commands-and-tools.md, manual
 | Export a canonical copy | `rea evidence-export <bundle> <out>` |
 | Validate a bundle | `rea evidence-import <bundle>` |
 | Compare two bundles | `rea compare <left> <right>` |
-| Start the MCP server | `npx -y rea-agents@6.5.0 mcp` |
+| Start the MCP server | `npx -y rea-agents@6.7.0 mcp` |
 | Write client registrations | `rea setup` |
-| Check a client registration | `rea doctor --client <id>` |
+| Check a client registration | `rea setup --client <id> --dry-run` |
 | Capture again and compare | `python3 run.py --check` |
 
 ## One investigation from the shell
@@ -189,7 +189,7 @@ from: manuals/reverse-engineering-101/sections/1-1-rea-providers-and-evidence.md
 type: tips
 from: manuals/reverse-engineering-101/sections/8-1-the-rea-mcp-server.md, manuals/reverse-engineering-101/sections/5-1-the-evidence-record.md, manuals/reverse-engineering-101/sections/7-1-verify-reconstruction.md, manuals/reverse-engineering-101/sections/8-2-an-agent-investigation.md, manuals/reverse-engineering-101/sections/7-2-a-proof-harness-outside-rea.md
 
-- Register `rea-agents@6.5.0` with one exact version.
+- Register `rea-agents@6.7.0` with one exact version.
 - Read `confidence`, `authority` and `limitations` before `normalized_result`.
 - Export the bundle before `close_binary`.
 - Treat a passed structural claim as "same Ghidra text". Prove behaviour and bytes yourself.

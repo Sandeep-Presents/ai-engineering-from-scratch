@@ -23,6 +23,7 @@ Abbreviations: P17 = phases/17-infrastructure-and-production, L03 = P17/03-gpu-a
 - NVLink domain: L03/d:51
 - Dynamo Planner, llm-d WVA scale replicas: L03/d:70, 78
 - Signals queue depth, KV cache utilization: L03/d:63-66
+- vLLM replicas serve requests: L03/d:61, 13
 
 ## Scaling strategies in main.py (comparison)
 - DUTY_CYCLE util > TARGET_GPU_UTIL, replicas_target += 1, util < 20: L03/c:90-101
@@ -32,9 +33,14 @@ Abbreviations: P17 = phases/17-infrastructure-and-production, L03 = P17/03-gpu-a
 - Results: L03/c:172-174
 
 ## Simulator constants (defaults)
-- NODE_PROVISION_SEC 50: L03/c:18. CLUSTER_AUTOSCALER_SEC 110: L03/c:19. MODEL_LOAD_SEC 45: L03/c:20
-- HPA_TICK_SEC 15: L03/c:26. TARGET_GPU_UTIL 70: L03/c:27. MAX_REPLICAS 16: L03/c:24
-- CACHE_HIT_MS 80: L11/c:21. CACHE_MISS_MS 800: L11/c:22
+- NODE_PROVISION_SEC 50: L03/c:18
+- CLUSTER_AUTOSCALER_SEC 110: L03/c:19
+- MODEL_LOAD_SEC 45: L03/c:20
+- HPA_TICK_SEC 15: L03/c:26
+- TARGET_GPU_UTIL 70: L03/c:27
+- MAX_REPLICAS 16: L03/c:24
+- CACHE_HIT_MS 80: L11/c:21
+- CACHE_MISS_MS 800: L11/c:22
 
 ## Cache-aware routing (flow)
 1. hash the prefix, first 512 tokens: L11/d:31

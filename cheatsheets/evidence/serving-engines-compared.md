@@ -17,7 +17,8 @@ Abbreviations: P17 = phases/17-infrastructure-and-production. L04 = P17/04-vllm-
 - llama.cpp CPU, edge, Apple Silicon: L28/d:29, 37, 45
 - Ollama dev laptop, not shared production: L28/d:30, 81
 - TGI maintenance mode Dec 11, 2025, existing deployments: L28/d:71-73
-- native offload single engine HBM pressure, LMCache shared prefixes: L18/d:51. Preemption-heavy: L18/d:66
+- Native CPU offload, one engine with HBM pressure: L18/d:51
+- LMCache, several engines share prefixes: L18/d:51. Preemption-heavy: L18/d:66
 
 ## The vLLM scheduler loop (annotated-code)
 - loop lines: L04/d:74-91 (blank line and full-line comment at L04/d:83 left out)
@@ -32,14 +33,22 @@ Abbreviations: P17 = phases/17-infrastructure-and-production. L04 = P17/04-vllm-
 6. evict whole branches from shortest-used leaves: L06/d:49
 
 ## Production stack (architecture, 7 nodes, 6 edges)
+- Client node, requests into the stack (closest line, request path): L18/d:3
 - Router cache-aware, KV events: L18/d:31
 - Engines one per GPU or TP/PP group: L18/d:32
 - Connector API v0.9.0+, async 0.11.0: L18/d:41, 43
-- LMCache server CPU DRAM, Ceph/S3 tier: L18/d:49, 116
+- LMCache server, CPU DRAM, shared: L18/d:49
+- Ceph/S3 tier, disk below DRAM: L18/d:49, 116
 - Observability Prometheus, Grafana, OTel: L18/d:34
 
 ## Precision and stack economics in main.py (comparison)
-- All rows (HBM GB, bandwidth, weight bits, KV bits, MTP, disagg, price): L07/c:31-36 (stack fields L07/c:20-28)
+- HBM per GB row (80, 80, 192, 192): L07/c:22, 32-36
+- HBM bandwidth TB/s row (3.35, 3.35, 8.00, 8.00): L07/c:23, 32-36
+- Weight bits row (16, 8, 4, 4): L07/c:24, 32-36
+- KV cache bits row (16, 8, 8, 8): L07/c:25, 32-36
+- MTP factor row (1.0, 1.0, 1.8, 1.8): L07/c:26, 32-36
+- Disaggregation factor row (1.0, 1.0, 1.6, 2.5): L07/c:27, 32-36
+- Price per GPU hour row (2.50, 2.50, 4.80, 6.20): L07/c:28, 32-36
 
 ## Run the simulators (task-table)
 - simulate_static(reqs, batch=16): L04/c:98
@@ -70,7 +79,11 @@ Abbreviations: P17 = phases/17-infrastructure-and-production. L04 = P17/04-vllm-
 - vLLM --enable-prefix-caching, SGLang radix-first: L06/d:87
 
 ## Glossary (glossary)
-- ITL: L04/d:132. TTFT: L04/d:131
+- ITL: L04/d:132
+- TTFT: L04/d:131
 - FCFS: L06/d:117
-- NVFP4: L07/d:100. MTP: L07/d:103. MXFP8: L07/d:101
-- Connector API: L18/d:110. Preemption: L18/d:114
+- NVFP4: L07/d:100
+- MTP: L07/d:103
+- MXFP8: L07/d:101
+- Connector API: L18/d:110
+- Preemption: L18/d:114

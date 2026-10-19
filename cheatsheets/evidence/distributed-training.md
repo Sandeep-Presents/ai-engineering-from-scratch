@@ -20,9 +20,11 @@ Abbreviations: P10 = phases/10-llms-from-scratch, P19 = phases/19-capstone-proje
 - DualPipeV dense or EP-light, one copy: L19/d:94, 97
 
 ## ZeRO stages (comparison)
-- Sharded, memory per rank, comm per step: L78/d:40-43
-- Savings ~4x, ~8x, ~Nx: L05/d:173-175
-- SHARD_GRAD_OP is ZeRO-2, FULL_SHARD is ZeRO-3: L78/d:102
+- Sharded row, nothing to params: L78/d:40-43
+- Memory per rank row: L78/d:40-43
+- Comm per step row: L78/d:40-43
+- Savings row, ~4x, ~8x, ~Nx: L05/d:173-175
+- PyTorch FSDP name row, SHARD_GRAD_OP is ZeRO-2, FULL_SHARD is ZeRO-3: L78/d:102
 
 ## Memory numbers (concepts)
 - Adam 70B x 4 bytes x 2 = 560GB: L05/d:44
@@ -33,15 +35,22 @@ Abbreviations: P10 = phases/10-llms-from-scratch, P19 = phases/19-capstone-proje
 - per_gpu_batch_size x N: L05/d:56
 
 ## Pipeline schedules (comparison)
-- Param copies, bubble growth, overlap: L19/d:94-96
+- Param copies row: L19/d:94
+- Bubble vs micro-batches row: L19/d:95
+- Overlap row: L19/d:96
 - simulator functions bubble_1f1b, bubble_zero_bubble, bubble_dualpipe, bubble_dualpipev: L19/c:27, 38, 48, 57
 
 ## Collectives (comparison)
-- Per-rank bytes, steps, use when: L76/d:43-47
-- ring above ~1 MB, tree below: L76/d:88
+- Per-rank bytes row: L76/d:43-47
+- Steps row: L76/d:43-47
+- Use when row: L76/d:43-47
+- Message size row, ring above ~1 MB, tree below: L76/d:88
 
 ## Ring allreduce on a queue mesh (architecture, 4 nodes, 4 edges)
-- ranks and queue edges: L76/d:27-34
+- rank 0 and queue 0 to 1: L76/d:27
+- rank 1 and queue 1 to 2: L76/d:28-29
+- rank 2 and queue 2 to 3: L76/d:30-31
+- rank 3 and queue 3 to 0: L76/d:32-34
 - each rank owns chunk index equal to its rank: L76/d:39
 - ring code: L76/c:87-117
 
@@ -73,11 +82,15 @@ Abbreviations: P10 = phases/10-llms-from-scratch, P19 = phases/19-capstone-proje
 - lesson 79 output: L79/d:67, 70
 
 ## Defaults in the code (defaults, 8)
-- --world-size 2, --backend gloo, --num-steps 6, --batch-size 8: L48/c:379-382
-- nccl on GPUs: L48/d:146, 152
+- --world-size 2: L48/c:379
+- --backend gloo: L48/c:380
+- --num-steps 6: L48/c:381
+- --batch-size 8: L48/c:382
+- nccl on GPUs: L48/d:23
 - RECV_TIMEOUT_S = 30.0: L76/c:29
 - DDP bucket default 25 MB: L76/d:94
-- NUM_STAGES = 4, NUM_MICROBATCHES = 8: L79/c:27-28
+- NUM_STAGES = 4: L79/c:27
+- NUM_MICROBATCHES = 8: L79/c:28
 
 ## Troubleshooting (troubleshooting, 8)
 - divergence without broadcast: L48/d:97

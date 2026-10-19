@@ -72,7 +72,7 @@ Every fact must come from a file in the `from` list of its block: a lesson, a le
 
 ## Evidence files
 
-Each sheet has an evidence file, `cheatsheets/evidence/<id>.md`. It starts with `# Evidence: cheatsheets/<id>.md` and has one `##` section for each block. Each bullet names a fact and the `path:line` or `path:line-line` that holds it, for example `phases/01-x/01-y/docs/en.md:12, 40-42`. To shorten paths, give one line at the top such as `Abbreviations: L01 = phases/01-x/01-y, d = docs/en.md.` and write `L01/d:12`. Use one `KEY = path` pair for each key, not a list or a range of keys. `node site/build-cheatsheets.js --check` resolves every reference. It fails when a path does not exist, is not in a source of the topic, or cites a line that is not in the file, and when a block has no section with a valid reference.
+Each sheet has an evidence file, `cheatsheets/evidence/<id>.md`. It starts with `# Evidence: cheatsheets/<id>.md` and has one `##` section for each block. Each bullet names a fact and the `path:line` or `path:line-line` that holds it, for example `phases/01-x/01-y/docs/en.md:12, 40-42`. To shorten paths, give one line at the top such as `Abbreviations: L01 = phases/01-x/01-y, d = docs/en.md.` and write `L01/d:12`. Use one `KEY = path` pair for each key, not a list or a range of keys. `node site/build-cheatsheets.js --check` resolves every reference. It fails when a path does not exist, is not in a source of the topic, or cites a line that is not in the file, when a block has no section, and when a section has fewer bullets with a valid reference than the block has rows, steps, nodes or items. Give one bullet for each fact.
 
 ## Prose
 

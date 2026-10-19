@@ -48,9 +48,13 @@ Abbreviations: P17 = phases/17-infrastructure-and-production. L01 = P17/01-manag
 8. Pipeline and GGUF vs safetensors: L28/d:77
 
 ## Cold start of a 70B model (comparison)
-- Per-phase seconds raw, pre-seeded, streamer, snapshot: L10/c:28-32
-- Bottlerocket, EC2NodeClass: L10/d:34. Run:ai Model Streamer: L10/d:40. Modal checkpoints: L10/d:44
-- 328s total: L10/d:77. 2-4 minutes saved: L10/d:34. ~2x speedup: L10/d:85. 10x faster: L10/d:44
+- node provision 50.0, 50.0, 50.0, 0.5: L10/c:28
+- image pull 180.0, 0.0, 180.0, 0.0: L10/c:29
+- weights to HBM 75.0, 75.0, 35.0, 0.0: L10/c:30
+- engine init 20.0, 20.0, 20.0, 2.0: L10/c:31
+- first forward 3.0, 3.0, 3.0, 0.5: L10/c:32
+- Tool row, Bottlerocket with EC2NodeClass, Run:ai Model Streamer, Modal checkpoints: L10/d:34, 40, 44
+- Gain row, 328s total: L10/d:77. 2-4 minutes saved: L10/d:34. ~2x speedup: L10/d:85. 10x faster: L10/d:44
 
 ## Run the models in code (task-table)
 - simulate(tokens_in_per_day, tokens_out_per_day, sla_ttft_ms, use_ptu): L01/c:35

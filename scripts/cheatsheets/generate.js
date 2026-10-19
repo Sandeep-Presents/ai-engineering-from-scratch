@@ -203,7 +203,6 @@ function parsedTopic(text, entry) {
 function checkText(text, entry, root = ROOT) {
   const topic = parsedTopic(text, entry);
   const problems = sheets.checkTopic(topic, root).map(problem => problem.replace(`${topic.file}: `, ''));
-  problems.push(...scopeProblems(topic, entry));
   return problems;
 }
 

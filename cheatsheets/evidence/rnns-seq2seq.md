@@ -3,6 +3,7 @@
 Abbreviations: R08 = phases/05-nlp-foundations-to-advanced/08-cnns-rnns-for-text, S09 = phases/05-nlp-foundations-to-advanced/09-sequence-to-sequence, M11 = phases/05-nlp-foundations-to-advanced/11-machine-translation, G16 = phases/05-nlp-foundations-to-advanced/16-text-generation-pre-transformer, W07 = phases/07-transformers-deep-dive/01-why-transformers. d = docs/en.md, c = code/main.py.
 
 ## Seq2seq encoder-decoder (architecture, 6 nodes, 6 edges)
+- Source tokens are src ids embedded: S09/d:51-52
 - Encoder GRU returns outputs, hidden: S09/d:45-54, 57
 - Context vector is the final hidden state, the bottleneck: S09/d:20, 28, 207
 - Decoder initialized from the context vector, one step at a time: S09/d:22, 76

@@ -4,9 +4,11 @@ Abbreviations: L19 = phases/01-math-foundations/19-complex-numbers, L20 = phases
 
 ## Cooley-Tukey FFT, 8 points (architecture, 6 nodes, 6 edges)
 - x[0..7] 8 samples, split even/odd: L20/d:93-94
-- Even x[0,2,4,6], odd x[1,3,5,7]: L20/d:93-94
-- E[0..3] and O[0..3] from 4-pt FFT: L20/d:95-96
-- Combine with twiddle factors into X[0..7]: L20/d:97-98
+- Even half x[0,2,4,6]: L20/d:93
+- Odd half x[1,3,5,7]: L20/d:94
+- E[0..3] from 4-pt FFT: L20/d:95
+- O[0..3] from 4-pt FFT: L20/d:96
+- X[0..7] combine with twiddle factors: L20/d:97-98
 - X[k] = E[k] + twiddle O[k], X[k + N/2] = E[k] - twiddle O[k]: L20/d:81-82
 
 ## Waveform to log-mel and MFCC (flow, 6 steps)

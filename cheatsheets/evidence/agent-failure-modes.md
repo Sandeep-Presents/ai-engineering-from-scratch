@@ -75,7 +75,8 @@ Abbreviations: A = phases/14-agent-engineering/25-multi-agent-debate, B = phases
 
 ## Debate topologies (comparison, 6)
 - Full mesh every peer, star spokes read only the hub: A/d:112-114
-- N=5, R=3, 15 proposals, 60 vs 12 critique ops: A/d:40-41
+- N=5, R=3 proposals, 15 for both: A/d:40-41
+- N=5, R=3 critique ops, 60 full mesh vs 12 star: A/d:40-41
 - Convergence collapse vs hub failure: A/d:64-65
 - Required disagreement rounds, rotate or use multiple hubs: A/d:64-65
 - full_mesh_round, sparse_star_round: A/c:32, 43

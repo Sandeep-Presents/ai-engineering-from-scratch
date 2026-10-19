@@ -3,10 +3,12 @@
 Abbreviations: Q = phases/10-llms-from-scratch/11-quantization, T = phases/17-infrastructure-and-production/07-tensorrt-llm-blackwell, P = phases/17-infrastructure-and-production/09-production-quantization, L = phases/11-llm-engineering/08-fine-tuning-lora.
 
 ## Production formats side by side (comparison)
-- Bits, sweet spot, engines for GGUF Q4_K_M, GPTQ, AWQ, FP8: P/docs/en.md:29-32
-- ~93 tok/s GGUF in vLLM: P/docs/en.md:40. ~712 tok/s GPTQ: P/docs/en.md:44. ~741 tok/s AWQ: P/docs/en.md:50. No FP8 number: P/docs/en.md:56
-- Marlin 2.6x vs non-Marlin: P/docs/en.md:44. Marlin-AWQ 10.9x vs naive: P/docs/en.md:50. FP8 native on Hopper Tensor Cores: P/docs/en.md:56
-- Near-BF16 at 4-5 bits: P/docs/en.md:38. Calibration pass: P/docs/en.md:44. Best Pass@1 at INT4: P/docs/en.md:50. Near-lossless: P/docs/en.md:56
+- Bits 4-5, 4-8, 4, 8 for GGUF Q4_K_M, GPTQ, AWQ, FP8: P/docs/en.md:29-32
+- Sweet spot CPU edge laptops, multi-LoRA, datacenter GPU, Hopper Ada Blackwell: P/docs/en.md:29-32
+- Engines llama.cpp Ollama, vLLM TGI, Marlin-AWQ, TRT-LLM SGLang: P/docs/en.md:29-32
+- 7B speed ~93 tok/s GGUF: P/docs/en.md:40. ~712 tok/s GPTQ: P/docs/en.md:44. ~741 tok/s AWQ: P/docs/en.md:50. No FP8 number: P/docs/en.md:56
+- Kernel gain, Marlin 2.6x vs non-Marlin: P/docs/en.md:44. Marlin-AWQ 10.9x vs naive: P/docs/en.md:50. FP8 native on Hopper Tensor Cores: P/docs/en.md:56
+- Quality, near-BF16 at 4-5 bits: P/docs/en.md:38. Calibration pass: P/docs/en.md:44. Best Pass@1 at INT4: P/docs/en.md:50. Near-lossless: P/docs/en.md:56
 
 ## Use X when (tips)
 - CPU/edge GGUF Q4_K_M: P/docs/en.md:92
@@ -18,11 +20,13 @@ Abbreviations: Q = phases/10-llms-from-scratch/11-quantization, T = phases/17-in
 - 1,000-sample eval: P/docs/en.md:97
 
 ## Bit layouts (concepts)
-- FP32, FP16, BF16, E4M3, E5M2, INT8, INT4 bit splits: Q/docs/en.md:36-42
-- FP32 accumulation: Q/docs/en.md:45. FP16 max ~65,504: Q/docs/en.md:47. BF16 same range as FP32: Q/docs/en.md:49
-- E4M3 inference, E5M2 gradients: Q/docs/en.md:51
-- INT8 256 values -128 to 127, scale factor: Q/docs/en.md:53
-- INT4 16 values, GPTQ/AWQ: Q/docs/en.md:55
+- FP32 1 sign, 8 exponent, 23 mantissa: Q/docs/en.md:36. Accumulation: Q/docs/en.md:45
+- BF16 1 sign, 8 exponent, 7 mantissa: Q/docs/en.md:38. Same range as FP32: Q/docs/en.md:49
+- FP16 1 sign, 5 exponent, 10 mantissa: Q/docs/en.md:37. Max ~65,504: Q/docs/en.md:47
+- FP8 E4M3 1 sign, 4 exponent, 3 mantissa: Q/docs/en.md:39, 51
+- FP8 E5M2 1 sign, 5 exponent, 2 mantissa: Q/docs/en.md:40, 51
+- INT8 256 values from -128 to 127, scale factor: Q/docs/en.md:41, 53
+- INT4 16 levels, GPTQ or AWQ: Q/docs/en.md:42, 55
 - NVFP4 per-block scale factor: T/docs/en.md:31
 
 ## Quantize and dequantize (annotated-code)
@@ -32,10 +36,17 @@ Abbreviations: Q = phases/10-llms-from-scratch/11-quantization, T = phases/17-in
 - error at most scale / 2: Q/docs/en.md:104
 
 ## Llama 3 70B measured (comparison)
-- FP16, FP8, GPTQ INT4, AWQ INT4 size, perplexity, MMLU, tokens/sec: Q/docs/en.md:200-205
+- Size 140GB, 70GB, 35GB, 35GB: Q/docs/en.md:202-205
+- Perplexity 3.12, 3.14, 4.32, 4.18: Q/docs/en.md:202-205
+- MMLU 79.5%, 79.3%, 77.8%, 78.1%: Q/docs/en.md:202-205
+- Tokens/sec on A100 38, 55, 72, 75: Q/docs/en.md:202-205
 
 ## PTQ vs QAT (comparison)
-- Cost, INT8, INT4, INT2, calibration rows: Q/docs/en.md:148-154
+- Cost, minutes to hours versus full training run: Q/docs/en.md:150
+- Quality at INT8, under 0.1% loss versus excellent: Q/docs/en.md:151
+- Quality at INT4, 1-3% loss versus under 1%: Q/docs/en.md:152
+- Quality at INT2, poor versus usable for some tasks: Q/docs/en.md:153
+- Calibration data, 128-1024 examples versus full training dataset: Q/docs/en.md:154
 
 ## Sensitivity, low to high (flow)
 - 1 weights: Q/docs/en.md:114, 126

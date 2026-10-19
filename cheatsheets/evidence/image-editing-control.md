@@ -6,9 +6,11 @@ Abbreviations: CL = phases/08-generative-ai/08-controlnet-lora-conditioning, IP 
 - Condition image: depth, pose, edges: CL/d:26
 - ControlNet clones the encoder, trains the clone: CL/d:26, 134
 - Zero conv, 1×1 initialized to zero, added to the decoder: CL/d:26, 29
-- Prompt and text encoder CLIP-L or T5: SD/d:31
+- Prompt: SD/d:31
+- Text encoder CLIP-L or T5: SD/d:31
 - Frozen SD U-Net with cross-attention to text: SD/d:34, 50, CL/d:26
-- Reference image into IP-Adapter, CLIP image tokens into cross-attention: CL/d:54
+- Reference image: CL/d:54
+- IP-Adapter, CLIP image tokens into cross-attention: CL/d:54
 - LoRA W + BA on attention weights: CL/d:16, 136
 
 ## Text to image (annotated-code, 12 lines)
@@ -59,14 +61,16 @@ Abbreviations: CL = phases/08-generative-ai/08-controlnet-lora-conditioning, IP 
 - Zero-conv init starts as identity, no harm: CL/d:32
 
 ## Editing methods side by side (comparison, 5 rows)
-- Inpaint model: 9-channel U-Net, image + mask, keeps outside pixels: IP/d:16, 32-38; use for remove object, replace sky: IP/d:109-110
-- SDEdit: noise to t, new prompt, no retraining, t/T trades fidelity: IP/d:44; strength knob: SD/d:168; coarse structure: IP/d:47; style of one region: IP/d:113
-- InstructPix2Pix: fine-tune on triples, two CFG scales image and text: IP/d:52; structural fidelity: IP/d:18; "Make it sunset": IP/d:114
-- RePaint: standard unconditional model, resample during reverse, used without a trained inpainting model: IP/d:56
+- Input: image, mask, prompt: IP/d:16, 32-38. SDEdit image, noise level, prompt: IP/d:44. InstructPix2Pix image and instruction: IP/d:52. RePaint image and mask: IP/d:56
+- Training: 9-channel U-Net: IP/d:32. SDEdit none: IP/d:44. InstructPix2Pix fine-tune on triples: IP/d:52. RePaint none, unconditional model: IP/d:56
+- Keeps: outside the mask: IP/d:16. SDEdit coarse structure: IP/d:47. InstructPix2Pix structural fidelity: IP/d:18. RePaint outside the mask: IP/d:56
+- Main knob: mask and CFG: IP/d:16, 101. SDEdit t/T or strength: IP/d:44; SD/d:168. InstructPix2Pix image and text scale: IP/d:52. RePaint resample steps: IP/d:56
+- Use for: remove object, replace sky: IP/d:109-110. Style of one region: IP/d:113. Make it sunset: IP/d:114. RePaint without inpaint model: IP/d:56
 
 ## Conditioning tools side by side (comparison, 4 rows)
-- Controls and size for ControlNet, LoRA, IP-Adapter, DreamBooth: CL/d:60-64
-- Mechanisms: CL/d:134, 136, 139, 140
+- Controls: CL/d:60-64
+- Size: CL/d:60-64
+- Mechanism: CL/d:134, 136, 139, 140
 - Use when: CL/d:60-64
 
 ## Defaults (defaults, 8)

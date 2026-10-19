@@ -3,13 +3,15 @@
 Abbreviations: E = phases/08-generative-ai/14-evaluation-fid-clip-score, A = phases/06-speech-and-audio/17-audio-evaluation-metrics, S = phases/12-multimodal-ai/14-show-o-discrete-diffusion-unified. d = docs/en.md, c = code/main.py.
 
 ## FID and CLIP score (architecture, 9 nodes, 8 edges)
-- Real images, held-out set: E/d:75
-- Generated images, 10k or more: E/d:35, 172
-- Inception-v3 2048-D features: E/d:28
-- Gaussian fit, mean and covariance per pool: E/d:29
-- FID, Fréchet distance, lower is better: E/d:14, 30-32
-- Prompt, CLIP image and text encoders, cosine: E/d:15, 44
-- CLIP score higher is better, average across 30k: E/d:15, 47
+- Real images node, held-out set: E/d:75
+- Generated images node, 10k or more: E/d:35, 172
+- Inception-v3 node, 2048-D features: E/d:28
+- Gaussian fit node, mean and covariance per pool: E/d:29
+- FID node, Fréchet distance, lower is better: E/d:14, 30
+- Prompt node, text side of CLIP: E/d:15, 44
+- CLIP encoders node, image and text: E/d:15, 44
+- Cosine node, per image: E/d:44
+- CLIP score node, higher is better, average across 30k: E/d:15, 47
 
 ## Production eval report (flow, 7 steps)
 1. FID on 10-30k samples vs held-out real: E/d:75

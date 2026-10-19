@@ -21,7 +21,12 @@ P18 = phases/18-ethics-safety-alignment, P19 = phases/19-capstone-projects. C15 
 6. append and repeat up to budget K: P18/12-red-teaming-pair-automated-attacks/docs/en.md:30, 38
 
 ## Command table: Jailbreak taxonomy (6 rows)
-- all six rows verbatim: C82/docs/en.md:22-29
+- role-play: C82/docs/en.md:24
+- instruction-override: C82/docs/en.md:25
+- context-smuggling: C82/docs/en.md:26
+- multi-turn-ramp: C82/docs/en.md:27
+- encoding-trick: C82/docs/en.md:28
+- prefix-injection: C82/docs/en.md:29
 
 ## Task table: Tasks in code
 - python3 main.py: C82/docs/en.md:67 (same command in C83 to C87 Use It sections)

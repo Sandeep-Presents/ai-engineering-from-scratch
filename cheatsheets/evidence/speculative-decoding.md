@@ -29,11 +29,12 @@ Abbreviations: L16 = phases/07-transformers-deep-dive/16-speculative-decoding, L
 - bonus = sample(q, rng): L15/c:95-96
 
 ## Serving stack (architecture, 8 nodes, 7 edges)
-- Request ingress, vLLM or SGLang server: C14/d:28-31. One replica per GPU: C14/d:23
+- Request ingress: C14/d:28
+- vLLM or SGLang server, one replica per GPU: C14/d:31, C14/d:23
 - Draft: EAGLE-3 heads, ngram fallback: C14/d:33
 - Target quantized FP8 or INT4: C14/d:34-35
 - Verify pass, batch k draft tokens: C14/d:38
-- Accept prefix, resample rejected suffix, token stream: C14/d:40-42
+- Token stream, accepted prefix, resample rejected suffix: C14/d:40-42
 - Prometheus metrics: acceptance rate, queue wait, latency p50/p99: C14/d:45
 - HPA on queue-wait metric: C14/d:48, C14/d:23
 

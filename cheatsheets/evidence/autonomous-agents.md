@@ -44,7 +44,12 @@ Abbreviations: L01 = phases/15-autonomous-systems/01-long-horizon-agents, L10 = 
 - breaker.record and break: L14/C:85-90, 37-46
 
 ## Permission modes (concepts, 6)
-- six rows: L10/D:24-29
+- plan mode, user approves the plan: L10/D:24
+- default mode, prompts for risky actions: L10/D:25
+- acceptEdits, writes auto-approve: L10/D:26
+- auto mode, classifier reviews each action: L10/D:27
+- dontAsk, unapproved actions denied: L10/D:28
+- bypassPermissions, throwaway containers only: L10/D:29
 
 ## Defaults in the simulators (defaults, 8)
 - max_tokens_per_request 10_000: L13/C:36
@@ -57,9 +62,13 @@ Abbreviations: L01 = phases/15-autonomous-systems/01-long-horizon-agents, L10 = 
 - half-open probes default 1, 1 to 3: L14/D:46
 
 ## Which cap catches what (concepts, 6)
-- runaway loop, slow leak, bad release, surge: L13/D:39-42
-- slow adversarial drift, hard limits: L14/D:70-72
-- composed safe actions: L14/D:80
+- runaway loop, velocity limit: L13/D:39
+- slow leak, daily cap: L13/D:40
+- bad release, weekly or monthly cap: L13/D:41
+- legitimate surge, hour or day cap: L13/D:42
+- slow adversarial drift beats statistical detectors: L14/D:70
+- hard limits catch the drift: L14/D:72
+- composed safe actions, no detector catches them: L14/D:80
 
 ## Troubleshooting (8)
 - naive while True loop re-runs everything: L12/D:14-15

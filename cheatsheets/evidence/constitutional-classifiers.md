@@ -11,12 +11,14 @@ Abbreviations: C17 = phases/15-autonomous-systems/17-constitutional-ai, G18 = ph
 6. reward model on AI preferences, PPO against it: R05/d:33
 
 ## Layered defense (architecture, 7 nodes, 6 edges)
-- input rails classify-and-block the user turn, Llama Guard and NeMo: G18/d:42, 45
-- weights trained with Constitutional AI: G18/d:79
-- output gate classifier: R05/d:61, 106, output rails G18/d:43
-- rules engine over a YAML constitution: E86/d:14
-- fixer, local edits per rule: E86/d:16, 50
-- draft -> rules engine -> violations -> fixer -> 2nd pass -> accepted or escalated: E86/d:21-27
+- User turn, input rails classify-and-block it: G18/d:42
+- Input rail, Llama Guard and NeMo: G18/d:42, 45
+- Model weights trained with Constitutional AI: G18/d:79
+- Output rail, classifier gate: R05/d:61, 106; G18/d:43
+- Rules engine over a YAML constitution: E86/d:14
+- Fixer, local edits per rule: E86/d:16, 50
+- Verdict, accepted or escalated: E86/d:26
+- draft to rules engine to violations to fixer to 2nd pass: E86/d:21-27
 
 ## Three layers side by side (comparison, 6 rows)
 - acts on: weights prefer C17/d:80. every request and response G18/d:12. candidate output E86/d:14

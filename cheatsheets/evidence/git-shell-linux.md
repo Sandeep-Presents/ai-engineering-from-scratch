@@ -3,7 +3,10 @@
 Abbreviations: P0 = phases/00-setup-and-tooling. G = P0/02-git-and-collaboration/docs/en.md, T = P0/10-terminal-and-shell/docs/en.md, A = P0/10-terminal-and-shell/code/shell_aliases.sh, L = P0/11-linux-for-ai/docs/en.md.
 
 ## Where git moves your work (architecture, 4 nodes, 5 edges)
-- Working Directory, Staging Area, Local Repo, Remote (GitHub): G:27-30
+- Working Directory: G:27
+- Staging Area: G:28
+- Local Repo: G:29
+- Remote (GitHub): G:30
 - git add, git commit, git push, git fetch, git pull: G:31-35
 - Remote is your fork: G:78
 
@@ -18,7 +21,11 @@ Abbreviations: P0 = phases/00-setup-and-tooling. G = P0/02-git-and-collaboration
 - git show --stat <hash>: G:115
 
 ## Pipes and redirects (command-table, 7)
-- `>`, `>>`, `2>`, `2>&1`, `|`: T:102-108
+- `>` overwrite stdout: T:104
+- `>>` append stdout: T:105
+- `2>` stderr to file: T:106
+- `2>&1` stderr to stdout: T:107
+- `|` stdout as stdin: T:108
 - python train.py > train_full.log 2>&1: T:97
 - python train.py 2>&1 | tee train.log: T:292
 

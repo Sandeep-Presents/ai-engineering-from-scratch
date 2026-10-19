@@ -113,8 +113,17 @@ function evidenceProblems(text, entry, blocks, root, cache = new Map()) {
     const section = parsed.sections.find(item => item.title.includes(block.title)) || parsed.sections.find(item => titleKey(item.title).includes(titleKey(block.title)));
     if (!section) problems.push(`the evidence file has no section for the block "${block.title}"`);
     else if (!section.refs.some(ref => ref.ok)) problems.push(`the evidence section for "${block.title}" gives no valid path:line`);
+    else {
+      const facts = factCount(block);
+      const cited = new Set(section.refs.filter(ref => ref.ok).map(ref => ref.line)).size;
+      if (cited < facts) problems.push(`the evidence section for "${block.title}" cites ${cited} of ${facts} facts. Give one bullet with a valid path:line for each row, step, node or item`);
+    }
   }
   return problems;
+}
+
+function factCount(block) {
+  return (block.rows || block.items || block.nodes || []).length;
 }
 
 function titleKey(title) {

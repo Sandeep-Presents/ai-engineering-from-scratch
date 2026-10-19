@@ -13,7 +13,9 @@ Abbreviations: L35 = phases/19-capstone-projects/35-gpt-model-assembly, L36 = ph
 - build_param_groups(model, weight_decay), two-group AdamW list: phases/19-capstone-projects/36-training-loop-eval/docs/en.md:79, 126
 
 ## GPTConfig defaults (124M) (defaults, 8)
-- vocab_size 50257: L35/c:26. context_length 1024: L35/c:27. d_model 768: L35/c:28
+- vocab_size 50257: L35/c:26
+- context_length 1024: L35/c:27
+- d_model 768: L35/c:28
 - num_heads 12: L35/c:29, divisibility check L35/c:53-54
 - num_layers 12, TransformerBlock list: L35/c:30, 132
 - mlp_expansion 4, hidden = mlp_expansion * d_model: L35/c:31, 97
@@ -91,8 +93,12 @@ Abbreviations: L35 = phases/19-capstone-projects/35-gpt-model-assembly, L36 = ph
 - Off by one LR, single function over step, test boundaries: L44/d:23, 49
 
 ## Pipeline eval gates (defaults, 8)
-- mmlu 65.0, humaneval 40.0, truthfulqa 50.0 (op >=): L13/c:37-39
-- safety_refusal_rate 0.05, kl_from_reference 25.0, cost_total_usd 50000.0 (op <=): L13/c:40-42
+- mmlu 65.0, op >=: L13/c:37
+- humaneval 40.0, op >=: L13/c:38
+- truthfulqa 50.0, op >=: L13/c:39
+- safety_refusal_rate 0.05, op <=: L13/c:40
+- kl_from_reference 25.0, op <=: L13/c:41
+- cost_total_usd 50000.0, op <=: L13/c:42
 - budget_usd 50000.0, halt over budget: L13/c:65, 151-160
 - seed 42: L13/c:60
 

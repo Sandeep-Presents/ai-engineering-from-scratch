@@ -22,7 +22,8 @@ Abbreviations: L23 = phases/17-infrastructure-and-production/23-sre-for-ai. L24 
 - Narrow safe action: L23/docs/en.md:47, 54, L23/code/main.py:96
 
 ## K8s troubleshooting agent (architecture)
-- PagerDuty/Alertmanager webhook, FastAPI receiver, affected object and SLO breach: C06/docs/en.md:28-31, 75
+- Alert webhook, PagerDuty or Alertmanager: C06/docs/en.md:28, 75
+- FastAPI receiver, affected object and SLO breach: C06/docs/en.md:31, 75
 - Root-cause agent nodes sample, walk, hypothesize: C06/docs/en.md:79
 - K8s knowledge graph ownership + scheduling: C06/docs/en.md:39-41
 - Telemetry slices Prometheus, Loki, Tempo, last 15m: C06/docs/en.md:39-41, 21

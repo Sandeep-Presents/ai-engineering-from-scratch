@@ -13,7 +13,9 @@ L08 = phases/11-llm-engineering/08-fine-tuning-lora, ADV = L08/outputs/prompt-lo
 - freeze_body(model): C38/code/main.py:173-179; C38/docs/en.md:122
 
 ## LoRA path in one layer (architecture, 8 nodes)
-- Input x, Frozen W, A, B, merge into output: L08/docs/en.md:61-68
+- Input x: L08/docs/en.md:63
+- Output y after the merge: L08/docs/en.md:68
+- Frozen W, A, B feed the merge: L08/docs/en.md:63-67
 - W is out x in: L08/docs/en.md:44
 - A r x in, Gaussian init: L08/docs/en.md:52, 75
 - B out x r, zero init: L08/docs/en.md:52, 75

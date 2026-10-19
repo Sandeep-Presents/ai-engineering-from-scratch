@@ -3,7 +3,8 @@
 Abbreviations: L03 = phases/03-deep-learning-core/03-backpropagation/docs/en.md, L06 = phases/03-deep-learning-core/06-optimizers/docs/en.md, L07 = phases/03-deep-learning-core/07-regularization/docs/en.md, L08 = phases/03-deep-learning-core/08-weight-initialization/docs/en.md, L09 = phases/03-deep-learning-core/09-learning-rate-schedules/docs/en.md, L13 = phases/03-deep-learning-core/13-debugging-neural-networks/docs/en.md.
 
 ## One AdamW step (architecture, 8 nodes)
-- loss, loss.backward(): L06:417-418
+- Loss node, forward pass output: L06:417
+- loss.backward() node: L06:418
 - clip_grad_norm_ max_norm=1.0: L06:419, L06:458
 - first moment m_t, mean, beta1 0.9: L06:85, L06:107
 - second moment v_t, variance, beta2 0.999: L06:86, L06:107
@@ -12,9 +13,13 @@ Abbreviations: L03 = phases/03-deep-learning-core/03-backpropagation/docs/en.md,
 - decoupled decay lr · λ · w, edge AdamW: L06:115-120
 
 ## The training step (flow, 7)
-- order zero_grad, forward, loss, backward, clip, step, schedule: L06:424
-- each step: L06:415-421
-- scheduler.step() after optimizer.step(): L06:424
+- 1 zero_grad: L06:415
+- 2 forward: L06:416
+- 3 loss: L06:417
+- 4 backward: L06:418
+- 5 clip, optional: L06:419, L06:424
+- 6 step: L06:420
+- 7 scheduler.step() after optimizer.step(): L06:421, L06:424
 
 ## Training loop with AdamW and cosine (annotated-code, 13 lines)
 - AdamW lr=3e-4 weight_decay=0.01: L06:410

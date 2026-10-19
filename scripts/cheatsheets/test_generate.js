@@ -46,7 +46,7 @@ function poster(flag = '--port', blocks = BLOCKS) {
 }
 
 function evidence(blocks = BLOCKS, ref = 'L01/d:3') {
-  return `# Evidence: cheatsheets/demo-serving.md\n\nAbbreviations: L01 = ${LESSON}, d = docs/en.md, c = code/main.py.\n\n${blocks.map(([title]) => `## ${title}\n- fact: ${ref}, L01/c:1-2\n`).join('\n')}`;
+  return `# Evidence: cheatsheets/demo-serving.md\n\nAbbreviations: L01 = ${LESSON}, d = docs/en.md, c = code/main.py.\n\n${blocks.map(([title]) => `## ${title}\n- fact: ${ref}, L01/c:1-2\n${[2, 3, 4, 5].map(n => `- fact ${n}: L01/d:${n}\n`).join('')}`).join('\n')}`;
 }
 
 const USAGE = { input_tokens: 30000, output_tokens: 8000, cache_read_input_tokens: 12000, cache_creation_input_tokens: 0 };
@@ -194,9 +194,14 @@ test('evidence references that do not resolve go back to the model', async () =>
   const client = fakeClient([reply(poster(), lists), critique(), reply(poster())]);
   await generate.generateTopic({ entry: entry(root), client, root });
   assert.match(client.calls[1].messages[2].content, /list or a range of keys/);
-  const unproven = fakeClient([reply(poster(), evidence(BLOCKS, 'L01/d:99').replace(/, L01\/c:1-2/g, '')), critique(), reply(poster())]);
+  const header = `# Evidence: cheatsheets/demo-serving.md\n\nAbbreviations: L01 = ${LESSON}, d = docs/en.md.\n\n`;
+  const bullets = { Tasks: '- fact: L01/d:1\n', Commands: '- fact: L01/d:99\n' };
+  const unprovenText = header + BLOCKS.map(([title]) => `## ${title}\n${bullets[title] || '- a: L01/d:1\n- b: L01/d:2\n- c: L01/d:3\n- d: L01/d:4\n'}`).join('\n');
+  const unproven = fakeClient([reply(poster(), unprovenText), critique(), reply(poster())]);
   await generate.generateTopic({ entry: entry(root), client: unproven, root });
-  assert.match(unproven.calls[1].messages[2].content, /the evidence section for "Tasks" gives no valid path:line/);
+  const unprovenFeedback = unproven.calls[1].messages[2].content;
+  assert.match(unprovenFeedback, /the evidence section for "Tasks" cites 1 of 4 facts/);
+  assert.match(unprovenFeedback, /the evidence section for "Commands" gives no valid path:line/);
 });
 
 test('main writes missing topics, honours --model and writes a summary with cost', async () => {

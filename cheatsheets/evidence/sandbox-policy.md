@@ -6,7 +6,10 @@ Abbreviations. L = phases/19-capstone-projects/26-sandbox-runner-denylist. SL = 
 - id, title, sources: cheatsheets/topics.yaml:1586-1592
 
 ## The profile ladder (comparison)
-- four profiles, cost 1, 2, 3, 5, filesystem/network/kernel booleans: SL/solution/stage2.rs:4-31
+- Cost 1, 2, 3, 5: SL/solution/stage2.rs:9, 16, 23, 30
+- Filesystem control no, yes, yes, yes: SL/solution/stage2.rs:6, 13, 20, 27
+- Network denial no, no, yes, yes: SL/solution/stage2.rs:7, 14, 21, 28
+- Separate kernel no, no, no, yes: SL/solution/stage2.rs:8, 15, 22, 29
 - residual shared-host-kernel when no kernel, network-not-denied when no network: SL/solution/stage4.rs:10-15
 
 ## Run it (command-table)
@@ -78,7 +81,9 @@ Abbreviations. L = phases/19-capstone-projects/26-sandbox-runner-denylist. SL = 
 - hypervisor is the boundary: S31:72
 
 ## Safety modes for unmatched calls (comparison)
-- strict, balanced, restricted, autonomous by safe, destructive, unknown: S55:61-66
+- safe label, ask, allow, allow, allow: S55:63-66
+- destructive label, ask, ask, deny, allow: S55:63-66
+- unknown label, ask, ask, deny, allow: S55:63-66
 
 ## Refusals and fixes (troubleshooting)
 - is on the denylist: L/code/main.py:162-163, DEFAULT_DENYLIST L/code/main.py:27

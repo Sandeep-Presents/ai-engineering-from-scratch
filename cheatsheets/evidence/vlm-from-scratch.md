@@ -42,11 +42,12 @@ Abbreviations: L58 = phases/19-capstone-projects/58-vision-encoder-patches, L59 
 - total = contrast + cfg.lm_weight * lm: L62/c:247
 
 ## Attention in a VLM (comparison, 6 rows)
-- ViT: image queries and keys, no mask, encoder-only bidirectional, (1, 197, 768): L59/d:72, 99
-- Decoder self-attention: text Q and K, causal (Nt, Nt), no look-ahead: L61/d:52
-- Cross-attention: text Q, image K and V, no mask, whole image visible: L61/d:31, 53, 59
-- Cross-attention output (B, Nt, hidden): L61/d:118
-- KV cache for image keys and values, computed once: L61/d:63
+- Query: ViT image tokens: L59/d:72. Decoder self-attention text tokens: L61/d:52. Cross-attention text tokens: L61/d:53
+- Keys and values: ViT image tokens: L59/d:72. Decoder text tokens: L61/d:52. Cross-attention image memory tokens: L61/d:31, 53
+- Mask: ViT no mask: L59/d:72. Decoder causal (Nt, Nt): L61/d:52. Cross-attention no mask: L61/d:53
+- Output shape: ViT (1, 197, 768): L59/d:99. Decoder and cross-attention (B, Nt, hidden): L61/d:118
+- Why: encoder-only and bidirectional: L59/d:72. No look-ahead: L61/d:52. Whole image visible: L61/d:53, 59
+- Cache: image K, V computed once per image: L61/d:63
 
 ## One pretraining step (flow, 7 steps)
 1. 16 pairs without replacement from 200 pairs: L62/c:64-65, 244, L62/d:67

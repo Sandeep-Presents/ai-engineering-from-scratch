@@ -13,16 +13,18 @@ Abbreviations: H = phases/10-llms-from-scratch/22-async-hogwild-inference, M = p
 - KV offloading to CPU DRAM then disk: L/docs/en.md:3
 
 ## Four methods side by side (comparison)
-- Hogwild! row: H/docs/en.md:27 (what), 84 (wins), 90 (loses), 74-78 (1.8x), 97 (research April 2026)
-- Disaggregation row: D/docs/en.md:23, 105 (thresholds), 86 (small cluster), 102 (~6x DeepSeek-R1 GB200 NVL72), 56 (Dynamo 1.0 GA), 67 (llm-d 0.5)
-- Cache-aware routing row: M/docs/en.md:31, 45, 54, 85, 33-35 (vLLM Router, llm-d router)
-- LMCache row: L/docs/en.md:112 (CPU DRAM + disk), 59 and 82 (KV exceeds HBM), 71 (short contexts), 57 and 83 (3-5% overhead), 43 (0.11.0 async)
+- What it does row: H/docs/en.md:27 (Hogwild!), D/docs/en.md:23 (disaggregation), M/docs/en.md:31 (routing), L/docs/en.md:112 (LMCache)
+- Wins when row: H/docs/en.md:84, D/docs/en.md:105, M/docs/en.md:45, L/docs/en.md:59
+- Loses when row: H/docs/en.md:90, D/docs/en.md:86, M/docs/en.md:54, L/docs/en.md:71
+- Number row: H/docs/en.md:78 (1.8x), D/docs/en.md:102 (~6x), M/docs/en.md:85 (80 ms vs 800 ms), L/docs/en.md:57 (3-5% overhead)
+- Status row: H/docs/en.md:97 (research April 2026), D/docs/en.md:56 (Dynamo 1.0 GA), D/docs/en.md:67 (llm-d 0.5), M/docs/en.md:33 (vLLM Router), M/docs/en.md:35 (llm-d router), L/docs/en.md:43 (0.11.0 async)
 
 ## Disaggregated serving stack (architecture)
-- Router, prompt only, Prefill pool compute, Decode pool memory, KV cache NIXL, tokens to Client: D/docs/en.md:37-50
-- Router cache-aware and consumes KV events: L/docs/en.md:31, M/docs/en.md:33
-- LMCache on CPU DRAM + Ceph/S3: L/docs/en.md:49
-- Unused KV lands in LMCache: L/docs/en.md:76
+- Client node, request in and tokens out: D/docs/en.md:39, 49
+- Router node, cache-aware and consumes KV events: L/docs/en.md:31, M/docs/en.md:33
+- Prefill pool node, compute-heavy, gets prompt only: D/docs/en.md:42, 45
+- Decode pool node, memory-heavy, receives KV over NIXL: D/docs/en.md:44-45
+- LMCache node on CPU DRAM + Ceph/S3: L/docs/en.md:49. Unused KV lands in it: L/docs/en.md:76
 
 ## One Hogwild! step (flow)
 - 1 shared prompt: H/docs/en.md:41
@@ -48,10 +50,13 @@ Abbreviations: H = phases/10-llms-from-scratch/22-async-hogwild-inference, M = p
 - offload configs: L/code/main.py:113
 
 ## Constants in the simulators (defaults)
-- CACHE_HIT_MS 80: M/code/main.py:21. CACHE_MISS_MS 800: M/code/main.py:22. REPLICAS_PER_REGION 4: M/code/main.py:20, three regions: M/code/main.py:19
+- CACHE_HIT_MS 80: M/code/main.py:21
+- CACHE_MISS_MS 800: M/code/main.py:22
+- REPLICAS_PER_REGION 4: M/code/main.py:20. Three regions: M/code/main.py:19
 - PREFILL_TOK_PER_MS 40.0 per GPU: D/code/main.py:11
 - KV_BYTES_PER_TOKEN_70B_FP8 125_000: D/code/main.py:14
-- NIXL_RDMA_GB_S 100: D/code/main.py:15. NIXL_TCP_GB_S 10: D/code/main.py:16
+- NIXL_RDMA_GB_S 100: D/code/main.py:15
+- NIXL_TCP_GB_S 10: D/code/main.py:16
 - KV_BLOCK_TOKENS 16: L/code/main.py:21
 
 ## Troubleshooting (troubleshooting)
@@ -65,10 +70,12 @@ Abbreviations: H = phases/10-llms-from-scratch/22-async-hogwild-inference, M = p
 - Under 1.3x revert: H/docs/en.md:156
 
 ## Use X when (tips)
-- Dynamo vs llm-d: D/docs/en.md:69
-- Native CPU offload vs LMCache: L/docs/en.md:51
-- Single node only, cross-node latency disaster: H/docs/en.md:93
-- Over 1.5x push to N=4: H/docs/en.md:157
+- Dynamo for a managed stack-above orchestrator: D/docs/en.md:69
+- llm-d for Kubernetes-native primitives: D/docs/en.md:69
+- Native CPU offload when one engine has HBM pressure: L/docs/en.md:51
+- LMCache when many engines share prefixes: L/docs/en.md:51
+- Hogwild! on one node only, cross-node latency disaster: H/docs/en.md:93
+- Push Hogwild! to N=4 only if two workers give over 1.5x: H/docs/en.md:157
 
 ## Q&A (qa)
 - 20-80 ms for 4K-prompt KV on 70B FP8: D/docs/en.md:52, 106

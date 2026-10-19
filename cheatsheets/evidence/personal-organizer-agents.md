@@ -72,11 +72,12 @@ Abbreviations. BP = projects/bookmark-path-organizer. CF = projects/calendar-foc
 - one-to-one match violated: CR/solution/main.py:87-88
 
 ## Write a review file (task-table)
-- keep-separate, keep-group, pending: FN/solution/main.ts:134,141
-- order, completed: BP/solution/main.ts:19-23
-- fingerprint and approved array: DF/README.md:31
-- {left,right,match,values}: CR/API.md:27
-- schemaVersion 1: FN/solution/main.ts:124, BP/solution/main.ts:142
+- Split a map group, keep-separate: FN/solution/main.ts:134,141
+- Keep a map group, keep-group: FN/solution/main.ts:134
+- Save reading order, order and completed: BP/solution/main.ts:19-23
+- Approve file moves, approved array of source paths: DF/README.md:31
+- Accept a catalog pair, match and values: CR/API.md:27
+- Version a Node review, schemaVersion 1: FN/solution/main.ts:124, BP/solution/main.ts:142
 
 ## Worked examples (qa)
 - events 09:30-10:15 and 10:00-11:00 overlap: CF/solution/sample.ics:5-6,11-12. Buffer padding: CF/solution/main.ts:78. Busy 09:20-11:10 computed in memory with schedule()

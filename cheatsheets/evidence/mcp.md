@@ -46,8 +46,10 @@ Abbreviations: L06 = phases/13-tools-and-protocols/06-mcp-fundamentals, L07 = ph
 
 ## Methods (command-table, 8)
 - server/discover: L06/docs/en.md:108-114
-- tools/list, tools/call: L06/docs/en.md:39
-- resources/list, resources/read: L06/docs/en.md:40
+- tools/list: L06/docs/en.md:39
+- tools/call: L06/docs/en.md:39
+- resources/list: L06/docs/en.md:40
+- resources/read: L06/docs/en.md:40
 - prompts/list, prompts/get: L06/docs/en.md:41
 - cacheable list results: L06/docs/en.md:104
 - subscriptions/listen: L09/docs/en.md:124-150

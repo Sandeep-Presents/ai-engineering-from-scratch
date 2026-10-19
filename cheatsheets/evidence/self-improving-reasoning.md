@@ -35,12 +35,17 @@ Abbreviations: C = phases/10-llms-from-scratch/09-constitutional-ai-self-improve
 - KL to reference stays: C/docs/en.md:95
 
 ## STaR family side by side (comparison)
-- All four rows: S/docs/en.md:53-58
+- STaR row: S/docs/en.md:55
+- STaR + rationalization row: S/docs/en.md:56
+- V-STaR row: S/docs/en.md:57
+- Quiet-STaR row: S/docs/en.md:58
 
 ## Code search and self-edit loops (comparison)
-- AlphaEvolve program database: A/docs/en.md:14. Evaluator and example win: A/docs/en.md:67. Accept if score beats cell incumbent: A/code/main.py:158-161. Reward hacking on weak evaluator: A/docs/en.md:47
-- DGM scaffolding: G/docs/en.md:16. Evaluator, acceptance, failure: G/docs/en.md:57, 61. 20% to 50% SWE-bench: A/docs/en.md:70
-- Godel Machine any self-modification and formal proof: G/docs/en.md:3, 57. No known instance and never triggers: G/docs/en.md:59, 61
+- Edit target: AlphaEvolve program database A/docs/en.md:14. DGM agent scaffolding G/docs/en.md:16. Godel Machine any self-modification G/docs/en.md:3
+- Evaluator: AlphaEvolve correctness and benchmark A/docs/en.md:67. DGM SWE-bench and Polyglot A/docs/en.md:70. Godel Machine formal proof G/docs/en.md:3
+- Acceptance rule: AlphaEvolve score beats cell incumbent A/code/main.py:158-161. DGM and Godel Machine G/docs/en.md:57
+- Example win: AlphaEvolve 48-mul 4x4 matmul A/docs/en.md:67. DGM 20% to 50% SWE-bench A/docs/en.md:70. Godel Machine no known instance G/docs/en.md:59
+- Failure mode: AlphaEvolve reward hacking on weak evaluator A/docs/en.md:47. DGM accepts reward-hacked variants G/docs/en.md:61. Godel Machine never triggers G/docs/en.md:61
 
 ## Run the simulators (task-table)
 - self_improvement_round(prompts, sampler, group_size=group_size): C/code/main.py:219
@@ -53,9 +58,11 @@ Abbreviations: C = phases/10-llms-from-scratch/09-constitutional-ai-self-improve
 - Scenario A Config: R/code/main.py:103
 
 ## Defaults in the code (defaults)
-- beta 0.01: C/code/main.py:110. clip_eps 0.2: C/code/main.py:111
+- beta 0.01: C/code/main.py:110
+- clip_eps 0.2: C/code/main.py:111
 - group_size 8: C/code/main.py:159
-- n_samples 1000: S/code/main.py:62. alpha 0.6: S/code/main.py:80
+- n_samples 1000: S/code/main.py:62
+- alpha 0.6: S/code/main.py:80
 - --threshold 1.5: R/code/main.py:88
 - --seed DEFAULT_SEED = 11: R/code/main.py:17, 90
 
@@ -69,7 +76,10 @@ Abbreviations: C = phases/10-llms-from-scratch/09-constitutional-ai-self-improve
 - Gap crosses threshold, pause: R/docs/en.md:42, 74, R/code/main.py:61
 
 ## Use X when (tips)
-- Pure CAI, GRPO + ORM, DPO on self-generated pairs, Full RLHF: C/docs/en.md:157-160
+- Pure CAI: C/docs/en.md:157
+- GRPO + ORM: C/docs/en.md:158
+- DPO on self-generated pairs: C/docs/en.md:159
+- Full RLHF: C/docs/en.md:160
 - AlphaEvolve where evaluator is fast, deterministic, hard to game: A/docs/en.md:36
 
 ## Q&A (qa)
@@ -80,7 +90,8 @@ Abbreviations: C = phases/10-llms-from-scratch/09-constitutional-ai-self-improve
 - Mean reward up, std stable, KL bounded: C/docs/en.md:300
 
 ## Glossary (glossary)
-- ORM, PRM: C/docs/en.md:325-326
+- ORM: C/docs/en.md:325
+- PRM: C/docs/en.md:326
 - RLAIF: C/docs/en.md:323
 - SL-CAI (prompt, revised_response) pairs: C/docs/en.md:33
 - MAP-elites: A/docs/en.md:109

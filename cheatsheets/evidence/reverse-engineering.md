@@ -3,7 +3,7 @@
 M = manuals/reverse-engineering-101, S = M/sections, O = M/capture/out, P13 = phases/13-tools-and-protocols
 
 ## Front matter
-- subtitle pin rea-agents 6.5.0, Ghidra 12.1.4: M/manual.json:9-12
+- subtitle pin rea-agents 6.7.0, Ghidra 12.1.4: M/manual.json:11
 
 ## rea CLI tasks (8)
 - rea doctor --provider ghidra --format json: S/r-1-commands-and-tools.md:11; O/00-commands.txt:1
@@ -20,8 +20,9 @@ M = manuals/reverse-engineering-101, S = M/sections, O = M/capture/out, P13 = ph
 - evidence-export <bundle> <out>: S/r-1-commands-and-tools.md:21
 - evidence-import <bundle>: S/r-1-commands-and-tools.md:22
 - compare <left> <right>: S/r-1-commands-and-tools.md:23
-- npx -y rea-agents@6.5.0 mcp: S/8-1-the-rea-mcp-server.md:23
-- rea setup, rea doctor --client <id>: S/8-1-the-rea-mcp-server.md:29
+- npx -y rea-agents mcp: S/8-1-the-rea-mcp-server.md:23
+- rea setup writes client registrations: S/8-1-the-rea-mcp-server.md:33
+- rea setup --client <id> --dry-run: S/8-1-the-rea-mcp-server.md:41
 - python3 run.py --check: M/capture/README.md:7
 
 ## One investigation from the shell (14 lines)
@@ -52,9 +53,12 @@ M = manuals/reverse-engineering-101, S = M/sections, O = M/capture/out, P13 = ph
 7. shutdown 10 s, project deleted: S/1-2-rea-function-end-to-end.md:40
 
 ## MCP tools (8)
-- open_binary binds provider, starts no process: S/r-1-commands-and-tools.md:37; S/8-1 ("open_binary took 39 ms and started no process")
+- open_binary binds provider, starts no process: S/r-1-commands-and-tools.md:37
 - binary_session tool availability: S/r-1-commands-and-tools.md:38
-- list_procedures: S/r-1-commands-and-tools.md:39. procedure_assembly: S/r-1-commands-and-tools.md:40. xrefs: S/r-1-commands-and-tools.md:41. analyze_function: S/r-1-commands-and-tools.md:43
+- list_procedures: S/r-1-commands-and-tools.md:39
+- procedure_assembly: S/r-1-commands-and-tools.md:40
+- xrefs: S/r-1-commands-and-tools.md:41
+- analyze_function: S/r-1-commands-and-tools.md:43
 - export_evidence_bundle before close_binary: S/r-1-commands-and-tools.md:44; S/7-1-verify-reconstruction.md:180
 - verify_reconstruction pass/fail/unknown: S/r-1-commands-and-tools.md:47
 
@@ -69,15 +73,21 @@ M = manuals/reverse-engineering-101, S = M/sections, O = M/capture/out, P13 = ph
 - python3 -m unittest discover -s code/tests -v: P13/36-rebuild-and-prove-equal/docs/en.md:403
 
 ## Evidence fields to read first (8)
-- evidence_id, subject, provider, analysis_profile: S/r-2-evidence-fields.md:13-16
-- confidence, authority: S/r-2-evidence-fields.md:22-23,36-37; S/5-1-the-evidence-record.md:91
-- limitations: S/r-2-evidence-fields.md:25. relationship_coverage: S/r-2-evidence-fields.md:26
+- evidence_id: S/r-2-evidence-fields.md:13
+- subject: S/r-2-evidence-fields.md:14
+- provider: S/r-2-evidence-fields.md:15
+- analysis_profile: S/r-2-evidence-fields.md:16
+- confidence: S/r-2-evidence-fields.md:22,36
+- authority: S/r-2-evidence-fields.md:23,37; S/5-1-the-evidence-record.md:91
+- limitations: S/r-2-evidence-fields.md:25
+- relationship_coverage: S/r-2-evidence-fields.md:26
 
 ## Defaults (7)
-- REA_GHIDRA_STARTUP_TIMEOUT_MS 330,000 ms: S/r-1-commands-and-tools.md:59; S/8-1 startup deadline table
-- client tool call 60,000 ms, SDK 2.3.1: S/8-1 deadline table
+- REA_GHIDRA_STARTUP_TIMEOUT_MS 330,000 ms: S/r-1-commands-and-tools.md:59; S/8-1-the-rea-mcp-server.md:213
+- client tool call 60,000 ms, SDK 2.3.1: S/8-1-the-rea-mcp-server.md:214
 - TOON without --format: S/1-2-rea-function-end-to-end.md:21
-- confidence observed, authority shipped-artifact when the producer names none: S/5-1-the-evidence-record.md:87
+- confidence observed when the producer names none: S/5-1-the-evidence-record.md:87
+- authority shipped-artifact when the producer names none: S/5-1-the-evidence-record.md:87
 - relationship_coverage null, out of the id hash: S/r-2-evidence-fields.md:5,49
 - answer cache 10,000 for one target: S/r-4-glossary.md:10
 
@@ -91,8 +101,14 @@ M = manuals/reverse-engineering-101, S = M/sections, O = M/capture/out, P13 = ph
 - masked compare passes wrong constant: S/7-2-a-proof-harness-outside-rea.md:176,250
 
 ## Glossary (8)
-- Dossier: S/r-4-glossary.md:23. Provider: S/r-4-glossary.md:38. Bridge: S/r-4-glossary.md:16. Thunk: S/r-4-glossary.md:50. Jump table: S/r-4-glossary.md:35
-- Relocation masking: S/r-4-glossary.md:41. Residual unknown: S/r-4-glossary.md:42. File offset: S/r-4-glossary.md:28
+- Dossier: S/r-4-glossary.md:23
+- Provider: S/r-4-glossary.md:38
+- Bridge: S/r-4-glossary.md:16
+- Thunk: S/r-4-glossary.md:50
+- Jump table: S/r-4-glossary.md:35
+- Relocation masking: S/r-4-glossary.md:41
+- Residual unknown: S/r-4-glossary.md:42
+- File offset: S/r-4-glossary.md:28
 
 ## Q&A (5)
 - rea adds adapters, session, Evidence. Ghidra does import, analysis, decompilation: S/1-1-rea-providers-and-evidence.md:3,49

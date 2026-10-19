@@ -74,7 +74,9 @@ Abbreviations: A = phases/11-llm-engineering/03-structured-outputs/docs/en.md, F
 - strict: required, additionalProperties: false, no $ref: T4/docs/en.md:51
 
 ## Limits and defaults (defaults, 8)
-- OpenAI 128 tools, schema depth 5, 8192 bytes: T2:59
+- OpenAI 128 tools per request: T2:59
+- OpenAI schema depth 5: T2:59
+- OpenAI argument string 8192 bytes: T2:59
 - Anthropic 64 tools: T2:60
 - 1024 characters, truncated: T5:57
 - MAX_TURNS 5: T1/code/main.py:28

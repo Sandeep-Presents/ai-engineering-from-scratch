@@ -29,22 +29,32 @@ Abbreviations: L13 = phases/11-llm-engineering/13-production-app, L29 = phases/1
 - call_with_fallback walks FALLBACK_CHAIN, preferred first: L13/pa:43, L13/pa:407-419
 
 ## Failure handling (troubleshooting, 8)
-- API 429: L13/d:135. API 500: L13/d:136. timeout over 30s: L13/d:137
-- Malformed output: L13/d:138, layer 2 L13/d:129. Guardrail block: L13/d:139
-- Vector store down: L13/d:140. Cache down: L13/d:141
-- chain ends in cached response then unavailable message: L13/d:146, apology text L13/pa:421-422
+- API 429, retry with backoff, queue the request: L13/d:135
+- API 500, retry 3 times, switch to fallback model: L13/d:136
+- API timeout over 30s, retry once, shorter prompt, smaller model: L13/d:137
+- Malformed output, retry with the error in the prompt: L13/d:138, layer 2 L13/d:129
+- Guardrail block, no retry, explain the block: L13/d:139
+- Vector store down, skip RAG context: L13/d:140
+- Cache down, direct LLM call: L13/d:141
+- All models fail, cached response then apology: L13/d:146, apology text L13/pa:421-422
 
 ## Defaults in the code (defaults, 8)
-- similarity_threshold 0.92, max_entries 10000, ttl_seconds 3600: L13/pa:208
+- similarity_threshold 0.92: L13/pa:208
+- ttl_seconds 3600: L13/pa:208
+- max_entries 10000: L13/pa:208
 - max_retries 3: L13/pa:374
-- MAX_CHARS 500: L29/m:32. MAX_BODY_BYTES 4096: L29/m:33
+- MAX_CHARS 500: L29/m:32
+- MAX_BODY_BYTES 4096: L29/m:33
 - BUCKET_CAPACITY 5, REFILL_PER_SECOND 0.5: L29/m:35-36
-- DAILY_CALL_CAP 2000: L29/m:37, 503 L29/m:371
+- DAILY_CALL_CAP 2000, over the cap gives 503: L29/m:37, 371
 
 ## Demo error codes (command-table, 8)
-- 413 body_too_large: L29/d:79. 408 request_timeout: L29/d:80
-- 415 unsupported_media_type: L29/d:81. 400 bad_json: L29/d:82
-- 422 text_too_long, control_characters: L29/d:83, L29/m:160, L29/m:163
+- 413 body_too_large: L29/d:79
+- 408 request_timeout: L29/d:80
+- 415 unsupported_media_type: L29/d:81
+- 400 bad_json: L29/d:82
+- 422 text_too_long: L29/d:83, L29/m:160
+- 422 control_characters: L29/d:83, L29/m:163
 - 429 rate_limited with Retry-After: L29/m:360-361
 - 503 usage_cap_reached with Retry-After: L29/m:371-372
 

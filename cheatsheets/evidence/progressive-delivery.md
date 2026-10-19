@@ -59,7 +59,8 @@ Abbreviations: P = phases/17-infrastructure-and-production. L20 = P/20-shadow-ca
 ## Chaos runner experiments (command-table)
 - ERROR_BUDGET_PER_DAY 0.001, 99.9% SLO: L24/code/main.py:11
 - EXPECTED_ERROR_RATE 0.0005: L24/code/main.py:12
-- burn_rate > 2.0 and e.blast_radius_pct > 0.2: L24/code/main.py:32
+- burn_rate > 2.0, first half of the abort rule: L24/code/main.py:32
+- e.blast_radius_pct > 0.2, second half of the abort rule: L24/code/main.py:32
 - pod kill 5 min, 0.05 blast: L24/code/main.py:24
 - provider 429 5 min, 0.30 blast, aborts (0.015/0.0005 = 30 > 2.0 and 0.30 > 0.2): L24/code/main.py:25, 31-32, 40
 - malformed prompt 3 min, 0.10 blast, completes (blast 0.10 not > 0.2): L24/code/main.py:26, 32

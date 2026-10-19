@@ -3,9 +3,11 @@
 Abbreviations: P = phases/01-math-foundations. L01 = P/01-linear-algebra-intuition, L02 = P/02-vectors-matrices-operations, L03 = P/03-matrix-transformations, L11 = P/11-singular-value-decomposition, L17 = P/17-linear-systems. d = docs/en.md. L01/v = code/vectors.py, L03/t = code/transformations.py, L11/s = code/svd.py, L17/c = code/linear_systems.py.
 
 ## SVD: rotate, scale, rotate (architecture, 7 nodes, 6 edges)
-- Input space n-dim, V^T rotate: L11/d:34, 40
+- Input space n-dim: L11/d:34, 40
+- V^T rotate: L11/d:34, 40
 - Sigma scales along each axis, singular values sigma_i: L11/d:35, 57, 77-80
-- U rotates into output space m-dim: L11/d:36, 41
+- U rotates: L11/d:36, 41
+- Output space m-dim: L11/d:36, 41
 - A^T A eigenvectors are V: L11/d:121
 - A A^T eigenvectors are U: L11/d:129
 - Edges follow the order V^T, Sigma, U: L11/d:27, 44

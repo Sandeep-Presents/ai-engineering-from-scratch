@@ -3,7 +3,8 @@
 Abbreviations: P05 = phases/05-nlp-foundations-to-advanced. S = P05/12-text-summarization, Q = P05/13-question-answering, M = P05/18-multilingual-nlp, N = P05/21-nli-textual-entailment. d = docs/en.md, c = code/main.py.
 
 ## Grounded QA with an NLI gate (architecture, 6 nodes, 5 edges)
-- Question to retriever, top-k passages, then reader: Q/d:28
+- Question: Q/d:28
+- Retriever, top-k passages: Q/d:28
 - Reader extractive span or generative LLM: Q/d:26-30, 167
 - NLI check, context entails answer, not entailment = fabrication: N/d:21, 92-101
 - Corpus searched with BM25, dense or hybrid: Q/d:145, 168

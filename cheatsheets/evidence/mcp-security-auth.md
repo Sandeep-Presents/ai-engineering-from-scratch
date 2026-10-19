@@ -68,7 +68,13 @@ Abbreviations: P = phases/13-tools-and-protocols. L15 = P/15-mcp-security-tool-p
 - risks: SSRF on CIMD fetch, registration spam and registration token theft: L16/d:105, L18/d:125, 170-172
 
 ## Seven attack surfaces (concepts, 7)
-- all seven items: L15/d:32-38
+- Metadata poisoning: L15/d:32
+- Descriptor rug pull: L15/d:33
+- Cross-server shadowing: L15/d:34
+- Header and body confusion: L15/d:35
+- Capability escalation: L15/d:36
+- MRTR state tampering: L15/d:37
+- Identity confusion: L15/d:38
 
 ## Rules (tips, 7)
 - bearer in Authorization header on every request, never URL: L16/d:47

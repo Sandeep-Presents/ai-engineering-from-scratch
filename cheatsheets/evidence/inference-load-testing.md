@@ -20,8 +20,10 @@ Abbreviations: P17 = phases/17-infrastructure-and-production, L08 = P17/08-infer
 - goodput: L08/d:53
 
 ## SLO profiles in main.py (comparison)
-- loose 800/25/3000, target 500/15/2000, tight 300/10/1500: L08/c:105-107
-- SHIPPABLE >= 0.99, DEGRADED >= 0.95, else FAILING: L08/c:113
+- TTFT ms loose 800, target 500, tight 300: L08/c:105-107
+- TPOT ms loose 25, target 15, tight 10: L08/c:105-107
+- E2E ms loose 3000, target 2000, tight 1500: L08/c:105-107
+- Verdict SHIPPABLE >= 0.99, DEGRADED >= 0.95, else FAILING: L08/c:113
 
 ## Four load patterns (comparison)
 - Steady-state constant RPS 30-60 min, baseline regressions: L22/d:41
@@ -46,8 +48,14 @@ Abbreviations: P17 = phases/17-infrastructure-and-production, L08 = P17/08-infer
 - hedge go run --samples 3 --delay-ms 10: HR/README.md:25-26. 80ms primary, 5ms secondary: HR/README.md:30
 
 ## Lab flag defaults (defaults)
-- --clients 20, --budget 12, --base-ms 10, --max-ms 80, --attempts 4, --capacity 5: RS/solution/main.go:251-259
-- --delay-ms 10, --samples 3: HR/solution/main.go:243-244
+- --clients 20, concurrent clients: RS/solution/main.go:251
+- --budget 12, shared retry attempts: RS/solution/main.go:252
+- --base-ms 10, initial backoff: RS/solution/main.go:255
+- --max-ms 80, maximum retry wait: RS/solution/main.go:256
+- --attempts 4, maximum attempts per client: RS/solution/main.go:257
+- --capacity 5, simulated capacity per exact millisecond: RS/solution/main.go:259
+- --delay-ms 10, hedge delay: HR/solution/main.go:243
+- --samples 3, samples per policy: HR/solution/main.go:244
 - flag spellings: RS/README.md:26-35, HR/README.md:26
 
 ## Lab error strings (command-table)

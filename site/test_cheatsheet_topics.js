@@ -127,3 +127,12 @@ test('evidence references expand abbreviations and reject bad paths and lines', 
     'the evidence section for "Tasks" gives no valid path:line',
   ]);
 });
+
+test('a from path outside the topic sources is reported', () => {
+  const root = fixture({ 'phases/01-a/01-b/docs/en.md': 'Run `serve --port 8000`.\n', 'phases/01-a/02-c/docs/en.md': 'Run `serve --port 8000`.\n' });
+  const poster = from => `---\nid: demo\ntitle: Demo\ncode: DM\nsubtitle: A demo.\nhue: 10\nsources: phases/01-a/01-b\n---\n\n## Tasks\ntype: task-table\nfrom: ${from}\n\n| Task | Code |\n|---|---|\n| Serve | \`serve --port 8000\` |\n`;
+  const inside = sheets.parseTopic(poster('phases/01-a/01-b/docs/en.md'), 'cheatsheets/demo.md');
+  assert.deepEqual(sheets.checkTopic(inside, root).filter(problem => /source of this topic/.test(problem)), []);
+  const outside = sheets.parseTopic(poster('phases/01-a/02-c/docs/en.md'), 'cheatsheets/demo.md');
+  assert.ok(sheets.checkTopic(outside, root).some(problem => /names phases\/01-a\/02-c\/docs\/en\.md, which is not a source of this topic/.test(problem)));
+});

@@ -3,11 +3,14 @@
 Abbreviations: P = phases/01-math-foundations. L04 = P/04-calculus-for-ml, L05 = P/05-chain-rule-and-autodiff, L08 = P/08-optimization, L18 = P/18-convex-optimization. d = docs/en.md. L04/c = code/derivatives.py, L05/c = code/autodiff.py, L08/c = code/optimizers.py, L18/c = code/convex.py.
 
 ## Forward and backward through one neuron (architecture, 8 nodes, 7 edges)
-- x input, z1 = w*x, z2 = w*x + b, a = sigmoid(z2), L cross-entropy: L04/d:340-343
+- x input node: L04/d:340
+- z1 = w*x node, edge *w: L04/d:340-341
+- z2 = w*x + b node, edge +b: L04/d:341-342
+- a = sigmoid(z2) activation node: L04/d:342-343
+- L cross-entropy loss node: L04/d:343
 - dL/dz2 = dL/da * a(1-a): L04/d:351
 - dL/dw = dL/dz2 * x: L04/d:352
 - dL/db = dL/dz2 * 1: L04/d:353
-- Edges *w, +b and backward right to left: L04/d:340-346
 
 ## Reverse-mode autodiff in Value.backward (flow, 7 steps)
 1. Value with children and _backward closure: L05/d:178-183, 196-200
