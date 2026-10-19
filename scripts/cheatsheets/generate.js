@@ -5,6 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const sheets = require('../../site/build-cheatsheets');
 const topicMap = require('../../site/cheatsheet-topics');
+const evidenceCheck = require('../../site/cheatsheet-evidence');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const MODELS = { haiku: 'claude-haiku-5-5', sonnet: 'claude-sonnet-5-5', opus: 'claude-opus-5-5' };
@@ -223,22 +224,9 @@ function scopeProblems(topic, entry) {
   return problems;
 }
 
-function evidenceProblems(evidence, topicText, entry) {
-  const problems = [];
-  const lines = evidence.replace(/\r\n/g, '\n').split('\n');
-  if (lines[0] !== `# Evidence: cheatsheets/${entry.id}.md`) problems.push(`the evidence file must start with "# Evidence: cheatsheets/${entry.id}.md"`);
-  const sections = [];
-  for (const line of lines) {
-    if (line.startsWith('## ')) sections.push({ title: line.slice(3), refs: 0 });
-    else if (sections.length && /^\s*(?:[-*]|\d+\.)\s.*:\d+/.test(line)) sections[sections.length - 1].refs += 1;
-  }
+function evidenceProblems(evidence, topicText, entry, root = ROOT) {
   const topic = sheets.parseTopic(topicText, `${entry.id}.md`);
-  for (const block of topic.blocks) {
-    const section = sections.find(item => item.title.includes(block.title));
-    if (!section) problems.push(`the evidence file has no section for the block "${block.title}"`);
-    else if (!section.refs) problems.push(`the evidence section for "${block.title}" gives no path:line`);
-  }
-  return problems;
+  return evidenceCheck.evidenceProblems(evidence, entry, topic.blocks, root);
 }
 
 function evaluateReply(message, entry, root) {
@@ -248,7 +236,7 @@ function evaluateReply(message, entry, root) {
   if (reply.error) return { problems: [reply.error] };
   const normal = normalizeTopic(reply.topic, entry, root);
   if (normal.error) return { problems: [normal.error] };
-  const problems = checkText(normal.text, entry, root).concat(evidenceProblems(reply.evidence, normal.text, entry));
+  const problems = checkText(normal.text, entry, root).concat(evidenceProblems(reply.evidence, normal.text, entry, root));
   const quality = problems.some(problem => /unknown type|needs|no blocks|front matter/.test(problem)) ? { score: 0, pass: false, failures: [] } : qualityOf(normal.text, entry);
   return { problems: problems.concat(quality.failures.map(failure => `rubric ${failure}`)), quality, text: normal.text, evidence: reply.evidence };
 }

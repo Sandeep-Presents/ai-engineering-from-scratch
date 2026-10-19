@@ -9,6 +9,7 @@ on:
       - 'projects/**'
       - 'scripts/cheatsheets/**'
       - 'site/cheatsheet-topics.js'
+      - 'site/cheatsheet-evidence.js'
       - 'site/test_cheatsheet_topics.js'
       - 'site/build-cheatsheets.js'
       - 'site/cheatsheets.css'
@@ -32,6 +33,7 @@ on:
       - 'projects/**'
       - 'scripts/cheatsheets/**'
       - 'site/cheatsheet-topics.js'
+      - 'site/cheatsheet-evidence.js'
       - 'site/test_cheatsheet_topics.js'
       - 'site/build-cheatsheets.js'
       - 'site/cheatsheets.css'
@@ -92,7 +94,7 @@ jobs:
             if [ -f "$file" ]; then tests="$tests $file"; fi
           done
           node --test $tests
-      - name: Every lesson in a topic, every fact in its from files, two pages at most, no broken link, same bytes twice
+      - name: Every lesson in a topic, every fact in its from files, every evidence line in a source, two pages at most, no broken link, same bytes twice
         run: node site/build-cheatsheets.js --check
       - name: Quality rubric on every sheet
         if: hashFiles('site/cheatsheet-topics.js') != ''

@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/pytorch-essentials.md
 
-Paths are relative to /private/tmp/aiefs-cheatsheets/phases/. P = 03-deep-learning-core/11-intro-to-pytorch/docs/en.md, D = 03-deep-learning-core/13-debugging-neural-networks/docs/en.md, G = 00-setup-and-tooling/03-gpu-setup-and-cloud/docs/en.md, X = 00-setup-and-tooling/12-debugging-and-profiling/docs/en.md.
+Abbreviations: P = phases/03-deep-learning-core/11-intro-to-pytorch/docs/en.md, D = phases/03-deep-learning-core/13-debugging-neural-networks/docs/en.md, G = phases/00-setup-and-tooling/03-gpu-setup-and-cloud/docs/en.md, X = phases/00-setup-and-tooling/12-debugging-and-profiling/docs/en.md.
 
 ## Tasks (task-table, 8)
 - device = torch.device("cuda" if ... else "cpu"): P:67, 245, G:94

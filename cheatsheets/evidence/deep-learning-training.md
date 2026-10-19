@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/deep-learning-training.md
 
-Paths are relative to /private/tmp/aiefs-cheatsheets/phases/03-deep-learning-core/. L03 = 03-backpropagation/docs/en.md, L06 = 06-optimizers/docs/en.md, L07 = 07-regularization/docs/en.md, L08 = 08-weight-initialization/docs/en.md, L09 = 09-learning-rate-schedules/docs/en.md, L13 = 13-debugging-neural-networks/docs/en.md.
+Abbreviations: L03 = phases/03-deep-learning-core/03-backpropagation/docs/en.md, L06 = phases/03-deep-learning-core/06-optimizers/docs/en.md, L07 = phases/03-deep-learning-core/07-regularization/docs/en.md, L08 = phases/03-deep-learning-core/08-weight-initialization/docs/en.md, L09 = phases/03-deep-learning-core/09-learning-rate-schedules/docs/en.md, L13 = phases/03-deep-learning-core/13-debugging-neural-networks/docs/en.md.
 
 ## One AdamW step (architecture, 8 nodes)
 - loss, loss.backward(): L06:417-418
@@ -56,7 +56,7 @@ Paths are relative to /private/tmp/aiefs-cheatsheets/phases/03-deep-learning-cor
 - Adam lr 0.001, change lr first: L06:107
 - beta1 0.9, almost never change: L06:107
 - beta2 0.999, change second: L06:107
-- epsilon 1e-8: L06:107 (10^{-8}), 06-optimizers/docs/en.md:216 (epsilon=1e-8)
+- epsilon 1e-8: L06:107 (10^{-8}), L06:216 (epsilon=1e-8)
 - AdamW weight_decay 0.01, not scaled by adaptive rate: L06:121, L06:246
 - SGD momentum 0.9, last 10 gradients: L06:56, L06:426
 - SGD weight decay 1e-4 on CNNs, step or cosine: L06:426

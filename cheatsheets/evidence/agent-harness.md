@@ -1,4 +1,4 @@
-# Evidence: agent-harness (after trim pass)
+# Evidence: cheatsheets/agent-harness.md
 
 P14 = phases/14-agent-engineering, P15 = phases/15-autonomous-systems, P19 = phases/19-capstone-projects
 L20 = P19/20-agent-harness-loop-contract, L21 = P19/21-tool-registry-schema-validation, L23 = P19/23-function-call-dispatcher, L25 = P19/25-verification-gates-observation-budget, L26 = P19/26-sandbox-runner-denylist, L27 = P19/27-eval-harness-fixture-tasks, L28 = P19/28-observability-otel-traces, L29 = P19/29-end-to-end-coding-task-demo, PACK = P14/42-agent-workbench-capstone/outputs/agent-workbench-pack

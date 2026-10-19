@@ -1,11 +1,11 @@
 # Evidence: cheatsheets/agent-benchmarks.md
 
-Abbreviations: L19 = phases/14-agent-engineering/19-benchmarks-swebench-gaia, L20 = phases/14-agent-engineering/20-benchmarks-webarena-osworld, M24 = phases/16-multi-agent-and-swarms/24-evaluation-coordination-benchmarks, HB = projects/harness-bench. d = docs/en.md, c = code/main.py, S = HB/solution, St1..St4 = HB/stages/0N-*/docs/en.md.
+Abbreviations: L19 = phases/14-agent-engineering/19-benchmarks-swebench-gaia, L20 = phases/14-agent-engineering/20-benchmarks-webarena-osworld, M24 = phases/16-multi-agent-and-swarms/24-evaluation-coordination-benchmarks, HB = projects/harness-bench, d = docs/en.md, c = code/main.py, S = HB/solution, St1 = projects/harness-bench/stages/01-load-unseen-benchmark-cases/docs/en.md, St2 = projects/harness-bench/stages/02-define-exactly-what-a-correct-answer-means/docs/en.md, St3 = projects/harness-bench/stages/03-run-a-harness-under-a-call-budget/docs/en.md, St4 = projects/harness-bench/stages/04-compare-runs-on-equal-denominators/docs/en.md.
 
 ## Single-agent benchmarks side by side (comparison)
 - Tests: code patching L19/d:3, generalist tool use L19/d:3, long-horizon web tasks L20/d:25, real computer tasks L20/d:39
-- Size: 2,294 issues from 12 Python repos L19/d:32, 466 questions and 300 private L19/d:53, 812 tasks in 4 apps L20/d:25, 369 tasks on Ubuntu, Windows, macOS L20/d:39
-- Agent input: codebase at pre-fix commit plus issue L19/d:33, web and multi-modality L19/d:55, self-hosted apps plus utilities L20/d:25-26, 1920×1080 screenshots L20/d:41
+- Size: 2,294 issues from 12 Python repos L19/d:32; 466 questions and 300 private L19/d:53; 812 tasks in 4 apps L20/d:25; 369 tasks on Ubuntu, Windows, macOS L20/d:39
+- Agent input: codebase at pre-fix commit plus issue L19/d:33, web and multi-modality L19/d:55, self-hosted apps plus utilities L20/d:25-26; 1920×1080 screenshots L20/d:41
 - Evaluator: FAIL_TO_PASS and PASS_TO_PASS L19/d:35, execution-based via gym APIs L20/d:27. GAIA and OSWorld evaluators are not given in the sources
 - Best at release: SWE-agent 12.5% L19/d:37, GPT-4 with plugins 15% L19/d:54, GPT-4 agent 14.41% L20/d:28, best model 12.24% L20/d:42
 - Human: 92% L19/d:54, 78.24% L20/d:28, 72.36% L20/d:42
@@ -13,7 +13,7 @@ Abbreviations: L19 = phases/14-agent-engineering/19-benchmarks-swebench-gaia, L2
 
 ## Multi-agent benchmarks side by side (comparison)
 - Measures: MARBLE topologies M24/d:22, COMMA asymmetric information M24/d:36, MedAgentBoard four categories M24/d:42, Pro uncontaminated with later cutoffs M24/d:56
-- Scoring: milestone KPIs M24/d:22, agent-agent collaboration M24/d:36, multi-agent vs single-LLM vs rule-based M24/d:42, 1865 problems in 41 repos M24/d:56
+- Scoring: milestone KPIs M24/d:22, agent-agent collaboration M24/d:36, multi-agent vs single-LLM vs rule-based M24/d:42; 1865 problems in 41 repos M24/d:56
 - Headline: graph best for research M24/d:26, struggle vs random baseline M24/d:36, does NOT dominate M24/d:44, ~23% vs 70%+ M24/d:56
 - Lesson: cognitive planning ~3% M24/d:30, measure before claiming M24/d:38, over-engineered M24/d:46, Verified no longer evidence M24/d:63
 

@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/inference-load-testing.md
 
-Abbreviations: P17 = phases/17-infrastructure-and-production. L08 = P17/08-inference-metrics-goodput, L22 = P17/22-load-testing-llm-apis. d = docs/en.md, c = code/main.py. RS = projects/retry-storm-lab, HR = projects/hedged-request-lab. RS1..RS4 and HR1..HR4 = the stage docs/en.md files in stage order.
+Abbreviations: P17 = phases/17-infrastructure-and-production, L08 = P17/08-inference-metrics-goodput, L22 = P17/22-load-testing-llm-apis, d = docs/en.md, c = code/main.py, RS = projects/retry-storm-lab, HR = projects/hedged-request-lab, RS1 = projects/retry-storm-lab/stages/01-deterministic-service/docs/en.md, RS2 = projects/retry-storm-lab/stages/02-bounded-jitter/docs/en.md, RS3 = projects/retry-storm-lab/stages/03-shared-budget/docs/en.md, RS4 = projects/retry-storm-lab/stages/04-local-http-replay/docs/en.md, HR1 = projects/hedged-request-lab/stages/01-measure-safe-reads/docs/en.md, HR2 = projects/hedged-request-lab/stages/02-schedule-duplicate/docs/en.md, HR3 = projects/hedged-request-lab/stages/03-validate-and-account/docs/en.md, HR4 = projects/hedged-request-lab/stages/04-export-tradeoffs/docs/en.md.
 
 ## Symptoms, causes, fixes (troubleshooting)
 - 500 users held, 200 fell, identical prompts and prefix caching: L22/d:19-21. Fix flags: L22/d:3, 37

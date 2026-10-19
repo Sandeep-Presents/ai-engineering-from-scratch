@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/gpu-kubernetes.md
 
-Abbreviations: P17 = phases/17-infrastructure-and-production. L03 = P17/03-gpu-autoscaling-kubernetes, L10 = P17/10-cold-start-mitigation, L11 = P17/11-multi-region-kv-locality. d = docs/en.md, c = code/main.py. KES = projects/kubernetes-event-storyboard. S1..S4 = KES/stages/01-parse-snapshots .. 04-export-storyboard, docs/en.md.
+Abbreviations: P17 = phases/17-infrastructure-and-production, L03 = P17/03-gpu-autoscaling-kubernetes, L10 = P17/10-cold-start-mitigation, L11 = P17/11-multi-region-kv-locality, d = docs/en.md, c = code/main.py, KES = projects/kubernetes-event-storyboard, S1 = projects/kubernetes-event-storyboard/stages/01-parse-snapshots, S2 = projects/kubernetes-event-storyboard/stages/02-group-occurrences, S3 = projects/kubernetes-event-storyboard/stages/03-connect-revisions, S4 = projects/kubernetes-event-storyboard/stages/04-export-storyboard.
 
 ## Tasks (task-table)
 - consolidationPolicy: WhenEmpty: L03/d:39
@@ -59,32 +59,32 @@ Abbreviations: P17 = phases/17-infrastructure-and-production. L03 = P17/03-gpu-a
 - project_test.py --init, --stage 1 --strict, --all --solution --strict: KES/README.md:15-17
 - cd solution, go run . --input fixtures/rollout.json --out /tmp/context-pack.json: KES/README.md:25-26
 - node --experimental-strip-types cli.ts /tmp/context-pack.json /tmp/timeline.html: KES/README.md:27
-- kubectl get events -A -o json: S1:40
+- kubectl get events -A -o json: S1/docs/en.md:40
 
 ## Storyboard stages (flow)
-1. Parse([]byte)(Bundle,error), observedAt, items arrays: S1:25, KES/solution/main.go:93-98
-2. Group(Bundle)([]Row,error), max count then sum: S2:13, 25, main.go:142-167
-3. ownerReferences, deployment.kubernetes.io/revision: S3:13, 25, main.go:213
-4. Export(Bundle)(Pack,error), schemaVersion 1, redactions: S4:13, 25, main.go:238
-5. parsePack(text) checks: S4:25, KES/solution/main.ts:1-28
-6. timeline(pack) escaped HTML, Warning filter: S4:13, 25, main.ts:37-45
+1. Parse([]byte)(Bundle,error), observedAt, items arrays: S1/docs/en.md:25, KES/solution/main.go:93-98
+2. Group(Bundle)([]Row,error), max count then sum: S2/docs/en.md:13, 25, KES/solution/main.go:142-167
+3. ownerReferences, deployment.kubernetes.io/revision: S3/docs/en.md:13, 25, KES/solution/main.go:213
+4. Export(Bundle)(Pack,error), schemaVersion 1, redactions: S4/docs/en.md:13, 25, KES/solution/main.go:238
+5. parsePack(text) checks: S4/docs/en.md:25, KES/solution/main.ts:1-28
+6. timeline(pack) escaped HTML, Warning filter: S4/docs/en.md:13, 25, KES/solution/main.ts:37-45
 
 ## Storyboard errors (command-table)
-- bundle exceeds one MiB, 1<<20: main.go:82-83
-- trailing JSON: main.go:91
-- observedAt must be RFC3339: main.go:94
-- invalid occurrence range or count: main.go:122-123
-- event UID changed identity: main.go:139-140
-- invalid or duplicate workload UID: main.go:128-129
-- invalid context pack: main.ts:10
+- bundle exceeds one MiB, 1<<20: KES/solution/main.go:82-83
+- trailing JSON: KES/solution/main.go:91
+- observedAt must be RFC3339: KES/solution/main.go:94
+- invalid occurrence range or count: KES/solution/main.go:122-123
+- event UID changed identity: KES/solution/main.go:139-140
+- invalid or duplicate workload UID: KES/solution/main.go:128-129
+- invalid context pack: KES/solution/main.ts:10
 
 ## Q&A (qa)
 - Karpenter ~45-60s vs Cluster Autoscaler ~90-120s: L03/d:92
 - prefill on queue depth, decode on KV pressure: L03/d:84
 - 440 ms round-trip vs 800 to 80 ms, keep regional: L11/d:54
 - 80 vs 800 ms, 10x: L11/d:42-45
-- counts 2 and 4 give 4, not 6: S2:17
-- conflicting revisions stay unknown, not by name: S3:13, 17
+- counts 2 and 4 give 4, not 6: S2/docs/en.md:17
+- conflicting revisions stay unknown, not by name: S3/docs/en.md:13, 17
 
 ## Tips (tips)
 - tokenizer.json, tokenizer.model: L11/d:66

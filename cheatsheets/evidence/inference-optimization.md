@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/inference-optimization.md
 
-Paths are relative to /private/tmp/aiefs-cheatsheets/phases/. KV = 07-transformers-deep-dive/12-kv-cache-flash-attention/docs/en.md, IO = 10-llms-from-scratch/12-inference-optimization/docs/en.md, QZ = 10-llms-from-scratch/11-quantization/docs/en.md, VL = 17-infrastructure-and-production/04-vllm-serving-internals/docs/en.md, EG = 17-infrastructure-and-production/05-eagle3-speculative-decoding/docs/en.md, MT = 17-infrastructure-and-production/08-inference-metrics-goodput/docs/en.md, PQ = 17-infrastructure-and-production/09-production-quantization/docs/en.md.
+Abbreviations: KV = phases/07-transformers-deep-dive/12-kv-cache-flash-attention/docs/en.md, IO = phases/10-llms-from-scratch/12-inference-optimization/docs/en.md, QZ = phases/10-llms-from-scratch/11-quantization/docs/en.md, VL = phases/17-infrastructure-and-production/04-vllm-serving-internals/docs/en.md, EG = phases/17-infrastructure-and-production/05-eagle3-speculative-decoding/docs/en.md, MT = phases/17-infrastructure-and-production/08-inference-metrics-goodput/docs/en.md, PQ = phases/17-infrastructure-and-production/09-production-quantization/docs/en.md.
 
 ## Tasks (task-table, 8)
 - --enable-prefix-caching: KV:199

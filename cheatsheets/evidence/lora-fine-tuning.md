@@ -1,4 +1,4 @@
-# Evidence: lora-fine-tuning
+# Evidence: cheatsheets/lora-fine-tuning.md
 
 L08 = phases/11-llm-engineering/08-fine-tuning-lora, ADV = L08/outputs/prompt-lora-advisor.md, SKILL = L08/outputs/skill-fine-tuning-guide.md, SFT = phases/10-llms-from-scratch/06-instruction-tuning-sft, C38 = phases/19-capstone-projects/38-classifier-finetuning, C39 = phases/19-capstone-projects/39-instruction-tuning-sft
 

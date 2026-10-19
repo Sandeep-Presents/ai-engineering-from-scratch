@@ -70,6 +70,10 @@ A node line is `node | <id> | <column>,<row> | <label> | <second line> | <kind>`
 
 Every fact must come from a file in the `from` list of its block: a lesson, a lesson's code, a manual section or a manual capture. Do not write a command, flag, API name, default or number that is not in those files. `node site/build-cheatsheets.js --check` enforces part of this rule. Each flag (`--name`), each name with an underscore, a dot or a call, and each default value must appear in at least one `from` file of its block.
 
+## Evidence files
+
+Each sheet has an evidence file, `cheatsheets/evidence/<id>.md`. It starts with `# Evidence: cheatsheets/<id>.md` and has one `##` section for each block. Each bullet names a fact and the `path:line` or `path:line-line` that holds it, for example `phases/01-x/01-y/docs/en.md:12, 40-42`. To shorten paths, give one line at the top such as `Abbreviations: L01 = phases/01-x/01-y, d = docs/en.md.` and write `L01/d:12`. Use one `KEY = path` pair for each key, not a list or a range of keys. `node site/build-cheatsheets.js --check` resolves every reference. It fails when a path does not exist, is not in a source of the topic, or cites a line that is not in the file, and when a block has no section with a valid reference.
+
 ## Prose
 
 Use short sentences in Simplified Technical English. Use one line for each row or bullet. Do not use dashes, semicolons or figurative words. A cheat sheet tells the reader what to type and what to expect. It does not tell a story.

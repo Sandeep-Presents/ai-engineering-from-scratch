@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/llm-evaluation.md
 
-Abbreviations: P10 = phases/10-llms-from-scratch/10-evaluation, P11 = phases/11-llm-engineering/10-evaluation, P05E = phases/05-nlp-foundations-to-advanced/27-llm-evaluation-frameworks, P05L = phases/05-nlp-foundations-to-advanced/28-long-context-evaluation, P19 = phases/19-capstone-projects. L27, L41, L49, L70..L75 = the P19 lesson directories. d = docs/en.md, c = code/main.py.
+Abbreviations: P10 = phases/10-llms-from-scratch/10-evaluation, P11 = phases/11-llm-engineering/10-evaluation, P05E = phases/05-nlp-foundations-to-advanced/27-llm-evaluation-frameworks, P05L = phases/05-nlp-foundations-to-advanced/28-long-context-evaluation, L27 = phases/19-capstone-projects/27-eval-harness-fixture-tasks, L41 = phases/19-capstone-projects/41-eval-pipeline, L49 = phases/19-capstone-projects/49-lm-eval-harness, L70 = phases/19-capstone-projects/70-task-spec-format, L71 = phases/19-capstone-projects/71-classical-metrics, L72 = phases/19-capstone-projects/72-code-exec-metric, L73 = phases/19-capstone-projects/73-perplexity-calibration, L74 = phases/19-capstone-projects/74-leaderboard-aggregation, L75 = phases/19-capstone-projects/75-end-to-end-eval-runner, d = docs/en.md, c = code/main.py.
 
 ## Architecture: End-to-end eval runner (8 nodes, 9 edges)
 - tasks.jsonl, validate: L75/d:26, L70/c:192

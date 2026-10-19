@@ -69,8 +69,8 @@ Abbreviations: L13 = phases/11-llm-engineering/13-production-app, L29 = phases/1
 
 ## Gateway providers file (annotated-code, 7 lines)
 - primary and backup urls: GW/solution/fixtures/providers.example.json:5, 10
-- key_env ORCHARD_BACKUP_KEY: providers.example.json:12, env var name meaning GW/README.md:33
-- max_attempts 2, max_response_bytes 65536, timeout_ms 4000: providers.example.json:15-17
+- key_env ORCHARD_BACKUP_KEY: GW/solution/fixtures/providers.example.json:12, env var name meaning GW/README.md:33
+- max_attempts 2, max_response_bytes 65536, timeout_ms 4000: GW/solution/fixtures/providers.example.json:15-17
 - ranges 1 to 16, 16 MiB, 1 to 5000 whole route, one visit per provider: GW/README.md:50
 
 ## Project tasks (task-table, 7)

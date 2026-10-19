@@ -3,7 +3,7 @@
 Abbreviations: P = phases/13-tools-and-protocols. L22 = P/22-skills-and-agent-sdks, L24 = P/24-skill-discovery-and-progressive-disclosure, L25 = P/25-skill-invocation-and-routing, SR = projects/skill-router, SI = projects/skill-installer, SV = projects/skill-validator. d = docs/en.md, c = code/main.py, sm = solution/main.ts, sc = solution/cli.ts.
 
 ## Skill lifecycle (flow, 8 steps)
-1-8. Discovery, Validation, Cataloging, Selection, Activation, Disclosure, Execution, Verification: L22/d:305-312
+- steps 1 to 8, Discovery, Validation, Cataloging, Selection, Activation, Disclosure, Execution, Verification: L22/d:305-312
 
 ## Install, invoke, remove (command-table, 7)
 - npx skills add ... --skill skill-contract-reviewer --full-depth, nested bundle: L22/d:91, 95-97

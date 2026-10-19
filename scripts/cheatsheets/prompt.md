@@ -25,7 +25,9 @@ You get the topic entry from `cheatsheets/topics.yaml`, the source files of the 
 
 - Start with `# Evidence: cheatsheets/<id>.md`.
 - Give one `##` section for each block, with the block heading and its type.
-- Under each section, give one bullet for each row, step, node or bullet of the block. Each bullet names the fact and the `path:line` or `path:line-line` that holds it. Short abbreviations for long paths are allowed when you define them at the top.
+- Under each section, give one bullet for each row, step, node or bullet of the block. Each bullet names the fact and the `path:line` or `path:line-line` that holds it. Give more lines after a comma: `path:12, 40-42`.
+- Each path is a repository path inside one of the topic sources. The file must exist, and each line number must be in the file.
+- To shorten long paths, give one line at the top: `Abbreviations: L01 = phases/01-x/01-y, d = docs/en.md, c = code/main.py.` Use one `KEY = path` pair for each key. Do not use lists or ranges of keys. Then write `L01/d:12` for `phases/01-x/01-y/docs/en.md:12`.
 
 ## Output
 

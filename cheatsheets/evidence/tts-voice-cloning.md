@@ -59,7 +59,7 @@ Abbreviations: P06 = phases/06-speech-and-audio. L07 = P06/07-text-to-speech, L0
 - DAC-44.1k 86 Hz, highest fidelity, 44.1 kHz full-band: L13/d:35, 48
 - SNAC-24k ~12 Hz coarse, detail at 50 Hz: L13/d:37, 49
 - Mimi 12.5 Hz, 8 codebooks @ 4.4 kbps: L13/d:39, 50
-- each code 0-1023: L13/d:99, 1024 codes: L13/d:27
+- each code 0-1023: L13/d:99; 1024 codes: L13/d:27
 - stop at 8-12 codebooks, fidelity and sequence length grow: L13/d:155
 - Kokoro outputs 24 kHz, resample for 16 kHz: L07/d:156
 

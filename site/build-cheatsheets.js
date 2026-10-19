@@ -9,6 +9,7 @@ const { phaseSlug } = require('../lib/hub-routes');
 const { SITE_HEADER } = require('./build-hubs');
 const { versionHtml } = require('./version-assets');
 const topicMap = require('./cheatsheet-topics');
+const evidenceCheck = require('./cheatsheet-evidence');
 
 const ORIGIN = 'https://aiengineeringfromscratch.com';
 const REPO = 'https://github.com/rohitg00/ai-engineering-from-scratch';
@@ -1202,8 +1203,11 @@ function main(argv) {
     for (const item of checkLinks(first)) problems.push(`broken link on ${item.page}: ${item.href}`);
     const map = topicMap.loadTopicMap(REPO_ROOT);
     problems.push(...topicMap.mapProblems(map, first.topics, REPO_ROOT));
+    const evidence = evidenceCheck.checkEvidence(map, first.topics, REPO_ROOT);
+    problems.push(...evidence.problems);
     const status = topicMap.mapStatus(map, first.topics, REPO_ROOT);
     console.log(`Checked ${first.topics.length} cheat sheet topics (${first.topics.reduce((sum, topic) => sum + topic.blocks.length, 0)} blocks).`);
+    console.log(`Resolved ${evidence.refs} evidence references in ${first.topics.length} evidence files.`);
     console.log(`Coverage: ${status.coverage.covered} of ${status.coverage.total} lessons, manuals and projects are in ${map.topics.length} topics (${status.coverage.lessons} of ${status.coverage.lessonTotal} lessons).`);
     if (status.missing.length) console.log(`${status.missing.length} topics have no sheet yet: ${status.missing.join(', ')}. The cheat sheet generate workflow writes them.`);
     if (status.stale.length) console.log(`${status.stale.length} sheets are older than their sources: ${status.stale.join(', ')}.`);

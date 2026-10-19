@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/agent-frameworks-compared.md
 
-Abbreviations: L17 = phases/11-llm-engineering/17-agent-framework-tradeoffs. A14, A15, A16, A17, A18 = phases/14-agent-engineering/14-autogen-actor-model, 15-crewai-role-based-crews, 16-openai-agents-sdk, 17-claude-agent-sdk, 18-agno-and-mastra-runtimes. PM = projects/typed-workflow-agent-with-mastra. PA = projects/support-agent-with-google-adk. d = docs/en.md, c = code/main.py.
+Abbreviations: L17 = phases/11-llm-engineering/17-agent-framework-tradeoffs, A14 = phases/14-agent-engineering/14-autogen-actor-model, A15 = phases/14-agent-engineering/15-crewai-role-based-crews, A16 = phases/14-agent-engineering/16-openai-agents-sdk, A17 = phases/14-agent-engineering/17-claude-agent-sdk, A18 = phases/14-agent-engineering/18-agno-and-mastra-runtimes, PM = projects/typed-workflow-agent-with-mastra, PA = projects/support-agent-with-google-adk, d = docs/en.md, c = code/main.py.
 
 ## Orchestration frameworks side by side (comparison)
 - Core abstraction StateGraph, Crew, ConversableAgent pair, Agent: L17/d:26-29

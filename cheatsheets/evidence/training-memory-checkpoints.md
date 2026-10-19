@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/training-memory-checkpoints.md
 
-Abbreviations: L34 = phases/10-llms-from-scratch/34-gradient-checkpointing. L45, L46, L47, L80, L81 = phases/19-capstone-projects/45-gradient-clipping-amp, 46-gradient-accumulation, 47-checkpoint-save-resume, 80-checkpoint-sharded-resume, 81-end-to-end-distributed-train. d = docs/en.md, c = code/main.py.
+Abbreviations: L34 = phases/10-llms-from-scratch/34-gradient-checkpointing, L45 = phases/19-capstone-projects/45-gradient-clipping-amp, L46 = phases/19-capstone-projects/46-gradient-accumulation, L47 = phases/19-capstone-projects/47-checkpoint-save-resume, L80 = phases/19-capstone-projects/80-checkpoint-sharded-resume, L81 = phases/19-capstone-projects/81-end-to-end-distributed-train, d = docs/en.md, c = code/main.py.
 
 ## Training symptoms (troubleshooting, 8)
 - Loss vertical after one batch, clip at norm 1.0, `max_norm = 1.0`: L45/d:19, L45/d:89. `clip_grad_norm_`: L45/d:45

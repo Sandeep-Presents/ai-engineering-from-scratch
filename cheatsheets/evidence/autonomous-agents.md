@@ -1,6 +1,6 @@
 # Evidence: cheatsheets/autonomous-agents.md
 
-Paths are relative to /private/tmp/aiefs-cheatsheets/phases/15-autonomous-systems/. L01 = 01-long-horizon-agents, L10 = 10-claude-code-permission-modes, L12 = 12-durable-execution, L13 = 13-cost-governors, L14 = 14-kill-switches-canaries, L15 = 15-propose-then-commit, L16 = 16-checkpoints-rollback. D = docs/en.md, C = code/main.py.
+Abbreviations: L01 = phases/15-autonomous-systems/01-long-horizon-agents, L10 = phases/15-autonomous-systems/10-claude-code-permission-modes, L12 = phases/15-autonomous-systems/12-durable-execution, L13 = phases/15-autonomous-systems/13-cost-governors, L14 = phases/15-autonomous-systems/14-kill-switches-canaries, L15 = phases/15-autonomous-systems/15-propose-then-commit, L16 = phases/15-autonomous-systems/16-checkpoints-rollback, D = docs/en.md, C = code/main.py.
 
 ## Operator tasks (task-table, 8)
 - plan mode reviews first: L10/D:24

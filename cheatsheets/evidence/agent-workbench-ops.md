@@ -69,7 +69,7 @@ Abbreviations: L34 = phases/14-agent-engineering/34-repo-memory-and-state, L35 =
 
 ## Task frame (annotated-code, 11 lines)
 - TaskFrame example goal, allowed_paths, forbidden_paths, acceptance: L43/c:65-70
-- RepositoryFact with tests/test_accounts.py:44 receipt: L43/c:73, L43/d:38
+- RepositoryFact with a receipt for line 44 of tests/test_accounts.py: L43/c:73, L43/d:38
 - unknowns case-insensitive: L43/c:75
 - validate returns issues, empty means READY: L43/c:27-43, 48
 - render Status READY or BLOCKED: L43/c:46-49

@@ -45,8 +45,8 @@ function poster(flag = '--port', blocks = BLOCKS) {
   return `---\nid: demo-serving\ntitle: Demo Serving\nsubtitle: Start the demo server and queue a job.\nhue: 120\nsources: ${LESSON}\n---\n\n${body}\n`;
 }
 
-function evidence(blocks = BLOCKS) {
-  return `# Evidence: cheatsheets/demo-serving.md\n\n${blocks.map(([title]) => `## ${title}\n- fact: d:3\n`).join('\n')}`;
+function evidence(blocks = BLOCKS, ref = 'L01/d:3') {
+  return `# Evidence: cheatsheets/demo-serving.md\n\nAbbreviations: L01 = ${LESSON}, d = docs/en.md, c = code/main.py.\n\n${blocks.map(([title]) => `## ${title}\n- fact: ${ref}, L01/c:1-2\n`).join('\n')}`;
 }
 
 const USAGE = { input_tokens: 30000, output_tokens: 8000, cache_read_input_tokens: 12000, cache_creation_input_tokens: 0 };
@@ -170,6 +170,33 @@ test('a missing evidence section, a refusal and a climbing from path are refused
   result = await generate.generateTopic({ entry: entry(root), client, root, escalation: '' });
   assert.equal(result.ok, false);
   assert.ok(result.problems.some(problem => /not a plain repository path|not a source of this topic/.test(problem)));
+});
+
+test('evidence references that do not resolve go back to the model', async () => {
+  const root = fixture();
+  fs.mkdirSync(path.join(root, 'phases/01-demo/02-other/docs'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'phases/01-demo/02-other/docs/en.md'), 'serve --port 8000\n');
+  const cases = [
+    ['L01/docs/missing.md:3', /L01\/docs\/missing\.md \(phases\/01-demo\/01-serving\/docs\/missing\.md\) does not exist/],
+    ['phases/01-demo/02-other/docs/en.md:1', /phases\/01-demo\/02-other\/docs\/en\.md \(phases\/01-demo\/02-other\/docs\/en\.md\) is not in a source of this topic/],
+    ['L01/d:99', /L01\/d:99 is outside phases\/01-demo\/01-serving\/docs\/en\.md \(5 lines\)/],
+    ['L01/../02-other/docs/en.md:1', /is not a plain repository path/],
+  ];
+  for (const [ref, pattern] of cases) {
+    const client = fakeClient([reply(poster(), evidence(BLOCKS, ref)), critique(), reply(poster())]);
+    const result = await generate.generateTopic({ entry: entry(root), client, root });
+    assert.equal(result.ok, true, ref);
+    const feedback = client.calls[1].messages[2].content;
+    assert.match(feedback, pattern, ref);
+    assert.doesNotMatch(feedback, /gives no valid path:line/, ref);
+  }
+  const lists = evidence().replace('L01 = ', 'L01, L02 = ');
+  const client = fakeClient([reply(poster(), lists), critique(), reply(poster())]);
+  await generate.generateTopic({ entry: entry(root), client, root });
+  assert.match(client.calls[1].messages[2].content, /list or a range of keys/);
+  const unproven = fakeClient([reply(poster(), evidence(BLOCKS, 'L01/d:99').replace(/, L01\/c:1-2/g, '')), critique(), reply(poster())]);
+  await generate.generateTopic({ entry: entry(root), client: unproven, root });
+  assert.match(unproven.calls[1].messages[2].content, /the evidence section for "Tasks" gives no valid path:line/);
 });
 
 test('main writes missing topics, honours --model and writes a summary with cost', async () => {

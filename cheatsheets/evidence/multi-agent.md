@@ -1,6 +1,8 @@
 # Evidence: cheatsheets/multi-agent.md
 
-Paths are relative to /private/tmp/aiefs-cheatsheets/phases/16-multi-agent-and-swarms/. Lesson directories are shortened to their number: 04 = 04-primitive-model, and so on. D = docs/en.md, C = code/main.py.
+Abbreviations: 04 = phases/16-multi-agent-and-swarms/04-primitive-model, D = docs/en.md, C = code/main.py, 22 = phases/16-multi-agent-and-swarms/22-production-scaling-queues-checkpoints, 13 = phases/16-multi-agent-and-swarms/13-shared-memory-blackboard, 11 = phases/16-multi-agent-and-swarms/11-handoffs-and-routines, 10 = phases/16-multi-agent-and-swarms/10-group-chat-speaker-selection, 05 = phases/16-multi-agent-and-swarms/05-supervisor-orchestrator-pattern, 14 = phases/16-multi-agent-and-swarms/14-consensus-and-bft, 23 = phases/16-multi-agent-and-swarms/23-failure-modes-mast-groupthink, 01 = phases/16-multi-agent-and-swarms/01-why-multi-agent, 06 = phases/16-multi-agent-and-swarms/06-hierarchical-architecture, 15 = phases/16-multi-agent-and-swarms/15-voting-debate-topology, 24 = phases/16-multi-agent-and-swarms/24-evaluation-coordination-benchmarks.
+
+Lesson directories are shortened to their number:, and so on.
 
 ## Four primitives (architecture, 8 nodes, 7 edges)
 - Orchestrator static, handoff, selector: 04/D:23; 04/C:82-128

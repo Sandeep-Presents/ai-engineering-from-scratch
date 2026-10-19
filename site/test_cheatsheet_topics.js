@@ -7,6 +7,7 @@ const path = require('node:path');
 const test = require('node:test');
 const topicMap = require('./cheatsheet-topics');
 const sheets = require('./build-cheatsheets');
+const evidenceCheck = require('./cheatsheet-evidence');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -102,4 +103,27 @@ test('the rubric reports thin blocks, duplicates, empty defaults and a missing d
 
 test('every sheet records a source hash', () => {
   for (const topic of sheets.loadTopics(ROOT)) assert.match(topic.sourceHash, /^[0-9a-f]{16}$/, topic.file);
+});
+
+test('every evidence reference resolves to a line in a source of its topic', () => {
+  const map = topicMap.loadTopicMap(ROOT);
+  const result = evidenceCheck.checkEvidence(map, sheets.loadTopics(ROOT), ROOT);
+  assert.deepEqual(result.problems, []);
+  assert.ok(result.refs > 10000);
+});
+
+test('evidence references expand abbreviations and reject bad paths and lines', () => {
+  const root = fixture({ 'phases/01-a/01-b/docs/en.md': 'one\ntwo\nthree\n', 'phases/01-a/01-b/code/main.py': 'x = 1\n', 'phases/01-a/02-c/docs/en.md': 'one\n' });
+  const entry = { id: 'demo', sources: ['phases/01-a/01-b'] };
+  const blocks = [{ title: 'Tasks' }, { title: 'Flow (steps)' }];
+  const text = refs => `# Evidence: cheatsheets/demo.md\n\nAbbreviations: L01 = phases/01-a/01-b, d = docs/en.md.\n\n## Tasks (task-table)\n- fact: ${refs}\n\n## Flow\n- step: L01/d:1-3, code/main.py:1\n`;
+  assert.deepEqual(evidenceCheck.evidenceProblems(text('L01/d:2, 3'), entry, blocks, root), []);
+  const problems = evidenceCheck.evidenceProblems(text('L01/d:4; L01/docs/none.md:1; phases/01-a/02-c/docs/en.md:1; L01/../02-c/docs/en.md:1'), entry, blocks, root);
+  assert.deepEqual(problems, [
+    'evidence line 6: L01/d:4 is outside phases/01-a/01-b/docs/en.md (3 lines)',
+    'evidence line 6: L01/docs/none.md (phases/01-a/01-b/docs/none.md) does not exist',
+    'evidence line 6: phases/01-a/02-c/docs/en.md (phases/01-a/02-c/docs/en.md) is not in a source of this topic',
+    'evidence line 6: L01/../02-c/docs/en.md is not a plain repository path',
+    'the evidence section for "Tasks" gives no valid path:line',
+  ]);
 });
