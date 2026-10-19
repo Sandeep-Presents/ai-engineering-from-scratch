@@ -20,6 +20,7 @@ from typing import Any, Callable
 
 @dataclass
 class ToolCall:
+    """One tool invocation requested by the model, keyed by a correlation id."""
 
     id: str
     name: str
@@ -27,6 +28,7 @@ class ToolCall:
 
 @dataclass
 class Turn:
+    """One entry in the message buffer: user, thought, action, or final."""
 
     kind: str
     content: str
@@ -34,16 +36,22 @@ class Turn:
     observation: str | None = None
 
 class ToolRegistry:
+    """Name-to-function map the loop dispatches tool calls through."""
+
     def __init__(self) -> None:
+        """Start with no tools registered."""
         self._tools: dict[str, Callable[..., str]] = {}
 
     def register(self, name: str, fn: Callable[..., str]) -> None:
+        """Add or replace the tool called `name`."""
         self._tools[name] = fn
 
     def names(self) -> list[str]:
+        """Return the registered tool names in sorted order."""
         return sorted(self._tools)
 
     def dispatch(self, call: ToolCall) -> str:
+        """Run a call and return its observation; failures come back as error strings."""
         fn = self._tools.get(call.name)
         if fn is None:
             return f"error: unknown tool {call.name!r}"
@@ -55,6 +63,7 @@ class ToolRegistry:
             return f"error: {type(e).__name__}: {e}"
 
 def calculator(expr: str) -> str:
+    """Evaluate an arithmetic expression restricted to digits and + - * / ( ) . characters."""
     allowed = set("0123456789+-*/(). ")
     if not set(expr).issubset(allowed):
         return "error: illegal character in expr"
@@ -64,23 +73,31 @@ def calculator(expr: str) -> str:
         return f"error: {type(e).__name__}: {e}"
 
 class KVStore:
+    """In-memory key-value store exposed to the agent as two tools."""
+
     def __init__(self) -> None:
+        """Start empty."""
         self._store: dict[str, str] = {}
 
     def get(self, key: str) -> str:
+        """Return the stored value, or a `missing:<key>` marker."""
         return self._store.get(key, f"missing:{key}")
 
     def set(self, key: str, value: str) -> str:
+        """Store a value and return a confirmation string."""
         self._store[key] = value
         return f"stored {key}"
 
 class ToyLLM:
+    """Scripted policy that replays canned replies so the loop runs offline."""
 
     def __init__(self, script: list[dict[str, Any]]) -> None:
+        """Keep the script and start at its first entry."""
         self.script = script
         self.cursor = 0
 
     def respond(self, history: list[Turn]) -> dict[str, Any]:
+        """Return the next scripted reply, or a finish reply once the script runs out."""
         if self.cursor >= len(self.script):
             return {"kind": "finish", "content": "no more actions"}
         entry = self.script[self.cursor]
@@ -89,6 +106,8 @@ class ToyLLM:
 
 @dataclass
 class AgentLoop:
+    """ReAct loop: ask the model, run its tool calls, append observations, repeat."""
+
     llm: ToyLLM
     tools: ToolRegistry
     max_turns: int = 12
@@ -96,31 +115,38 @@ class AgentLoop:
     history: list[Turn] = field(default_factory=list)
     _next_call_id: int = 0
 
-    def _new_call_id(self) -> str:
-        self._next_call_id += 1
-        return f"call-{self._next_call_id}"
+    def _new_call_id(self, reserved: set[str]) -> str:
+        """Return the next generated id that no supplied id in this turn already uses."""
+        while True:
+            self._next_call_id += 1
+            candidate = f"call-{self._next_call_id}"
+            if candidate not in reserved:
+                return candidate
 
-    def _make_call(self, raw: dict[str, Any]) -> ToolCall:
-        # Keep the model-supplied id so results can be matched back to it.
-        call_id = raw.get("id") or self._new_call_id()
+    def _make_call(self, raw: dict[str, Any], reserved: set[str]) -> ToolCall:
+        """Build a ToolCall, keeping the model-supplied id so results match back to it."""
+        call_id = raw.get("id") or self._new_call_id(reserved)
         return ToolCall(id=call_id, name=raw["name"], args=raw.get("args", {}))
 
     def _run_calls(
         self, raw_calls: list[dict[str, Any]], arrival: list[str] | None = None
     ) -> None:
+        """Dispatch one turn's calls, drop those over the cap, and record the results."""
         to_run = raw_calls[: self.max_tool_calls_per_turn]
         dropped = raw_calls[self.max_tool_calls_per_turn:]
+        # Reserve every supplied id first so a generated id can never shadow one.
+        reserved = {raw["id"] for raw in raw_calls if raw.get("id")}
 
         results: list[Turn] = []
         for raw in to_run:
-            call = self._make_call(raw)
+            call = self._make_call(raw, reserved)
             observation = self.tools.dispatch(call)
             results.append(
                 Turn(kind="action", content=call.name, tool_call=call, observation=observation)
             )
 
         for raw in dropped:
-            call = self._make_call(raw)
+            call = self._make_call(raw, reserved)
             observation = (
                 f"error: dropped — turn exceeded max_tool_calls_per_turn="
                 f"{self.max_tool_calls_per_turn}"
@@ -137,6 +163,7 @@ class AgentLoop:
         self.history.extend(results)
 
     def run(self, user_message: str) -> str:
+        """Run the loop until the model finishes, stops calling tools, or the budget ends."""
         self.history.append(Turn(kind="user", content=user_message))
         for _ in range(self.max_turns):
             reply = self.llm.respond(self.history)
@@ -159,9 +186,11 @@ class AgentLoop:
         return "budget exhausted"
 
 def observations_by_id(history: list[Turn]) -> dict[str, str | None]:
+    """Map each tool call id to its observation, whatever order results arrived in."""
     return {t.tool_call.id: t.observation for t in history if t.tool_call is not None}
 
 def pretty_trace(history: list[Turn]) -> None:
+    """Print the message buffer one numbered line per turn."""
     for i, turn in enumerate(history):
         tag = f"[{i:02d} {turn.kind:>7}]"
         if turn.kind in ("user", "thought", "final"):
@@ -172,6 +201,7 @@ def pretty_trace(history: list[Turn]) -> None:
             print(f"{tag} {call.id} {call.name}({call.args}) -> {turn.observation}")
 
 def build_demo_agent() -> AgentLoop:
+    """Main demo: store a price, compute tax and total, then finish."""
     tools = ToolRegistry()
     tools.register("calculator", calculator)
     kv = KVStore()
@@ -194,6 +224,7 @@ def build_demo_agent() -> AgentLoop:
     return AgentLoop(llm=ToyLLM(script), tools=tools, max_turns=10)
 
 def build_parallel_calls_demo() -> AgentLoop:
+    """Exercise 1: three calls in one turn against a cap of two."""
     tools = ToolRegistry()
     kv = KVStore()
     tools.register("kv_set", kv.set)
@@ -210,6 +241,7 @@ def build_parallel_calls_demo() -> AgentLoop:
     return AgentLoop(llm=ToyLLM(script), tools=tools, max_turns=5, max_tool_calls_per_turn=2)
 
 def build_no_tool_calls_demo() -> AgentLoop:
+    """Exercise 2: an assistant turn with no tool calls ends the run."""
     tools = ToolRegistry()
     tools.register("calculator", calculator)
 
@@ -221,6 +253,7 @@ def build_no_tool_calls_demo() -> AgentLoop:
     return AgentLoop(llm=ToyLLM(script), tools=tools, max_turns=5)
 
 def build_malformed_args_demo() -> AgentLoop:
+    """Exercise 3: a wrong argument name returns an error, then the retry succeeds."""
     tools = ToolRegistry()
     tools.register("calculator", calculator)
 
@@ -234,6 +267,7 @@ def build_malformed_args_demo() -> AgentLoop:
     return AgentLoop(llm=ToyLLM(script), tools=tools, max_turns=5)
 
 def build_out_of_order_demo() -> AgentLoop:
+    """Exercise 5: results land in a different order than the calls, matched by id."""
     tools = ToolRegistry()
     tools.register("calculator", calculator)
 
@@ -249,6 +283,7 @@ def build_out_of_order_demo() -> AgentLoop:
     return AgentLoop(llm=ToyLLM(script), tools=tools, max_turns=5, max_tool_calls_per_turn=2)
 
 def main() -> None:
+    """Run the main demo, then each exercise demo, printing every trace."""
     print("=" * 70)
     print("TOY REACT LOOP — Phase 14, Lesson 01")
     print("=" * 70)

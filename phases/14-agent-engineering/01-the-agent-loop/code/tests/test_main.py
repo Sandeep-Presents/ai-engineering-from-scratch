@@ -94,6 +94,24 @@ class AgentLoopTests(unittest.TestCase):
         ids = [t.tool_call.id for t in agent.history if t.kind == "action"]
         self.assertEqual(ids, ["call-1", "call-2", "call-3"])
 
+    def test_generated_ids_never_shadow_supplied_ids(self):
+        agent = module.AgentLoop(
+            llm=module.ToyLLM([
+                {"kind": "action", "thought": "mixed ids", "calls": [
+                    {"id": "call-1", "name": "calculator", "args": {"expr": "1 + 1"}},
+                    {"name": "calculator", "args": {"expr": "2 + 2"}},
+                ]},
+                {"kind": "finish", "content": "done"},
+            ]),
+            tools=_calculator_only_registry(),
+        )
+        agent.run("mixed ids")
+        ids = [t.tool_call.id for t in agent.history if t.kind == "action"]
+        self.assertEqual(len(ids), len(set(ids)))
+        by_id = module.observations_by_id(agent.history)
+        self.assertEqual(by_id["call-1"], "2")
+        self.assertEqual(len(by_id), 2)
+
     def test_implicit_stop_returns_reply_content_when_present(self):
         agent = module.AgentLoop(
             llm=module.ToyLLM([{"kind": "action", "thought": "done", "calls": [],
