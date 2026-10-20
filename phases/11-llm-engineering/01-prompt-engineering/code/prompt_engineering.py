@@ -196,6 +196,14 @@ MODEL_CONFIGS = {
         "max_tokens": 2048,
         "context_window": 1_000_000,
     },
+    "MiniMax-M3.1-Flash": {
+        "provider": "minimax",
+        "protocols": ("openai", "anthropic"),
+        "model": "MiniMax-M3.1-Flash",
+        "max_tokens": 2048,
+        "context_window": 1_000_000,
+        "thinking": ("adaptive",),
+    },
     "MiniMax-M3": {
         "provider": "minimax",
         "protocols": ("openai", "anthropic"),
@@ -204,6 +212,10 @@ MODEL_CONFIGS = {
         "context_window": 1_000_000,
         "thinking": ("adaptive", "disabled"),
     },
+}
+
+
+LEGACY_MODEL_CONFIGS = {
     "MiniMax-M2.7": {
         "provider": "minimax",
         "protocols": ("openai", "anthropic"),
@@ -301,7 +313,7 @@ FORMATTERS = {
 
 
 def format_model_request(prompt, model_name, protocol=None, region="global_en"):
-    config = MODEL_CONFIGS.get(model_name)
+    config = MODEL_CONFIGS.get(model_name) or LEGACY_MODEL_CONFIGS.get(model_name)
     if not config:
         raise ValueError(f"Unknown model: {model_name}. Available: {list(MODEL_CONFIGS.keys())}")
 

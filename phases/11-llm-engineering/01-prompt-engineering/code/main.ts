@@ -7,6 +7,7 @@
 //   https://ai.google.dev/gemini-api/docs/text-generation
 
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 type PatternName =
   | "persona"
@@ -153,7 +154,11 @@ const MODEL_CONFIGS: Readonly<Record<string, ModelConfig>> = {
   "gpt-4o": { provider: "openai", protocols: ["openai"], model: "gpt-4o", maxTokens: 2048, contextWindow: 128_000 },
   "claude-3.5-sonnet": { provider: "anthropic", protocols: ["anthropic"], model: "claude-sonnet-5", maxTokens: 2048, contextWindow: 1_000_000 },
   "gemini-1.5-pro": { provider: "google", protocols: ["google"], model: "gemini-2.5-pro", maxTokens: 2048, contextWindow: 1_000_000 },
+  "MiniMax-M3.1-Flash": { provider: "minimax", protocols: ["openai", "anthropic"], model: "MiniMax-M3.1-Flash", maxTokens: 2048, contextWindow: 1_000_000, thinking: ["adaptive"] },
   "MiniMax-M3": { provider: "minimax", protocols: ["openai", "anthropic"], model: "MiniMax-M3", maxTokens: 2048, contextWindow: 1_000_000, thinking: ["adaptive", "disabled"] },
+};
+
+const LEGACY_MODEL_CONFIGS: Readonly<Record<string, ModelConfig>> = {
   "MiniMax-M2.7": { provider: "minimax", protocols: ["openai", "anthropic"], model: "MiniMax-M2.7", maxTokens: 2048, contextWindow: 204_800, thinking: ["always_on"] },
 };
 
@@ -269,7 +274,7 @@ function formatModelRequest(
   protocol?: ApiProtocol,
   region: Region = "global_en",
 ): ResolvedRequest {
-  const config = MODEL_CONFIGS[modelName];
+  const config = MODEL_CONFIGS[modelName] ?? LEGACY_MODEL_CONFIGS[modelName];
   if (!config) {
     throw new Error("Unknown model: " + modelName + ". Available models: " + Object.keys(MODEL_CONFIGS).join(", "));
   }
@@ -535,4 +540,8 @@ function main(): void {
   }
 }
 
-main();
+export { MODEL_CONFIGS, buildPrompt, formatModelRequest, runPromptTest };
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

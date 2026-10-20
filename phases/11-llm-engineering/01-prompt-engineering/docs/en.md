@@ -183,8 +183,8 @@ Every model has a maximum context length. This is the total number of tokens for
 | Llama 4 | 10M tokens | 8K tokens | Meta (open) |
 | Qwen3 Max | 256K tokens | 32K tokens | Alibaba (open) |
 | DeepSeek-V3.1 | 128K tokens | 32K tokens | DeepSeek (open) |
+| MiniMax-M3.1-Flash | 1M tokens | Configure per task | MiniMax |
 | MiniMax-M3 | 1M tokens | Configure per task | MiniMax |
-| MiniMax-M2.7 | 204.8K tokens | Configure per task | MiniMax |
 
 Context window size matters less than context window usage. A 10K token prompt that is 90% signal outperforms a 100K token prompt that is 10% signal. More context means more noise for the attention mechanism to filter through. This is why context engineering (Lesson 05) is the bigger discipline -- it decides what goes in the window, not just how the prompt is worded.
 
@@ -559,6 +559,14 @@ MODEL_CONFIGS = {
         "max_tokens": 2048,
         "context_window": 1_000_000,
     },
+    "MiniMax-M3.1-Flash": {
+        "provider": "minimax",
+        "protocols": ("openai", "anthropic"),
+        "model": "MiniMax-M3.1-Flash",
+        "max_tokens": 2048,
+        "context_window": 1_000_000,
+        "thinking": ("adaptive",),
+    },
     "MiniMax-M3": {
         "provider": "minimax",
         "protocols": ("openai", "anthropic"),
@@ -567,6 +575,10 @@ MODEL_CONFIGS = {
         "context_window": 1_000_000,
         "thinking": ("adaptive", "disabled"),
     },
+}
+
+
+LEGACY_MODEL_CONFIGS = {
     "MiniMax-M2.7": {
         "provider": "minimax",
         "protocols": ("openai", "anthropic"),
@@ -623,7 +635,9 @@ FORMATTERS = {
 
 
 def format_model_request(prompt, model_name, protocol=None, region="global_en"):
-    config = MODEL_CONFIGS[model_name]
+    config = MODEL_CONFIGS.get(model_name) or LEGACY_MODEL_CONFIGS.get(model_name)
+    if not config:
+        raise ValueError(f"Unknown model: {model_name}")
     selected_protocol = protocol or config["protocols"][0]
     if selected_protocol not in config["protocols"]:
         raise ValueError(f"{model_name} does not support the {selected_protocol} protocol")
@@ -713,7 +727,13 @@ def run_prompt_test(prompt, models=None, protocol_overrides=None, region="global
     return results
 ```
 
-Use `protocol_overrides={"MiniMax-M3": "anthropic"}` to select the Anthropic-compatible request shape, and set `region="cn_zh"` for the China endpoint. The public Anthropic-compatible base URLs stay rooted at `/anthropic`; the direct request path appends `/v1/messages`.
+The default comparison includes `MiniMax-M3.1-Flash` first among the MiniMax models, followed by `MiniMax-M3`. Explicit selections such as `models=["MiniMax-M2.7"]` still resolve through `LEGACY_MODEL_CONFIGS`; they are not included in default comparisons. The harness simulates responses locally and does not send HTTP requests.
+
+Use `protocol_overrides={"MiniMax-M3.1-Flash": "anthropic"}` to select the Anthropic-compatible request shape, and set `region="cn_zh"` for the existing China endpoint routing. The public Anthropic-compatible base URLs stay rooted at `/anthropic`; the direct request path appends `/v1/messages`.
+
+The harness leaves thinking and effort fields unset. According to the current [Chat Completions](https://platform.minimax.io/docs/api-reference/text-openai-api.md) and [Messages](https://platform.minimax.io/docs/api-reference/text-anthropic-api.md) contracts, Flash always thinks and defaults to maximum effort in both protocols; disabled thinking and effort `none` are invalid. M3 defaults to thinking on for Chat Completions and off for Messages. The 2048-token limit is this lesson's example budget, not the models' output limit; thinking consumes that budget too, so real requests may need more tokens to produce a text answer. Current MiniMax models ignore temperature and use 1. These are request-format examples, not live regional availability tests.
+
+Run the focused checks with `python3 -m unittest discover phases/11-llm-engineering/01-prompt-engineering/code/tests -v` and, on Node 22.18+ or 24+, `node --test phases/11-llm-engineering/01-prompt-engineering/code/tests/test_model_configs.ts`.
 
 ### Step 4: Prompt Comparison and Scoring
 
