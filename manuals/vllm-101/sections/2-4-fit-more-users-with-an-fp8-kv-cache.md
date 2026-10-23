@@ -77,7 +77,23 @@ Two things changed together: the KV data type and the backend. The table does no
 
 ## Check the accuracy
 
-We did not measure output quality with an FP8 KV cache. With no scales in the checkpoint, vLLM uses a scale of 1.0 for the keys and values. That is the worst case for accuracy.
+On 2026-10-23 we ran the first 500 GSM8K questions, 8-shot and greedy, on our L4. Qwen3-8B has no KV scales, so the FP8 KV runs used a scale of 1.0, the worst case for accuracy. The FP8 KV runs used the Triton backend, as above.
+
+```listing
+title: GSM8K accuracy, 500 questions, 8-shot, Qwen3-8B on vLLM 0.31.0
+source: capture/gpu/out-l4/gsm8k-fp8-accuracy.txt
+lang: text
+note: The vLLM rows. The SGLang rows of the same file are cut.
+---
+engine   config                     correct   accuracy   Wilson 95% interval
+…
+vLLM     BF16                       459/500   91.8%      89.1 to 93.9
+vLLM     FP8 weights                453/500   90.6%      87.7 to 92.9
+vLLM     FP8 KV cache               454/500   90.8%      87.9 to 93.0
+vLLM     FP8 weights + FP8 KV       453/500   90.6%      87.7 to 92.9
+```
+
+Every interval overlaps the BF16 interval. On this model and this test, an FP8 KV cache lost no accuracy that 500 questions can detect. That is one model and one benchmark, so run the same check on your model and your task. A model with a different attention layout can lose more.
 
 The post "The State of FP8 KV-Cache and Attention Quantization in vLLM" on the vLLM blog, of April 2026, tested uncalibrated FP8 KV caches. Its authors are from AWS and Red Hat. In their tests, most models stayed close to BF16. Some did not. They name Kimi-K2.5, which uses the FlashMLA backend, as a model that did not work well with uncalibrated scales. We did not measure these results ourselves.
 
@@ -109,4 +125,4 @@ Release 0.32.0 adds an NVFP4 KV cache on SM 8.x and SM 12.x GPUs, which include 
 - Check for the scale 1.0 warning and test quality on your own prompts.
 ```
 
-Sources: capture/gpu/summary/l4.json (load.vllm-fast-b, load.vllm-kv-fp8-triton), capture/gpu/incidents/l4-vllm-kv-fp8-flashinfer-attention-jit.txt, capture/gpu/incidents/l4-vllm-flashinfer-jit.txt, the vLLM source at v0.31.0 (vllm/platforms/cuda.py, vllm/v1/attention/backends/fa_utils.py, vllm/v1/attention/backends/triton_attn.py), vLLM documentation at v0.31.0 (docs/features/quantization/quantized_kvcache.md), the vLLM blog post The State of FP8 KV-Cache and Attention Quantization in vLLM (2026-04-22), vLLM issues 54623 and 60333, the release notes for v0.32.0 (NVFP4 KV cache).
+Sources: capture/gpu/summary/l4.json (load.vllm-fast-b, load.vllm-kv-fp8-triton), capture/gpu/incidents/l4-vllm-kv-fp8-flashinfer-attention-jit.txt, capture/gpu/incidents/l4-vllm-flashinfer-jit.txt, the vLLM source at v0.31.0 (vllm/platforms/cuda.py, vllm/v1/attention/backends/fa_utils.py, vllm/v1/attention/backends/triton_attn.py), vLLM documentation at v0.31.0 (docs/features/quantization/quantized_kvcache.md), the vLLM blog post The State of FP8 KV-Cache and Attention Quantization in vLLM (2026-04-22), vLLM issues 54623 and 60333, the release notes for v0.32.0 (NVFP4 KV cache), capture/gpu/out-l4/gsm8k-fp8-accuracy.txt.

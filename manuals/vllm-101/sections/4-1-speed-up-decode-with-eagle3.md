@@ -86,6 +86,23 @@ segment of the output   SGLang                 vLLM
 
 Up to 4,096 tokens, the acceptance length did not fall steadily. It stayed at about 2.1 to 2.8 tokens for each step on both engines. Only 2 of the 8 prompts ran past 2,048 tokens, so the last segment rests on two answers. The GPU was shared and had no clock lock, which changes the speed but not the acceptance. Our limit of 4,096 tokens came from the memory we could use on that GPU. So we did not reach the range of the paper.
 
+A second test on 2026-10-23 used `Qwen/Qwen3-8B` in BF16 on the first GPU of the node. It ran 8 users, with answers of up to 2,048 tokens and no ignore-eos. The median answer was 1,800 to 2,000 tokens. vLLM gave the acceptance from its counters before and after each run:
+
+```listing
+title: EAGLE3 acceptance on answers of about 2,000 tokens, 8 users
+source: capture/gpu/out-l4/eagle3-long-outputs.txt
+lang: text
+note: The table of the file. The comparison with short outputs is cut.
+---
+engine          dataset    mean acceptance length   accepted per draft position 1 / 2 / 3
+SGLang EAGLE3   GSM8K      2.68
+SGLang EAGLE3   ShareGPT   2.32
+vLLM EAGLE3     GSM8K      2.69                     0.77 / 0.54 / 0.38
+vLLM EAGLE3     ShareGPT   2.35                     0.67 / 0.42 / 0.26
+```
+
+The first draft token was accepted 77 percent of the time on GSM8K and 67 percent on ShareGPT, and each later position less. On short 128-token answers in the same session, SGLang gave 2.69 to 2.78 on GSM8K and 2.33 to 2.43 on ShareGPT. So the acceptance did not fall out to about 2,000 tokens. It depended more on the kind of text than on the length.
+
 Read the acceptance on your own long answers before you trust a gain. The metrics at the end of this page give it.
 
 ## Lock the clock before you compare
@@ -130,4 +147,4 @@ Divide the accepted tokens by the draft tokens. vLLM also writes a `SpecDecoding
 - Lock or record the GPU clock before you compare speculative decoding.
 ```
 
-Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-eagle3-k1, load.vllm-lock-eagle3-k3, load.vllm-lock-eagle3-k5, and the unlocked load.vllm-eagle3 and load.vllm-eagle3-k5), the vLLM source at v0.31.0 (vllm/config/speculative.py, vllm/v1/spec_decode/metrics.py), vLLM documentation at v0.31.0 (docs/features/speculative_decoding/eagle.md, docs/features/speculative_decoding/dynamic_speculative_decoding.md), SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding (arXiv 2604.09557, 2026), Test-Time Speculation (arXiv 2605.09329, 2026), capture/gpu/out-l4/eagle3-acceptance-by-position.txt.
+Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-eagle3-k1, load.vllm-lock-eagle3-k3, load.vllm-lock-eagle3-k5, and the unlocked load.vllm-eagle3 and load.vllm-eagle3-k5), the vLLM source at v0.31.0 (vllm/config/speculative.py, vllm/v1/spec_decode/metrics.py), vLLM documentation at v0.31.0 (docs/features/speculative_decoding/eagle.md, docs/features/speculative_decoding/dynamic_speculative_decoding.md), SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding (arXiv 2604.09557, 2026), Test-Time Speculation (arXiv 2605.09329, 2026), capture/gpu/out-l4/eagle3-acceptance-by-position.txt, capture/gpu/out-l4/eagle3-long-outputs.txt.

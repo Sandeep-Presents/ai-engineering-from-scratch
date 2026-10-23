@@ -16,6 +16,9 @@ Use this page to check a number from another section, or to repeat a run.
 - **Clocks.** A sampler recorded the SM clock and the temperature every second. The sweep tool can wait for the GPU to cool before a run. It can also repeat a run when the median clock falls below a clock floor, a lowest clock that we set for each sweep. The clock column shows the result for each point. On 2026-10-22, most runs had the SM clock locked at 900 MHz with `nvidia-smi -lgc`. A lock sets the highest clock, but a GPU at a high temperature still slows below it. The sections compare two points only at similar clocks, and they say so where a point ran below the lock or in a throttled session.
 - **Dates.** The L4 load runs of `vllm` and `sglang` were on 2026-10-17, and the `vllm-b`, `vllm-async`, `vllm-eager`, and `vllm-seqs-16` load runs on 2026-10-21. The L4 rate and waves runs were on 2026-10-18. The L4 prefix runs with the cache on ran from 2026-10-17 into 2026-10-18, and the run without the prefix cache was on 2026-10-21. Every GB10 run in these tables was on 2026-10-21. Every run in the three L4 tables for 2026-10-22 was on that day. The runs on the shared GPU of the L4 node had a pool of 2,928 tokens, so they tested 1 and 4 users only.
 
+- **The cache between user counts.** The load tables before 2026-10-23 kept one server for each config and did not reset the prefix cache between user counts. Each seed sent the same first prompts at every count. Below 32 users these tables read the first token too fast, by 3.6 to 5.3 times for vLLM on our L4. The rerun of 2026-10-23 resets the cache before every run, and [the benchmark page](#s-benchmark-your-server-in-15-minutes) compares the two.
+- **Runs of 2026-10-23.** The L4 runs of that day used the first GPU with the clock locked at 900 MHz. Each run had two seeds and a cache reset first. The card ran hot, so many runs fell below the lock. Each evidence file gives the median clock of its rows, and the sections compare only rows at 900 MHz.
+
 ## Not run yet
 
 These runs are planned and are not in these tables:
@@ -23,7 +26,6 @@ These runs are planned and are not in these tables:
 - `--max-num-batched-tokens` at 512, 2048, and 16384 on mixed prompts on the L4. The GB10 has 2048 and 16384.
 - `-O1` on the L4.
 - a backend comparison with one KV data type.
-- a quality check of FP8 weights and of an FP8 KV cache.
 
 ## Tables
 
@@ -233,4 +235,4 @@ The lock sets the highest clock. A GPU at a high temperature still slows below i
 | 1 | `vllm-async` | 97.7 (96.9 to 99.7) | 1,212 ms | 157.9 ms | 405 (360 to 411) ms | 2,411 MHz |
 | 1 | `sglang` | 101.4 (100.3 to 104.2) | 1,275 ms | 149.7 ms | 159 (159 to 190) ms | 2,411 MHz |
 
-Sources: capture/gpu/summary/l4.json, capture/gpu/summary/gb10.json, capture/gpu/out-l4/, capture/gpu/out-gb10/server-load-vllm.log.
+Sources: capture/gpu/summary/l4.json, capture/gpu/summary/gb10.json, capture/gpu/out-l4/, capture/gpu/out-gb10/server-load-vllm.log, capture/gpu/out-l4/load-flushed-vs-unflushed.txt, capture/gpu/out-l4/gsm8k-fp8-accuracy.txt, capture/gpu/out-l4/batch-invariant-cost.txt, capture/gpu/out-l4/admission-cap-64-users.txt, capture/gpu/out-l4/eagle3-long-outputs.txt.

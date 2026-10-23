@@ -81,7 +81,23 @@ A 4-bit model can lose more accuracy than an FP8 model, and the loss depends on 
 
 ## Check the accuracy
 
-We did not measure output quality with FP8 weights. Run your own prompts on both checkpoints, and compare the answers before you go to production.
+On 2026-10-23 we ran the first 500 GSM8K questions, 8-shot and greedy, on our L4, with `Qwen/Qwen3-8B` against `Qwen/Qwen3-8B-FP8`:
+
+```listing
+title: GSM8K accuracy, 500 questions, 8-shot, Qwen3-8B on vLLM 0.31.0
+source: capture/gpu/out-l4/gsm8k-fp8-accuracy.txt
+lang: text
+note: The vLLM rows. The SGLang rows of the same file are cut.
+---
+engine   config                     correct   accuracy   Wilson 95% interval
+…
+vLLM     BF16                       459/500   91.8%      89.1 to 93.9
+vLLM     FP8 weights                453/500   90.6%      87.7 to 92.9
+vLLM     FP8 KV cache               454/500   90.8%      87.9 to 93.0
+vLLM     FP8 weights + FP8 KV       453/500   90.6%      87.7 to 92.9
+```
+
+FP8 weights scored 1.2 points lower, and the two intervals overlap. So this test cannot tell the two apart. It is one model and one benchmark. Run your own prompts on both checkpoints, and compare the answers before you go to production. We did not run this check on the 4-bit formats.
 
 ```takeaways
 - Serve a published FP8 checkpoint, and set no extra flag.
@@ -89,4 +105,4 @@ We did not measure output quality with FP8 weights. Run your own prompts on both
 - Check output quality on your own prompts before production.
 ```
 
-Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-fp8), the vLLM source at v0.31.0 (vllm/model_executor/layers/quantization/fp8.py), vLLM documentation at v0.31.0 (docs/features/quantization/online.md, docs/features/quantization/README.md, docs/features/quantization/auto_awq.md, docs/features/quantization/gptqmodel.md, docs/features/quantization/bnb.md, docs/features/quantization/gguf.md, docs/features/quantization/llm_compressor/), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt, vLLM documentation at v0.31.0 (docs/features/quantization/bnb.md).
+Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-fp8), the vLLM source at v0.31.0 (vllm/model_executor/layers/quantization/fp8.py), vLLM documentation at v0.31.0 (docs/features/quantization/online.md, docs/features/quantization/README.md, docs/features/quantization/auto_awq.md, docs/features/quantization/gptqmodel.md, docs/features/quantization/bnb.md, docs/features/quantization/gguf.md, docs/features/quantization/llm_compressor/), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt, vLLM documentation at v0.31.0 (docs/features/quantization/bnb.md), capture/gpu/out-l4/gsm8k-fp8-accuracy.txt.

@@ -45,7 +45,26 @@ Here is the sweep from our L4 with `Qwen/Qwen3-8B` in BF16, run on 2026-10-21 in
 | 32 | 275.1 | 1,800 ms | 101.8 ms | 613 ms | 1,275 MHz |
 | 64 | 242.3 | 11,181 ms | 129.2 ms | 1,233 ms | 1,005 MHz |
 
-Up to 16 users, each new user adds output, and the time per token rises only from 60 to 70 ms. Between 16 and 32 users, the median first token goes from 0.3 s to 1.8 s, and the P99 ITL from 85 to 613 ms. That jump is the knee. Pick your production concurrency below it.
+Up to 16 users, each new user adds output, and the time per token rises only from 60 to 70 ms. In this table, the median first token goes from 0.3 s to 1.8 s between 16 and 32 users. The P99 ITL goes from 85 to 613 ms.
+
+Do not take that jump as the knee. This sweep did not reset the prefix cache between user counts, and each seed sent the same first prompts at every count. Below 32 users, many requests found their prompt in the cache. We ran the sweep again on 2026-10-23 with a reset before each run, with the clock locked at 900 MHz:
+
+```listing
+title: median TTFT with and without a cache flush, Qwen3-8B on our L4 at 900 MHz
+source: capture/gpu/out-l4/load-flushed-vs-unflushed.txt
+lang: text
+note: The median TTFT and the share that met the target. The P99 ITL lines are cut.
+---
+median TTFT, flushed against unflushed
+users   vLLM                                   SGLang
+4       650 / 145 ms (4.5x)                    532 to 645 / 141 ms (3.8 to 4.6x)
+8       951 to 978 / 264 to 274 ms (3.6x)      1,174 to 1,273 / 173 to 178 ms (6.6 to 7.3x)
+16      1,550 to 1,587 / 294 to 295 ms (5.3x)  1,804 to 1,944 / 218 ms (8.3 to 8.9x)
+32      1,982 to 2,084 / 2,012 to 3,091 ms     3,216 to 3,228 / 2,710 to 2,917 ms
+…
+```
+
+With the reset, the median first token rose at every step. It was about 0.65 s at 4 users, 1.0 s at 8, and 1.6 s at 16. The P99 ITL jumped from about 70 ms at 8 users to 522 ms at 16. So on this card the knee sits between 8 and 16 users. The cache hid it. Pick your production concurrency below the knee that you measure with a reset.
 
 At 64 users, the output fell. Two causes overlap here. At 640 tokens each, 64 users need more than the 24,096-token pool, so requests waited. The GPU also throttled, with a median clock of 1,005 MHz against 1,455 at 16 users. Our sweep cannot separate the two.
 
@@ -145,4 +164,4 @@ So our tables, from the SGLang client at temperature 0, can read a few percent s
 - Write the client and the temperature next to every result.
 ```
 
-Sources: vLLM documentation at v0.31.0 (docs/benchmarking/cli.md, docs/benchmarking/sweeps.md), the vLLM source at v0.31.0 (vllm/benchmarks/serve.py), capture/gpu/summary/l4.json (load.vllm-b), the sweep tool of the SGLang 101 manual (capture/gpu/sweep.py), the SGLang 0.5.22 benchmark client source (python/sglang/benchmark/serving.py, python/sglang/benchmark/datasets/random.py), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt.
+Sources: vLLM documentation at v0.31.0 (docs/benchmarking/cli.md, docs/benchmarking/sweeps.md), the vLLM source at v0.31.0 (vllm/benchmarks/serve.py), capture/gpu/summary/l4.json (load.vllm-b), the sweep tool of the SGLang 101 manual (capture/gpu/sweep.py), the SGLang 0.5.22 benchmark client source (python/sglang/benchmark/serving.py, python/sglang/benchmark/datasets/random.py), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt, capture/gpu/out-l4/load-flushed-vs-unflushed.txt.

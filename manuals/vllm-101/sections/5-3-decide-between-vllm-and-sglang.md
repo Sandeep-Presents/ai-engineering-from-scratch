@@ -31,6 +31,8 @@ Each point is the median of three seeds, from [one benchmark client](#s-benchmar
 
 **Many users at once, L4.** At 32 users, vLLM gave 273.9 tok/s and SGLang 271.3. The median first token took 1,813 ms on vLLM and 2,871 ms on SGLang. The P99 ITL was 619 ms on vLLM and 102 ms on SGLang. At 64 users the output differed by 6 percent. The vLLM run had a lower median clock, 1,013 against 1,215 MHz, so we do not count that gap.
 
+These runs did not reset the prefix cache. We ran them again with a reset at 900 MHz on 2026-10-23, and the direction held. At 32 users the median first token was 2.0 to 2.1 s on vLLM and 3.2 s on SGLang. The P99 ITL was 668 to 964 ms on vLLM and 105 to 106 ms on SGLang. At 16 users it was 522 ms against 82 ms.
+
 **A fixed rate, L4.** At 4 requests per second, vLLM gave 286.6 tok/s and SGLang 257.5. The seed ranges did not overlap. At 8 requests per second the ranges overlapped. The runs at 16 requests per second ran below our clock floor, the lowest clock we accept for a run, so we left them out.
 
 **Mixed and equal lengths, both machines.** Our waves workload sent 64 prompts at 16 users, with a length ratio that sets how much the prompt and output lengths vary. [The lab notes](#s-ref-lab-notes) define it. With mixed lengths on the L4, the P99 ITL was 191 ms on vLLM and 363 ms on SGLang. With equal lengths it was 502 ms on vLLM and 81 ms on SGLang. The DGX Spark showed the same direction: 188 against 198 ms with mixed lengths, and 394 against 159 ms with equal lengths.
@@ -72,4 +74,4 @@ Then run [the sweep](#s-benchmark-your-server-in-15-minutes) on your own traffic
 - Pick on model support, startup, and hardware first, then measure your own traffic.
 ```
 
-Sources: capture/gpu/summary/l4.json (load, rate, waves, and prefix for vllm and sglang), capture/gpu/summary/gb10.json (load, mixed, and waves for vllm and sglang), capture/gpu/out-l4/server-h2h-vllm.log, capture/gpu/out-gb10/server-load-vllm.log.
+Sources: capture/gpu/summary/l4.json (load, rate, waves, and prefix for vllm and sglang), capture/gpu/summary/gb10.json (load, mixed, and waves for vllm and sglang), capture/gpu/out-l4/server-h2h-vllm.log, capture/gpu/out-gb10/server-load-vllm.log, capture/gpu/out-l4/load-flushed-vs-unflushed.txt.

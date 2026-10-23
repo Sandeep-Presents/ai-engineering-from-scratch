@@ -77,7 +77,23 @@ So test the exact setup that you serve: the model, the parallel layout, the pref
 
 Run the same eval twice and compare the outputs token by token, not only the score. Between the two runs, reset the prefix cache or restart the server, as [the benchmark page](#s-benchmark-your-server-in-15-minutes) shows. If the outputs differ, send one failing prompt alone twice. If the two answers match when alone, the batch causes the difference.
 
-Not measured on our hardware. We have not measured the speed cost of the batch-invariant mode on the L4 or the GB10.
+## Know the speed cost on our L4
+
+We measured the cost on our L4 on 2026-10-23, with the clock locked at 900 MHz. The runs went in the order default, batch-invariant, default again, with two seeds each and a cache reset before each run.
+
+```listing
+title: the batch-invariant mode against the default, Qwen3-0.6B on vLLM 0.31.0
+source: capture/gpu/out-l4/batch-invariant-cost.txt
+lang: text
+note: Every run here had a median clock of 900 MHz. The Qwen3-8B rows are cut.
+---
+users   median TPOT default / batch-invariant   output tok/s default / batch-invariant
+1       6.9 / 16.9 ms (2.4x)                    140.6 / 58.7 (58% lower)
+8       9.9 / 18.2 ms (1.8x)                    755 / 420 (44% lower)
+32      18.8 / 25.9 ms (1.4x)                   1,565 / 1,154 (26% lower)
+```
+
+On `Qwen/Qwen3-8B` at 8 users, the mode cost 1.4 times the time per token and 27 percent of the output. At 32 users it cost 1.3 times and 23 percent. The 1-user runs of the 8B model ran below the lock, so we leave them out. The relative cost fell as more users shared each step, and it was larger on the small model. Measure it on your model before you turn the mode on for a live server.
 
 ```takeaways
 - A seed is not enough, because the batch changes the order of the sums.
@@ -87,4 +103,4 @@ Not measured on our hardware. We have not measured the speed cost of the batch-i
 - Keep the dtype the same between two runs that you compare.
 ```
 
-Sources: vLLM documentation at v0.31.0 (docs/usage/reproducibility.md, docs/features/batch_invariance.md), the vLLM source at v0.31.0 (vllm/envs.py), Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), Defeating Nondeterminism in LLM Inference by Horace He and Thinking Machines Lab (2025-09-10), CoRun: Padding is Simple and Efficient for Deterministic LLM Inference (arXiv 2608.14376, 2026), Vosti: Specifying, Implementing, and Verifying Deterministic LLM Inference (arXiv 2609.38981, 2026), the release notes for v0.32.0 (attention backend check for the batch-invariant mode), vLLM pull request 61118 (inductor batch-invariant mode, merged on 2026-10-17 and not in v0.32.0), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt.
+Sources: vLLM documentation at v0.31.0 (docs/usage/reproducibility.md, docs/features/batch_invariance.md), the vLLM source at v0.31.0 (vllm/envs.py), Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), Defeating Nondeterminism in LLM Inference by Horace He and Thinking Machines Lab (2025-09-10), CoRun: Padding is Simple and Efficient for Deterministic LLM Inference (arXiv 2608.14376, 2026), Vosti: Specifying, Implementing, and Verifying Deterministic LLM Inference (arXiv 2609.38981, 2026), the release notes for v0.32.0 (attention backend check for the batch-invariant mode), vLLM pull request 61118 (inductor batch-invariant mode, merged on 2026-10-17 and not in v0.32.0), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt, capture/gpu/out-l4/batch-invariant-cost.txt.
