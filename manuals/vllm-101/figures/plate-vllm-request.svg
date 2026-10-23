@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 676" role="img" aria-labelledby="plate-vllm-request-title plate-vllm-request-desc" font-family="JetBrains Mono, ui-monospace, monospace">
   <title id="plate-vllm-request-title">One block pool on one L4</title>
-  <desc id="plate-vllm-request-desc">The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of 2,048 tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of 16-token blocks: 1,506 blocks hold 24,096 tokens, and the grid shows 50 of them with the blocks of A, B, and C and the free blocks.</desc>
+  <desc id="plate-vllm-request-desc">The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of 2,048 tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of 16-token blocks: 1,506 blocks hold 24,096 tokens, and the grid shows 50 of them: the blocks of A and B, some of the blocks of C, and free blocks.</desc>
   <defs><marker id="plate-vllm-request-head-indigo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 1 L10 5 L0 9 z" fill="var(--m-indigo-ink, #4b4f9e)"/></marker><marker id="plate-vllm-request-head-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 1 L10 5 L0 9 z" fill="var(--m-ink, #1a1a1a)"/></marker></defs>
   <text x="20" y="18" font-size="11" letter-spacing="1.2" fill="var(--m-ink-mute, #6f6f6a)">HOST CPU · VLLM 0.31.0 PROCESSES</text>
   <rect x="20" y="30" width="150" height="52" fill="var(--m-blue-fill, #e6edf6)" stroke="var(--m-blue-ink, #2f5d9a)"/>
@@ -12,9 +12,9 @@
   <text x="290" y="83.05" font-size="11" text-anchor="middle" class="m-serif" fill="var(--m-ink-soft, #4a4a4a)">KVCacheManager</text>
   <rect x="410" y="30" width="210" height="84" fill="var(--m-paper, #fafaf5)" stroke="var(--m-ink-mute, #6f6f6a)"/>
   <text x="420" y="48" font-size="12" font-weight="700">block table</text>
-  <text x="420" y="68" font-size="11" font-weight="700" fill="var(--m-olive-ink, #515f26)">A · blocks 2, 13, 31</text>
-  <text x="420" y="84" font-size="11" font-weight="700" fill="var(--m-amber-ink, #85590c)">B · blocks 7, 8, 26, 46</text>
-  <text x="420" y="100" font-size="11" font-weight="700" fill="var(--m-indigo-ink, #4b4f9e)">C · blocks 17, 18, 35, 36, 43</text>
+  <text x="420" y="68" font-size="11" font-weight="700" fill="var(--m-olive-ink, #515f26)">A · 2, 13, 31</text>
+  <text x="420" y="84" font-size="11" font-weight="700" fill="var(--m-amber-ink, #85590c)">B · 7, 8, 26, 46</text>
+  <text x="420" y="100" font-size="11" font-weight="700" fill="var(--m-indigo-ink, #4b4f9e)">C · 17, 18, 35, 36, 43, more</text>
   <polygon points="14,175 626,175 626,169 626,119 14,119 14,169" fill="var(--m-panel, #f3f1e8)"/>
   <polygon points="14,175 626,175 626,169 14,169" fill="var(--m-paper, #fafaf5)"/>
   <polygon points="14,169 626,169 626,119 14,119" fill="var(--m-paper, #fafaf5)"/>
@@ -124,7 +124,7 @@
   <text x="20" y="262" font-size="11.5" font-weight="700" fill="var(--m-plum-ink, #8a3d72)">A, B decode: 1 token each</text>
   <polyline points="40,268 26,299" fill="none" stroke="var(--m-plum-ink, #8a3d72)" stroke-width="0.8" stroke-dasharray="2 3"/>
   <circle cx="26" cy="299" r="2" fill="var(--m-plum-ink, #8a3d72)"/>
-  <text x="620" y="262" font-size="11.5" text-anchor="end" font-weight="700" fill="var(--m-plum-ink, #8a3d72)">C prefill chunk: the rest</text>
+  <text x="620" y="262" font-size="11.5" text-anchor="end" font-weight="700" fill="var(--m-plum-ink, #8a3d72)">C prefill chunk: 2,046 tokens</text>
   <text x="20" y="336" font-size="11" class="m-serif" fill="var(--m-ink-soft, #4a4a4a)">Running requests get their decode token first, then a waiting prompt fills the budget in chunks.</text>
   </g>
   <text x="20" y="370" font-size="11" letter-spacing="1.2" fill="var(--m-ink-mute, #6f6f6a)">NVIDIA L4 · GPU MEMORY</text>

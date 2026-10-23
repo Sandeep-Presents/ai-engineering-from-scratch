@@ -19,7 +19,7 @@ const FREE = [5, 11, 12, 22, 29, 39, 40, 47, 48, 49];
 module.exports = figure('plate-vllm-request', {
   height: 676,
   title: 'One block pool on one L4',
-  desc: `The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of ${BUDGET.toLocaleString('en-US')} tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of ${BLOCK}-token blocks: ${(pool / BLOCK).toLocaleString('en-US')} blocks hold ${pool.toLocaleString('en-US')} tokens, and the grid shows ${COLS * ROWS} of them with the blocks of A, B, and C and the free blocks.`,
+  desc: `The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of ${BUDGET.toLocaleString('en-US')} tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of ${BLOCK}-token blocks: ${(pool / BLOCK).toLocaleString('en-US')} blocks hold ${pool.toLocaleString('en-US')} tokens, and the grid shows ${COLS * ROWS} of them: the blocks of A and B, some of the blocks of C, and free blocks.`,
 }, f => {
   const host = f.isoView({ ox: 0, oy: 150, angle: 'true' });
   const step = f.isoView({ ox: 0, oy: 318, angle: 'true' });
@@ -38,7 +38,7 @@ module.exports = figure('plate-vllm-request', {
   f.box({ x: 200, y: 30, w: 180, h: 66, hue: 'blue', title: 'EngineCore', sub: ['Scheduler', 'KVCacheManager'] });
   f.rect(410, 30, 210, 84, { hue: 'paper', stroke: color('ink-mute') });
   f.text(420, 48, 'block table', { size: 12, weight: 700 });
-  REQUESTS.forEach((r, i) => f.text(420, 68 + i * 16, `${r.id} · blocks ${r.blocks.join(', ')}`, { size: 11, hue: r.hue, weight: 700 }));
+  REQUESTS.forEach((r, i) => f.text(420, 68 + i * 16, `${r.id} · ${r.blocks.join(', ')}${r.stage === 'decode' ? '' : ', more'}`, { size: 11, hue: r.hue, weight: 700 }));
 
   f.isoBeam(host, { sx0: 14, sx1: 626, c: 50, back: 100, h: 6, hue: 'paper', inkHue: 'ink-mute', ink: 1, shadow: false });
   const api = unit(host, 95, 0, 42, 26, 'blue');
@@ -80,7 +80,7 @@ module.exports = figure('plate-vllm-request', {
   });
   f.text(20, 262, 'A, B decode: 1 token each', { size: 11.5, weight: 700, hue: 'plum' });
   f.leader([40, 268], step.P(...step.at(26, -6), 16), { hue: 'plum' });
-  f.text(620, 262, 'C prefill chunk: the rest', { size: 11.5, weight: 700, hue: 'plum', anchor: 'end' });
+  f.text(620, 262, `C prefill chunk: ${(BUDGET - 2).toLocaleString('en-US')} tokens`, { size: 11.5, weight: 700, hue: 'plum', anchor: 'end' });
   f.text(20, 336, 'Running requests get their decode token first, then a waiting prompt fills the budget in chunks.', { size: 11, serif: true, hue: 'ink-soft' });
 
   f.beat(0);
