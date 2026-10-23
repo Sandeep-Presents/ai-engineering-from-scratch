@@ -298,4 +298,4 @@ npx --yes pagedjs-cli@0.4.3 dist/manuals/<id>/print.html -o dist/manuals/aiefs-m
 
 - A `draft` manual builds at `/manual-<id>.html` with `noindex` and is not listed.
 - A `ready` manual is listed on the manuals page, needs a `README.md`, and adds a PDF to each release.
-- Commit one section per commit, with its figures and the captures it adds: `feat(manual/<id>): <section slug>`.
+- Size commits by judgment. A section with its figures and the captures it adds is a good unit: `feat(manual/<id>): <section slug>`. A small fix across sections can be one commit.

@@ -40,7 +40,7 @@ Make it concrete — show a scenario where not knowing this hurts.]
 ## The Concept
 
 [Explain with diagrams and intuition. No code yet.
-Use ASCII diagrams, tables, or link to visuals in the web app.
+Use Mermaid or SVG diagrams, tables, or a registered `figure` fence. No ASCII diagrams.
 Build mental models before implementation.]
 
 ## Build It
