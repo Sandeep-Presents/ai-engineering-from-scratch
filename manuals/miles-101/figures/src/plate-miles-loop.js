@@ -67,7 +67,7 @@ module.exports = figure('plate-miles-loop', {
   const x0 = 264;
   const span = 350;
   const edges = [x0];
-  TURNS.forEach(turn => edges.push(edges[edges.length - 1] + Math.max(5, (turn.time / step) * span)));
+  TURNS.forEach(turn => edges.push(edges[edges.length - 1] + (turn.time / step) * span));
   const tenants = [];
   TURNS.forEach((turn, index) => {
     f.beat(1 + index * 2);
@@ -79,6 +79,9 @@ module.exports = figure('plate-miles-loop', {
     f.text(last ? cx - 13 : cx + 13, cy + 4, sec(turn.time, turn.digits || 1), { size: 11.5, weight: 700, hue: turn.hue, anchor: last ? 'end' : undefined });
   });
 
+  f.beat(0);
+  f.isoBeam(chip, { sx0: edges[4] + 1, sx1: x0 + span, z: 20, c: -46, back: 64, h: 20, hue: 'paper', inkHue: 'ink-mute', ink: 1, dash: 'dashed', shadow: false });
+  f.text(620, 672, `dashed end: hand-offs and untimed work, ${sec(step - TURNS.reduce((a, t) => a + t.time, 0))}`, { size: 11, serif: true, hue: 'ink-mute', anchor: 'end' });
   f.beat(1);
   f.isoBeam(chip, { sx0: edges[0], sx1: edges[1] - 1, z: 10, c: 92, back: 36, h: 12, hue: 'paper', inkHue: 'blue', ink: 1.2, dash: 'dashed', shadow: false });
   f.beat(2);
@@ -97,7 +100,7 @@ module.exports = figure('plate-miles-loop', {
 
   f.beat(7);
   const top = tenants[0].left[1];
-  f.path(`M${edges[3] + 2} ${top - 4} V300 H${edges[0] + 92} V${top - 4}`, { style: 'state' });
+  f.path(`M${edges[3] + 1} ${top - 4} V300 H${edges[0] + 92} V${top - 4}`, { style: 'state' });
   f.text((edges[0] + edges[3]) / 2, 304, `weight update, ${sec(m.update_weights_time_s.median, 2)}`, { size: 11.5, anchor: 'middle', hue: 'amber', knock: true });
 
   f.beat(0);

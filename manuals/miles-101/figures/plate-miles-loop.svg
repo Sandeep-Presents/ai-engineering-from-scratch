@@ -131,16 +131,23 @@
   <text x="451.51" y="358" font-size="11.5" font-weight="700" fill="var(--m-blue-ink, #2f5d9a)">77.0 s</text>
   </g>
   <g data-beat="7"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.889;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="4.05s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.889;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="4.05s" begin="indefinite" fill="freeze"/>
-  <polygon points="602.98,433 607.98,433 607.98,413 607.98,381 602.98,381 602.98,413" fill="var(--m-panel, #f3f1e8)"/>
-  <polygon points="602.98,433 607.98,433 607.98,413 602.98,413" fill="var(--m-amber-fill, #f5ecd9)"/>
-  <polygon points="602.98,413 607.98,413 607.98,381 602.98,381" fill="var(--m-amber-fill, #f5ecd9)"/>
-  <polygon points="602.98,413 607.98,413 607.98,381 602.98,381" fill="var(--m-shine, #ffffff)" fill-opacity="0.45"/>
-  <polyline points="602.98,413 607.98,413" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="0.8" stroke-opacity="0.6"/>
-  <polygon points="602.98,433 607.98,433 607.98,413 607.98,381 602.98,381 602.98,413" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.4" stroke-linejoin="round"/>
+  <polygon points="602.98,433 604.44,433 604.44,413 604.44,381 602.98,381 602.98,413" fill="var(--m-panel, #f3f1e8)"/>
+  <polygon points="602.98,433 604.44,433 604.44,413 602.98,413" fill="var(--m-amber-fill, #f5ecd9)"/>
+  <polygon points="602.98,413 604.44,413 604.44,381 602.98,381" fill="var(--m-amber-fill, #f5ecd9)"/>
+  <polygon points="602.98,413 604.44,413 604.44,381 602.98,381" fill="var(--m-shine, #ffffff)" fill-opacity="0.45"/>
+  <polyline points="602.98,413 604.44,413" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="0.8" stroke-opacity="0.6"/>
+  <polygon points="602.98,433 604.44,433 604.44,413 604.44,381 602.98,381 602.98,413" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.4" stroke-linejoin="round"/>
   <circle cx="588.98" cy="330" r="9" fill="var(--m-paper, #fafaf5)" stroke="var(--m-amber-ink, #85590c)" stroke-width="1"/>
   <text x="588.98" y="334" font-size="11" text-anchor="middle" fill="var(--m-amber-ink, #85590c)">4</text>
   <text x="575.98" y="334" font-size="11.5" text-anchor="end" font-weight="700" fill="var(--m-amber-ink, #85590c)">0.64 s</text>
   </g>
+  <polygon points="605.44,433 614,433 614,413 614,381 605.44,381 605.44,413" fill="var(--m-panel, #f3f1e8)"/>
+  <polygon points="605.44,433 614,433 614,413 605.44,413" fill="var(--m-paper, #fafaf5)"/>
+  <polygon points="605.44,413 614,413 614,381 605.44,381" fill="var(--m-paper, #fafaf5)"/>
+  <polygon points="605.44,413 614,413 614,381 605.44,381" fill="var(--m-shine, #ffffff)" fill-opacity="0.45"/>
+  <polyline points="605.44,413 614,413" fill="none" stroke="var(--m-ink-mute, #6f6f6a)" stroke-width="0.8" stroke-opacity="0.6"/>
+  <polygon points="605.44,433 614,433 614,413 614,381 605.44,381 605.44,413" fill="none" stroke="var(--m-ink-mute, #6f6f6a)" stroke-width="1" stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <text x="620" y="672" font-size="11" text-anchor="end" class="m-serif" fill="var(--m-ink-mute, #6f6f6a)">dashed end: hand-offs and untimed work, 4.2 s</text>
   <g data-beat="1"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="0.45s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="0.45s" begin="indefinite" fill="freeze"/>
   <polygon points="264,512 371.9,512 371.9,500 371.9,482 264,482 264,500" fill="var(--m-panel, #f3f1e8)"/>
   <polygon points="264,512 371.9,512 371.9,500 264,500" fill="var(--m-paper, #fafaf5)"/>
@@ -172,8 +179,8 @@
   <text x="588.98" y="474" font-size="11" text-anchor="end" fill="var(--m-amber-ink, #85590c)">offload 0.76 s</text>
   </g>
   <g data-beat="7"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.889;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="4.05s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.889;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="4.05s" begin="indefinite" fill="freeze"/>
-  <path d="M604.9761703619495 409 V300 H356 V409" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.2" stroke-dasharray="5 4" stroke-linejoin="round" marker-end="url(#plate-miles-loop-head-amber)"/>
-  <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M604.9761703619495 409 V300 H356 V409" keyPoints="0;0;1;1" keyTimes="0;0.818;0.943;1" calcMode="linear" dur="4.4s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.818;0.836;0.943;1" dur="4.4s" begin="indefinite" fill="freeze"/></circle>
+  <path d="M603.9761703619495 409 V300 H356 V409" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.2" stroke-dasharray="5 4" stroke-linejoin="round" marker-end="url(#plate-miles-loop-head-amber)"/>
+  <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M603.9761703619495 409 V300 H356 V409" keyPoints="0;0;1;1" keyTimes="0;0.818;0.943;1" calcMode="linear" dur="4.4s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.818;0.836;0.943;1" dur="4.4s" begin="indefinite" fill="freeze"/></circle>
   <rect class="m-knock" x="358.04" y="293.03" width="150.9" height="15.5" fill="var(--m-panel, #f3f1e8)"/>
   <text x="433.49" y="304" font-size="11.5" text-anchor="middle" fill="var(--m-amber-ink, #85590c)">weight update, 0.64 s</text>
   </g>
