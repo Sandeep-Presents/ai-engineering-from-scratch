@@ -56,7 +56,7 @@ from: manuals/a2a-101/sections/4-1-send-message.md, manuals/a2a-101/sections/4-3
 | Setting | Default | Note |
 |---|---|---|
 | `returnImmediately` | false | A send waits for a terminal or interrupted state |
-| `historyLength` | unset | No limit. `0` returns no history. |
+| `historyLength` | unset | The server decides how much history to return. `0` returns no history. |
 | `pageSize` | 50 | The maximum in `ListTasks` is 100 |
 | `includeArtifacts` | false | Artifacts are left out of list results |
 | `A2A-Version` | 1.0 | Required on every request, with no patch number |
@@ -84,31 +84,34 @@ from: manuals/a2a-101/sections/3-4-task-and-task-state.md, manuals/a2a-101/secti
 
 ## One task, step by step
 type: flow
-from: manuals/a2a-101/sections/1-2-one-task-request-by-request.md, manuals/a2a-101/sections/4-2-input-required-and-auth-required.md, manuals/a2a-101/sections/4-3-get-task-and-list-tasks.md
+from: manuals/a2a-101/sections/1-1-what-a2a-standardizes.md, manuals/a2a-101/sections/3-1-message.md, manuals/a2a-101/sections/4-1-send-message.md, manuals/a2a-101/sections/4-2-input-required-and-auth-required.md, manuals/a2a-101/sections/4-3-get-task-and-list-tasks.md
 
-1. **Client**: sends `SendMessage` with a new `messageId` and no `taskId`.
+1. **Client**: sends a blocking `SendMessage` with a new `messageId` and no `taskId`.
 2. **Server**: creates the task and mints its `taskId` and `contextId`.
-3. **Agent**: moves to `TASK_STATE_WORKING` and writes artifacts in chunks.
-4. **Agent**: stops at `TASK_STATE_INPUT_REQUIRED` with a question.
-5. **Client**: answers with the same `taskId` and `contextId`.
-6. **Client**: calls `GetTask` after the stream closes.
+3. **Agent**: stops at `TASK_STATE_INPUT_REQUIRED`, and the call returns the task with its question.
+4. **Client**: answers with a second `SendMessage` with the same `taskId` and `contextId`.
+5. **Server**: returns the same task in `TASK_STATE_COMPLETED`, with its artifact.
+6. **Client**: calls `GetTask` with the `taskId` to read the stored task again.
 
 ## JSON-RPC request
 type: annotated-code
-lang: http
-from: manuals/a2a-101/sections/5-1-json-rpc.md, manuals/a2a-101/capture/out/02-message-reply.http
+lang: bash
+from: manuals/a2a-101/sections/5-1-json-rpc.md, manuals/a2a-101/sections/3-1-message.md, manuals/a2a-101/sections/5-4-version-and-extension-headers.md, manuals/a2a-101/capture/out/02-message-reply.http
 
-```http
-POST /a2a/jsonrpc HTTP/1.1  # one URL for every operation
-Content-Type: application/json  # JSON body
-{
-  "jsonrpc": "2.0",  # envelope version, always 2.0
-  "id": 1,  # the reply repeats this id
-  "method": "SendMessage",  # PascalCase operation name
-  "params": {
-    "message": {
+```bash
+curl -s http://localhost:41242/a2a/jsonrpc \  # one URL for every operation
+  -H 'Content-Type: application/json' \  # JSON body
+  -H 'A2A-Version: 1.0' \  # required on every request
+  -d '{
+    "jsonrpc": "2.0",  # envelope version, always 2.0
+    "id": 1,  # the reply repeats this id
+    "method": "SendMessage",  # PascalCase operation name
+    "params": {"message": {
       "messageId": "d95bafc8-f2a4-427b-9cf4-bb99f4bea973",  # minted by the client
-      "role": "ROLE_USER"  # the client always sends ROLE_USER
+      "role": "ROLE_USER",  # the client always sends ROLE_USER
+      "parts": [{"text": "What languages can you review?"}]  # at least one part
+    }}
+  }'
 ```
 
 ## Troubleshooting
