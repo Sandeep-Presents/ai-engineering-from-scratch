@@ -19,6 +19,7 @@ const { phaseHubPath, phaseLabel, glossaryLookupKey } = require('../lib/hub-rout
 const { writeHubs } = require('./build-hubs.js');
 const { writeCheatsheets, loadTopics, coverage } = require('./build-cheatsheets.js');
 const { writePractice } = require('./build-practice.js');
+const { lessonNumber } = require('./catalog.js');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const README_PATH = path.join(REPO_ROOT, 'README.md');
@@ -1056,27 +1057,28 @@ function renderCatalogDiscovery(phases, lessonManifest) {
   const rows = [];
   for (const phase of phases) {
     let grouped = false;
-    for (const lesson of phase.lessons) {
+    phase.lessons.forEach((lesson, index) => {
       const relPath = lessonPath(lesson.url);
       const seo = relPath && lessonManifest.lessons[relPath];
-      if (!seo) continue;
+      if (!seo) return;
       if (!grouped) {
         grouped = true;
         rows.push(
           `            <tr class="catalog-group-row" data-generated-discovery="phase">` +
-          `<th colspan="5" scope="rowgroup"><a href="${htmlEscape(phaseHubPath(relPath))}">` +
+          `<th colspan="6" scope="rowgroup"><a href="${htmlEscape(phaseHubPath(relPath))}">` +
           `${htmlEscape(phaseLabel(phase.id, phase.name))}</a></th></tr>`
         );
       }
       rows.push(
         `            <tr data-generated-discovery="lesson">` +
-        `<td>${htmlEscape(String(phase.id).padStart(2, '0'))}</td>` +
+        `<td></td>` +
+        `<td>${htmlEscape(lessonNumber(phase.id, lesson.url, index + 1).label)}</td>` +
         `<td><a href="${htmlEscape(lessonHref(relPath))}">${htmlEscape(seo.title)}</a></td>` +
         `<td>${htmlEscape(lesson.type || '')}</td>` +
         `<td>${htmlEscape(lesson.lang || '')}</td>` +
         `<td>${htmlEscape(lesson.status || '')}</td></tr>`
       );
-    }
+    });
   }
   return rows.join('\n');
 }
