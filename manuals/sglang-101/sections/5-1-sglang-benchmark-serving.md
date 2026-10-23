@@ -332,7 +332,7 @@ users   temperature   SGLang client    vllm bench       vllm bench, Rust
 64      0             1,688, 1,838     1,624, 1,667     1,674, 1,789
 ```
 
-- Our client read a median TTFT 3 to 10 percent higher and an output throughput 2 to 8 percent lower than `vllm bench serve`. The gap was largest at 64 users.
+- Our client read a median TTFT 3 to 10 percent higher than `vllm bench serve`. At 16 and 64 users, it read an output throughput 2 to 8 percent lower. At one user, one of its rounds read a higher throughput than every other round, so we give no throughput gap there.
 - The Python and the Rust versions of `vllm bench serve` agreed within the noise.
 - The clients send different prompt tokens from their random datasets, so part of a small gap can come from the prompts.
 - Temperature 0.7 raised the median TPOT over temperature 0. It was 10 to 13 percent higher at one user, and 3 to 6 percent higher at 16 and 64 users.

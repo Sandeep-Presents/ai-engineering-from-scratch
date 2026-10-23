@@ -57,7 +57,7 @@ SGLang return_logprob, ORIGINAL_LOGPROB=1        0.0000                         
 
 SGLang returned the logprob from before top-p, with the environment variable at 0 or at 1. At temperature 1 the two settings compute the same value. On the same prompts, the logprob after top-p was higher by minus the log of the kept mass, a median of about 0.053. So a trainer that renormalizes over the kept tokens must not compare with this value directly. The GPU was shared and had no clock lock, which does not change these values.
 
-That is correct for sampling, and it surprises anyone who compares those numbers with a model run at temperature 1. A reinforcement learning trainer that computes logprobs from the raw logits sees a mismatch on every token, and the mismatch looks like a numerical bug. [Section 7.2](#s-sglang-as-an-rl-rollout-engine) shows why that matters for training.
+At a temperature other than 1, the scaled value is correct for sampling. It surprises anyone who compares those numbers with a model run at temperature 1. A reinforcement learning trainer that computes logprobs from the raw logits sees a mismatch on every token, and the mismatch looks like a numerical bug. [Section 7.2](#s-sglang-as-an-rl-rollout-engine) shows why that matters for training.
 
 ## On Apple silicon
 

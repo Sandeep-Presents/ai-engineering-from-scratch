@@ -4,7 +4,7 @@ Machine: NVIDIA L4, the second GPU of the node (GPU1), shared with its owner, no
 Model and draft: Qwen/Qwen3-8B-FP8 with the Tengyunw/qwen3_8b_eagle3 draft.
 Prompts: 8 prompts with thinking on (6 ShareGPT, 1 proof, 1 design doc). Greedy, concurrency 1, prefix cache off, at most 4,096 output tokens.
 SGLang 0.5.22: 3 steps, top-k 1, 4 draft tokens. Acceptance length per segment = tokens in the segment / change in spec_verify_ct.
-vLLM 0.31.0: eagle3 with 3 speculative tokens. Acceptance length = 1 + accepted / drafts, from /metrics deltas.
+vLLM 0.31.0: eagle3 with 3 speculative tokens. Acceptance length = 1 + accepted / drafts, from /metrics deltas of vllm:spec_decode_num_accepted_tokens and vllm:spec_decode_num_drafts. num_drafts counts draft steps, one per verify step, not draft tokens. This is the mean_acceptance_length formula in vllm/v1/spec_decode/metrics.py.
 
 Mean acceptance length per segment, range across prompts that reached the segment (n prompts):
 
