@@ -709,9 +709,15 @@ mark.aifs-hl.aifs-hl-flash {
   }
 }
 
-@media (max-width: 900px) {
-  html.aifs-hl-launch-on body:not(.tts-active) {
+@media (min-width: 721px) and (max-width: 900px) {
+  html.aifs-hl-launch-on body {
     padding-bottom: calc(var(--aifs-hl-launch-bottom, 16px) + 60px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 720px) {
+  html.aifs-hl-launch-on body:not(.tts-active) {
+    padding-bottom: calc(var(--aifs-hl-launch-bottom, 12px) + 60px + env(safe-area-inset-bottom, 0px));
   }
 }
 
