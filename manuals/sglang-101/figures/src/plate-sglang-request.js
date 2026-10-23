@@ -141,5 +141,5 @@ module.exports = figure('plate-sglang-request', {
   f.text(20, 656, `first request ${ms(firstRound.ttft_ms)}`, { size: 12, weight: 700, hue: 'rose' });
   f.text(330, 656, `repeats ${ms(stable.median_ttft_ms)}, median of 4`, { size: 12, weight: 700, hue: 'plum' });
   f.beat(0);
-  f.text(20, 682, `first request: ${firstRound.cached_tokens} cached tokens, the tree was empty`, { size: 11, serif: true, hue: 'ink-mute' });
+  f.text(20, 682, `first request: ${firstRound.cached_tokens} cached tokens, the system prompt was not yet in the tree`, { size: 11, serif: true, hue: 'ink-mute' });
 });
