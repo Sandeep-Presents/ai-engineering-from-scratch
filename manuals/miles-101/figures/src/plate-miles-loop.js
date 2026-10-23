@@ -12,109 +12,126 @@ const gradient = (diffs[diffs.length / 2 - 1] + diffs[diffs.length / 2]) / 2;
 const step = m.step_time_s.median;
 const steps = m.step_time_s.steps;
 const TURNS = [
-  { hue: 'violet', time: m.rollout_time_s.median, line: 'rollout: the SGLang engine writes 256 answers' },
-  { hue: 'blue', time: m.log_probs_time_s.median, line: 'log probabilities: the FSDP trainer reads them' },
-  { hue: 'blue', time: gradient, line: 'GRPO update: Adam, one step' },
-  { hue: 'amber', time: m.update_weights_time_s.median, digits: 2, line: 'weight update: new weights to the engine' },
+  { hue: 'violet', time: m.rollout_time_s.median, line: 'rollout, SGLang engine' },
+  { hue: 'blue', time: m.log_probs_time_s.median, line: 'log probabilities, trainer' },
+  { hue: 'blue', time: gradient, line: 'GRPO update, Adam' },
+  { hue: 'amber', time: m.update_weights_time_s.median, digits: 2, line: 'weight update to the engine' },
 ];
+const untimed = step - TURNS.reduce((sum, turn) => sum + turn.time, 0);
 const ACTORS = [
-  { sx: 44, hue: 'grey', title: 'Ray head', sub: 'ray start --head' },
-  { sx: 102, hue: 'amber', title: 'TrainerController', sub: 'Ray actor, the step loop' },
-  { sx: 160, hue: 'violet', title: 'ray::RolloutExecutor', sub: 'Ray actor, drives SGLang' },
-  { sx: 218, hue: 'green', title: 'math reward', sub: '1 or 0 per answer, on CPU' },
+  { u: 8, v: 14, hue: 'grey', title: 'Ray head', sub: 'ray start --head' },
+  { u: 58, v: 14, hue: 'amber', title: 'TrainerController', sub: 'Ray actor, step loop' },
+  { u: 8, v: 74, hue: 'violet', title: 'ray::RolloutExecutor', sub: 'Ray actor, drives SGLang' },
+  { u: 58, v: 74, hue: 'green', title: 'math reward', sub: '1 or 0 per answer' },
 ];
 
 module.exports = figure('plate-miles-loop', {
-  height: 700,
+  height: 716,
   title: 'One GRPO step on one GB10',
-  desc: `One DGX Spark GB10 superchip: the Grace CPU and the Blackwell GPU stand on one 128 GB pool of unified LPDDR5X memory. On Grace run the Ray head, the TrainerController and ray::RolloutExecutor actors, and the math reward. On Blackwell the SGLang rollout engine and the FSDP trainer take turns, drawn to scale over a median step of ${sec(step)}: rollout ${sec(m.rollout_time_s.median)}, log probabilities ${sec(m.log_probs_time_s.median)}, GRPO update ${sec(gradient)}, and weight update ${sec(m.update_weights_time_s.median, 2)}. The tenant that waits is parked in the same pool: the trainer onloads in ${sec(m.wake_up_time_s.median, 2)} and offloads in ${sec(m.sleep_time_s.median, 2)}. Medians of ${steps} steps of a run made before we added the heat guard.`,
+  desc: `One DGX Spark GB10 package drawn in iso: a Grace CPU die with 20 Arm cores and a Blackwell GPU die, both joined to one 128 GB slab of unified LPDDR5X memory at the center. On the Grace die run the Ray head, the TrainerController and ray::RolloutExecutor actors, and the math reward. On the Blackwell die the FSDP trainer is active and the SGLang engine waits. Inside the shared slab the trainer state is the active footprint and the engine state is parked. The trainer onloads in ${sec(m.wake_up_time_s.median, 2)}, and the weight update to the engine takes ${sec(m.update_weights_time_s.median, 2)}. Below, one median step of ${sec(step)} to scale: rollout ${sec(m.rollout_time_s.median)}, log probabilities ${sec(m.log_probs_time_s.median)}, GRPO update ${sec(gradient)}, weight update ${sec(m.update_weights_time_s.median, 2)}, and ${sec(untimed)} of hand-offs and untimed work. Medians of ${steps} steps of a run made before we added the heat guard.`,
 }, f => {
-  const chip = f.isoView({ ox: 0, oy: 476, angle: 'true' });
+  const chip = f.isoView({ ox: 300, oy: 118, angle: 'true' });
   const face = (part, points, hue, opacity) => f.polygon(points.map(([u, v, k]) => part.P(u, v, k)), { fill: color(hue), fillOpacity: opacity });
   const flat = (part, u, v, w, d, hue, opacity) => face(part, [[u, v, part.box.h], [u + w, v, part.box.h], [u + w, v + d, part.box.h], [u, v + d, part.box.h]], hue, opacity);
-  const quad = (part, u0, u1, k0, k1, hue, opacity) => face(part, [[u0, part.box.d, k0], [u1, part.box.d, k0], [u1, part.box.d, k1], [u0, part.box.d, k1]], hue, opacity);
+  const front = (part, u0, u1, k0, k1, hue, opacity) => face(part, [[u0, part.box.d, k0], [u1, part.box.d, k0], [u1, part.box.d, k1], [u0, part.box.d, k1]], hue, opacity);
+  const on = (part, u, v, w, d, h, hue, extra = {}) => f.isoBlock(chip, { x: part.box.x + u, y: part.box.y + v, z: part.box.z + part.box.h, w, d, h, hue, shadow: false, ...extra });
 
   f.kicker(20, 18, 'one NVIDIA DGX Spark · GB10 superchip');
   f.text(620, 18, 'Qwen3-0.6B', { size: 11, anchor: 'end', hue: 'ink-soft' });
 
-  f.isoBeam(chip, { sx0: 14, sx1: 626, c: 120, back: 270, h: 10, hue: 'paper', inkHue: 'grey', ink: 1.4 });
-  for (let i = 1; i < 8; i += 1) {
-    const sx = 14 + (612 * i) / 8;
-    const low = chip.P(...chip.at(sx, 120), 0);
-    const high = chip.P(...chip.at(sx, 120), 10);
-    f.rule(low[0], low[1], high[0], high[1], { hue: 'grey', opacity: 0.7 });
-  }
-  const grace = f.isoBeam(chip, { sx0: 20, sx1: 246, z: 10, c: -30, back: 110, h: 10, hue: 'grey' });
-  f.isoBeam(chip, { sx0: 258, sx1: 620, z: 10, c: -30, back: 110, h: 10, hue: 'grey' });
+  const pkg = f.isoBlock(chip, { x: 0, y: 0, w: 340, d: 320, h: 8, hue: 'grey' });
+  const grace = on(pkg, 14, 170, 112, 136, 12, 'grey', { shadow: true });
+  for (let i = 0; i < 20; i += 1) flat(grace, 6 + (i % 10) * 10, i < 10 ? 6 : 122, 7, 8, 'ink-mute', 0.55);
+  const gpu = on(pkg, 196, 14, 130, 120, 12, 'grey', { shadow: true });
+  for (let row = 0; row < 4; row += 1) for (let col = 0; col < 4; col += 1) flat(gpu, 8 + col * 29, 6 + row * 28, 22, 22, 'violet-ink', 0.22);
+  const slab = on(pkg, 134, 142, 196, 168, 16, 'paper', { inkHue: 'grey', ink: 1.6, shadow: true });
+  const wire = (a, b) => f.rule(a[0], a[1], b[0], b[1], { hue: 'grey', width: 2.2, opacity: 0.8 });
+  for (const k of [40, 80]) wire(grace.P(112, k, 6), slab.P(0, k - 20, 8));
+  for (const k of [40, 90]) wire(gpu.P(k, 120, 6), slab.P(k + 50, 0, 8));
+  wire(grace.P(60, 0, 6), gpu.P(0, 60, 6));
 
-  const machines = ACTORS.map((actor, index) => {
-    const [x, y] = chip.at(actor.sx, -84);
-    const block = f.isoBlock(chip, { x: x - 13, y: y - 13, z: 20, w: 26, d: 26, h: index === 0 ? 20 : 16, hue: actor.hue, shadow: false });
-    if (index === 3) [[4, 4, 1], [12, 4, 0], [4, 14, 1], [12, 14, 1]].forEach(([u, v, s]) => flat(block, u, v, 8, 8, s ? 'green-ink' : 'paper', s ? 0.75 : 0.95));
-    else quad(block, 5, 21, 4, index === 0 ? 15 : 11, `${actor.hue}-ink`, 0.6);
+  const actors = ACTORS.map(actor => {
+    const block = on(grace, actor.u, actor.v, 30, 30, 18, actor.hue);
+    if (actor.hue === 'green') [[4, 4, 1], [16, 4, 0], [4, 16, 1], [16, 16, 1]].forEach(([u, v, s]) => flat(block, u, v, 10, 10, s ? 'green-ink' : 'paper', s ? 0.75 : 0.95));
+    else front(block, 5, 25, 4, 13, `${actor.hue}-ink`, 0.6);
     return block;
   });
-  ACTORS.forEach((actor, index) => {
-    const y = 66 + index * 50;
-    f.text(actor.sx - 24, y, actor.title, { size: 12, weight: 700, hue: actor.hue === 'grey' ? undefined : actor.hue });
-    f.text(actor.sx - 24, y + 16, actor.sub, { size: 11, serif: true, hue: 'ink-soft' });
-    f.leader([actor.sx, y + 22], machines[index].top, { hue: actor.hue === 'grey' ? 'ink-mute' : actor.hue });
+  const ORDER = [1, 0, 3, 2];
+  ORDER.forEach((index, row) => {
+    const actor = ACTORS[index];
+    const y = 44 + row * 34;
+    f.text(20, y, actor.title, { size: 12, weight: 700, hue: actor.hue === 'grey' ? undefined : actor.hue });
+    f.text(20, y + 14, actor.sub, { size: 11, serif: true, hue: 'ink-soft' });
   });
+  ORDER.forEach((index, row) => f.leader([180, 46 + row * 34], actors[index].top, { hue: ACTORS[index].hue === 'grey' ? 'ink-mute' : ACTORS[index].hue }));
 
-  f.kicker(620, 252, 'Blackwell GPU · one step to scale', { anchor: 'end' });
-  f.text(620, 272, `${sec(step)} a step, median of ${steps}`, { size: 12, weight: 700, anchor: 'end' });
+  const trainer = on(gpu, 18, 30, 40, 40, 30, 'blue');
+  front(trainer, 6, 34, 6, 24, 'blue-ink', 0.5);
+  const engine = on(gpu, 76, 30, 40, 40, 8, 'paper', { inkHue: 'violet', dash: 'dashed' });
 
-  const x0 = 264;
-  const span = 350;
+  const active = on(slab, 14, 14, 92, 140, 14, 'blue');
+  const parked = on(slab, 116, 14, 66, 140, 5, 'paper', { inkHue: 'violet', dash: 'dashed' });
+  for (let v = 10; v < 140; v += 22) flat(active, 8, v, 76, 10, 'blue-ink', 0.18);
+
+  f.text(406, 204, 'Blackwell GPU', { size: 12, weight: 700, anchor: 'end' });
+  f.leader([410, 202], gpu.P(0, 34, 12), { hue: 'ink-mute' });
+  f.text(620, 100, 'FSDP trainer', { size: 12, weight: 700, hue: 'blue', anchor: 'end' });
+  f.text(620, 114, 'FSDPTrainRayActor', { size: 11, serif: true, hue: 'ink-soft', anchor: 'end' });
+  f.leader([515, 120], trainer.top, { hue: 'blue' });
+  f.text(620, 146, 'SGLang engine', { size: 12, weight: 700, hue: 'violet', anchor: 'end' });
+  f.text(620, 160, 'waits for new weights', { size: 11, serif: true, hue: 'ink-soft', anchor: 'end' });
+  f.leader([590, 166], engine.top, { hue: 'violet' });
+  f.text(20, 214, 'Grace CPU', { size: 12, weight: 700 });
+  f.text(20, 228, '20 Arm cores', { size: 11, serif: true, hue: 'ink-soft' });
+  f.leader([100, 210], grace.P(0, 40, 12), { hue: 'ink-mute' });
+
+  f.beat(1);
+  const tUp = active.P(46, 0, 14);
+  const tDown = trainer.P(20, 40, 0);
+  f.path(`M${tUp[0]} ${tUp[1] - 2} L${tDown[0]} ${tDown[1] + 2}`, { style: 'state' });
+  f.text(tUp[0] + 6, (tUp[1] + tDown[1]) / 2 + 8, `onload ${sec(m.wake_up_time_s.median, 2)}`, { size: 11, hue: 'amber', knock: true });
+  f.beat(2);
+  const eA = engine.P(20, 40, 0);
+  const eB = parked.P(33, 0, 5);
+  f.path(`M${eA[0]} ${eA[1] + 2} L${eB[0]} ${eB[1] - 2}`, { style: 'state' });
+  f.beat(3);
+  const w0 = trainer.P(40, 20, 26);
+  const w1 = engine.P(0, 20, 8);
+  f.path(`M${w0[0]} ${w0[1]} V${w0[1] - 52} H${w1[0]} V${w1[1] - 2}`, { style: 'state' });
+  f.text((w0[0] + w1[0]) / 2, w0[1] - 56, `weight update ${sec(m.update_weights_time_s.median, 2)}`, { size: 11, anchor: 'middle', hue: 'amber', knock: true });
+
+  f.beat(0);
+  f.text(300, 498, 'LPDDR5X · 128 GB unified, one pool for both dies', { size: 12, weight: 700, anchor: 'middle' });
+  f.leader([300, 486], slab.P(98, 168, 4), { hue: 'ink-mute' });
+  f.text(20, 330, 'trainer state', { size: 12, weight: 700, hue: 'blue' });
+  f.text(20, 344, 'active footprint', { size: 11, serif: true, hue: 'ink-soft' });
+  f.leader([124, 340], active.P(0, 100, 14), { hue: 'blue' });
+  f.text(620, 400, 'engine state', { size: 12, weight: 700, hue: 'violet', anchor: 'end' });
+  f.text(620, 414, 'parked in the pool', { size: 11, serif: true, hue: 'ink-soft', anchor: 'end' });
+  f.leader([540, 420], parked.P(66, 120, 5), { hue: 'violet' });
+
+  const line = f.isoView({ ox: 0, oy: 590, angle: 'true' });
+  f.kicker(20, 534, `one step to scale · ${sec(step)}, median of ${steps}`);
+  const x0 = 20;
+  const span = 600;
   const edges = [x0];
   TURNS.forEach(turn => edges.push(edges[edges.length - 1] + (turn.time / step) * span));
-  const tenants = [];
   TURNS.forEach((turn, index) => {
-    f.beat(1 + index * 2);
-    tenants.push(f.isoBeam(chip, { sx0: edges[index], sx1: edges[index + 1] - (index < 3 ? 1 : 0), z: 20, c: -46, back: 64, h: 20, hue: turn.hue, shadow: false }));
+    f.beat(4 + index);
+    f.isoBeam(line, { sx0: edges[index], sx1: edges[index + 1] - (index < 3 ? 1 : 0), c: 0, back: 16, h: 10, hue: turn.hue, shadow: false });
     const last = index === TURNS.length - 1;
-    const cx = last ? edges[index] - 14 : edges[index] + 12;
-    const cy = index === 2 ? 354 : 330;
-    f.step(cx, cy, index + 1, { hue: turn.hue });
-    f.text(last ? cx - 13 : cx + 13, cy + 4, sec(turn.time, turn.digits || 1), { size: 11.5, weight: 700, hue: turn.hue, anchor: last ? 'end' : undefined });
+    const cx = last ? edges[index] - 14 : edges[index] + 11;
+    f.step(cx, 562, index + 1, { hue: turn.hue });
+    f.text(last ? cx - 13 : cx + 13, 566, sec(turn.time, turn.digits || 1), { size: 11, weight: 700, hue: turn.hue, anchor: last ? 'end' : undefined });
   });
-
   f.beat(0);
-  f.isoBeam(chip, { sx0: edges[4] + 1, sx1: x0 + span, z: 20, c: -46, back: 64, h: 20, hue: 'paper', inkHue: 'ink-mute', ink: 1, dash: 'dashed', shadow: false });
-  f.text(620, 672, `dashed end: hand-offs and untimed work, ${sec(step - TURNS.reduce((a, t) => a + t.time, 0))}`, { size: 11, serif: true, hue: 'ink-mute', anchor: 'end' });
-  f.beat(1);
-  f.isoBeam(chip, { sx0: edges[0], sx1: edges[1] - 1, z: 10, c: 92, back: 36, h: 12, hue: 'paper', inkHue: 'blue', ink: 1.2, dash: 'dashed', shadow: false });
-  f.beat(2);
-  f.isoBeam(chip, { sx0: edges[1], sx1: edges[3] - 1, z: 10, c: 92, back: 36, h: 12, hue: 'paper', inkHue: 'violet', ink: 1.2, dash: 'dashed', shadow: false });
-  const rowTop = chip.P(...chip.at(0, -46), 20)[1];
-  const parkTop = chip.P(...chip.at(0, 92), 22)[1];
-  const parkBack = chip.P(...chip.at(0, 56), 22)[1];
-  f.line(edges[1] - 8, parkBack + 2, edges[1] - 8, rowTop + 4, { style: 'state' });
-  f.text(edges[1] - 14, parkBack - 8, `onload ${sec(m.wake_up_time_s.median, 2)}`, { size: 11, anchor: 'end', hue: 'amber', knock: true });
-  f.line(edges[1] + 8, rowTop + 4, edges[1] + 8, parkBack + 2, { style: 'state' });
-  f.text(edges[1] + 14, parkBack - 8, 'engine released', { size: 11, hue: 'amber', knock: true });
-
-  f.beat(6);
-  f.line(edges[3] - 8, rowTop + 4, edges[3] - 8, parkTop + 4, { style: 'state' });
-  f.text(edges[3] - 14, parkBack - 8, `offload ${sec(m.sleep_time_s.median, 2)}`, { size: 11, anchor: 'end', hue: 'amber', knock: true });
-
-  f.beat(7);
-  const top = tenants[0].left[1];
-  f.path(`M${edges[3] + 1} ${top - 4} V300 H${edges[0] + 92} V${top - 4}`, { style: 'state' });
-  f.text((edges[0] + edges[3]) / 2, 304, `weight update, ${sec(m.update_weights_time_s.median, 2)}`, { size: 11.5, anchor: 'middle', hue: 'amber', knock: true });
-
-  f.beat(0);
-  f.text(20, 566, 'Grace CPU, 20 Arm cores', { size: 11, hue: 'ink-soft' });
-  f.leader([100, 556], grace.front[3], { hue: 'ink-mute' });
-  f.text(620, 566, 'LPDDR5X, 128 GB unified, one pool for both chips', { size: 11, anchor: 'end', hue: 'ink-soft' });
-  f.leader([560, 556], chip.P(...chip.at(560, 120), 6), { hue: 'ink-mute' });
-  f.rect(20, 582, 12, 12, { hue: 'violet' });
-  f.text(38, 592, 'on the GPU', { size: 11, hue: 'ink-soft' });
-  f.rect(140, 582, 12, 12, { hue: 'paper', stroke: color('ink-mute'), dash: 'dashed' });
-  f.text(158, 592, 'parked in the pool', { size: 11, hue: 'ink-soft' });
+  f.isoBeam(line, { sx0: edges[4] + 1, sx1: x0 + span, c: 0, back: 16, h: 10, hue: 'paper', inkHue: 'ink-mute', ink: 1, dash: 'dashed', shadow: false });
   TURNS.forEach((turn, index) => {
-    f.step(29, 614 + index * 21, index + 1, { hue: turn.hue });
-    f.text(46, 618 + index * 21, turn.line, { size: 11.5, serif: true, hue: 'ink-soft' });
+    const x = index % 2 ? 330 : 20;
+    const y = 624 + Math.floor(index / 2) * 22;
+    f.step(x + 9, y - 4, index + 1, { hue: turn.hue });
+    f.text(x + 26, y, turn.line, { size: 11.5, serif: true, hue: 'ink-soft' });
   });
-  f.text(620, 692, 'Medians from the run made before the heat guard.', { size: 11, serif: true, hue: 'ink-mute', anchor: 'end' });
+  f.text(20, 676, `dashed end: hand-offs and untimed work, ${sec(untimed)}. Trainer offload ${sec(m.sleep_time_s.median, 2)}.`, { size: 11, serif: true, hue: 'ink-soft' });
+  f.text(20, 700, 'Medians from the run made before the heat guard.', { size: 11, serif: true, hue: 'ink-mute' });
 });

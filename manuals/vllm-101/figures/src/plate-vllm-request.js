@@ -7,14 +7,14 @@ const { load } = require('../../../_shared/chart.js');
 const pool = load(path.join(__dirname, '../../capture/gpu/summary/l4.json')).prefix.vllm.kv_pool_tokens;
 const BLOCK = 16;
 const BUDGET = 2048;
-const COLS = 10;
+const COLS = 8;
 const ROWS = 5;
 const REQUESTS = [
   { id: 'A', hue: 'olive', stage: 'decode', blocks: [2, 13, 31] },
-  { id: 'B', hue: 'amber', stage: 'decode', blocks: [7, 8, 26, 46] },
-  { id: 'C', hue: 'indigo', stage: 'prefill chunk', blocks: [17, 18, 35, 36, 43] },
+  { id: 'B', hue: 'amber', stage: 'decode', blocks: [7, 8, 26, 38] },
+  { id: 'C', hue: 'indigo', stage: 'prefill chunk', blocks: [17, 18, 27, 28, 35] },
 ];
-const FREE = [5, 11, 12, 22, 29, 39, 40, 47, 48, 49];
+const FREE = [5, 11, 12, 22, 29, 36, 39];
 
 module.exports = figure('plate-vllm-request', {
   height: 676,
@@ -22,7 +22,7 @@ module.exports = figure('plate-vllm-request', {
   desc: `The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of ${BUDGET.toLocaleString('en-US')} tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of ${BLOCK}-token blocks: ${(pool / BLOCK).toLocaleString('en-US')} blocks hold ${pool.toLocaleString('en-US')} tokens, and the grid shows ${COLS * ROWS} of them: the blocks of A and B, some of the blocks of C, and free blocks.`,
 }, f => {
   const host = f.isoView({ ox: 0, oy: 150, angle: 'true' });
-  const step = f.isoView({ ox: 0, oy: 318, angle: 'true' });
+  const step = f.isoView({ ox: 0, oy: 326, angle: 'true' });
   const card = f.isoView({ ox: 0, oy: 520, angle: 'true' });
   const unit = (view, cx, cc, size, h, hue, options = {}) => {
     const [xc, yc] = view.at(cx, cc);
@@ -70,18 +70,23 @@ module.exports = figure('plate-vllm-request', {
   f.rule(20, 216, 620, 216, { dash: 'dashed' });
 
   f.beat(3);
-  f.kicker(20, 238, `one scheduler step · budget ${BUDGET.toLocaleString('en-US')} tokens`);
-  f.isoBeam(step, { sx0: 14, sx1: 626, c: 14, back: 40, h: 4, hue: 'paper', inkHue: 'ink-mute', ink: 1, shadow: false });
-  let cursor = 20;
-  const widths = [12, 12, 576];
+  f.kicker(20, 236, 'one scheduler step');
+  f.text(620, 236, `budget ${BUDGET.toLocaleString('en-US')} tokens`, { size: 12, weight: 700, anchor: 'end' });
+  f.isoBeam(step, { sx0: 20, sx1: 620, c: 8, back: 50, h: 34, hue: 'paper', inkHue: 'ink-mute', ink: 1.2, dash: 'dashed', shadow: false });
+  const parts = [[24, 34], [36, 46], [48, 616]];
   REQUESTS.forEach((r, i) => {
-    f.isoBeam(step, { sx0: cursor, sx1: cursor + widths[i] - 2, z: 4, c: 6, back: 24, h: 12, hue: r.hue, shadow: false });
-    cursor += widths[i];
+    f.beat(3 + i);
+    f.isoBeam(step, { sx0: parts[i][0], sx1: parts[i][1], c: 4, back: 42, h: 28, hue: r.hue, shadow: false });
   });
-  f.text(20, 262, 'A, B decode: 1 token each', { size: 11.5, weight: 700, hue: 'plum' });
-  f.leader([40, 268], step.P(...step.at(26, -6), 16), { hue: 'plum' });
-  f.text(620, 262, `C prefill chunk: ${(BUDGET - 2).toLocaleString('en-US')} tokens`, { size: 11.5, weight: 700, hue: 'plum', anchor: 'end' });
-  f.text(20, 336, 'Running requests get their decode token first, then a waiting prompt fills the budget in chunks.', { size: 11, serif: true, hue: 'ink-soft' });
+  f.beat(3);
+  f.text(20, 258, 'A decode, 1 token', { size: 11.5, weight: 700, hue: REQUESTS[0].hue });
+  f.text(186, 258, 'B decode, 1 token', { size: 11.5, weight: 700, hue: REQUESTS[1].hue });
+  f.leader([29, 262], step.P(...step.at(29, -20), 28), { hue: REQUESTS[0].hue });
+  f.leader([190, 262], step.P(...step.at(41, -30), 28), { hue: REQUESTS[1].hue });
+  f.beat(5);
+  f.text(332, 312, `C prefill chunk, ${(BUDGET - 2).toLocaleString('en-US')} tokens`, { size: 12.5, weight: 700, hue: REQUESTS[2].hue, anchor: 'middle' });
+  f.beat(3);
+  f.text(20, 350, 'The decode slivers are drawn wider. Decodes go first, then a prompt chunk fills the rest.', { size: 11, serif: true, hue: 'ink-soft' });
 
   f.beat(0);
   f.kicker(20, 370, 'NVIDIA L4 · GPU memory');
@@ -133,7 +138,7 @@ module.exports = figure('plate-vllm-request', {
   f.leader([100, 420], die.top, { hue: 'violet' });
   f.text(620, 398, `KV cache · ${BLOCK}-token blocks`, { size: 12, weight: 700, hue: 'green', anchor: 'end' });
   f.text(620, 414, `${(pool / BLOCK).toLocaleString('en-US')} blocks, ${pool.toLocaleString('en-US')} tokens`, { size: 11, hue: 'green', anchor: 'end' });
-  f.leader([560, 420], cell(8)[3], { hue: 'green' });
+  f.leader([560, 420], cell(6)[3], { hue: 'green' });
   const gddr = card.P(...card.at(240, slab.c), 12);
   f.leader([196, 606], gddr, { hue: 'ink-mute' });
   f.text(20, 610, '24 GB GDDR6, six packages', { size: 11, hue: 'ink-soft' });
