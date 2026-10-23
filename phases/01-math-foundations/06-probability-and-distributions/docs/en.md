@@ -190,7 +190,7 @@ The row and column totals in the table above are the marginals.
 
 ### Why the Normal Distribution Shows Up Everywhere
 
-The Central Limit Theorem: the sum (or average) of many independent random variables converges to a normal distribution, regardless of the original distribution.
+The Central Limit Theorem: the sum (or average) of many independent random variables from the same distribution approaches a normal distribution, whatever the shape of the original distribution, as long as its variance is finite.
 
 ```
 Roll 1 die:  uniform distribution (flat)
