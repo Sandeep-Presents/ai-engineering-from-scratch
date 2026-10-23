@@ -4,11 +4,11 @@ vLLM 0.31.0, from your first server to a deployment you can size, tune, and debu
 
 ## What is in it
 
-- 44 sections in 8 parts, then eight reference sections. Parts 1 to 7 follow the order of your work: start a server, size it, tune it for your traffic, add speed features, measure it, scale it out, and operate and debug it. Part 8 explains how vLLM works inside, for when a default surprises you.
+- 44 sections in 8 parts, then eight reference sections. Parts 1 to 7 follow the order of your work. You start a server, size it, tune it for your traffic, and add speed features. Then you measure it, scale it out, and operate and debug it. Part 8 explains how vLLM works inside, for when a default surprises you.
 - Each page answers one question and ends with a check that proves the change worked.
 - Each measured number names its machine, its date, its clock, and its seed count. Pages that we could not measure say so.
 - A cover plate and 26 figures drawn with the figure kit, with charts plotted from the GPU runs.
-- A reference part with the flag table, the metrics, an index of the GitHub issues the manual cites, the version pins, a glossary, the sources, and the lab notes with the full tables.
+- A reference part with the flag table, the metrics, and an index of the GitHub issues the manual cites. It also has the version pins, a glossary, the sources, and the lab notes with the full tables.
 
 ## Files
 
@@ -47,7 +47,7 @@ Start with the front matter, "How to read this manual". It gives five commands t
 
 ## Run the sweeps again
 
-The GPU runs come from the sweep tool of SGLang 101, `manuals/sglang-101/capture/gpu/sweep.py`, which has a profile for each machine and a vLLM configuration for each table. It needs an NVIDIA GPU, vLLM 0.31.0, and the SGLang 0.5.22 benchmark client. [The lab notes](https://aiengineeringfromscratch.com/manual-vllm-101.html#s-ref-lab-notes) give the seeds, the server settings, the pool sizes, and the clock rule. [The benchmark page](https://aiengineeringfromscratch.com/manual-vllm-101.html#s-benchmark-your-server-in-15-minutes) prints the full client command.
+The GPU runs come from the sweep tool of SGLang 101, `manuals/sglang-101/capture/gpu/sweep.py`. It has a profile for each machine and a vLLM configuration for each table. It needs an NVIDIA GPU, vLLM 0.31.0, and the SGLang 0.5.22 benchmark client. [The lab notes](https://aiengineeringfromscratch.com/manual-vllm-101.html#s-ref-lab-notes) give the seeds, the server settings, the pool sizes, and the clock rule. [The benchmark page](https://aiengineeringfromscratch.com/manual-vllm-101.html#s-benchmark-your-server-in-15-minutes) prints the full client command.
 
 This manual has no offline capture check. The stored logs and summaries in `capture/gpu/` are the record, and the audit checks every listing against them.
 

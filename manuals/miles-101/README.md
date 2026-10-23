@@ -7,7 +7,8 @@ Reinforcement learning on language models with Miles, from one GRPO run on one G
 - 34 sections in 8 parts, then five reference sections. Part 1 runs GRPO on one GPU, adds a watchdog, and reads the first ten steps. Part 2 sizes the run, Part 3 gives recipes, and Part 4 covers speed and stability. Part 5 checks a run, Part 6 scales it out, Part 7 debugs it, and Part 8 explains how Miles works inside.
 - Every measured line comes from recorded runs on one DGX Spark, and each page says how far the result goes. Pages that one GPU cannot show say what we could only read in the source.
 - A cover plate and 18 figures drawn with the figure kit from the runs and the code.
-- A capture kit in `capture/` that checks the stored outputs without a GPU, and a GPU kit in `capture/gpu/` that starts the runs on the DGX Spark.
+- A capture kit in `capture/` that checks the stored outputs without a GPU.
+- A GPU kit in `capture/gpu/` that starts the runs on the DGX Spark.
 
 ## Files
 
@@ -43,7 +44,7 @@ The GB10 got hot under hours of load, so a heat guard paused the container at 84
 
 ## How to read it
 
-Start with the front matter, "How to read this manual". It gives the five commands of a first run, the five results that change what you do, and the three terms of the heat guard: heat guard, pause, and clean step. Run section 1.1 with the watchdog of section 1.2 in a second terminal, because a run whose engine dies does not stop by itself. Use [the lab notes](https://aiengineeringfromscratch.com/manual-miles-101.html#s-ref-lab-notes) to check a number or to repeat a run.
+Start with the front matter, "How to read this manual". It gives the five commands of a first run and the five results that change what you do. It also defines three terms: heat guard, pause, and clean step. Run section 1.1 with the watchdog of section 1.2 in a second terminal, because a run whose engine dies does not stop by itself. Use [the lab notes](https://aiengineeringfromscratch.com/manual-miles-101.html#s-ref-lab-notes) to check a number or to repeat a run.
 
 ## Run the kit
 
@@ -52,7 +53,7 @@ cd manuals/miles-101
 python3 capture/run.py --check
 ```
 
-The check needs no GPU and no network. It replays the watchdog rule on the stored error times of the 16-answer run, marks the pauses again from the pause log, computes every median again from the stored steps, and checks that each quoted value is still in its file. The raw run logs stay on the DGX Spark, so without them the check prints `skipped` for the fresh summary and compares the stored outputs only. Set `MILES_LAB_RUNS` to a runs folder that holds `status.txt` to also build the summary again and compare it. `python3 capture/run.py` with that folder replaces the stored summary and the pause log.
+The check needs no GPU and no network. It replays the watchdog rule on the stored error times of the 16-answer run. It marks the pauses from the pause log and computes every median from the stored steps. Then it checks that each quoted value is still in its file. The raw run logs stay on the DGX Spark. Without them, the check prints `skipped` for the fresh summary and compares only the stored outputs. Set `MILES_LAB_RUNS` to a runs folder that holds `status.txt` to also build the summary again and compare it. `python3 capture/run.py` with that folder replaces the stored summary and the pause log.
 
 ## Build and check
 
