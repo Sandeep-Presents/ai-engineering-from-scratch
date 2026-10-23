@@ -193,6 +193,24 @@ EAGLE-3 had the slowest median, 579.3 ms, and the shortest tail, 1,007.4 ms at P
 
 The prefix cache gives a second reading, and we cannot rule it out. The sweep also kept one server for all the runs of one configuration, with no flush. Each seed sent the same first prompts at every cap. At a cap of 16, 32 of the 64 prompts were the prompts of the run at a cap of 8. If they were still in the pool, half of the requests skipped their prefill. We did not keep the full server logs of the sweep, so we cannot count the hits.
 
+We tested this reading on the L4, not on the GB10. On 2026-10-23 we ran the load sweep of Qwen3-8B with a flush before each run and a 900 MHz lock. We compared it with a run of the same session that had no flush:
+
+```listing
+title: median TTFT with and without a flush, Qwen3-8B on our L4 at 900 MHz
+source: capture/gpu/out-l4/load-flushed-vs-unflushed.txt
+lang: text
+note: The median TTFT rows. The share of requests that met the target and the P99 ITL lines are cut.
+---
+median TTFT, flushed against unflushed
+users   vLLM                                   SGLang
+4       650 / 145 ms (4.5x)                    532 to 645 / 141 ms (3.8 to 4.6x)
+8       951 to 978 / 264 to 274 ms (3.6x)      1,174 to 1,273 / 173 to 178 ms (6.6 to 7.3x)
+16      1,550 to 1,587 / 294 to 295 ms (5.3x)  1,804 to 1,944 / 218 ms (8.3 to 8.9x)
+…
+```
+
+On the L4, the flush raised the median TTFT of SGLang 4 to 9 times at 4 to 16 users. The time per token changed by less than 10 percent. So on the L4, the cache made most of the fast group. On the GB10 we did not rerun the sweep, so both readings stay open there.
+
 ### We tested the waves on an L4
 
 A reading is a hypothesis until you change the variable it blames. We ran Qwen3-8B on one L4 with a cap of 16 and 64 prompts, three seeds per point. Only `--random-range-ratio` changed, from 1.0 to 0.5 to 0.0.
@@ -400,4 +418,4 @@ Then enforce the knee outside the engine. The engine's own limit is set from mem
 - Report the client and the temperature with every result, and keep both fixed.
 ```
 
-Sources: python/sglang/benchmark/serving.py (calculate_metrics, argument defaults, flush_server_cache, --flush-cache, the asyncio client), python/sglang/benchmark/datasets/common.py (compute_random_lens), python/sglang/benchmark/datasets/random.py (sample_random_requests), python/sglang/srt/entrypoints/http_server.py (flush_cache), python/sglang/srt/managers/scheduler.py (flush_cache), python/sglang/srt/observability/metrics_collector.py (cached_tokens_total), python/sglang/srt/entrypoints/openai/usage_processor.py, python/sglang/bench_serving.py, PR #40795, all at v0.5.22 (baa9befa); capture/out/serve-help.txt, capture/out/server-default.command.txt, capture/out/server-default.log, capture/out/bench-random-c1.txt, capture/out/bench-random-c8.txt, capture/out/bench-random-c32.txt; capture/gpu/sweep.py, capture/gpu/summarize.py, capture/gpu/summary/gb10.json, capture/gpu/summary/l4.json, capture/gpu/summary/l4-throttled.json, capture/gpu/out-gb10/server-default.command.txt, capture/gpu/out-gb10/bench-random-c8.txt, capture/gpu/out-gb10/bench-random-c32.txt, capture/gpu/incidents/l4-thermal-throttle.txt; issue #3196. capture/gpu/out-l4/server-waves-default.log, capture/gpu/out-l4/waves-default-input-tokens.txt, capture/gpu/out-gb10/server-pools.log, capture/gpu/out-gb10/server-default.log, Chandrasekar and Kramberger, Identifying and Mitigating Systemic Measurement Bias in Production LLM Inference Benchmarks, arXiv 2605.24217 (2026-05), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt
+Sources: python/sglang/benchmark/serving.py (calculate_metrics, argument defaults, flush_server_cache, --flush-cache, the asyncio client), python/sglang/benchmark/datasets/common.py (compute_random_lens), python/sglang/benchmark/datasets/random.py (sample_random_requests), python/sglang/srt/entrypoints/http_server.py (flush_cache), python/sglang/srt/managers/scheduler.py (flush_cache), python/sglang/srt/observability/metrics_collector.py (cached_tokens_total), python/sglang/srt/entrypoints/openai/usage_processor.py, python/sglang/bench_serving.py, PR #40795, all at v0.5.22 (baa9befa); capture/out/serve-help.txt, capture/out/server-default.command.txt, capture/out/server-default.log, capture/out/bench-random-c1.txt, capture/out/bench-random-c8.txt, capture/out/bench-random-c32.txt; capture/gpu/sweep.py, capture/gpu/summarize.py, capture/gpu/summary/gb10.json, capture/gpu/summary/l4.json, capture/gpu/summary/l4-throttled.json, capture/gpu/out-gb10/server-default.command.txt, capture/gpu/out-gb10/bench-random-c8.txt, capture/gpu/out-gb10/bench-random-c32.txt, capture/gpu/incidents/l4-thermal-throttle.txt; issue #3196. capture/gpu/out-l4/server-waves-default.log, capture/gpu/out-l4/waves-default-input-tokens.txt, capture/gpu/out-gb10/server-pools.log, capture/gpu/out-gb10/server-default.log, Chandrasekar and Kramberger, Identifying and Mitigating Systemic Measurement Bias in Production LLM Inference Benchmarks, arXiv 2605.24217 (2026-05), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt, capture/gpu/out-l4/load-flushed-vs-unflushed.txt

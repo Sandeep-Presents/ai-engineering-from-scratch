@@ -46,6 +46,24 @@ The vLLM team treats a scale of 1.0 as the worst case for accuracy. They tested 
 
 Cloudflare published its check. On Kimi K2.6, BF16 against FP8 KV scored 94.24 and 94.09 on GSM8K, 89.11 and 89.04 on MMLU, and 80.29 and 79.29 on MMLU-Pro {{field Cloudflare 2026-08}}. Those are their numbers on their model, and your model can differ.
 
+We ran our own check on 2026-10-23, on our L4: the first 500 GSM8K questions, 8-shot and greedy, with `Qwen/Qwen3-8B` and `Qwen/Qwen3-8B-FP8`. Neither checkpoint has KV scales, so the FP8 KV runs used a scale of 1.0.
+
+```listing
+title: GSM8K accuracy, 500 questions, 8-shot, Qwen3-8B on SGLang 0.5.22
+source: capture/gpu/out-l4/gsm8k-fp8-accuracy.txt
+lang: text
+note: The SGLang rows. The vLLM rows of the same file are cut.
+---
+engine   config                     correct   accuracy   Wilson 95% interval
+SGLang   BF16                       458/500   91.6%      88.8 to 93.7
+SGLang   FP8 weights                456/500   91.2%      88.4 to 93.4
+SGLang   FP8 KV cache               458/500   91.6%      88.8 to 93.7
+SGLang   FP8 weights + FP8 KV       460/500   92.0%      89.3 to 94.1
+…
+```
+
+All four intervals overlap. On this model and this test, neither FP8 weights nor an FP8 KV cache lost accuracy that 500 questions can detect. That is one model and one benchmark, so it does not remove the check on your model.
+
 ### Check that your scales load
 
 The warning `Using FP8 KV cache but no scaling factors provided` prints whenever you pass no `--quantization-param-path` {{code}}. A checkpoint can also carry its scales in its weight files. So the warning alone does not tell you which scales the server uses.
@@ -218,4 +236,4 @@ Quantize per phase when you run prefill and decode on separate servers. Smaller 
 - Read the KV Cache is allocated line to see the pool size each choice buys.
 ```
 
-Sources: capture/gpu/out-gb10/server-default.log, server-fp8.log, server-fp8.command.txt, generate.txt, fp8-generate.txt, capture/gpu/summary/gb10.json, capture/gpu/summary/l4.json, capture/gpu/out-l4/server-load-default.log, server-load-fp8.log, python/sglang/srt/arg_groups/choices.py (QUANTIZATION_CHOICES), arg_groups/fields/model.py (kv_cache_dtype, quantization_param_path), configs/model_config.py (_verify_quantization), layers/quantization/__init__.py (get_quantization_config), layers/quantization/gptq/gptq.py (override_quantization_method), layers/quantization/fp8.py, and docs/docs/advanced_features/quantization.mdx at v0.5.22; model_executor/model_runner_components/load_model_utils.py (load_kv_cache_scales) and layers/quantization/compressed_tensors/compressed_tensors.py (kv_cache_scheme) at v0.5.22; PR #32114; PR #35455 (compressed-tensors KV scales, merged 2026-08-20); the model.safetensors.index.json of Qwen/Qwen3-30B-A3B-Instruct-2507-FP8 (read 2026-10-22); the vLLM team, The State of FP8 KV-Cache and Attention Quantization in vLLM (2026-04-22); field reports by Cloudflare (2026-08-03), joshua8.ai (2026-01-10), and Pivot News (2026-05-19); capture/gpu/out-l4/server-small-pool-bf16-fp8.log, capture/gpu/summary/l4.json (prefix.small-pool, prefix.fp8-small-pool), capture/gpu/out-l4/server-load-c64-scheduler.log
+Sources: capture/gpu/out-gb10/server-default.log, server-fp8.log, server-fp8.command.txt, generate.txt, fp8-generate.txt, capture/gpu/summary/gb10.json, capture/gpu/summary/l4.json, capture/gpu/out-l4/server-load-default.log, server-load-fp8.log, python/sglang/srt/arg_groups/choices.py (QUANTIZATION_CHOICES), arg_groups/fields/model.py (kv_cache_dtype, quantization_param_path), configs/model_config.py (_verify_quantization), layers/quantization/__init__.py (get_quantization_config), layers/quantization/gptq/gptq.py (override_quantization_method), layers/quantization/fp8.py, and docs/docs/advanced_features/quantization.mdx at v0.5.22; model_executor/model_runner_components/load_model_utils.py (load_kv_cache_scales) and layers/quantization/compressed_tensors/compressed_tensors.py (kv_cache_scheme) at v0.5.22; PR #32114; PR #35455 (compressed-tensors KV scales, merged 2026-08-20); the model.safetensors.index.json of Qwen/Qwen3-30B-A3B-Instruct-2507-FP8 (read 2026-10-22); the vLLM team, The State of FP8 KV-Cache and Attention Quantization in vLLM (2026-04-22); field reports by Cloudflare (2026-08-03), joshua8.ai (2026-01-10), and Pivot News (2026-05-19); capture/gpu/out-l4/server-small-pool-bf16-fp8.log, capture/gpu/summary/l4.json (prefix.small-pool, prefix.fp8-small-pool), capture/gpu/out-l4/server-load-c64-scheduler.log, capture/gpu/out-l4/gsm8k-fp8-accuracy.txt
