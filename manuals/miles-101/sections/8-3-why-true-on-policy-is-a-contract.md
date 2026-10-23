@@ -53,7 +53,7 @@ Our gap of about 0.015 is the floor of one setup. That setup is BF16 on both sid
 - **Tensor parallel size.** A 2025 paper showed that an engine split over several GPUs adds in a different order than a trainer on one GPU. That gap stays even with batch-invariant kernels, so the tensor parallel size of the engine is a source of its own.
 - **Bitwise kernels.** The same paper then made a vLLM engine and an FSDP trainer agree bit for bit, with kernels that add in one fixed tree order. In their test on Qwen3-8B, inference took 22 to 63 percent longer.
 
-We checked the precision claim outside Miles, on the second GPU of our L4 node on 2026-10-23. SGLang 0.5.22 served `Qwen/Qwen3-0.6B` in BF16 or FP16. It sampled up to 64 tokens for each of 32 prompts at top-p 1, so no sampling mask applied. The comparison covered 1,961 tokens. A Transformers forward pass over the same tokens played the trainer.
+We checked the precision claim outside Miles, on the second GPU of our L4 node on 2026-10-23. SGLang 0.5.22 served `Qwen/Qwen3-0.6B` in BF16 or FP16. It sampled up to 64 tokens for each of 32 prompts at top-p 1, so no sampling mask applied. The comparison covered 1,961 sampled tokens from 32 prompts, because 3 answers ended at the end token before 64 tokens. A Transformers forward pass over the same tokens played the trainer.
 
 ```listing
 title: median absolute logprob gap per token, engine against trainer

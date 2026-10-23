@@ -24,7 +24,7 @@ LIVE_CHECKS = {
 }
 L4_CHECKS = {
     "logprobs-top-p.txt": ["vLLM --logprobs-mode processed_logprobs          +0.0527", "median residual 8e-9", "SGLang return_logprob, ORIGINAL_LOGPROB=0        0.0000"],
-    "logprob-gap-by-dtype.txt": ["1,961 tokens", "BF16     BF16      0.0073", "FP16     FP16      0.00094", "BF16     FP32      0.0076", "FP16     FP32      0.0010"],
+    "logprob-gap-by-dtype.txt": ["1,961 sampled tokens from 32 prompts", "3 answers ended at the end token before 64 tokens", "BF16     BF16      0.0073", "FP16     FP16      0.00094", "BF16     FP32      0.0076", "FP16     FP32      0.0010"],
 }
 REPLAY_COMMAND = "$ python3 watchdog_replay.py"
 
