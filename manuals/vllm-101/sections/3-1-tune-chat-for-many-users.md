@@ -25,7 +25,7 @@ Watch the P99 ITL, the worst gap in 100. One long pause in a stream feels worse 
 
 Up to 16 users, each new user added output, and the stream stayed steady. But at 16 users, one request in three already got its first token too late. At 32 users, the output still rose, but the P99 ITL grew seven times and no request met the target. The server was busy, and the users waited.
 
-### Read this table as too kind below 32 users
+### Treat results below 32 users as affected by prefix-cache reuse
 
 This sweep kept one server for all the user counts, and it did not reset the prefix cache between them. Each seed sent the same first prompts at every count, so many requests found their prompt in the cache and skipped the prefill. On 2026-10-23 we ran the sweep again on the same L4, with a reset before each run and the clock locked at 900 MHz. We compared it with an unflushed run of that same session:
 
@@ -33,7 +33,7 @@ This sweep kept one server for all the user counts, and it did not reset the pre
 title: median TTFT with and without a cache flush, Qwen3-8B on our L4 at 900 MHz
 source: capture/gpu/out-l4/load-flushed-vs-unflushed.txt
 lang: text
-note: The median TTFT and the share that met the target. The P99 ITL lines are cut.
+note: The median TTFT rows. The share that met the target and the P99 ITL lines are cut.
 ---
 median TTFT, flushed against unflushed
 users   vLLM                                   SGLang
@@ -44,7 +44,7 @@ users   vLLM                                   SGLang
 …
 ```
 
-With the reset, 50 percent of the requests met our target at 8 users, against 75 to 81 percent without it. At 16 users the share fell from about 65 percent to 25 percent, and the P99 ITL was 522 ms instead of about 85 ms. From 32 users the queue dominated, and the reset changed little. So the stream breaks between 8 and 16 users on this card, not between 16 and 32. The table above stays as a record of the full-clock session.
+With the reset, 50 percent of the requests met our target at 8 users, against 75 to 81 percent without it. At 16 users the share fell from about 65 percent to 25 percent. The P99 ITL at 16 users was 522 ms with the reset, against 82 to 84 ms in the unflushed run of the same session. From 32 users the queue dominated, and the reset changed little. So the stream breaks between 8 and 16 users on this card, not between 16 and 32. The table above stays as a record of the full-clock session.
 
 Each step has a budget of 2,048 tokens on this GPU. When new prompts arrive, their chunks share the step with the running streams, so the running streams pause. [The token budget page](#s-why-one-token-budget-replaces-a-prefill-phase) explains the order.
 

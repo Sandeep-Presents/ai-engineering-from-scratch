@@ -15,5 +15,5 @@ vLLM default, earlier run     900                       11.8 s            1,359 
 --max-num-active-seqs 32      435 / 810                 21.8 to 22.7 s    1,380 to 1,658 ms     187 to 202
 --max-num-active-seqs 16      795 / 683                 44.8 to 48.8 s    1,133 to 1,139 ms     129 to 136
 
-The earlier vLLM default run at 900 MHz was in the same session without a flush. At 64 users the flush changes little, because the queue dominates.
+The earlier vLLM default run at 900 MHz was in the same session without a flush. It ran at a different clock from the flushed default run, so the two default rows are not a flush comparison.
 No cap we tried brought the vLLM P99 ITL near the SGLang value. Lower caps moved the wait to the first token.

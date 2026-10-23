@@ -97,7 +97,7 @@ vLLM     FP8 KV cache               454/500   90.8%      87.9 to 93.0
 vLLM     FP8 weights + FP8 KV       453/500   90.6%      87.7 to 92.9
 ```
 
-FP8 weights scored 1.2 points lower, and the two intervals overlap. So this test cannot tell the two apart. It is one model and one benchmark. Run your own prompts on both checkpoints, and compare the answers before you go to production. We did not run this check on the 4-bit formats.
+FP8 weights scored 1.2 points lower, and the two intervals overlap. So this run did not show a difference, and it cannot rule out a loss of a few points. It is one model and one benchmark. Run your own prompts on both checkpoints, and compare the answers before you go to production. We did not run this check on the 4-bit formats.
 
 ```takeaways
 - Serve a published FP8 checkpoint, and set no extra flag.

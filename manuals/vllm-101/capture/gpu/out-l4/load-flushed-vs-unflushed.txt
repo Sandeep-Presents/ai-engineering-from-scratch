@@ -21,4 +21,6 @@ users   vLLM                  SGLang
 
 P99 ITL, flushed: vLLM 69 to 72 ms at 8 users, 522 to 523 ms at 16, 668 to 964 ms at 32.
 SGLang 72 to 73 ms at 8 users, 82 ms at 16, 105 to 106 ms at 32.
+P99 ITL, unflushed at 900 MHz in the same session: vLLM 69 ms at 8 users, 82 to 84 ms at 16, 741 to 1,422 ms at 32.
+SGLang 71 to 72 ms at 8 users, 81 to 82 ms at 16, 102 to 106 ms at 32.
 The time per token and the throughput changed by about 5 to 10 percent between the two sweeps. The cache moved the first token, not the decode.

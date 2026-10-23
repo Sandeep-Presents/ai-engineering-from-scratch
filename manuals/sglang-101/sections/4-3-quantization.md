@@ -62,7 +62,7 @@ SGLang   FP8 weights + FP8 KV       460/500   92.0%      89.3 to 94.1
 …
 ```
 
-All four intervals overlap. On this model and this test, neither FP8 weights nor an FP8 KV cache lost accuracy that 500 questions can detect. That is one model and one benchmark, so it does not remove the check on your model.
+All four intervals overlap, so this run did not show a difference. With 500 questions, it cannot rule out a loss of a few points. That is one model and one benchmark, so it does not remove the check on your model.
 
 ### Check that your scales load
 

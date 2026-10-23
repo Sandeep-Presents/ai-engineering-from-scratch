@@ -101,7 +101,7 @@ vLLM EAGLE3     GSM8K      2.69                     0.77 / 0.54 / 0.38
 vLLM EAGLE3     ShareGPT   2.35                     0.67 / 0.42 / 0.26
 ```
 
-The first draft token was accepted 77 percent of the time on GSM8K and 67 percent on ShareGPT, and each later position less. On short 128-token answers in the same session, SGLang gave 2.69 to 2.78 on GSM8K and 2.33 to 2.43 on ShareGPT. So the acceptance did not fall out to about 2,000 tokens. It depended more on the kind of text than on the length.
+The first draft token was accepted 77 percent of the time on GSM8K and 67 percent on ShareGPT, and each later position less. On short 128-token answers in the same session, SGLang gave 2.69 to 2.78 on GSM8K and 2.33 to 2.43 on ShareGPT. Its long answers stayed within 0.01 of those ranges. We have no short-answer acceptance for vLLM from this session, so the vLLM rows show only the level on long answers.
 
 Read the acceptance on your own long answers before you trust a gain. The metrics at the end of this page give it.
 

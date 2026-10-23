@@ -204,7 +204,7 @@ code       365 to 366 / 566 to 581 / 377 to 386
 
 EAGLE-3 cut the time per token about in half at 8 users on every dataset, with an acceptance length of 2.35 to 2.78. At 32 users it gave 1.6 times the output on GSM8K and code. On the random set and ShareGPT it gave no more output. There its first token came 2 to 3 times later, because the draft took pool space that the queue needed.
 
-NGRAM helped only where the answer repeats the prompt, as on GSM8K and code, by about 1.1 to 1.2 times at 8 users. On the other two sets it was slower, and its P99 ITL rose to 244 to 779 ms. So the dataset changed the result more than the random set suggests. Test on your own traffic.
+NGRAM helped only on GSM8K and code, by about 1.1 to 1.2 times at 8 users. On the other two sets it was slower, and its P99 ITL rose to 244 to 779 ms. So the dataset changed the result more than the random set suggests. Test on your own traffic.
 
 ## Acceptance over a long answer
 
@@ -241,7 +241,7 @@ vLLM EAGLE3     GSM8K      2.69                     0.77 / 0.54 / 0.38
 vLLM EAGLE3     ShareGPT   2.35                     0.67 / 0.42 / 0.26
 ```
 
-On short answers in the same session, the acceptance was 2.69 to 2.78 on GSM8K and 2.33 to 2.43 on ShareGPT. The long answers kept the same level. The kind of text changed the acceptance more than the length did.
+On short answers in the same session, SGLang gave 2.69 to 2.78 on GSM8K and 2.33 to 2.43 on ShareGPT. Its long answers stayed within 0.01 of those ranges. We have no short-answer acceptance for vLLM from this session, so its rows show only the level on long answers.
 
 ## Our position
 

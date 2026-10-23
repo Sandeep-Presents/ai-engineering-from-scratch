@@ -77,7 +77,7 @@ Two things changed together: the KV data type and the backend. The table does no
 
 ## Check the accuracy
 
-On 2026-10-23 we ran the first 500 GSM8K questions, 8-shot and greedy, on our L4. Qwen3-8B has no KV scales, so the FP8 KV runs used a scale of 1.0, the worst case for accuracy. The FP8 KV runs used the Triton backend, as above.
+On 2026-10-23 we ran the first 500 GSM8K questions, 8-shot and greedy, on our L4. Qwen3-8B has no KV scales, so the FP8 KV runs used a scale of 1.0. The FP8 KV runs used the Triton backend, as above.
 
 ```listing
 title: GSM8K accuracy, 500 questions, 8-shot, Qwen3-8B on vLLM 0.31.0
@@ -93,7 +93,7 @@ vLLM     FP8 KV cache               454/500   90.8%      87.9 to 93.0
 vLLM     FP8 weights + FP8 KV       453/500   90.6%      87.7 to 92.9
 ```
 
-Every interval overlaps the BF16 interval. On this model and this test, an FP8 KV cache lost no accuracy that 500 questions can detect. That is one model and one benchmark, so run the same check on your model and your task. A model with a different attention layout can lose more.
+Every interval overlaps the BF16 interval, so this run did not show a difference. With 500 questions, it cannot rule out a loss of a few points. That is one model and one benchmark, so run the same check on your model and your task. A model with a different attention layout can lose more.
 
 The post "The State of FP8 KV-Cache and Attention Quantization in vLLM" on the vLLM blog, of April 2026, tested uncalibrated FP8 KV caches. Its authors are from AWS and Red Hat. In their tests, most models stayed close to BF16. Some did not. They name Kimi-K2.5, which uses the FlashMLA backend, as a model that did not work well with uncalibrated scales. We did not measure these results ourselves.
 

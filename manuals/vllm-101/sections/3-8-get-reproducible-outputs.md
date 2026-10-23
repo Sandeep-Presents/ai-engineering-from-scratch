@@ -85,15 +85,17 @@ We measured the cost on our L4 on 2026-10-23, with the clock locked at 900 MHz. 
 title: the batch-invariant mode against the default, Qwen3-0.6B on vLLM 0.31.0
 source: capture/gpu/out-l4/batch-invariant-cost.txt
 lang: text
-note: Every run here had a median clock of 900 MHz. The Qwen3-8B rows are cut.
+note: The Qwen3-0.6B rows, where every run had a median clock of 900 MHz. The setup lines before them and the Qwen3-8B rows after them are cut.
 ---
+…
 users   median TPOT default / batch-invariant   output tok/s default / batch-invariant
 1       6.9 / 16.9 ms (2.4x)                    140.6 / 58.7 (58% lower)
 8       9.9 / 18.2 ms (1.8x)                    755 / 420 (44% lower)
 32      18.8 / 25.9 ms (1.4x)                   1,565 / 1,154 (26% lower)
+…
 ```
 
-On `Qwen/Qwen3-8B` at 8 users, the mode cost 1.4 times the time per token and 27 percent of the output. At 32 users it cost 1.3 times and 23 percent. The 1-user runs of the 8B model ran below the lock, so we leave them out. The relative cost fell as more users shared each step, and it was larger on the small model. Measure it on your model before you turn the mode on for a live server.
+On `Qwen/Qwen3-8B` at 8 users, the time per token was 1.4 times longer and the output tok/s 27 percent lower. At 32 users they were 1.3 times longer and 23 percent lower. The 1-user runs of the 8B model ran below the lock, so we leave them out. The relative cost fell as more users shared each step, and it was larger on the small model. Measure it on your model before you turn the mode on for a live server.
 
 ```takeaways
 - A seed is not enough, because the batch changes the order of the sums.

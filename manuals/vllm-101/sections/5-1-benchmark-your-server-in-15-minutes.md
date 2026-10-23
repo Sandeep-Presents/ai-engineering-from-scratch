@@ -53,7 +53,7 @@ Do not take that jump as the knee. This sweep did not reset the prefix cache bet
 title: median TTFT with and without a cache flush, Qwen3-8B on our L4 at 900 MHz
 source: capture/gpu/out-l4/load-flushed-vs-unflushed.txt
 lang: text
-note: The median TTFT and the share that met the target. The P99 ITL lines are cut.
+note: The median TTFT rows. The share that met the target and the P99 ITL lines are cut.
 ---
 median TTFT, flushed against unflushed
 users   vLLM                                   SGLang
