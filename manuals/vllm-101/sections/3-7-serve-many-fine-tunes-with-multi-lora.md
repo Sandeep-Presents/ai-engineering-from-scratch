@@ -26,6 +26,8 @@ curl http://localhost:8000/v1/chat/completions -H "Content-Type: application/jso
 
 `/v1/models` lists the base model and each adapter.
 
+We ran this setup on the shared second GPU of our L4 node on 2026-10-23. We used `Qwen/Qwen3-0.6B` and two public adapters of rank 8 and rank 64. `/v1/models` listed the base model, `support`, and `legal`, and a chat request to each adapter returned HTTP 200.
+
 ## Size the three limits
 
 | Flag | Default | What it limits |
@@ -56,4 +58,4 @@ Not measured on our hardware. We have not measured the cost of the adapter count
 - Two adapters never share prefix-cache blocks.
 ```
 
-Sources: the vLLM source at v0.31.0 (vllm/config/lora.py, vllm/lora/lora_model.py, vllm/lora/peft_helper.py, vllm/lora/utils.py, vllm/v1/core/kv_cache_utils.py), vLLM documentation at v0.31.0 (docs/features/lora.md), the release notes for v0.31.0.
+Sources: the vLLM source at v0.31.0 (vllm/config/lora.py, vllm/lora/lora_model.py, vllm/lora/peft_helper.py, vllm/lora/utils.py, vllm/v1/core/kv_cache_utils.py), vLLM documentation at v0.31.0 (docs/features/lora.md), the release notes for v0.31.0, capture/gpu/out-l4/livecheck-2026-10-23.txt.

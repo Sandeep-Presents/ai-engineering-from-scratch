@@ -113,6 +113,8 @@ for c in 1 2 4 8 16 32 64; do
 done
 ```
 
+We ran this loop as written on 2026-10-23, with `Qwen/Qwen3-8B-FP8` on the shared second GPU of our L4 node. Each run finished and wrote its result file. The GPU was throttled, so we give no numbers from that run.
+
 We ran three clients against one vLLM server with `Qwen/Qwen3-0.6B` on 2026-10-23: the SGLang client, `vllm bench serve`, and its Rust version. This was the shared second GPU of our L4 node. Its clock was throttled, but it stayed at 420 to 495 MHz for every run. We reset the cache before every run and alternated the clients over two rounds.
 
 ```listing
@@ -143,4 +145,4 @@ So our tables, from the SGLang client at temperature 0, can read a few percent s
 - Write the client and the temperature next to every result.
 ```
 
-Sources: vLLM documentation at v0.31.0 (docs/benchmarking/cli.md, docs/benchmarking/sweeps.md), the vLLM source at v0.31.0 (vllm/benchmarks/serve.py), capture/gpu/summary/l4.json (load.vllm-b), the sweep tool of the SGLang 101 manual (capture/gpu/sweep.py), the SGLang 0.5.22 benchmark client source (python/sglang/benchmark/serving.py, python/sglang/benchmark/datasets/random.py), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt.
+Sources: vLLM documentation at v0.31.0 (docs/benchmarking/cli.md, docs/benchmarking/sweeps.md), the vLLM source at v0.31.0 (vllm/benchmarks/serve.py), capture/gpu/summary/l4.json (load.vllm-b), the sweep tool of the SGLang 101 manual (capture/gpu/sweep.py), the SGLang 0.5.22 benchmark client source (python/sglang/benchmark/serving.py, python/sglang/benchmark/datasets/random.py), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt.

@@ -59,7 +59,7 @@ vLLM 0.31.0 reads these formats from the checkpoint config, so you set no flag f
 |---|---|---|
 | AWQ and GPTQ | 4-bit weights, 16-bit math | runs from the Turing GPUs on, with the fast Marlin kernels on Ampere, Ada, and Hopper |
 | compressed-tensors W4A16 or W8A8 | 4-bit or 8-bit weights, made with the LLM Compressor library | the vLLM project suggests this library to make your own checkpoint |
-| bitsandbytes | 4-bit weights, made when the server loads the model | set `--quantization bitsandbytes` for a model that is not quantized |
+| bitsandbytes | 4-bit weights, made when the server loads the model | needs the separate `vllm-bnb-plugin` package, then set `--quantization bitsandbytes` for a model that is not quantized |
 | GGUF | the llama.cpp file format | needs the separate `vllm-gguf-plugin` package, and the vLLM documentation calls it experimental |
 
 For example, Qwen publishes a 4-bit AWQ checkpoint of Qwen3-14B:
@@ -68,7 +68,14 @@ For example, Qwen publishes a 4-bit AWQ checkpoint of Qwen3-14B:
 vllm serve Qwen/Qwen3-14B-AWQ --max-model-len 8192
 ```
 
-We started this AWQ checkpoint once on an L4, with no `--quantization` flag. The log showed `quantization=auto_awq` and the Marlin kernel. The weights took 9.44 GiB, and the pool held 36,272 tokens. We did not measure its speed or its accuracy, and we did not run the other formats.
+We started this AWQ checkpoint once on an L4, with no `--quantization` flag. The log showed `quantization=auto_awq` and the Marlin kernel. The weights took 9.44 GiB, and the pool held 36,272 tokens. We did not measure its speed or its accuracy.
+
+We also started two of the other formats on the shared second GPU of our L4 node on 2026-10-23. That GPU was throttled, so we give no speeds.
+
+- **bitsandbytes.** Without the plugin, `--quantization bitsandbytes` stops at start with `Unknown quantization method: bitsandbytes`. Install the plugin first, with `uv pip install vllm-bnb-plugin`. With it, `Qwen/Qwen3-1.7B` loaded in 1.33 GiB against 3.22 GiB in BF16, which is 41 percent. The pool grew from 92,960 to 108,512 tokens.
+- **GGUF.** With the plugin installed, `vllm serve unsloth/Qwen3-0.6B-GGUF:Q4_K_M --tokenizer Qwen/Qwen3-0.6B` loaded 0.55 GiB of weights, and a chat request returned HTTP 200.
+
+The 41 percent is for one small model. It includes the embeddings and the output layer, which stay in 16-bit, so the share can differ on a larger model. We did not measure the accuracy of either format.
 
 A 4-bit model can lose more accuracy than an FP8 model, and the loss depends on the model and the method. Test both formats on your own prompts.
 
@@ -82,4 +89,4 @@ We did not measure output quality with FP8 weights. Run your own prompts on both
 - Check output quality on your own prompts before production.
 ```
 
-Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-fp8), the vLLM source at v0.31.0 (vllm/model_executor/layers/quantization/fp8.py), vLLM documentation at v0.31.0 (docs/features/quantization/online.md, docs/features/quantization/README.md, docs/features/quantization/auto_awq.md, docs/features/quantization/gptqmodel.md, docs/features/quantization/bnb.md, docs/features/quantization/gguf.md, docs/features/quantization/llm_compressor/), capture/gpu/out-l4/livecheck-2026-10-22.txt.
+Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-fp8), the vLLM source at v0.31.0 (vllm/model_executor/layers/quantization/fp8.py), vLLM documentation at v0.31.0 (docs/features/quantization/online.md, docs/features/quantization/README.md, docs/features/quantization/auto_awq.md, docs/features/quantization/gptqmodel.md, docs/features/quantization/bnb.md, docs/features/quantization/gguf.md, docs/features/quantization/llm_compressor/), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt, vLLM documentation at v0.31.0 (docs/features/quantization/bnb.md).
