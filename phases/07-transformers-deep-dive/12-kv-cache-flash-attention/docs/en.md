@@ -26,7 +26,7 @@ By 2026 both are universal. Every production inference stack (vLLM, TensorRT-LLM
 
 ### KV cache math
 
-Per decoder layer, per token, per head:
+Per decoder layer, per token, across all KV heads:
 
 ```
 bytes_per_token_per_layer = 2 * n_kv_heads * d_head * dtype_size
@@ -37,21 +37,21 @@ bytes_per_token_per_layer = 2 * n_kv_heads * d_head * dtype_size
 For a 7B model with 32 layers, 32 heads (all used for K and V), d_head=128, fp16:
 
 ```
-per token per layer = 2 * 32 * 128 * 2 = 16384 bytes (16 KB)
-per token (32 layers) = 512 KB
-per 32K context = 16 GB
+per token per layer = 2 * 32 * 128 * 2 = 16384 bytes (16 KiB)
+per token (32 layers) = 512 KiB
+per 32K context = 16 GiB
 ```
 
 For Llama 3 70B (80 layers, d_head=128, GQA with 8 KV heads):
 
 ```
-per token per layer = 2 * 8 * 128 * 2 = 4096 bytes (4 KB)
-per 32K context = 10.4 GB
+per token per layer = 2 * 8 * 128 * 2 = 4096 bytes (4 KiB)
+per 32K context = 10 GiB
 ```
 
-That 10 GB is why Llama 3 70B at 128K context needs most of a 40 GB A100 just for KV cache at batch size 1.
+That 10 GiB at 32K grows to 40 GiB at 128K, which is the whole of a 40 GB A100 just for KV cache at batch size 1.
 
-**GQA is the KV-cache win.** MHA with 64 KV heads would be 8x larger, about 84 GB at 32K. MLA compresses even further.
+**GQA is the KV-cache win.** MHA with 64 KV heads would be 8x larger, about 80 GiB at 32K. MLA compresses even further.
 
 Drag the dimensions and watch the cache size move. Push the sequence length or batch up and see how fast it blows past a single GPU:
 
