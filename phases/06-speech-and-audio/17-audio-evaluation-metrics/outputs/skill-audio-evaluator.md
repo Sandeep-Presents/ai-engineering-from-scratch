@@ -22,7 +22,7 @@ Example input: "Release of a new English-Spanish conversational TTS. Need to con
 
 Example output:
 - Primary: UTMOS (paired audio samples on 50 prompts per language) + human-panel MOS (20 listeners per language, blind A/B vs baseline).
-- Secondary: TTFA median & P95 (must match baseline); SECS &gt; 0.80 vs a fixed voice reference (no speaker regression); WER on round-trip ASR (Whisper-large-v3-turbo) &lt; 2% for English (CER for Mandarin).
+- Secondary: TTFA median & P95 (must match baseline); SECS &gt; 0.80 vs a fixed voice reference (no speaker regression); WER on round-trip ASR (Whisper-large-v3-turbo) &lt; 2% per language, English and Spanish (both are space-segmented, so WER fits; use CER for languages without word boundaries).
 - Normalization: Whisper-normalizer English + Hugging Face multilingual-normalizer Spanish for round-trip WER.
 - Public benchmark: TTS Arena (English) and Artificial Analysis Speech for relative ELO positioning. Target: within 50 ELO of the closest competitor.
 - In-house: 200 held-out prompts (100 per lang) covering money, dates, product names, 2-sentence narration, emotional read, code-switched. 10 demographic voices.
