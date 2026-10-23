@@ -38,15 +38,14 @@ to main, so it never goes in a pull request.
 
 Each lesson lives in `phases/NN-phase-name/MM-lesson-name/`:
 
-```text
-MM-lesson-name/
-├── docs/en.md      Lesson documentation (required)
-├── code/           main.<lang> for each language in the Languages field
-│   └── tests/      5 or more tests, run with the language's stdlib runner
-├── quiz.json       6 questions: 1 pre, 3 check, 2 post
-├── notebook/       Jupyter notebook for experimentation (optional)
-└── outputs/        Prompts, skills, or agents this lesson produces (if applicable)
-```
+| Path | What it holds |
+|---|---|
+| `docs/en.md` | Lesson documentation (required) |
+| `code/` | `main.<lang>` for each language in the Languages field |
+| `code/tests/` | 5 or more tests, run with the language's stdlib runner |
+| `quiz.json` | 6 questions: 1 pre, 3 check, 2 post |
+| `notebook/` | Jupyter notebook for experimentation (optional) |
+| `outputs/` | Prompts, skills, or agents this lesson produces (if applicable) |
 
 `scripts/scaffold-lesson.sh <phase-dir> <lesson-slug> "<Title>"` creates the
 folders and a `docs/en.md` skeleton. [LESSON_TEMPLATE.md](LESSON_TEMPLATE.md)
