@@ -54,7 +54,7 @@ The decoder consumes image memory tokens via cross-attention and predicts the ne
 
 ### Combining the losses
 
-`total = contrastive + lm_weight * lm` where `lm_weight` is a scalar (often 1.0). The two losses share gradients into the encoder and projection; the decoder receives gradient from the LM loss only. This is the multi-task recipe that CoCa, BLIP, and SigLIP-style models all use, with various weightings.
+`total = contrastive + lm_weight * lm` where `lm_weight` is a scalar (often 1.0). The two losses share gradients into the encoder and projection; the decoder receives gradient from the LM loss only. This is the multi-task recipe that CoCa and BLIP use, with various weightings. SigLIP keeps only the contrastive term and swaps softmax for a sigmoid pair loss.
 
 | Component | Loss surface | Affects |
 |-----------|--------------|---------|

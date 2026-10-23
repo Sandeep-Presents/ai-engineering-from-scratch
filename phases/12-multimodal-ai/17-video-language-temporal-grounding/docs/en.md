@@ -91,7 +91,7 @@ Output formats for temporal grounding:
 
 - Free text: "The cat jumps around the 4-second mark." Easy to parse but imprecise.
 - Structured JSON: `{"event": "jump", "start": 4.1, "end": 4.3}`. Qwen2.5-VL trains this.
-- Token-based: special `<time>4.1</time>` tokens interleaved with the answer. Qwen2.5-VL's internal format.
+- Token-based: special `<time>4.1</time>` tokens interleaved with the answer. Some video models use this; Qwen2.5-VL instead encodes time in its M-RoPE position IDs and answers in text or JSON.
 
 Token-based is most accurate for downstream use. Qwen2.5-VL's JSON output format parses directly.
 

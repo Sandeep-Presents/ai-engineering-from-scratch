@@ -18,7 +18,7 @@ from: phases/12-multimodal-ai/05-llava-visual-instruction-tuning/docs/en.md, pha
 | Vision to LLM | 2-layer MLP, GELU | Same MLP projector | Qwen2-VL: 2-layer MLP on merged patches | Native, no align stage |
 | Recipe | Post-hoc on a text LLM | Post-hoc on a text LLM | Post-hoc on a text LLM | Native multimodal pretrain |
 | High resolution | AnyRes: 336 tiles plus thumbnail | AnyRes-9 or AnyRes-4, 384 tiles | Qwen2-VL: any H and W divisible by 28 | ViR picks low, medium or high |
-| Video | Per-frame concat | 32 frames, 196 tokens each | Dynamic FPS, `<time>` tokens | 5% video-text in pretrain |
+| Video | Per-frame concat | 32 frames, 196 tokens each | Dynamic FPS, absolute-time M-RoPE | 5% video-text in pretrain |
 | Visual tokens | 576 base, 2880 AnyRes | 6000-9000 per sample, balanced | Scales with input | 256, 576 or 2048+ via ViR |
 | Training | Align, then instruct | Stages SI, OV, TT | Qwen3-VL: stages stress OCR, grounding, agents | One pretrain stage, then instruct |
 | Swap the LLM | Retrain the projector | Retrain the projector | Retrain the adapter | Not possible later |
@@ -47,7 +47,7 @@ from: phases/12-multimodal-ai/09-qwen-vl-family-dynamic-fps/docs/en.md, phases/1
 
 1. **Qwen-VL (2023)**: 448 res, grounding boxes as text, Q-Former with 256 queries.
 2. **Qwen2-VL (2024)**: M-RoPE, native dynamic resolution, MLP projector.
-3. **Qwen2.5-VL (2025)**: dynamic FPS, absolute time tokens, window attention in the ViT.
+3. **Qwen2.5-VL (2025)**: dynamic FPS, absolute-time M-RoPE, window attention in the ViT.
 4. **Qwen2.5-VL agents**: JSON tool calls. ScreenSpot goes from 55% to 84%.
 5. **Qwen3-VL (2025)**: Qwen3 base, thinking mode, more OCR data. ViT and M-RoPE stay.
 

@@ -97,7 +97,7 @@ Production patterns:
 
 ## Ship It
 
-Use the queue-mesh primitives in lessons 77-81. Lesson 77 wires allreduce into DDP. Lesson 78 wires reduce_scatter into ZeRO. Lesson 79 wires broadcast into pipeline activations. Lesson 81 composes all four into the end-to-end demo.
+Use the queue-mesh primitives in lessons 77-81. Lesson 77 wires allreduce into DDP. Lesson 78 wires reduce_scatter into ZeRO. Lesson 79 moves pipeline activations with point-to-point send and recv, not a collective. Lesson 81 composes all four into the end-to-end demo.
 
 ## Exercises
 
