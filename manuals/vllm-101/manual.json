@@ -93,8 +93,8 @@
   "front": "front.md",
   "plate": {
     "figure": "plate-vllm-request",
-    "title": "One request, three processes, one block pool",
-    "caption": "A chat request crosses the three vLLM processes. On our L4, the prefix cache served 87.2 percent of the prompt tokens. The first token came sooner at each of the three shared lengths shown. From capture/gpu/out-l4/server-h2h-prefix-vllm.log and capture/gpu/summary/l4.json."
+    "title": "One block pool on one L4",
+    "caption": "The Scheduler fills one step under a 2,048-token budget. The block table maps each request to blocks that are not next to each other. On our L4 the pool held 1,506 blocks of 16 tokens. From capture/gpu/summary/l4.json and capture/gpu/out-l4/server-h2h-prefix-vllm.log."
   },
   "parts": [
     {
