@@ -47,11 +47,34 @@ That is why we call it a contract and not a setting. A setting asks the code to 
 
 ## Our gap is the floor of our setup
 
-Our gap of about 0.015 is the floor of one setup. That setup is BF16 on both sides, SGLang kernels in the engine, and FSDP kernels in the trainer. It is not a law of RL. Other setups move it. We did not measure the changes below. They come from published work:
+Our gap of about 0.015 is the floor of one setup. That setup is BF16 on both sides, SGLang kernels in the engine, and FSDP kernels in the trainer. It is not a law of RL. Other setups move it. The changes below come from published work, and we checked only the first one, on a small scale:
 
 - **Precision.** A 2025 study ran the trainer and the engine in FP16 and reported that the gap almost went away. FP16 keeps more bits of each number than BF16, so each rounding is smaller.
 - **Tensor parallel size.** A 2025 paper showed that an engine split over several GPUs adds in a different order than a trainer on one GPU. That gap stays even with batch-invariant kernels, so the tensor parallel size of the engine is a source of its own.
 - **Bitwise kernels.** The same paper then made a vLLM engine and an FSDP trainer agree bit for bit, with kernels that add in one fixed tree order. In their test on Qwen3-8B, inference took 22 to 63 percent longer.
+
+We checked the precision claim outside Miles, on the second GPU of our L4 node on 2026-10-23. SGLang 0.5.22 served `Qwen/Qwen3-0.6B` in BF16 or FP16. It sampled 64 tokens for each of 32 prompts, 1,961 tokens in all, at top-p 1, so no sampling mask applied. A Transformers forward pass over the same tokens played the trainer.
+
+```listing
+title: median absolute logprob gap per token, engine against trainer
+source: capture/gpu/out-l4/logprob-gap-by-dtype.txt
+lang: text
+note: The full table. The engine dtype comes first, then the trainer dtype.
+---
+engine   trainer   median    p90      mean     max
+BF16     BF16      0.0073    0.087    0.027    0.355
+BF16     FP16      0.0079    0.053    0.019    0.279
+BF16     FP32      0.0076    0.053    0.019    0.280
+FP16     BF16      0.0085    0.061    0.021    0.265
+FP16     FP16      0.00094   0.010    0.0032   0.033
+FP16     FP32      0.0010    0.0068   0.0024   0.023
+```
+
+- FP16 on both sides cut the median gap about 7.8 times against BF16 on both sides. The worst token fell from 0.355 to 0.033.
+- FP16 on one side only did not help. The gap stayed at 0.0079 and 0.0085.
+- A BF16 engine stayed at about 0.0076 even against an FP32 trainer, so its own rounding sets that floor.
+
+This supports the study, with limits. It is one 0.6B model, it measures a logprob gap and not a training run, and it did not use the Miles image build. The GPU was shared and had no clock lock, which does not change these values.
 
 Other teams publish their healthy gaps too. Use them as a reference for the size of a working gap, not as a target for your run:
 
@@ -71,4 +94,4 @@ Our view: on a GPU outside the contract, first decide if the gap matters for you
 - Our gap of about 0.015 is the floor of our BF16 setup and kernels, not a law.
 ```
 
-Sources: Miles true on-policy contract, model profiles, and documentation at main 08752a12; capture/gpu/summary/miles-gb10-lab.json (runs.e6a-base, runs.e6b-det-triton, runs.e6c-det-flashinfer, runs.e6d-det-triton-repeat); Qwen3-0.6B model configuration; Defeating the Training-Inference Mismatch via FP16, arXiv 2510.26788; Deterministic Inference across Tensor Parallel Sizes, arXiv 2511.17826; vime announcement, vLLM blog, 2026-06-09; SGLang pull request 42408; Miles GLM-5.3-Flash model documentation.
+Sources: Miles true on-policy contract, model profiles, and documentation at main 08752a12; capture/gpu/summary/miles-gb10-lab.json (runs.e6a-base, runs.e6b-det-triton, runs.e6c-det-flashinfer, runs.e6d-det-triton-repeat); Qwen3-0.6B model configuration; capture/gpu/out-l4/logprob-gap-by-dtype.txt; Defeating the Training-Inference Mismatch via FP16, arXiv 2510.26788; Deterministic Inference across Tensor Parallel Sizes, arXiv 2511.17826; vime announcement, vLLM blog, 2026-06-09; SGLang pull request 42408; Miles GLM-5.3-Flash model documentation.
