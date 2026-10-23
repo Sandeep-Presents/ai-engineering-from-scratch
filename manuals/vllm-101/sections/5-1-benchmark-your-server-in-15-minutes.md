@@ -72,7 +72,7 @@ At 64 users, the output fell. Two causes overlap here. At 640 tokens each, 64 us
 id: fig-5-1
 kind: chart
 title: the throughput peak of the old sweep
-claim: Without a cache reset, output peaked at 275 tokens per second at 32 users and fell at 64. That is the throughput peak, not the latency knee.
+claim: Without a cache reset, output peaked at 275 tokens per second at 32 users, which is the throughput peak and not the latency knee.
 caption: Users double at each step on the axis. The band spans the lowest and highest of three runs. The figure and the table show the same sweep of 2026-10-21, which had no cache reset. The latency knee with a reset is between 8 and 16 users, as the text says. From capture/gpu/summary/l4.json.
 ```
 
