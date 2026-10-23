@@ -123,7 +123,7 @@ type: concepts
 from: phases/12-multimodal-ai/23-colpali-vision-native-rag/docs/en.md, phases/19-capstone-projects/04-multimodal-document-qa/docs/en.md
 
 - **MaxSim**: $\sum_i \max_j \cos(q_i, p_j)$ over query tokens and page patches.
-- **ColPali storage**: 50 * 729 * 128 * 4 bytes = ~18 MB raw, ~4 MB after PQ.
+- **ColPali storage**: 50 * 729 * 128 * 4 bytes = ~18 MB raw, ~2.3 MB after 8x PQ.
 - **Text-RAG storage**: 50 chunks * 768-dim * 4 bytes = ~150 kB.
 - **PQ**: shrinks storage ~8x and keeps vector similarity.
 - **ViDoRe**: ColPali-v1 ~80% nDCG@5. Text-RAG ~50-60%.

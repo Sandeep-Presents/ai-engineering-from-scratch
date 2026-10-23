@@ -19,7 +19,7 @@ from: phases/12-multimodal-ai/05-llava-visual-instruction-tuning/docs/en.md, pha
 | Recipe | Post-hoc on a text LLM | Post-hoc on a text LLM | Post-hoc on a text LLM | Native multimodal pretrain |
 | High resolution | AnyRes: 336 tiles plus thumbnail | AnyRes-9 or AnyRes-4, 384 tiles | Qwen2-VL: any H and W divisible by 28 | ViR picks low, medium or high |
 | Video | Per-frame concat | 32 frames, 81 tokens each | Dynamic FPS, `<time>` tokens | 5% video-text in pretrain |
-| Visual tokens | 576 base, 2880 AnyRes | 3000-4000 per sample, fixed | Scales with input | 256, 576 or 2048+ via ViR |
+| Visual tokens | 576 base, 2880 AnyRes | 6000-9000 per sample, balanced | Scales with input | 256, 576 or 2048+ via ViR |
 | Training | Align, then instruct | Stages SI, OV, TT | Qwen3-VL: stages stress OCR, grounding, agents | One pretrain stage, then instruct |
 | Swap the LLM | Retrain the projector | Retrain the projector | Retrain the adapter | Not possible later |
 

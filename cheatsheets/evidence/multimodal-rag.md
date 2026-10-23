@@ -65,7 +65,7 @@ Abbreviations: L23 = phases/12-multimodal-ai/23-colpali-vision-native-rag, L24 =
 
 ## Formulas and numbers (concepts, 8)
 - MaxSim formula: L23/d:53
-- ColPali storage ~18 MB, ~4 MB after PQ: L23/d:98
+- ColPali storage ~18 MB, ~2.3 MB after 8x PQ: L23/d:98
 - Text-RAG ~150 kB: L23/d:99
 - PQ ~8x: L23/d:149
 - ViDoRe ~80% vs ~50-60%: L23/d:82

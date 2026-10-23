@@ -7,7 +7,7 @@ Abbreviations: P = phases/12-multimodal-ai. L05 = P/05-llava-visual-instruction-
 - Recipe: post-hoc list (LLaVA, Qwen-VL) L10/d:19, L10/c:73. Native pretraining L10/d:37, L10/c:73.
 - High resolution: AnyRes 336 crops plus thumbnail L05/d:89. AnyRes-9 and AnyRes-4 with 384 tiles L08/d:37. Native res divisible by 28 L09/d:45. ViR tiers L10/d:62-64.
 - Video: per-frame concat L05/d:106. 32 frames, 81 tokens L08/d:39. Dynamic FPS and `<time>` tokens L09/d:56-57. 5% video-text L10/d:42.
-- Visual tokens: 576 and 2880 L05/d:101. 3000-4000 per sample L08/d:35. Budget scales with input L08/d:83. 256, 576, 2048+ L10/d:64.
+- Visual tokens: 576 and 2880 L05/d:101. 6000-9000 per sample L08/d:35. Budget scales with input L08/d:83. 256, 576, 2048+ L10/d:64.
 - Training: two stages L05/d:53-61. Stages SI, OV, TT L08/d:45-49. Stages emphasize OCR, grounding, agent behavior L09/d:3. Single stage then instruction tuning L10/d:46.
 - Swap the LLM: retrain the projector L05/d:78. Post-hoc retrains only the adapter, native gives up the option L10/d:90. Base-LLM swap impossible for native L10/c:72.
 
