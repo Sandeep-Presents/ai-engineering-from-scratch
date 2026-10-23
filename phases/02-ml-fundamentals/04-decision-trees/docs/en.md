@@ -104,7 +104,7 @@ This greedy approach does not guarantee the globally optimal tree. Finding the o
 
 ### Stopping conditions
 
-Without stopping conditions, the tree grows until every leaf is pure (one sample per leaf). This perfectly memorizes the training data and generalizes terribly.
+Without stopping conditions, the tree grows until every leaf is pure, often down to a single sample per leaf. This perfectly memorizes the training data and generalizes terribly.
 
 **Pre-pruning** stops the tree before it fully grows:
 - Maximum depth: stop splitting when the tree reaches a set depth
