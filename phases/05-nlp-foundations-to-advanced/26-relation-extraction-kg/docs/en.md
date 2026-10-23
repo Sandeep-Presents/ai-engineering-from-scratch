@@ -78,10 +78,10 @@ model = AutoModelForSeq2SeqLM.from_pretrained("Babelscape/rebel-large")
 text = "Tim Cook was born in Alabama. He later became CEO of Apple."
 encoded = tok(text, return_tensors="pt", truncation=True)
 output = model.generate(**encoded, max_length=200)
-triples = tok.batch_decode(output, skip_special_tokens=False)
+decoded = tok.batch_decode(output, skip_special_tokens=False)
 ```
 
-REBEL is a BART-based seq2seq relation extractor: it generates triples instead of classifying entity pairs. Text in, triples out, with relation names taken from Wikidata properties. Fine-tuned on distant-supervision data. Standard open-weights baseline.
+REBEL is a BART-based seq2seq relation extractor: it generates triples instead of classifying entity pairs. Text in, triples out, with relation names taken from Wikidata properties. The decoded strings still carry REBEL's `<triplet>`, `<subj>` and `<obj>` markers, so split on them (as the model card's parser does) to get `(subject, relation, object)` records. Fine-tuned on distant-supervision data. Standard open-weights baseline.
 
 ### Step 3: LLM-prompted extraction with anchoring
 
