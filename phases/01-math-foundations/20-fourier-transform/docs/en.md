@@ -103,7 +103,7 @@ graph TD
     end
 ```
 
-The radix-2 FFT built here requires the signal length to be a power of 2, so signals are zero-padded to the next power of 2. Library FFTs such as `numpy.fft` handle any length with mixed-radix algorithms, but they are fastest on lengths with small prime factors.
+The radix-2 FFT built here is fastest when the signal length is a power of 2. Whenever a sub-problem has odd length, it falls back to the plain `dft`, so signals are often zero-padded to the next power of 2 for speed. Library FFTs such as `numpy.fft` handle any length with mixed-radix algorithms, but they are fastest on lengths with small prime factors.
 
 ### Spectral analysis
 
