@@ -17,4 +17,4 @@ vLLM     FP8 KV cache               454/500   90.8%      87.9 to 93.0
 vLLM     FP8 weights + FP8 KV       453/500   90.6%      87.7 to 92.9
 
 Every interval overlaps every other interval. On this model and this benchmark, no FP8 config lost accuracy that 500 questions can detect.
-Raw runs: /data/sglang/kit/capture/gpu/runs/l4/gsm8k/ on the L4 node (gsm8k-500.summary.json in each config folder).
+Per-run summaries (correct count, Wilson interval, median SM clock, flush result): gsm8k-500-summaries.json in this folder. The per-question outputs stay on the L4 node.
