@@ -164,11 +164,39 @@ The environment module declares the new name `SGLANG_FORCE_SHUTDOWN`. Its compat
 
 Three checks prevent most of the false results that we found on our own machines:
 
-1. Flush the prefix cache before each run that you compare, and record the cached tokens, as in [section 5.1](#s-sglang-benchmark-serving). In our kit, a warm cache made a run at a higher load look faster.
+1. Flush the prefix cache before each run that you compare, and record the cached tokens, as in [section 5.1](#s-sglang-benchmark-serving). In our kit, a warm cache made a run at a higher load look faster. In a later test with `Qwen/Qwen3-0.6B` at a cap of 16, a repeat with no flush read a median TTFT about 4.8 times lower.
 2. Record the SM clock and the temperature with every run, as in [section 5.1](#s-sglang-benchmark-serving). A hot L4 reported up to 28 percent less throughput.
 3. On a shared GB10, run SGLang in a container with a memory limit, and log free memory during startup, as in [section 3.2](#s-mem-fraction-static-and-startup-sizing).
 
-When a greedy output changes between two runs, check the cache first. A request that finds its prompt in the cache runs a different prefill path, as [section 4.6](#s-deterministic-inference-and-logprobs) shows.
+When a greedy output changes between two runs, check the cache first. A request that finds its prompt in the cache runs a different prefill path, as [section 4.6](#s-deterministic-inference-and-logprobs) shows. One request at a time, a warm cache changed 21 of 32 of our greedy outputs, and a flush brought exact repeats back. These two tests ran on a shared L4 GPU with no clock lock, so trust the ratio and the counts, not the times.
+
+## The server aborts or hangs under heavy eviction
+
+**Symptom:** in the middle of a multi-turn load, the server stops with `CUDA error: an illegal memory access was encountered`. Or the log stops with no error while the GPU stays at 100 percent.
+
+We saw this on SGLang 0.5.22 with `Qwen/Qwen3-0.6B`, a pool of 8,192 tokens, and the trace of [section 3.5](#s-eviction-policies-and-hicache). From the fourth turn, the pool evicted prefixes on almost every step. CUDA graphs and the overlap scheduler were on, which is the default. The runs were on the second GPU of our L4 node on 2026-10-23, which its owner shares and which had no clock lock.
+
+```listing
+title: aborts and hangs by variant, same server and trace
+source: capture/gpu/out-l4/small-pool-crash.txt
+lang: text
+note: The tally from the summary. A hang is a log with no new line for 5 minutes, or a run longer than 15 minutes.
+---
+variant                                          runs   aborts   hangs   clean
+lru, CUDA graph and overlap on (default)         6      1        3       2
+lru, CUDA_LAUNCH_BLOCKING=1                      3      0        0       3
+lru, --disable-cuda-graph                        4      0        0       4
+lru, --enable-hierarchical-cache                 3      1        0       2
+lru, HiCache, CUDA_LAUNCH_BLOCKING=1             2      0        0       2
+```
+
+With the defaults, 4 of 6 runs failed. HiCache did not prevent it, and 1 of its 3 runs aborted. The abort and every hang stopped in the same place: the scheduler waited for the copy of a decode result to finish. With CUDA graphs off, 0 of 4 runs failed. With `CUDA_LAUNCH_BLOCKING=1`, 0 of 3 failed.
+
+We did not find the kernel that faults, because the fault did not occur with blocking launches. Nothing was filed upstream.
+
+**Workaround:** add `--disable-cuda-graph`. On our L4 with an 8B model, graphs saved about 1 percent of each decode step, as [section 4.1](#s-forwardmode-and-cuda-graphs) shows. A small model spends a larger share of each step on launches, so measure the cost on your model. `CUDA_LAUNCH_BLOCKING=1` also hid the fault, but it makes every kernel launch wait for the one before it. Use it to debug, never to serve.
+
+**Better fix:** give the pool more room. With a pool of 16,384 tokens or more, the same trace stopped thrashing, as section 3.5 shows. We did not count crashes at the larger pools.
 
 ## The order to change settings
 
@@ -214,6 +242,7 @@ Batch tokenization took P99 latency from 4,583 ms to 464 ms. A scoring path that
 - Cap output length before you choose the termination grace period.
 - Change settings in the order of figure 7.1b, one change per measured run.
 - Flush the prefix cache and record the clock before every run that you compare.
+- On an illegal memory access under heavy eviction, grow the pool or add --disable-cuda-graph.
 ```
 
-Sources: python/sglang/srt/entrypoints/http_server.py (ready, health_generate, HEALTH_CHECK_TIMEOUT), python/sglang/srt/managers/tokenizer_manager.py (sigterm_watchdog, _SCHEDULER_EXIT_TIMEOUT_SECS), python/sglang/srt/environ.py (SGLANG_FORCE_SHUTDOWN, SGLANG_ENABLE_HEALTH_ENDPOINT_GENERATION, SGLANG_CACHE_DIR, redirect_third_party_caches, _handle_deprecated_envs) and python/sglang/__init__.py at v0.5.22; docs/docs/get-started/install.mdx at v0.5.22; capture/out/server-default.log, capture/out/server-default.command.txt, capture/out/shutdown-exploratory.log, capture/out/shutdown-exploratory.txt, capture/shutdown_probe.py, capture/gpu/incidents/l4-toolchain-failures.txt; python/sglang/benchmark/datasets/random.py at v0.5.22; issues #22511 and #35884; field reports: Doubleword, fergusfinn.com/blog/fast-sglang-starts (2026-04-06), LinkedIn Engineering, linkedin.com/blog/engineering/ai/scaling-llm-based-ranking-systems-with-sglang-at-linkedin (2026-02-20), CERIT-SC, blog.cerit.io/blog/run-llm2 (2025-10-19) and blog-dev.cerit.io/blog/llm3 (2026-04-27), Ant Group on the LMSYS blog, lmsys.org/blog/2025-09-26-sglang-ant-group (2025-09-26), capture/gpu/out-l4/os-release.txt, sections 3.2, 4.6, and 5.1 of this manual (the cache, clock, and memory checks).
+Sources: python/sglang/srt/entrypoints/http_server.py (ready, health_generate, HEALTH_CHECK_TIMEOUT), python/sglang/srt/managers/tokenizer_manager.py (sigterm_watchdog, _SCHEDULER_EXIT_TIMEOUT_SECS), python/sglang/srt/environ.py (SGLANG_FORCE_SHUTDOWN, SGLANG_ENABLE_HEALTH_ENDPOINT_GENERATION, SGLANG_CACHE_DIR, redirect_third_party_caches, _handle_deprecated_envs) and python/sglang/__init__.py at v0.5.22; docs/docs/get-started/install.mdx at v0.5.22; capture/out/server-default.log, capture/out/server-default.command.txt, capture/out/shutdown-exploratory.log, capture/out/shutdown-exploratory.txt, capture/shutdown_probe.py, capture/gpu/incidents/l4-toolchain-failures.txt; python/sglang/benchmark/datasets/random.py at v0.5.22; issues #22511 and #35884; field reports: Doubleword, fergusfinn.com/blog/fast-sglang-starts (2026-04-06), LinkedIn Engineering, linkedin.com/blog/engineering/ai/scaling-llm-based-ranking-systems-with-sglang-at-linkedin (2026-02-20), CERIT-SC, blog.cerit.io/blog/run-llm2 (2025-10-19) and blog-dev.cerit.io/blog/llm3 (2026-04-27), Ant Group on the LMSYS blog, lmsys.org/blog/2025-09-26-sglang-ant-group (2025-09-26), capture/gpu/out-l4/os-release.txt, sections 3.2, 4.6, and 5.1 of this manual (the cache, clock, and memory checks), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt, capture/gpu/out-l4/small-pool-crash.txt, capture/gpu/out-l4/eviction-multiturn.txt, section 4.1 of this manual (the cost of CUDA graphs on the L4).

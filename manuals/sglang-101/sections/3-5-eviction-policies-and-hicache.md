@@ -22,6 +22,8 @@ Eviction removes only cached tokens that no running request locks, the leaves of
 
 **Tail-Optimized LRU (tlru):** a policy that keeps only the part of a conversation that the next turn's latency target needs, and evicts the rest first. It comes from a paper that the code names, arXiv 2510.15152. The SGLang team reports 43.9 percent lower p99 inter-token latency on DeepSeek-V4-Pro at concurrency 32 {{team 2026-10}}. That number comes from the release notes of v0.5.21, and we found no independent test of it.
 
+`tlru` does not start without `--radix-eviction-policy-config`. That config needs a `threshold` larger than its `next_prompt_estimate`. We started it with `{"threshold": 512, "next_prompt_estimate": 256}`.
+
 ## Our position: keep lru until you have measured a reason
 
 The SGLang docs give the same advice: start with `lru` and change it only against a measured hit rate {{docs}}. Frequency-based policies hurt when popularity shifts, because yesterday's popular prompt stays in memory and today's prompt pays for it. Change the policy only when you can name the workload that the new policy serves, and measure the hit rate before and after.
@@ -29,6 +31,30 @@ The SGLang docs give the same advice: start with `lru` and change it only agains
 A 2026 study of production traces from two companies supports that default. It tested 14 eviction policies, and the policies built for other caches gave little gain over LRU. In those traces, active sessions sent their next turns at a regular pace, so recency predicted reuse well.
 
 The study found gains in two narrow cases. One is quick eviction of prefixes that are used only once, when such prompts fill the cache. The other is eviction that weighs how much a miss costs to compute again. We did not measure these results ourselves. Of the SGLang policies, `slru` is the closest to the first case.
+
+## What we measured with a multi-turn trace
+
+We ran a trace of 24 chat sessions with `Qwen/Qwen3-0.6B` on 2026-10-23. Each session had its own system prompt and 6 turns of ShareGPT questions, with 64-token answers. The sessions took turns at a concurrency of 8, and each turn sent the whole history again. The hit rate is the cached prompt tokens divided by the prompt tokens. This was on the second GPU of our L4 node, which its owner shares and which had no clock lock. The clock does not change a hit rate, so read the hit rates and not the times.
+
+```listing
+title: hit rate by pool size and policy, over the whole trace and per turn
+source: capture/gpu/out-l4/eviction-multiturn.txt
+lang: text
+note: Four rows of the summary. The run with CUDA graphs off, the 16,384-token LFU run, and the default pool are cut.
+---
+pool, policy                 whole trace   hit rate per turn 1 to 6                        median SM clock
+8,192 tokens, lru            0.19, 0.19    0.11, 0.31, 0.58, 0.39, 0.016, 0.013            615 MHz
+…
+8,192 tokens, lfu            0.375         0.11, 0.31, 0.58, 0.53, 0.34, 0.25              1,140 MHz
+8,192 tokens, slru           0.367         0.11, 0.31, 0.58, 0.53, 0.31, 0.26              960 MHz
+16,384 tokens, lru           0.685         rises to 0.83 at turn 6                         810 MHz
+```
+
+- **A small pool made LRU thrash.** At 8,192 tokens, the cycle of 24 sessions was larger than the pool. LRU evicted each session's prefix just before its next turn, and the hit rate fell to about 1.5 percent at turns 5 and 6.
+- **LFU and SLRU helped only there.** At the same pool they kept 25 to 34 percent at turns 5 and 6. Over the whole trace, that was about twice the hit rate of LRU.
+- **A bigger pool fixed it.** At 16,384 tokens and at the default pool, every policy we ran reached about 0.69 over the whole trace.
+
+So a different policy helps only when the pool is too small for the sessions that return. Grow the pool first, with `--mem-fraction-static` or an FP8 KV cache, and then measure the policy again. At this pool size the server also crashed in some runs. [Section 7.1](#s-operating-sglang) describes the symptom.
 
 ## HiCache: three tiers for one tree
 
@@ -145,10 +171,11 @@ HiCache pays for itself when sessions outlive the GPU pool: multi-turn chat, cod
 ```takeaways
 - Add the host tier when your repeated prefixes are larger than the GPU pool, and measure it on your card.
 - Keep lru until a measured hit rate shows a reason to change it.
+- Grow the pool before you change the policy when the hit rate falls on later turns.
 - Turn on HiCache for long multi-turn sessions, not for one-time prompts.
 - Start HiCache with host memory only, then add storage after you measure.
 - Trust the code's prefetch timeouts over the docs at v0.5.22.
 - Watch for evict storms and rank hangs in the issues before you deploy HiCache.
 ```
 
-Sources: python/sglang/srt/mem_cache/evict_policy.py, python/sglang/srt/mem_cache/unified_radix_cache.py (write_through_threshold, prefetch_timeout_base), python/sglang/srt/mem_cache/hybrid_cache/hybrid_pool_assembler.py (prefetch_threshold), python/sglang/srt/arg_groups/fields/memory.py at v0.5.22, docs/docs/advanced_features/hicache_design.mdx and radix_eviction_policy.mdx at v0.5.22, the v0.5.21 release notes, Liu, Yu, and Yang, When Fancy Eviction Fails: Rethinking Cache Replacement For LLM Prefix Reuse, arXiv 2609.28870 (2026-09), the SGLang HiCache post of 2025-09-10, the RBG and Mooncake post on the Alibaba Cloud blog of 2026-03-10, issues #35129, #30760, and #42465, arXiv 2510.15152. capture/gpu/out-l4/server-working-set-hicache.log, capture/gpu/out-l4/server-working-set-default.log, capture/gpu/summary/l4.json. capture/gpu/summary/gb10.json. capture/gpu/out-gb10/server-working-set-default.log.
+Sources: python/sglang/srt/mem_cache/evict_policy.py, python/sglang/srt/mem_cache/unified_radix_cache.py (write_through_threshold, prefetch_timeout_base), python/sglang/srt/mem_cache/hybrid_cache/hybrid_pool_assembler.py (prefetch_threshold), python/sglang/srt/arg_groups/fields/memory.py at v0.5.22, docs/docs/advanced_features/hicache_design.mdx and radix_eviction_policy.mdx at v0.5.22, the v0.5.21 release notes, Liu, Yu, and Yang, When Fancy Eviction Fails: Rethinking Cache Replacement For LLM Prefix Reuse, arXiv 2609.28870 (2026-09), the SGLang HiCache post of 2025-09-10, the RBG and Mooncake post on the Alibaba Cloud blog of 2026-03-10, issues #35129, #30760, and #42465, arXiv 2510.15152. capture/gpu/out-l4/server-working-set-hicache.log, capture/gpu/out-l4/server-working-set-default.log, capture/gpu/summary/l4.json. capture/gpu/summary/gb10.json. capture/gpu/out-gb10/server-working-set-default.log. capture/gpu/out-l4/eviction-multiturn.txt, capture/gpu/out-l4/small-pool-crash.txt.
