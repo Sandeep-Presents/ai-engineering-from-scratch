@@ -123,8 +123,8 @@
   "front": "front.md",
   "plate": {
     "figure": "plate-sglang-request",
-    "title": "One request, three processes, one cache",
-    "caption": "A chat request from our capture crosses the three processes. The radix cache served 2,998 of its 2,999 prompt tokens. From capture/out/cache-experiment.txt."
+    "title": "One radix tree on one L4",
+    "caption": "On our L4, the system prompt is one shared node of the radix tree, and each repeat request attaches below it. The repeats had 2,998 of 2,999 tokens cached, and the first token came after 82.5 ms instead of 2,143.9 ms. From capture/gpu/out-l4/cache-experiment.txt and capture/gpu/out-l4/server-default.log."
   },
   "parts": [
     {
