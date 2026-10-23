@@ -52,6 +52,18 @@ caption: Each row is one entry below, in the same order. Read the symptom, the f
 - **Check:** find the line that names the attention backend, and the FlashInfer error after it.
 - **Fix:** add `--attention-backend TRITON_ATTN`. [The FP8 KV cache page](#s-fit-more-users-with-an-fp8-kv-cache) shows our case.
 
+### The first start stops with a message that nvcc is missing
+
+- **Cause:** FlashInfer compiles its kernels at the first start, and the host has a driver but no CUDA toolkit. We saw this on a new uv install of 0.31.0 on our L4 node.
+- **Check:** the error comes from `flashinfer/jit/cpp_ext.py` and says `Could not find nvcc and default cuda_home='/usr/local/cuda' doesn't exist`.
+- **Fix:** install a CUDA toolkit, set `CUDA_HOME` to it, and start again. Or use the official image, which has the toolkit.
+
+### The sampler fails to compile after you set CUDA_HOME
+
+- **Cause:** the toolkit on the host does not match the CUDA build of PyTorch, so the FlashInfer sampler cannot compile. With a host toolkit at nvcc 13.4, we saw this on our L4 node.
+- **Check:** the error says `CUDA compiler and CUDA toolkit headers are incompatible`.
+- **Fix:** install the toolkit version that matches your PyTorch build. Or start with `VLLM_USE_FLASHINFER_SAMPLER=0`, as [the FP8 KV cache page](#s-fit-more-users-with-an-fp8-kv-cache) does.
+
 ### A DGX Spark runs out of memory although the fraction leaves room
 
 - **Cause:** on unified memory, `--gpu-memory-utilization` does not always limit what vLLM takes. Issue 46307 reports about 112 GiB in use at a fraction of 0.70, and it was closed as stale with no fix. Issue 44740 reports a KV cache that was too large with MTP speculation on the GB10, and it is open.
@@ -174,4 +186,4 @@ caption: Each row is one entry below, in the same order. Read the symptom, the f
 - Test one change at a time, with the same benchmark and clock.
 ```
 
-Sources: vLLM issues 44740, 46307, 58726, 59770, 60174, 60262, and 60830; the release notes for v0.30.0, v0.31.0, and v0.32.0; vLLM documentation at v0.31.0 (docs/usage/troubleshooting.md, docs/design/torch_compile.md, docs/configuration/optimization.md, docs/usage/reproducibility.md, docs/benchmarking/cli.md, docs/features/reasoning_outputs.md); the vLLM source at v0.31.0 (vllm/config/vllm.py, vllm/config/model.py, vllm/renderers/params.py, vllm/v1/engine/exceptions.py, vllm/envs.py); capture/gpu/out-gb10/server-load-vllm.log; Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt.
+Sources: vLLM issues 44740, 46307, 58726, 59770, 60174, 60262, and 60830; the release notes for v0.30.0, v0.31.0, and v0.32.0; vLLM documentation at v0.31.0 (docs/usage/troubleshooting.md, docs/design/torch_compile.md, docs/configuration/optimization.md, docs/usage/reproducibility.md, docs/benchmarking/cli.md, docs/features/reasoning_outputs.md); the vLLM source at v0.31.0 (vllm/config/vllm.py, vllm/config/model.py, vllm/renderers/params.py, vllm/v1/engine/exceptions.py, vllm/envs.py); capture/gpu/out-gb10/server-load-vllm.log; Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt, capture/gpu/out-l4/livecheck-2026-10-23.txt.

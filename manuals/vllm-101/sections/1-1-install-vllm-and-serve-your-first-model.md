@@ -57,6 +57,8 @@ The image starts the server for you, so with Docker you skip the next step. Moun
 
 Check the install with `vllm --version`. You see `0.31.0`.
 
+On the uv and pip paths, the first start compiles FlashInfer kernels, so it needs a CUDA toolkit with `nvcc`, and `CUDA_HOME` set to it. The Docker image has one. We installed vLLM 0.31.0 with uv on a host with only a driver, and every start stopped with `Could not find nvcc`. Install the toolkit, set `CUDA_HOME`, and start again. [The troubleshooting page](#s-troubleshoot-by-symptom) covers this and a toolkit that does not match.
+
 ## Start the server
 
 Now, start a small model. Qwen3-0.6B has 0.6 billion parameters, so its BF16 weights need about 1.2 GB.
@@ -153,4 +155,4 @@ The tokens print one by one as the server streams them. That is your first strea
 - Send one request with curl before you connect an application.
 ```
 
-Sources: vLLM documentation at v0.31.0 (docs/getting_started/quickstart.md, docs/getting_started/installation/gpu.md, docs/getting_started/installation/gpu.cuda.inc.md, docs/deployment/docker.md, docs/features/reasoning_outputs.md), capture/gpu/out-gb10/server-load-vllm.log, issue 58726.
+Sources: vLLM documentation at v0.31.0 (docs/getting_started/quickstart.md, docs/getting_started/installation/gpu.md, docs/getting_started/installation/gpu.cuda.inc.md, docs/deployment/docker.md, docs/features/reasoning_outputs.md), capture/gpu/out-gb10/server-load-vllm.log, issue 58726, capture/gpu/out-l4/livecheck-2026-10-23.txt.
