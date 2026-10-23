@@ -196,7 +196,7 @@ We did not find the kernel that faults, because the fault did not occur with blo
 
 **Workaround:** add `--disable-cuda-graph`. On our L4 with an 8B model, graphs saved about 1 percent of each decode step, as [section 4.1](#s-forwardmode-and-cuda-graphs) shows. A small model spends a larger share of each step on launches, so measure the cost on your model. `CUDA_LAUNCH_BLOCKING=1` also hid the fault, but it makes every kernel launch wait for the one before it. Use it to debug, never to serve.
 
-**Better fix:** give the pool more room. With a pool of 16,384 tokens or more, the same trace stopped thrashing, as section 3.5 shows. We did not count crashes at the larger pools.
+**Also test:** a larger pool. With a pool of 16,384 tokens or more, the same trace stopped thrashing, as section 3.5 shows. We did not count crashes at the larger pools, so this is not a proven fix.
 
 ## The order to change settings
 

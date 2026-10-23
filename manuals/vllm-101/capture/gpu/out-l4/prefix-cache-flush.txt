@@ -4,7 +4,7 @@ Machine: NVIDIA L4, the second GPU of the node (GPU1). This GPU is shared with i
 Engines: SGLang 0.5.22 and vLLM 0.31.0. Model: Qwen/Qwen3-0.6B.
 Load: 64 prompts, concurrency 16, random dataset, 512 tokens in and 128 tokens out, the same seed in every run.
 
-Median TTFT in ms, runs in this order:
+Median TTFT in ms. For each engine, the four runs ran one after the other on one server, in the order shown. Per-run clocks are not in this summary:
 
 engine        fresh   repeat, not flushed   repeat after a flush   repeat, not flushed
 SGLang 0.6B   394     82.5                  289                    77

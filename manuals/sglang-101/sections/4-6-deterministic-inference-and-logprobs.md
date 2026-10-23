@@ -41,7 +41,7 @@ The fifth point matters most for a server. With `flashinfer`, deterministic mode
 
 The sampler computes returned logprobs as `log_softmax(logits / temperature)` when the batch is not all greedy. It returns `log_softmax(logits)` without the temperature only for all-greedy batches or when the environment variable `SGLANG_RETURN_ORIGINAL_LOGPROB` is set. A request at temperature 0.7 gets logprobs of the sharpened distribution.
 
-Top-p does not change the returned value. We checked this on the second GPU of our L4 node on 2026-10-23, with `Qwen/Qwen3-0.6B` in BF16. We sent 16 prompts of 48 tokens at temperature 1 and top-p 0.9. We compared each returned logprob with a float32 Transformers pass over the full vocabulary.
+In our test, top-p did not change the returned value. The test used `return_logprob` at temperature 1 and top-p 0.9. We ran it on the second GPU of our L4 node on 2026-10-23, with `Qwen/Qwen3-0.6B` in BF16. We sent 16 prompts of 48 tokens. We compared each returned logprob with a float32 Transformers pass over the full vocabulary.
 
 ```listing
 title: returned logprob minus the full-vocabulary reference

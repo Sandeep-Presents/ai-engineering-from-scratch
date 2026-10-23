@@ -61,7 +61,7 @@ cache on against cache off     25 of 32 (26) 21 of 32 (48)
 - **Many users.** At 64 users sent at once, two runs with the cache off differed in 50 of 64 outputs. The batch alone changed most outputs, so the cache effect could not be separated at that load.
 - **The dtype.** We sent 64 questions at one user with the cache off. BF16 against FP16 changed 48 of 64 outputs for Qwen3-0.6B and 56 of 64 for Qwen3-1.7B. The first different token came at a median position of 51 and 56. A repeat in the same dtype changed none.
 
-So at one user, a cache reset is enough to repeat a greedy output exactly. Under load, only the batch-invariant mode can do that. Our counts come from small models and one GPU, so test your own model.
+So at one user, a cache reset is enough to repeat a greedy output exactly. Under load, a reset was not enough in our runs. For a live server, the batch-invariant mode is the fix this page covers, and we did not test it at that load. Our counts come from small models and one GPU, so test your own model.
 
 ## Know what the batch-invariant mode does not cover
 
