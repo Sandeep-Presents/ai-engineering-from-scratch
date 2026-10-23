@@ -56,8 +56,4 @@ The L4 did not run at one speed. Its SM clock changed with its temperature and w
 
 A throttled GPU runs below its full clock because it is too hot or because it shares power with other work. A lock with `nvidia-smi -lgc` sets the highest clock. It cannot stop a hot GPU from slowing down below the lock.
 
-## Draft edition
-
-This edition is a draft. Every page is written. Each measured page gives its date, clock, and seed count, and other pages say what we did not measure.
-
 Sources: vLLM documentation at v0.31.0 (docs/getting_started/quickstart.md, docs/features/reasoning_outputs.md), capture/gpu/summary/l4.json, capture/gpu/summary/l4-gpu1.json, capture/gpu/summary/gb10.json.

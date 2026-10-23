@@ -10,7 +10,7 @@
   },
   "audience": "You can serve a model and you know what a reward is. You want to train a model with reinforcement learning, and you want to know which settings matter before you rent a cluster.",
   "edition": "2026.10",
-  "status": "draft",
+  "status": "ready",
   "pin": {
     "subject": "Miles",
     "version": "radixark/miles:latest, Miles main of 2026-10-15",

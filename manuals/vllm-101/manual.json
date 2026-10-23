@@ -5,7 +5,7 @@
   "summary": "How to install vLLM, fit a model on your GPU, tune it for your traffic, and fix it from a symptom. Measured on an NVIDIA L4 and a DGX Spark with vLLM 0.31.0.",
   "audience": "You have called a model through an API and now you want to serve an open model yourself. You know what a token and a GPU are. You want to know which settings matter before you pay for them.",
   "edition": "2026.10",
-  "status": "draft",
+  "status": "ready",
   "pin": {
     "subject": "vLLM",
     "version": "0.31.0",
