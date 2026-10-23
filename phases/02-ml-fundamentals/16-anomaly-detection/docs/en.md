@@ -267,6 +267,14 @@ def iqr_detect(X, factor=1.5):
 The from-scratch implementation builds isolation trees that randomly partition the feature space:
 
 ```python
+def _c_factor(n):
+    if n <= 1:
+        return 0.0
+    if n == 2:
+        return 1.0
+    return 2.0 * (np.log(n - 1) + 0.5772156649) - 2.0 * (n - 1.0) / n
+
+
 class IsolationTree:
     def __init__(self, max_depth):
         self.max_depth = max_depth
@@ -332,7 +340,7 @@ class IsolationForest:
                 avg_path[i] += tree.path_length(X[i])
         avg_path /= self.n_estimators
         c = _c_factor(min(self.max_samples, self.n_train))
-        return 2.0 ** (-avg_path / c)
+        return 2.0 ** (-avg_path / c) if c > 0 else np.zeros(X.shape[0])
 ```
 
 The normalization factor `c(n)` (`_c_factor` in the code) is the expected path length of an unsuccessful search in a binary search tree with $n$ elements. It equals `2 * H(n-1) - 2*(n-1)/n` where `H` is the harmonic number. This normalization ensures scores are comparable across datasets of different sizes.
