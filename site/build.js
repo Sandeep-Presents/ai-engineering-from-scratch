@@ -1184,6 +1184,7 @@ function sanitizeSponsorTag(tag) {
 
 function sponsorLinkTarget(href) {
   if (/^#[\w-]+$/.test(href)) return { href, external: false };
+  if (/^mailto:[\w.+-]+@[\w-]+(?:\.[\w-]+)+$/.test(href)) return { href, external: false };
   if (/^https:\/\/[^\s"'<>]+$/.test(href)) return { href, external: true };
   if (/^[\w.-]+(?:\/[\w.-]+)*(?:#[\w-]+)?$/.test(href) && !href.includes('..')) {
     return { href: GITHUB_BLOB_BASE + href, external: true };
