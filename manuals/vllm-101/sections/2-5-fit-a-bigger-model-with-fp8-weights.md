@@ -72,7 +72,7 @@ We started this AWQ checkpoint once on an L4, with no `--quantization` flag. The
 
 We also started two of the other formats on the shared second GPU of our L4 node on 2026-10-23. That GPU was throttled, so we give no speeds.
 
-- **bitsandbytes.** Without the plugin, `--quantization bitsandbytes` stops at start with `Unknown quantization method: bitsandbytes`. Install the plugin first, with `uv pip install vllm-bnb-plugin`. With it, `Qwen/Qwen3-1.7B` loaded in 1.33 GiB against 3.22 GiB in BF16, which is 41 percent. The pool grew from 92,960 to 108,512 tokens.
+- **bitsandbytes.** Without the plugin, `--quantization bitsandbytes` stops at start with `Unknown quantization method: bitsandbytes`. Install the plugin first, with `uv pip install vllm-bnb-plugin`, or `pip install vllm-bnb-plugin` on the pip path. With it, `Qwen/Qwen3-1.7B` loaded in 1.33 GiB against 3.22 GiB in BF16, which is 41 percent. The pool grew from 92,960 to 108,512 tokens.
 - **GGUF.** With the plugin installed, `vllm serve unsloth/Qwen3-0.6B-GGUF:Q4_K_M --tokenizer Qwen/Qwen3-0.6B` loaded 0.55 GiB of weights, and a chat request returned HTTP 200.
 
 The 41 percent is for one small model. It includes the embeddings and the output layer, which stay in 16-bit, so the share can differ on a larger model. We did not measure the accuracy of either format.
