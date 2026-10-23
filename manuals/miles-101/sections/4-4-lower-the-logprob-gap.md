@@ -14,6 +14,26 @@ Top-p keeps the smallest set of tokens whose probabilities add up to at least th
 
 That difference is not noise. It is different for each token, and it always pushes the ratio between the trainer and the engine the same way. A 2026 issue report for another RL library describes this bias in its importance-sampling ratio. Sampling replay removes it, because the trainer then scores over the same kept set.
 
+We checked the formula on an L4 GPU on 2026-10-23, outside Miles. We used `Qwen/Qwen3-0.6B` in BF16, 16 prompts of 48 tokens, temperature 1, and top-p 0.9. A float32 Transformers pass over the full vocabulary gave the reference. The GPU was shared and had no clock lock, which does not change these values.
+
+```listing
+title: returned logprob minus the full-vocabulary reference
+source: capture/gpu/out-l4/logprobs-top-p.txt
+lang: text
+note: Three rows of the summary. The second SGLang row, with the variable set to 1, gave the same value.
+---
+engine and mode                                  returned minus reference, median   median absolute
+vLLM --logprobs-mode raw_logprobs                0.0000                             0.005
+vLLM --logprobs-mode processed_logprobs          +0.0527
+SGLang return_logprob, ORIGINAL_LOGPROB=0        0.0000                             0.0066
+```
+
+- vLLM can return the value after top-p, with `--logprobs-mode processed_logprobs`. That value was higher than the reference by minus the log of the kept mass, with a residual of 8e-9. This is the formula above.
+- At top-p 0.9 the median shift was about 0.053, and the kept mass was below 0.99 for most sampled tokens.
+- SGLang 0.5.22 returned the value from before top-p. The setting of `SGLANG_RETURN_ORIGINAL_LOGPROB` did not change it at temperature 1. Our Miles image runs a development build of the same version, and we did not repeat the check on it.
+
+So the size of this gap depends on which value the engine returns. Check it on your engine version before you read the gap.
+
 ## Turn it on
 
 Add the sampler settings to the run of [section 1.1](#s-run-grpo-on-one-gpu) with `MILES_EXTRA_ARGS`:
@@ -68,4 +88,4 @@ Replay removes the part of the gap that comes from the sampler. The rest most li
 - Expect replay to lower the gap, not to close it.
 ```
 
-Sources: capture/gpu/summary/miles-gb10-lab.json (runs.e6a-base, runs.e11-topp-topk); capture/gpu/out-gb10/engine-settings.txt; Miles sampling-support replay documentation and arguments at main 08752a12; TRL issue 6789.
+Sources: capture/gpu/summary/miles-gb10-lab.json (runs.e6a-base, runs.e11-topp-topk); capture/gpu/out-gb10/engine-settings.txt; capture/gpu/out-l4/logprobs-top-p.txt; Miles sampling-support replay documentation and arguments at main 08752a12; TRL issue 6789.
