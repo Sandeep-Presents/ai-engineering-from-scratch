@@ -173,10 +173,30 @@ Other teams found that tests like ours can overstate the gain. We did not measur
 
 - A 2026 benchmark study by NVIDIA researchers, SPEED-Bench, found that synthetic prompts overstated speculative throughput by 23 percent on average. It also found that the best draft length fell to 1 as the batch grew.
 - The same study found that random token ids left 20 to 30 percent of the experts idle in some layers of an MoE target.
-- A 2026 study of EAGLE-3 and other drafts, Test-Time Speculation, found that the acceptance length falls as the answer grows. Within a few thousand output tokens it came close to 1, which means no gain.
+- A 2026 study of EAGLE-3 and other drafts, Test-Time Speculation, found that the acceptance length falls as the answer grows. On MATH answers that ran toward 20,000 tokens, it fell from about 3.7 to about 1.5.
 - A 2025 study of serving benchmarks compared speculation with the baseline. The median TPOT was 1.3 times lower, and the P99 TPOT was 1.16 times higher. TTFT also rose, because the draft runs its own prefill.
 
 So our gains hold for 128 generated tokens with the end token ignored, on our test prompts. They do not predict the gain on long chat answers or on reasoning traces. Our reading of the GB10 result also depends on how real tokens choose their experts, and we did not measure the routing.
+
+## Acceptance over a long answer
+
+We tested the claim of Test-Time Speculation on shorter answers. On 2026-10-23 we ran `Qwen/Qwen3-8B-FP8` with an EAGLE-3 draft, 3 steps, top-k 1, and 4 draft tokens. This was on the second GPU of our L4 node, which its owner shares and which had no clock lock. Each of 8 prompts ran with thinking on, greedy, alone, up to 4,096 tokens. We read `spec_verify_ct` after answers of 256, 512, 1,024, 2,048, and 4,096 tokens.
+
+```listing
+title: mean acceptance length by position in the answer
+source: capture/gpu/out-l4/eagle3-acceptance-by-position.txt
+lang: text
+note: The range across prompts, with the number of prompts that reached each segment in brackets. The vLLM column comes from the same prompts on vLLM 0.31.0.
+---
+segment of the output   SGLang                 vLLM
+0 to 256                2.05 to 2.64 (8)       2.14 to 2.51 (8)
+256 to 512              1.95 to 2.64 (8)       2.09 to 2.55 (8)
+512 to 1,024            2.11 to 2.77 (8)       2.12 to 2.79 (8)
+1,024 to 2,048          2.09 to 2.47 (5)       1.72 to 2.66 (5)
+2,048 to 4,096          2.33 and 2.48 (2)      2.35 and 2.60 (2)
+```
+
+Up to 4,096 tokens, the acceptance length did not fall steadily. It stayed at about 2.1 to 2.8 tokens for each verify step on both engines. Only 2 of the 8 prompts ran past 2,048 tokens before the end token, so the last segment rests on two answers. The clock changes the speed and not the acceptance. Our limit of 4,096 tokens came from the memory we could use on that GPU. So our test did not reach the range of the study.
 
 ## Our position
 
@@ -205,4 +225,4 @@ Use the draft layers that come with your model first. A model with multi-token p
 - Treat SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN=1 as a removed check, and test long prompts yourself.
 ```
 
-Sources: capture/gpu/out-gb10/server-eagle3.log, capture/gpu/out-l4/server-eagle3-no-env.log, capture/gpu/out-l4/server-load-eagle3.log, capture/gpu/summary/l4.json, server-eagle3.command.txt, eagle3-bench-random-c1.txt, eagle3-bench-random-c8.txt, eagle3-bench-random-c32.txt, capture/gpu/summary/gb10.json, python/sglang/srt/configs/model_config.py (_derive_context_length), docs/cookbook/specbundle/specbundle_usage.mdx, python/sglang/srt/speculative/eagle_worker_v2.py (forward_batch_generation), speculative/eagle_utils.py (build_tree_kernel_efficient, eagle_sample), arg_groups/speculative_hook.py (_auto_choose_speculative_params, _handle_eagle_family, _handle_ngram, _disable_overlap_schedule_for_cpu, _resolve_speculative_algorithm_alias), arg_groups/fields/spec.py, managers/tokenizer_manager.py (speculative meta_info), python/sglang/benchmark/datasets/random.py (sample_random_requests), python/sglang/benchmark/datasets/speed_bench.py, python/sglang/benchmark/serving.py (--disable-ignore-eos), docs/docs/advanced_features/speculative_decoding.mdx (the NGRAM row), managers/scheduler_components/metrics_reporter.py, and observability/metrics_collector.py at v0.5.22; issues #5274 and #6783; PR #33276; field reports by Ant Group on the LMSYS blog (2025-09-26) and David Noel Ng (2026-08-04); vendor reports by Google Cloud (2025-11-25) and Modal with Decagon (2025-11-13); Abramovich and others, SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding, arXiv 2604.09557 (2026-02, revised 2026-05), Kumar, Sanghavi, and Das, Test-Time Speculation, arXiv 2605.09329 (2026-05), Agrawal and others, On Evaluating Performance of LLM Inference Serving Systems, arXiv 2507.09019 (2025-07).
+Sources: capture/gpu/out-gb10/server-eagle3.log, capture/gpu/out-l4/server-eagle3-no-env.log, capture/gpu/out-l4/server-load-eagle3.log, capture/gpu/summary/l4.json, server-eagle3.command.txt, eagle3-bench-random-c1.txt, eagle3-bench-random-c8.txt, eagle3-bench-random-c32.txt, capture/gpu/summary/gb10.json, python/sglang/srt/configs/model_config.py (_derive_context_length), docs/cookbook/specbundle/specbundle_usage.mdx, python/sglang/srt/speculative/eagle_worker_v2.py (forward_batch_generation), speculative/eagle_utils.py (build_tree_kernel_efficient, eagle_sample), arg_groups/speculative_hook.py (_auto_choose_speculative_params, _handle_eagle_family, _handle_ngram, _disable_overlap_schedule_for_cpu, _resolve_speculative_algorithm_alias), arg_groups/fields/spec.py, managers/tokenizer_manager.py (speculative meta_info), python/sglang/benchmark/datasets/random.py (sample_random_requests), python/sglang/benchmark/datasets/speed_bench.py, python/sglang/benchmark/serving.py (--disable-ignore-eos), docs/docs/advanced_features/speculative_decoding.mdx (the NGRAM row), managers/scheduler_components/metrics_reporter.py, and observability/metrics_collector.py at v0.5.22; issues #5274 and #6783; PR #33276; field reports by Ant Group on the LMSYS blog (2025-09-26) and David Noel Ng (2026-08-04); vendor reports by Google Cloud (2025-11-25) and Modal with Decagon (2025-11-13); Abramovich and others, SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding, arXiv 2604.09557 (2026-02, revised 2026-05), Kumar, Sanghavi, and Das, Test-Time Speculation, arXiv 2605.09329 (2026-05), capture/gpu/out-l4/eagle3-acceptance-by-position.txt, Agrawal and others, On Evaluating Performance of LLM Inference Serving Systems, arXiv 2507.09019 (2025-07).

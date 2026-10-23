@@ -195,9 +195,11 @@ note: Cut from the /v1/chat/completions response. The id, the timestamp, and the
     "completion_tokens": 2,
     "prompt_tokens_details": {
       "cached_tokens": 0
+    },
+    "reasoning_tokens": 0
 ```
 
-The question has seven words and became 21 prompt tokens. The chat template adds role markers around the message, so count them when you plan the context length. `"enable_thinking": false` turns off the thinking mode of Qwen3, so the answer is one word.
+The question has seven words and became 21 prompt tokens. The chat template adds role markers around the message, so count them when you plan the context length. `"enable_thinking": false` turns off the thinking mode of Qwen3, so the answer is one word, and `reasoning_tokens` is 0.
 
 Now send the same request from Python with the OpenAI client:
 

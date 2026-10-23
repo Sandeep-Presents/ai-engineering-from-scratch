@@ -238,7 +238,24 @@ The two settings measure two different servers. Fixed lengths measure bursts: a 
 
 ## Reset the prefix cache between runs
 
-The prefix cache keeps the KV of earlier prompts after a run ends. It changes two things in the next run: the speed, and sometimes the greedy output, as [section 4.6](#s-deterministic-inference-and-logprobs) shows. Use this protocol for every run that you compare:
+The prefix cache keeps the KV of earlier prompts after a run ends. It changes two things in the next run: the speed, and sometimes the greedy output, as [section 4.6](#s-deterministic-inference-and-logprobs) shows.
+
+To see the size of the speed effect, we ran one load four times in a row with the same seed. We used `Qwen/Qwen3-0.6B`, 64 prompts at a cap of 16, 512 tokens in and 128 out. This was on the second GPU of our L4 node, which its owner shares and which had no clock lock. So trust the ratios, not the times.
+
+```listing
+title: median TTFT in ms, the same load four times in a row
+source: capture/gpu/out-l4/prefix-cache-flush.txt
+lang: text
+note: The SGLang row of the summary. The vLLM row is cut.
+---
+engine        fresh   repeat, not flushed   repeat after a flush   repeat, not flushed
+SGLang 0.6B   394     82.5                  289                    77
+…
+```
+
+The repeat without a flush read a median TTFT about 4.8 times lower than the fresh run. After a flush, the TTFT went back near the fresh run. The time per token changed by less than 15 percent.
+
+Use this protocol for every run that you compare:
 
 1. Start each run with an empty cache. Pass `--flush-cache` to `sglang.benchmark.serving`, which calls `/flush_cache` after the warm-up request {{code}}. You can also call `POST /flush_cache` yourself, or restart the server.
 2. Check that the flush ran. The server flushes only when no request runs or waits. Otherwise the route answers with HTTP 400, and the log says `Cache not flushed because there are pending requests` {{code}}.
@@ -296,6 +313,31 @@ Past its peak, BF16 completed fewer requests as we offered more: 2.01 per second
 `sglang.benchmark.serving` sends every request from one Python process with asyncio {{code}}. A 2026 study of benchmark clients found that such a client adds its own queue at high request rates. The client then reports a TTFT and a TPOT that are higher than what the server did. The study uses a client that runs in several processes instead.
 
 We did not measure this effect. Our open loop stopped at 16 requests per second, and we did not record the CPU use of the client. Before you trust a TTFT at a high rate, compare one client process with two processes that each send half the rate.
+
+## Compare two clients on one server
+
+Our sweep tables came from `sglang.benchmark.serving` at temperature 0, its default. Another client can read a different number from the same server. We ran three clients against one vLLM 0.31.0 server with `Qwen/Qwen3-0.6B` on 2026-10-23. They were this client with `--backend vllm`, `vllm bench serve`, and its Rust version. The GPU was the shared second L4 of our node. Its clock was throttled, but it stayed at 420 to 495 MHz for every run.
+
+```listing
+title: median TTFT in ms from three clients, two rounds each
+source: capture/gpu/out-l4/bench-client-bias.txt
+lang: text
+note: The rows at temperature 0 from the TTFT table. The rows at temperature 0.7 and the throughput table are cut.
+---
+users   temperature   SGLang client    vllm bench       vllm bench, Rust
+1       0             154, 164         149, 150         144, 144
+…
+16      0             1,077, 1,045     1,033, 1,027     1,088, 1,038
+…
+64      0             1,688, 1,838     1,624, 1,667     1,674, 1,789
+```
+
+- Our client read a median TTFT 3 to 10 percent higher and an output throughput 2 to 8 percent lower than `vllm bench serve`. The gap was largest at 64 users.
+- The Python and the Rust versions of `vllm bench serve` agreed within the noise.
+- The clients send different prompt tokens from their random datasets, so part of a small gap can come from the prompts.
+- Temperature 0.7 raised the median TPOT over temperature 0. It was 10 to 13 percent higher at one user, and 3 to 6 percent higher at 16 and 64 users.
+
+So a gap of a few percent between two published numbers can come from the client alone. Report the client and the temperature with every result.
 
 ## Record the GPU clock with every run
 
@@ -355,6 +397,7 @@ Then enforce the knee outside the engine. The engine's own limit is set from mem
 - Set aside runs below a clock floor.
 - Pass --flush-cache, or call POST /flush_cache, before every run that you compare, and record the cached tokens.
 - Split the client into several processes before you trust TTFT at a high request rate.
+- Report the client and the temperature with every result, and keep both fixed.
 ```
 
-Sources: python/sglang/benchmark/serving.py (calculate_metrics, argument defaults, flush_server_cache, --flush-cache, the asyncio client), python/sglang/benchmark/datasets/common.py (compute_random_lens), python/sglang/benchmark/datasets/random.py (sample_random_requests), python/sglang/srt/entrypoints/http_server.py (flush_cache), python/sglang/srt/managers/scheduler.py (flush_cache), python/sglang/srt/observability/metrics_collector.py (cached_tokens_total), python/sglang/srt/entrypoints/openai/usage_processor.py, python/sglang/bench_serving.py, PR #40795, all at v0.5.22 (baa9befa); capture/out/serve-help.txt, capture/out/server-default.command.txt, capture/out/server-default.log, capture/out/bench-random-c1.txt, capture/out/bench-random-c8.txt, capture/out/bench-random-c32.txt; capture/gpu/sweep.py, capture/gpu/summarize.py, capture/gpu/summary/gb10.json, capture/gpu/summary/l4.json, capture/gpu/summary/l4-throttled.json, capture/gpu/out-gb10/server-default.command.txt, capture/gpu/out-gb10/bench-random-c8.txt, capture/gpu/out-gb10/bench-random-c32.txt, capture/gpu/incidents/l4-thermal-throttle.txt; issue #3196. capture/gpu/out-l4/server-waves-default.log, capture/gpu/out-l4/waves-default-input-tokens.txt, capture/gpu/out-gb10/server-pools.log, capture/gpu/out-gb10/server-default.log, Chandrasekar and Kramberger, Identifying and Mitigating Systemic Measurement Bias in Production LLM Inference Benchmarks, arXiv 2605.24217 (2026-05)
+Sources: python/sglang/benchmark/serving.py (calculate_metrics, argument defaults, flush_server_cache, --flush-cache, the asyncio client), python/sglang/benchmark/datasets/common.py (compute_random_lens), python/sglang/benchmark/datasets/random.py (sample_random_requests), python/sglang/srt/entrypoints/http_server.py (flush_cache), python/sglang/srt/managers/scheduler.py (flush_cache), python/sglang/srt/observability/metrics_collector.py (cached_tokens_total), python/sglang/srt/entrypoints/openai/usage_processor.py, python/sglang/bench_serving.py, PR #40795, all at v0.5.22 (baa9befa); capture/out/serve-help.txt, capture/out/server-default.command.txt, capture/out/server-default.log, capture/out/bench-random-c1.txt, capture/out/bench-random-c8.txt, capture/out/bench-random-c32.txt; capture/gpu/sweep.py, capture/gpu/summarize.py, capture/gpu/summary/gb10.json, capture/gpu/summary/l4.json, capture/gpu/summary/l4-throttled.json, capture/gpu/out-gb10/server-default.command.txt, capture/gpu/out-gb10/bench-random-c8.txt, capture/gpu/out-gb10/bench-random-c32.txt, capture/gpu/incidents/l4-thermal-throttle.txt; issue #3196. capture/gpu/out-l4/server-waves-default.log, capture/gpu/out-l4/waves-default-input-tokens.txt, capture/gpu/out-gb10/server-pools.log, capture/gpu/out-gb10/server-default.log, Chandrasekar and Kramberger, Identifying and Mitigating Systemic Measurement Bias in Production LLM Inference Benchmarks, arXiv 2605.24217 (2026-05), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt
