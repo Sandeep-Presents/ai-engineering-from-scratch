@@ -5,8 +5,8 @@
   "summary": "How to run GRPO with Miles on one GPU, choose a model that fits, and check that the run is correct. Every measured line comes from recorded runs on a DGX Spark.",
   "plate": {
     "figure": "plate-miles-loop",
-    "title": "One GRPO step on one GPU",
-    "caption": "The engine writes the answers, a reward scores them, the trainer learns from them, and the new weights go back to the engine. Below, the engine and the trainer take turns on the same memory, drawn to scale. Medians of 48 steps on one GB10, from a run made before we added the heat guard."
+    "title": "One GRPO step on one GB10",
+    "caption": "The SGLang engine and the FSDP trainer take turns on the Blackwell GPU. The one that waits stays parked in the same 128 GB pool. Medians of 48 steps on one GB10, from a run made before we added the heat guard."
   },
   "audience": "You can serve a model and you know what a reward is. You want to train a model with reinforcement learning, and you want to know which settings matter before you rent a cluster.",
   "edition": "2026.10",
