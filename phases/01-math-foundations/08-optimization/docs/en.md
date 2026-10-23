@@ -158,7 +158,7 @@ Common schedules:
 
 ### Convex vs non-convex
 
-A convex function has no bad local minima: every local minimum is a global minimum. With a small enough learning rate, gradient descent reaches one. A quadratic like $f(x) = x^2$ is convex, and its minimum is unique.
+A convex function has no bad local minima: every local minimum is a global minimum. For a smooth convex function that has a minimum, gradient descent with a small enough learning rate converges to it. A quadratic like $f(x) = x^2$ is convex, and its minimum is unique.
 
 Neural network loss functions are non-convex. They have many local minima, saddle points, and flat regions.
 
