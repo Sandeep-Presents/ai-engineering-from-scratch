@@ -2,7 +2,7 @@ Logprob gap between the engine and a trainer forward pass, by dtype
 Date: 2026-10-23
 Machine: NVIDIA L4, the second GPU of the node (GPU1), shared with its owner, no clock lock. The clock does not change these values.
 Engine: SGLang 0.5.22 serving Qwen/Qwen3-0.6B with --dtype bfloat16 or --dtype float16, --disable-radix-cache. Not the Miles image build.
-Requests: 32 ShareGPT prompts with the chat template and thinking off. Temperature 1, top-p 1, top-k off, so no sampling mask applies. 64 sampled tokens each, 1,961 tokens in all.
+Requests: 32 ShareGPT prompts with the chat template and thinking off. Temperature 1, top-p 1, top-k off, so no sampling mask applies. Up to 64 sampled tokens each. 1,961 tokens entered the comparison, against 2,048 for 32 full answers. The summary does not record why the other 87 are missing.
 Trainer side: a Transformers forward pass over the same tokens in BF16, FP16 or FP32, on the same GPU. No training run.
 
 Absolute logprob gap per token, engine against Transformers:

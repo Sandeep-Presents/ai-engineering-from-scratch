@@ -22,6 +22,10 @@ LIVE_CHECKS = {
     "resume-check.txt": ["[FSDP] Loaded model from /ckpt/run-a/iter_0000002/model", "step 2:", "lines mentioning a missing tracker or folder: 0"],
     "live-check-summary.txt": ["successfully saved checkpoint from iteration", "latest_checkpointed_iteration.txt: release", "model.safetensors", "tokenizer.json"],
 }
+L4_CHECKS = {
+    "logprobs-top-p.txt": ["vLLM --logprobs-mode processed_logprobs          +0.0527", "median residual 8e-9", "SGLang return_logprob, ORIGINAL_LOGPROB=0        0.0000"],
+    "logprob-gap-by-dtype.txt": ["1,961 tokens", "BF16     BF16      0.0073", "FP16     FP16      0.00094", "BF16     FP32      0.0076", "FP16     FP32      0.0010"],
+}
 REPLAY_COMMAND = "$ python3 watchdog_replay.py"
 
 sys.dont_write_bytecode = True
@@ -87,6 +91,9 @@ def check():
     for name, quoted in LIVE_CHECKS.items():
         text = (OUT / name).read_text()
         problems += [f"{name}: the quoted value {value!r} is missing" for value in quoted if value not in text]
+    for name, quoted in L4_CHECKS.items():
+        text = (GPU / "out-l4" / name).read_text()
+        problems += [f"out-l4/{name}: the quoted value {value!r} is missing" for value in quoted if value not in text]
     runs = lab_runs()
     if runs is None:
         print("skipped: the raw run logs stay on the DGX Spark that recorded them, so only the stored outputs were compared. Set MILES_LAB_RUNS to a runs folder to compare a fresh summary.")
