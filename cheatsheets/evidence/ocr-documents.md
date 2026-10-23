@@ -63,7 +63,7 @@ Abbreviations: L0419 = phases/04-computer-vision/19-ocr-document-understanding, 
 - CER Levenshtein / reference length, WER word level: L0419/d:80-81
 - MaxSim sum_i max_j cos(q_i, p_j): L1223/d:53
 - 50 x 729 x 128 x 4 bytes ~18 MB raw, ~2.3 MB after 8x PQ: L1223/d:96-98
-- 50 chunks x 768 x 4 bytes ~150 kB, ~30x more: L1223/d:99, 101
+- 50 chunks x 768 x 4 bytes ~150 kB, ~120x raw and ~15x after PQ: L1223/d:99, 101
 - ColPali-v1 ~80% nDCG@5, text-RAG ~50-60%: L1223/d:82
 
 ## Defaults and limits (defaults, 7 rows)

@@ -18,7 +18,7 @@ from: phases/12-multimodal-ai/05-llava-visual-instruction-tuning/docs/en.md, pha
 | Vision to LLM | 2-layer MLP, GELU | Same MLP projector | Qwen2-VL: 2-layer MLP on merged patches | Native, no align stage |
 | Recipe | Post-hoc on a text LLM | Post-hoc on a text LLM | Post-hoc on a text LLM | Native multimodal pretrain |
 | High resolution | AnyRes: 336 tiles plus thumbnail | AnyRes-9 or AnyRes-4, 384 tiles | Qwen2-VL: any H and W divisible by 28 | ViR picks low, medium or high |
-| Video | Per-frame concat | 32 frames, 81 tokens each | Dynamic FPS, `<time>` tokens | 5% video-text in pretrain |
+| Video | Per-frame concat | 32 frames, 196 tokens each | Dynamic FPS, `<time>` tokens | 5% video-text in pretrain |
 | Visual tokens | 576 base, 2880 AnyRes | 6000-9000 per sample, balanced | Scales with input | 256, 576 or 2048+ via ViR |
 | Training | Align, then instruct | Stages SI, OV, TT | Qwen3-VL: stages stress OCR, grounding, agents | One pretrain stage, then instruct |
 | Swap the LLM | Retrain the projector | Retrain the projector | Retrain the adapter | Not possible later |
@@ -104,7 +104,7 @@ from: phases/12-multimodal-ai/05-llava-visual-instruction-tuning/docs/en.md, pha
 - **AnyRes 4x4**: a 1344x1344 image gives 9216 + 576, about 9800 tokens.
 - **Qwen2-VL native**: 1120x672 gives 40x24 merged patches, 960 tokens.
 - **OneVision image**: AnyRes-9 with 2x2 pool, 9 * 182 + 182 = 1820 tokens.
-- **OneVision video**: 32 frames with 3x3 pool, 32 * 81 = 2592 tokens.
+- **OneVision video**: 32 frames with 2x2 pool, 32 * 196 = 6272 tokens.
 - **Dynamic FPS cap**: $fps_{max} = B / (T \cdot \text{tokens per frame})$
 - **Qwen2.5-VL video**: 60 s at 4 FPS with 81 tokens per frame is 19440 tokens.
 
@@ -131,7 +131,7 @@ from: phases/12-multimodal-ai/05-llava-visual-instruction-tuning/code/main.py, p
 | LLaVA prompt image_tokens | 576 | Replaces the image placeholder |
 | `MRoPEConfig` base | 10000.0 | RoPE frequency base per band |
 | Qwen2-VL video sampling | 1-2 FPS | Accepts any frame count |
-| OneVision planner budget | 4096 | Visual tokens per sample |
+| OneVision toy planner budget | 4096 | Visual tokens per sample in the lesson code |
 | Dynamic-FPS demo budget | 32768 | 81 tokens per frame after 3x pool |
 | `dvd_throughput` llm_tokens | 128 | Output tokens per request |
 
