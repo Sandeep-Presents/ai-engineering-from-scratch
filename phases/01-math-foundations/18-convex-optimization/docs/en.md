@@ -91,13 +91,13 @@ The central theorem of convex optimization:
 
 **For a convex function, every local minimum is a global minimum.**
 
-This means gradient descent cannot get trapped. Any downhill path leads to the same answer. The algorithm is guaranteed to converge to the optimal solution.
+This means gradient descent cannot get trapped in a bad local minimum. Every minimum it can reach has the same loss. For a smooth convex function that has a minimum, gradient descent with a suitable step size is guaranteed to converge to the optimal value.
 
 ```mermaid
 graph LR
     subgraph "Convex: ONE answer"
         direction TB
-        C1["Loss surface has a single valley"] --> C2["Gradient descent ALWAYS finds the global minimum"]
+        C1["Loss surface has no false valleys"] --> C2["Gradient descent with a suitable step converges to the global minimum"]
     end
     subgraph "Non-convex: MANY traps"
         direction TB

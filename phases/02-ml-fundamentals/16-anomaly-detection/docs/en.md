@@ -343,7 +343,7 @@ class IsolationForest:
         return 2.0 ** (-avg_path / c) if c > 0 else np.zeros(X.shape[0])
 ```
 
-The normalization factor `c(n)` (`_c_factor` in the code) is the expected path length of an unsuccessful search in a binary search tree with $n$ elements. It equals `2 * H(n-1) - 2*(n-1)/n` where `H` is the harmonic number. This normalization ensures scores are comparable across datasets of different sizes.
+The normalization factor `c(n)` (`_c_factor` in the code) is the expected path length of an unsuccessful search in a binary search tree with $n$ elements. It equals `2 * H(n-1) - 2*(n-1)/n` where `H` is the harmonic number. The code uses the standard approximation `H(i) ≈ ln(i) + 0.5772` (Euler's constant), as the original Isolation Forest paper does. This normalization ensures scores are comparable across datasets of different sizes.
 
 ### Demo Scenarios
 
