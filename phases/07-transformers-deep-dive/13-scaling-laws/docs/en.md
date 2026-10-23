@@ -40,12 +40,12 @@ L(N, D) = \frac{A}{N^\alpha} + \frac{B}{D^\beta} + E
 - $E \approx 1.69$, the irreducible loss ceiling.
 - $A \approx 406$, $B \approx 411$.
 
-Two terms trade against each other as you scale. Take the derivative w.r.t. $N$ at fixed compute ($C = 6ND$) and solve:
+Two terms trade against each other as you scale. Take the derivative w.r.t. $N$ at fixed compute ($C = 6ND$) and solve. Both optima grow close to $\sqrt{C}$: the paper's first two fitting approaches give exponents of about 0.5 for each. Set $D = 20N$ in $C = 6ND$ and the two formulas follow:
 
 ```math
 \begin{aligned}
-N_{\text{opt}} &\approx 0.6 \times (C/6)^{0.5} \\
-D_{\text{opt}} &\approx 0.6 \times (C/6)^{0.5} \\
+N_{\text{opt}} &\approx 0.22 \times (C/6)^{0.5} \\
+D_{\text{opt}} &\approx 4.5 \times (C/6)^{0.5} \\
 D_{\text{opt}} / N_{\text{opt}} &\approx 20
 \end{aligned}
 ```
