@@ -389,8 +389,30 @@
         flex-direction: column;
       }
 
+      .catalog-search,
       .catalog-filter {
         width: 100%;
+        flex: none;
+      }
+
+      .catalog-table-wrap {
+        container-type: inline-size;
+      }
+
+      .catalog-group-row th {
+        white-space: normal;
+      }
+
+      .catalog-group-inner {
+        position: sticky;
+        left: 10px;
+        display: block;
+        max-width: calc(100cqw - 20px);
+      }
+
+      .catalog-group-count {
+        display: block;
+        margin: 4px 0 0;
       }
 
       .catalog-table {
@@ -1304,7 +1326,7 @@
               var groupLabel = 'Phase ' + String(r.phase).padStart(2, '0') + ': ' + escapeHtml(r.phaseName);
               var groupCount = countLabel(phaseCounts[r.phase], 'lesson', 'lessons');
               if (progress) groupCount += ' · <span class="catalog-group-done">' + formatCount(phaseDone[r.phase] || 0) + ' done</span>';
-              html += '<tr class="catalog-group-row"><th colspan="6" scope="rowgroup">' + (r.phaseHub ? '<a href="' + escapeHtml(r.phaseHub) + '">' + groupLabel + '</a>' : groupLabel) + '<span class="catalog-group-count">' + groupCount + '</span></th></tr>';
+              html += '<tr class="catalog-group-row"><th colspan="6" scope="rowgroup"><span class="catalog-group-inner">' + (r.phaseHub ? '<a href="' + escapeHtml(r.phaseHub) + '">' + groupLabel + '</a>' : groupLabel) + '<span class="catalog-group-count">' + groupCount + '</span></span></th></tr>';
               previousPhase = r.phase;
             }
             var done = isDone(r);
