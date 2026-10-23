@@ -19,7 +19,7 @@ const FREE = [5, 11, 12, 22, 29, 36, 39];
 module.exports = figure('plate-vllm-request', {
   height: 676,
   title: 'One block pool on one L4',
-  desc: `The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of ${BUDGET.toLocaleString('en-US')} tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of ${BLOCK}-token blocks: ${(pool / BLOCK).toLocaleString('en-US')} blocks hold ${pool.toLocaleString('en-US')} tokens, and the grid shows ${COLS * ROWS} of them: the blocks of A and B, some of the blocks of C, and free blocks.`,
+  desc: `The vLLM 0.31.0 API server and EngineCore run on the host CPU and talk over ZMQ. The Scheduler inside EngineCore builds one step under a token budget of ${BUDGET.toLocaleString('en-US')} tokens: requests A and B decode one token each, and request C adds a prefill chunk. The block table of the KVCacheManager maps each request to blocks that are not all next to each other. Below is one NVIDIA L4 with its SM array of 58 SMs and 24 GB of GDDR6, where the KV cache is a grid of ${BLOCK}-token blocks: ${(pool / BLOCK).toLocaleString('en-US')} blocks hold ${pool.toLocaleString('en-US')} tokens, and the grid shows ${COLS * ROWS} of them: the blocks of A and B, some of the blocks of C, and free blocks.`,
 }, f => {
   const host = f.isoView({ ox: 0, oy: 150, angle: 'true' });
   const step = f.isoView({ ox: 0, oy: 326, angle: 'true' });

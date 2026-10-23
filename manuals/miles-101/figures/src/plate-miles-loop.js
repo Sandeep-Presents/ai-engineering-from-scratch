@@ -28,7 +28,7 @@ const ACTORS = [
 module.exports = figure('plate-miles-loop', {
   height: 716,
   title: 'One GRPO step on one GB10',
-  desc: `One DGX Spark GB10 package drawn in iso: a Grace CPU die with 20 Arm cores and a Blackwell GPU die, both joined to one 128 GB slab of unified LPDDR5X memory at the center. On the Grace die run the Ray head, the TrainerController and ray::RolloutExecutor actors, and the math reward. On the Blackwell die the FSDP trainer is active and the SGLang engine waits. Inside the shared slab the trainer state is the active footprint and the engine state is parked. The trainer onloads in ${sec(m.wake_up_time_s.median, 2)}, and the weight update to the engine takes ${sec(m.update_weights_time_s.median, 2)}. Below, one median step of ${sec(step)} to scale: rollout ${sec(m.rollout_time_s.median)}, log probabilities ${sec(m.log_probs_time_s.median)}, GRPO update ${sec(gradient)}, weight update ${sec(m.update_weights_time_s.median, 2)}, and ${sec(untimed)} of hand-offs and untimed work. Medians of ${steps} steps of a run made before we added the heat guard.`,
+  desc: `One DGX Spark GB10 package drawn in iso: a Grace CPU die with 20 Arm cores and a Blackwell GPU die, both joined to one 128 GB slab of unified LPDDR5X memory at the center. On the Grace die run the Ray head, the TrainerController and ray::RolloutExecutor actors, and the math reward. On the Blackwell die the FSDP trainer is active and the SGLang engine waits. Inside the shared slab the trainer state is the active footprint and the engine state is parked. The trainer onloads in ${sec(m.wake_up_time_s.median, 2)}, and the weight update to the engine takes ${sec(m.update_weights_time_s.median, 2)}. Below, one median step of ${sec(step)} to scale: rollout ${sec(m.rollout_time_s.median)}, log probabilities ${sec(m.log_probs_time_s.median)}, GRPO update ${sec(gradient)}, weight update ${sec(m.update_weights_time_s.median, 2)}, and ${sec(untimed)} that the phase medians do not cover. Medians of ${steps} steps of a run made before we added the heat guard.`,
 }, f => {
   const chip = f.isoView({ ox: 300, oy: 118, angle: 'true' });
   const face = (part, points, hue, opacity) => f.polygon(points.map(([u, v, k]) => part.P(u, v, k)), { fill: color(hue), fillOpacity: opacity });
@@ -85,7 +85,7 @@ module.exports = figure('plate-miles-loop', {
   f.text(20, 228, '20 Arm cores', { size: 11, serif: true, hue: 'ink-soft' });
   f.leader([100, 210], grace.P(0, 40, 12), { hue: 'ink-mute' });
 
-  f.beat(1);
+  f.beat(2);
   const tUp = active.P(46, 0, 14);
   const tDown = trainer.P(20, 40, 0);
   f.path(`M${tUp[0]} ${tUp[1] - 2} L${tDown[0]} ${tDown[1] + 2}`, { style: 'state' });
@@ -94,7 +94,7 @@ module.exports = figure('plate-miles-loop', {
   const eA = engine.P(20, 40, 0);
   const eB = parked.P(33, 0, 5);
   f.path(`M${eA[0]} ${eA[1] + 2} L${eB[0]} ${eB[1] - 2}`, { style: 'state' });
-  f.beat(3);
+  f.beat(4);
   const w0 = trainer.P(40, 20, 26);
   const w1 = engine.P(0, 20, 8);
   f.path(`M${w0[0]} ${w0[1]} V${w0[1] - 52} H${w1[0]} V${w1[1] - 2}`, { style: 'state' });
@@ -117,7 +117,7 @@ module.exports = figure('plate-miles-loop', {
   const edges = [x0];
   TURNS.forEach(turn => edges.push(edges[edges.length - 1] + (turn.time / step) * span));
   TURNS.forEach((turn, index) => {
-    f.beat(4 + index);
+    f.beat(1 + index);
     f.isoBeam(line, { sx0: edges[index], sx1: edges[index + 1] - (index < 3 ? 1 : 0), c: 0, back: 16, h: 10, hue: turn.hue, shadow: false });
     const last = index === TURNS.length - 1;
     const cx = last ? edges[index] - 14 : edges[index] + 11;
@@ -132,6 +132,6 @@ module.exports = figure('plate-miles-loop', {
     f.step(x + 9, y - 4, index + 1, { hue: turn.hue });
     f.text(x + 26, y, turn.line, { size: 11.5, serif: true, hue: 'ink-soft' });
   });
-  f.text(20, 676, `dashed end: hand-offs and untimed work, ${sec(untimed)}. Trainer offload ${sec(m.sleep_time_s.median, 2)}.`, { size: 11, serif: true, hue: 'ink-soft' });
+  f.text(20, 676, `dashed end: median step minus the phase medians, ${sec(untimed)}. Trainer offload ${sec(m.sleep_time_s.median, 2)}.`, { size: 11, serif: true, hue: 'ink-soft' });
   f.text(20, 700, 'Medians from the run made before the heat guard.', { size: 11, serif: true, hue: 'ink-mute' });
 });

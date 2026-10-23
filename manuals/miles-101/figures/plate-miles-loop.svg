@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 716" role="img" aria-labelledby="plate-miles-loop-title plate-miles-loop-desc" font-family="JetBrains Mono, ui-monospace, monospace">
   <title id="plate-miles-loop-title">One GRPO step on one GB10</title>
-  <desc id="plate-miles-loop-desc">One DGX Spark GB10 package drawn in iso: a Grace CPU die with 20 Arm cores and a Blackwell GPU die, both joined to one 128 GB slab of unified LPDDR5X memory at the center. On the Grace die run the Ray head, the TrainerController and ray::RolloutExecutor actors, and the math reward. On the Blackwell die the FSDP trainer is active and the SGLang engine waits. Inside the shared slab the trainer state is the active footprint and the engine state is parked. The trainer onloads in 0.87 s, and the weight update to the engine takes 0.64 s. Below, one median step of 152.6 s to scale: rollout 47.5 s, log probabilities 23.4 s, GRPO update 77.0 s, weight update 0.64 s, and 4.2 s of hand-offs and untimed work. Medians of 48 steps of a run made before we added the heat guard.</desc>
+  <desc id="plate-miles-loop-desc">One DGX Spark GB10 package drawn in iso: a Grace CPU die with 20 Arm cores and a Blackwell GPU die, both joined to one 128 GB slab of unified LPDDR5X memory at the center. On the Grace die run the Ray head, the TrainerController and ray::RolloutExecutor actors, and the math reward. On the Blackwell die the FSDP trainer is active and the SGLang engine waits. Inside the shared slab the trainer state is the active footprint and the engine state is parked. The trainer onloads in 0.87 s, and the weight update to the engine takes 0.64 s. Below, one median step of 152.6 s to scale: rollout 47.5 s, log probabilities 23.4 s, GRPO update 77.0 s, weight update 0.64 s, and 4.2 s that the phase medians do not cover. Medians of 48 steps of a run made before we added the heat guard.</desc>
   <defs><marker id="plate-miles-loop-head-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 1 L10 5 L0 9 z" fill="var(--m-amber-ink, #85590c)"/></marker></defs>
   <text x="20" y="18" font-size="11" letter-spacing="1.2" fill="var(--m-ink-mute, #6f6f6a)">ONE NVIDIA DGX SPARK · GB10 SUPERCHIP</text>
   <text x="620" y="18" font-size="11" text-anchor="end" fill="var(--m-ink-soft, #4a4a4a)">Qwen3-0.6B</text>
@@ -214,19 +214,17 @@
   <text x="20" y="228" font-size="11" class="m-serif" fill="var(--m-ink-soft, #4a4a4a)">20 Arm cores</text>
   <polyline points="100,210 130.26,210" fill="none" stroke="var(--m-ink-mute, #6f6f6a)" stroke-width="0.8" stroke-dasharray="2 3"/>
   <circle cx="130.26" cy="210" r="2" fill="var(--m-ink-mute, #6f6f6a)"/>
-  <g data-beat="1"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="0.45s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="0.45s" begin="indefinite" fill="freeze"/>
+  <g data-beat="2"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.571;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.05s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.571;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.05s" begin="indefinite" fill="freeze"/>
   <path d="M332.9089652 253 L429.90381 259" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.2" stroke-dasharray="5 4" stroke-linejoin="round" marker-end="url(#plate-miles-loop-head-amber)"/>
-  <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M332.9089652 253 L429.90381 259" keyPoints="0;0;1;1" keyTimes="0;0;0.688;1" calcMode="linear" dur="0.8s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0;0.1;0.688;1" dur="0.8s" begin="indefinite" fill="freeze"/></circle>
+  <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M332.9089652 253 L429.90381 259" keyPoints="0;0;1;1" keyTimes="0;0.429;0.821;1" calcMode="linear" dur="1.4s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.429;0.486;0.821;1" dur="1.4s" begin="indefinite" fill="freeze"/></circle>
   <rect class="m-knock" x="335.91" y="253.42" width="91.8" height="15" fill="var(--m-panel, #f3f1e8)"/>
   <text x="338.91" y="264" font-size="11" fill="var(--m-amber-ink, #85590c)">onload 0.87 s</text>
-  </g>
-  <g data-beat="2"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.571;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.05s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.571;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.05s" begin="indefinite" fill="freeze"/>
   <path d="M480.1332832 288 L409.98522579999997 306.5" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.2" stroke-dasharray="5 4" stroke-linejoin="round" marker-end="url(#plate-miles-loop-head-amber)"/>
   <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M480.1332832 288 L409.98522579999997 306.5" keyPoints="0;0;1;1" keyTimes="0;0.429;0.821;1" calcMode="linear" dur="1.4s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.429;0.486;0.821;1" dur="1.4s" begin="indefinite" fill="freeze"/></circle>
   </g>
-  <g data-beat="3"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.727;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.65s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.727;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.65s" begin="indefinite" fill="freeze"/>
+  <g data-beat="4"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.8;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.25s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.8;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.25s" begin="indefinite" fill="freeze"/>
   <path d="M464.544826 231 V179 H480.1332832 V256" fill="none" stroke="var(--m-amber-ink, #85590c)" stroke-width="1.2" stroke-dasharray="5 4" stroke-linejoin="round" marker-end="url(#plate-miles-loop-head-amber)"/>
-  <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M464.544826 231 V179 H480.1332832 V256" keyPoints="0;0;1;1" keyTimes="0;0.6;0.875;1" calcMode="linear" dur="2s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.6;0.64;0.875;1" dur="2s" begin="indefinite" fill="freeze"/></circle>
+  <circle class="m-packet" r="3.5" fill="var(--m-amber-ink, #85590c)" opacity="0"><animateMotion path="M464.544826 231 V179 H480.1332832 V256" keyPoints="0;0;1;1" keyTimes="0;0.692;0.904;1" calcMode="linear" dur="2.6s" begin="indefinite" fill="freeze"/><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.692;0.723;0.904;1" dur="2.6s" begin="indefinite" fill="freeze"/></circle>
   <rect class="m-knock" x="403.34" y="164.42" width="138" height="15" fill="var(--m-panel, #f3f1e8)"/>
   <text x="472.34" y="175" font-size="11" text-anchor="middle" fill="var(--m-amber-ink, #85590c)">weight update 0.64 s</text>
   </g>
@@ -242,7 +240,7 @@
   <polyline points="540,420 334.64,385" fill="none" stroke="var(--m-violet-ink, #5b4fa3)" stroke-width="0.8" stroke-dasharray="2 3"/>
   <circle cx="334.64" cy="385" r="2" fill="var(--m-violet-ink, #5b4fa3)"/>
   <text x="20" y="534" font-size="11" letter-spacing="1.2" fill="var(--m-ink-mute, #6f6f6a)">ONE STEP TO SCALE · 152.6 S, MEDIAN OF 48</text>
-  <g data-beat="4"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.8;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.25s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.8;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.25s" begin="indefinite" fill="freeze"/>
+  <g data-beat="1"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="0.45s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="0.45s" begin="indefinite" fill="freeze"/>
   <polygon points="20,590 205.69,590 205.69,580 205.69,572 20,572 20,580" fill="var(--m-panel, #f3f1e8)"/>
   <polygon points="20,590 205.69,590 205.69,580 20,580" fill="var(--m-violet-fill, #ebe8f5)"/>
   <polygon points="20,580 205.69,580 205.69,572 20,572" fill="var(--m-violet-fill, #ebe8f5)"/>
@@ -253,7 +251,7 @@
   <text x="31" y="566" font-size="11" text-anchor="middle" fill="var(--m-violet-ink, #5b4fa3)">1</text>
   <text x="44" y="566" font-size="11" font-weight="700" fill="var(--m-violet-ink, #5b4fa3)">47.5 s</text>
   </g>
-  <g data-beat="5"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.842;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.85s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.842;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.85s" begin="indefinite" fill="freeze"/>
+  <g data-beat="2"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.571;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.05s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.571;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.05s" begin="indefinite" fill="freeze"/>
   <polygon points="206.69,590 297.58,590 297.58,580 297.58,572 206.69,572 206.69,580" fill="var(--m-panel, #f3f1e8)"/>
   <polygon points="206.69,590 297.58,590 297.58,580 206.69,580" fill="var(--m-blue-fill, #e6edf6)"/>
   <polygon points="206.69,580 297.58,580 297.58,572 206.69,572" fill="var(--m-blue-fill, #e6edf6)"/>
@@ -264,7 +262,7 @@
   <text x="217.69" y="566" font-size="11" text-anchor="middle" fill="var(--m-blue-ink, #2f5d9a)">2</text>
   <text x="230.69" y="566" font-size="11" font-weight="700" fill="var(--m-blue-ink, #2f5d9a)">23.4 s</text>
   </g>
-  <g data-beat="6"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.87;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="3.45s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.87;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="3.45s" begin="indefinite" fill="freeze"/>
+  <g data-beat="3"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.727;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.65s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.727;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="1.65s" begin="indefinite" fill="freeze"/>
   <polygon points="298.58,590 600.1,590 600.1,580 600.1,572 298.58,572 298.58,580" fill="var(--m-panel, #f3f1e8)"/>
   <polygon points="298.58,590 600.1,590 600.1,580 298.58,580" fill="var(--m-blue-fill, #e6edf6)"/>
   <polygon points="298.58,580 600.1,580 600.1,572 298.58,572" fill="var(--m-blue-fill, #e6edf6)"/>
@@ -275,7 +273,7 @@
   <text x="309.58" y="566" font-size="11" text-anchor="middle" fill="var(--m-blue-ink, #2f5d9a)">3</text>
   <text x="322.58" y="566" font-size="11" font-weight="700" fill="var(--m-blue-ink, #2f5d9a)">77.0 s</text>
   </g>
-  <g data-beat="7"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.889;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="4.05s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.889;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="4.05s" begin="indefinite" fill="freeze"/>
+  <g data-beat="4"><animate attributeName="opacity" values="0;0;1" keyTimes="0;0.8;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.25s" begin="indefinite" fill="freeze"/><animateTransform attributeName="transform" type="translate" values="0 4;0 4;0 0" keyTimes="0;0.8;1" calcMode="spline" keySplines="0 0 1 1;0.23 1 0.32 1" dur="2.25s" begin="indefinite" fill="freeze"/>
   <polygon points="601.1,590 603.61,590 603.61,580 603.61,572 601.1,572 601.1,580" fill="var(--m-panel, #f3f1e8)"/>
   <polygon points="601.1,590 603.61,590 603.61,580 601.1,580" fill="var(--m-amber-fill, #f5ecd9)"/>
   <polygon points="601.1,580 603.61,580 603.61,572 601.1,572" fill="var(--m-amber-fill, #f5ecd9)"/>
@@ -304,6 +302,6 @@
   <circle cx="339" cy="642" r="9" fill="var(--m-paper, #fafaf5)" stroke="var(--m-amber-ink, #85590c)" stroke-width="1"/>
   <text x="339" y="646" font-size="11" text-anchor="middle" fill="var(--m-amber-ink, #85590c)">4</text>
   <text x="356" y="646" font-size="11.5" class="m-serif" fill="var(--m-ink-soft, #4a4a4a)">weight update to the engine</text>
-  <text x="20" y="676" font-size="11" class="m-serif" fill="var(--m-ink-soft, #4a4a4a)">dashed end: hand-offs and untimed work, 4.2 s. Trainer offload 0.76 s.</text>
+  <text x="20" y="676" font-size="11" class="m-serif" fill="var(--m-ink-soft, #4a4a4a)">dashed end: median step minus the phase medians, 4.2 s. Trainer offload 0.76 s.</text>
   <text x="20" y="700" font-size="11" class="m-serif" fill="var(--m-ink-mute, #6f6f6a)">Medians from the run made before the heat guard.</text>
 </svg>
