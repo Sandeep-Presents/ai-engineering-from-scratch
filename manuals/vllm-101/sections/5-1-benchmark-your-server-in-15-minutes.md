@@ -8,7 +8,7 @@ You changed a flag and you want to know if it helped. When you finish this secti
 
 ## Run one sweep
 
-Our tables came from the benchmark client of SGLang 0.5.22, not from the vLLM client. We used one client for both engines, so that [the engine page](#s-decide-between-vllm-and-sglang) compares the engines with one method. To compare your GPU with our table, use the same client. Install it in a separate virtual environment, so that it does not change your vLLM install:
+Our tables came from the benchmark client of SGLang 0.5.22, not from the vLLM client, at temperature 0. We used one client for both engines, so that [the engine page](#s-decide-between-vllm-and-sglang) compares the engines with one method. To compare your GPU with our table, use the same client. Install it in a separate virtual environment, so that it does not change your vLLM install:
 
 ```bash
 uv venv bench --python 3.12 --seed
@@ -66,7 +66,22 @@ caption: Users double at each step on the axis. The band spans the lowest and hi
 
 ## Reset the prefix cache between runs
 
-The prefix cache keeps the KV blocks of earlier prompts. It changes two things between runs: the speed, and sometimes the output of a greedy request. The 2026 paper "Same Request, Different Answer" found on vLLM 0.11 that a request with a cache hit and one without can give different greedy outputs. We did not measure this effect ourselves.
+The prefix cache keeps the KV blocks of earlier prompts. It changes two things between runs: the speed, and sometimes the output of a greedy request. [The reproducibility page](#s-get-reproducible-outputs) shows the output effect.
+
+To see the speed effect, we ran one load twice with the same seed and no reset. This was on the second GPU of our L4 node on 2026-10-22 and 2026-10-23. We used `Qwen/Qwen3-0.6B`, 64 prompts at 16 users, 512 tokens in and 128 out. That GPU is shared with its owner and had no clock lock, so trust the ratio and not the times.
+
+```listing
+title: median TTFT in ms, the same load four times in a row
+source: capture/gpu/out-l4/prefix-cache-flush.txt
+lang: text
+note: The vLLM row of the summary. The SGLang row is cut.
+---
+engine        fresh   repeat, not flushed   repeat after a flush   repeat, not flushed
+…
+vLLM 0.6B     925     148                   1,163                  184
+```
+
+The repeat without a reset read a median TTFT about 6 times lower than the fresh run. After a reset, the TTFT came back to the level of the fresh run. The time per token changed by less than 15 percent, because a cache hit removes prefill work and leaves the decode work the same.
 
 Use this protocol for every run that you compare:
 
@@ -86,7 +101,7 @@ Use this protocol for every run that you compare:
 
 ## Use the vLLM client
 
-vLLM has its own client, `vllm bench serve`. It reports the same four numbers, and it needs no second install. We did not run it, so do not compare its numbers directly with our table. The two clients differ in details such as the prompt text of the random dataset. This loop runs the same sweep with it:
+vLLM has its own client, `vllm bench serve`. It reports the same four numbers, and it needs no second install. At 0.31.0, `VLLM_USE_RUST_BENCH=1` runs a Rust version of the same client. This loop runs the same sweep with it:
 
 ```bash
 for c in 1 2 4 8 16 32 64; do
@@ -98,7 +113,26 @@ for c in 1 2 4 8 16 32 64; do
 done
 ```
 
-Pick one client and keep it for every run that you compare.
+We ran three clients against one vLLM server with `Qwen/Qwen3-0.6B` on 2026-10-23: the SGLang client, `vllm bench serve`, and its Rust version. This was the shared second GPU of our L4 node. Its clock was throttled, but it stayed at 420 to 495 MHz for every run. We reset the cache before every run and alternated the clients over two rounds.
+
+```listing
+title: output tok/s from three clients, two rounds each
+source: capture/gpu/out-l4/bench-client-bias.txt
+lang: text
+note: The rows at 64 users from the throughput table. The other rows and the TTFT table are cut.
+---
+users   temperature   SGLang client    vllm bench       vllm bench, Rust
+…
+64      0             359, 348         379, 377         371, 365
+64      0.7           331, 343         360, 363         356, 353
+```
+
+- **The two vLLM clients agreed.** The Python and the Rust versions of `vllm bench serve` gave the same numbers within the noise at 1, 16, and 64 users.
+- **The SGLang client read a slower server.** Its median TTFT was 3 to 10 percent higher, and its output throughput 2 to 8 percent lower, than `vllm bench serve`. The gap was largest at 64 users.
+- **The prompts differ.** The two clients send different prompt tokens from their random datasets, so part of a small gap can come from the prompts.
+- **Temperature changes the result.** Temperature 0.7 raised the median TPOT over temperature 0. It was 10 to 13 percent higher at one user, and 3 to 6 percent higher at 16 and 64 users.
+
+So our tables, from the SGLang client at temperature 0, can read a few percent slower than a run with `vllm bench serve`. Pick one client and one temperature, and keep them for every run that you compare.
 
 ```takeaways
 - Sweep concurrency with one client, and read throughput, TTFT, TPOT, and ITL together.
@@ -106,6 +140,7 @@ Pick one client and keep it for every run that you compare.
 - Reset the prefix cache and record the cached tokens for each run you compare.
 - Record the GPU clock, and compare runs only at similar clocks.
 - Run a fixed request rate as well as a closed loop before you set a capacity limit.
+- Write the client and the temperature next to every result.
 ```
 
-Sources: vLLM documentation at v0.31.0 (docs/benchmarking/cli.md, docs/benchmarking/sweeps.md), the vLLM source at v0.31.0 (vllm/benchmarks/serve.py), capture/gpu/summary/l4.json (load.vllm-b), the sweep tool of the SGLang 101 manual (capture/gpu/sweep.py), the SGLang 0.5.22 benchmark client source (python/sglang/benchmark/serving.py, python/sglang/benchmark/datasets/random.py), Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026).
+Sources: vLLM documentation at v0.31.0 (docs/benchmarking/cli.md, docs/benchmarking/sweeps.md), the vLLM source at v0.31.0 (vllm/benchmarks/serve.py), capture/gpu/summary/l4.json (load.vllm-b), the sweep tool of the SGLang 101 manual (capture/gpu/sweep.py), the SGLang 0.5.22 benchmark client source (python/sglang/benchmark/serving.py, python/sglang/benchmark/datasets/random.py), capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/bench-client-bias.txt.

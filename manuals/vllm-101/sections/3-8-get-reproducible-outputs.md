@@ -10,7 +10,8 @@ The vLLM documentation says that vLLM does not promise the same output by defaul
 
 - **The batch.** The kernels split their sums by the batch size. The same request adds its numbers in a different order in a batch of 3 than in a batch of 30. Floating-point sums depend on the order. A small difference in one logit can change a sampled token, and every later token then differs.
 - **The schedule.** In the default multiprocess server, the timing of requests decides which batch each one joins.
-- **The prefix cache.** A request that reuses cached blocks computes its prompt in a different way than a request with no cache hit. The 2026 paper "Same Request, Different Answer" tested vLLM 0.11 and found that greedy outputs can differ between the cache-hit path and the path without a hit.
+- **The prefix cache.** A request that reuses cached blocks computes its prompt in a different way than a request with no cache hit. In our runs on 0.31.0, a warm cache changed the greedy output of 11 of 32 prompts. The 2026 paper "Same Request, Different Answer" found the same effect on vLLM 0.11.
+- **The dtype.** BF16 and FP16 round each number differently, so the same model in the two dtypes writes different text.
 
 The seed defaults to 0 in the current engine, and you cannot unset it. Speculative decoding needs every worker to sample the same tokens. So a seed is always there, and it is not enough by itself.
 
@@ -36,6 +37,32 @@ The mode needs an NVIDIA GPU with compute capability 8.0 or higher, which includ
 
 We ran one probe with the small Qwen3-0.6B on an L4. With the mode on, a greedy prompt gave the same text alone and inside a batch of 32 requests. With the mode off, the two texts differed. One prompt on one small model proves little for yours, so run the test at the end of this page on your own model.
 
+## See what changed the output in our runs
+
+We sent ShareGPT questions after one shared system prompt of about 170 tokens, greedy, with 128 output tokens and thinking off. We compared each output with the output of a second run, token by token. This was on the second GPU of our L4 node on 2026-10-22 and 2026-10-23, with `Qwen/Qwen3-0.6B`. That GPU is shared with its owner and had no clock lock.
+
+A clock changes the speed of a run. It does not change the greedy tokens. Each count is still one session on one GPU.
+
+```listing
+title: outputs that differ at one user, out of 32
+source: capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt
+lang: text
+note: The table for concurrency 1. The number in brackets is the median position of the first token that differs. The SGLang column comes from the same probe on SGLang 0.5.22.
+---
+comparison                     SGLang 0.6B   vLLM 0.6B
+flushed repeat against fresh   0 of 32       0 of 32
+cache off against cache off    0 of 32       0 of 32
+fresh against warm cache       21 of 32 (45) 11 of 32 (57)
+cache on against cache off     25 of 32 (26) 21 of 32 (48)
+```
+
+- **One user, the same cache state.** A repeat after a cache reset, or a repeat with the cache off, gave the same text for all 32 prompts.
+- **One user, a warm cache.** The same prompts against a warm cache changed 11 of 32 outputs. The cache on against the cache off changed 21 of 32.
+- **Many users.** At 64 users sent at once, two runs with the cache off differed in 50 of 64 outputs. The batch alone changed most outputs, so the cache effect could not be separated at that load.
+- **The dtype.** We sent 64 questions at one user with the cache off. BF16 against FP16 changed 48 of 64 outputs for Qwen3-0.6B and 56 of 64 for Qwen3-1.7B. The first different token came at a median position of 51 and 56. A repeat in the same dtype changed none.
+
+So at one user, a cache reset is enough to repeat a greedy output exactly. Under load, only the batch-invariant mode can do that. Our counts come from small models and one GPU, so test your own model.
+
 ## Know what the batch-invariant mode does not cover
 
 At 0.31.0 the mode is in beta. Work by other teams shows three limits. We did not measure them ourselves:
@@ -57,6 +84,7 @@ Not measured on our hardware. We have not measured the speed cost of the batch-i
 - Offline, run the engine in one process with the same seed and order.
 - Online, the batch-invariant mode is the main fix, but it costs speed and misses some paths.
 - Reset the prefix cache between two runs that you compare.
+- Keep the dtype the same between two runs that you compare.
 ```
 
-Sources: vLLM documentation at v0.31.0 (docs/usage/reproducibility.md, docs/features/batch_invariance.md), the vLLM source at v0.31.0 (vllm/envs.py), Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), Defeating Nondeterminism in LLM Inference by Horace He and Thinking Machines Lab (2025-09-10), CoRun: Padding is Simple and Efficient for Deterministic LLM Inference (arXiv 2608.14376, 2026), Vosti: Specifying, Implementing, and Verifying Deterministic LLM Inference (arXiv 2609.38981, 2026), the release notes for v0.32.0 (attention backend check for the batch-invariant mode), vLLM pull request 61118 (inductor batch-invariant mode, merged on 2026-10-17 and not in v0.32.0), capture/gpu/out-l4/livecheck-2026-10-22.txt.
+Sources: vLLM documentation at v0.31.0 (docs/usage/reproducibility.md, docs/features/batch_invariance.md), the vLLM source at v0.31.0 (vllm/envs.py), Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), Defeating Nondeterminism in LLM Inference by Horace He and Thinking Machines Lab (2025-09-10), CoRun: Padding is Simple and Efficient for Deterministic LLM Inference (arXiv 2608.14376, 2026), Vosti: Specifying, Implementing, and Verifying Deterministic LLM Inference (arXiv 2609.38981, 2026), the release notes for v0.32.0 (attention backend check for the batch-invariant mode), vLLM pull request 61118 (inductor batch-invariant mode, merged on 2026-10-17 and not in v0.32.0), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt.

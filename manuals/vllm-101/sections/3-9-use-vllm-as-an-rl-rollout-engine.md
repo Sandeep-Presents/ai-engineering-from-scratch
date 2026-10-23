@@ -59,13 +59,37 @@ So after each level 2 wake, reload the weights, reset the prefix cache, and read
 
 The trainer often compares the logprobs that vLLM returned with the logprobs it computes itself. The two never match exactly, because the kernels differ. A small, steady gap is normal. A gap that grows means the weights did not reach the generator. Track the gap every step. [The reproducibility page](#s-get-reproducible-outputs) explains why the same weights still give different numbers.
 
-Not measured on our hardware. We ran only that one level 1 check with a small model. We have not timed a level 2 sleep or a weight update. Our Miles 101 manual measures the same loop with SGLang as the generator.
+Before you read the gap, check which logprob vLLM returns. With top-p or top-k, the two values differ for most tokens.
+
+**Logprobs mode:** the server option `--logprobs-mode`, which picks the value that vLLM returns for each token. The default is `raw_logprobs`, the logprob over the full vocabulary. `processed_logprobs` gives the logprob after the sampling settings change the distribution. Two more modes, `raw_logits` and `processed_logits`, return logits.
+
+We checked both logprob modes on the second GPU of our L4 node on 2026-10-23. We used `Qwen/Qwen3-0.6B` in BF16, 16 prompts of 48 tokens, temperature 1, and top-p 0.9. A float32 Transformers pass over the same tokens gave the reference. That GPU is shared and has no clock lock, but the clock does not change these values.
+
+```listing
+title: returned logprob minus the full-vocabulary reference
+source: capture/gpu/out-l4/logprobs-top-p.txt
+lang: text
+note: The two vLLM rows. The SGLang rows are cut.
+---
+engine and mode                                  returned minus reference, median   median absolute
+vLLM --logprobs-mode raw_logprobs                0.0000                             0.005
+vLLM --logprobs-mode processed_logprobs          +0.0527
+```
+
+- `raw_logprobs` matched the full-vocabulary logprob, with a median absolute gap of 0.005 from the kernels.
+- `processed_logprobs` was higher by minus the log of the probability mass that top-p kept. The residual against that formula had a median of 8e-9.
+- At top-p 0.9, the kept mass was below 0.99 for most sampled tokens, and the median shift was about 0.053.
+
+So compare `raw_logprobs` with a trainer that scores over the full vocabulary. Compare `processed_logprobs` only with a trainer that scores over the same kept set.
+
+Not measured on our hardware. We ran only that one level 1 check and the logprob check, both with small models. We have not timed a level 2 sleep or a weight update. Our Miles 101 manual measures the same loop with SGLang as the generator.
 
 ```takeaways
 - Sleep frees GPU memory for training, and wake takes it back.
 - A weight update is a transfer that the trainer starts and finishes through the server routes.
 - Track the gap between the generator and the trainer logprobs on every step.
+- Match --logprobs-mode to the way your trainer scores tokens.
 - At 0.31.0, read the draft acceptance after a level 2 wake, and wake before a weight update.
 ```
 
-Sources: the vLLM source at v0.31.0 (vllm/config/model.py, vllm/config/parallel.py, vllm/entrypoints/serve/dev/sleep/api_router.py, vllm/entrypoints/serve/dev/rlhf/api_router.py, vllm/entrypoints/serve/dev/rpc/api_router.py, vllm/distributed/weight_transfer/base.py, vllm/distributed/weight_transfer/factory.py, vllm/distributed/weight_transfer/nccl_engine.py, vllm/distributed/weight_transfer/ipc_engine.py), vLLM documentation at v0.31.0 (docs/training/rlhf.md, docs/training/async_rl.md, docs/features/sleep_mode.md, docs/training/weight_transfer/), the release notes for v0.31.0 and v0.32.0, vLLM issues 52479 and 57853, the release notes for v0.32.0 (level 2 sleep and calibrated KV scales), capture/gpu/out-l4/livecheck-2026-10-22.txt.
+Sources: the vLLM source at v0.31.0 (vllm/config/model.py, vllm/config/parallel.py, vllm/entrypoints/serve/dev/sleep/api_router.py, vllm/entrypoints/serve/dev/rlhf/api_router.py, vllm/entrypoints/serve/dev/rpc/api_router.py, vllm/distributed/weight_transfer/base.py, vllm/distributed/weight_transfer/factory.py, vllm/distributed/weight_transfer/nccl_engine.py, vllm/distributed/weight_transfer/ipc_engine.py), vLLM documentation at v0.31.0 (docs/training/rlhf.md, docs/training/async_rl.md, docs/features/sleep_mode.md, docs/training/weight_transfer/), the release notes for v0.31.0 and v0.32.0, vLLM issues 52479 and 57853, the release notes for v0.32.0 (level 2 sleep and calibrated KV scales), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/logprobs-top-p.txt.

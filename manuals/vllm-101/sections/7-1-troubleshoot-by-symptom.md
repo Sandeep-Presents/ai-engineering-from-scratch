@@ -156,7 +156,7 @@ caption: Each row is one entry below, in the same order. Read the symptom, the f
 
 ### The output changes from run to run
 
-- **Cause:** vLLM does not promise the same output by default. The batch that a request joins changes the order of the sums. A prefix-cache hit can also change a greedy output.
+- **Cause:** vLLM does not promise the same output by default. The batch that a request joins changes the order of the sums. A prefix-cache hit can also change a greedy output. In our runs with Qwen3-0.6B at one user, a warm cache changed 11 of 32 greedy outputs. That GPU was a shared L4 with no clock lock. A change of dtype, such as BF16 to FP16, also changes most outputs.
 - **Check:** send the same request alone twice. If the answers match, the batch causes the change. If they differ, the second request can hit the prefix cache. Repeat the test with `--no-enable-prefix-caching`. If the answers now match, the cache causes the change.
 - **Fix:** offline, set `VLLM_ENABLE_V1_MULTIPROCESSING=0`. Online, the batch-invariant mode helps, but at 0.31.0 it does not cover every path. Reset the prefix cache between runs that you compare. [The reproducibility page](#s-get-reproducible-outputs) covers it.
 
@@ -164,7 +164,7 @@ caption: Each row is one entry below, in the same order. Read the symptom, the f
 
 ### The second benchmark run is faster than the first
 
-- **Cause:** with a fixed seed, the random dataset sends the same prompts again, and the prefix cache serves them.
+- **Cause:** with a fixed seed, the random dataset sends the same prompts again, and the prefix cache serves them. In our test with Qwen3-0.6B at 16 users, a repeat with no reset read a median TTFT about 6 times lower. That GPU was a shared L4 with no clock lock.
 - **Check:** `vllm:prefix_cache_hits_total` rises during the second run.
 - **Fix:** reset the prefix cache before each run, use a new seed, and record the cached tokens. [The benchmark page](#s-benchmark-your-server-in-15-minutes) gives the protocol. The `POST /reset_prefix_cache` route exists only with `VLLM_SERVER_DEV_MODE=1`, so use it only on a server that is not exposed.
 
@@ -174,4 +174,4 @@ caption: Each row is one entry below, in the same order. Read the symptom, the f
 - Test one change at a time, with the same benchmark and clock.
 ```
 
-Sources: vLLM issues 44740, 46307, 58726, 59770, 60174, 60262, and 60830; the release notes for v0.30.0, v0.31.0, and v0.32.0; vLLM documentation at v0.31.0 (docs/usage/troubleshooting.md, docs/design/torch_compile.md, docs/configuration/optimization.md, docs/usage/reproducibility.md, docs/benchmarking/cli.md, docs/features/reasoning_outputs.md); the vLLM source at v0.31.0 (vllm/config/vllm.py, vllm/config/model.py, vllm/renderers/params.py, vllm/v1/engine/exceptions.py, vllm/envs.py); capture/gpu/out-gb10/server-load-vllm.log; Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), capture/gpu/out-l4/livecheck-2026-10-22.txt.
+Sources: vLLM issues 44740, 46307, 58726, 59770, 60174, 60262, and 60830; the release notes for v0.30.0, v0.31.0, and v0.32.0; vLLM documentation at v0.31.0 (docs/usage/troubleshooting.md, docs/design/torch_compile.md, docs/configuration/optimization.md, docs/usage/reproducibility.md, docs/benchmarking/cli.md, docs/features/reasoning_outputs.md); the vLLM source at v0.31.0 (vllm/config/vllm.py, vllm/config/model.py, vllm/renderers/params.py, vllm/v1/engine/exceptions.py, vllm/envs.py); capture/gpu/out-gb10/server-load-vllm.log; Same Request, Different Answer: Quantization Amplifies Cache-Induced Divergence in LLM Serving (arXiv 2609.04748, 2026), capture/gpu/out-l4/livecheck-2026-10-22.txt, capture/gpu/out-l4/prefix-cache-flush.txt, capture/gpu/out-l4/greedy-output-cache-batch-dtype.txt.

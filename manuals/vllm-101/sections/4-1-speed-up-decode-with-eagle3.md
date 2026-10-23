@@ -62,9 +62,31 @@ The median TPOT fell, but the gaps between the token groups grew. At 32 users, t
 Our gain holds for random prompts and outputs of 128 tokens. Other teams found that real traffic can give less. We did not measure these effects ourselves:
 
 - The 2026 paper "SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding", by NVIDIA researchers, found that synthetic prompts overstate the speculative throughput of real prompts. It also found that the best draft depth changes with the batch size.
-- The 2026 paper "Test-Time Speculation" studied EAGLE-3 and other drafts. The acceptance length fell as the answer grew, and within a few thousand output tokens it came close to 1, which means no gain.
+- The 2026 paper "Test-Time Speculation" studied EAGLE-3 and other drafts on MATH answers that ran toward 20,000 tokens. The acceptance length fell from about 3.7 to about 1.5 over those answers.
 
 So a gain on short random answers does not predict a gain on long chat answers or on reasoning traces.
+
+## Read the acceptance over a long answer
+
+We measured the acceptance length against the position in the answer on 2026-10-23. We used `Qwen/Qwen3-8B-FP8` with an EAGLE3 draft and 3 speculative tokens, on the second GPU of our L4 node. Each of 8 prompts ran with thinking on, greedy, at one user, up to 4,096 tokens.
+
+```listing
+title: mean acceptance length by position in the answer
+source: capture/gpu/out-l4/eagle3-acceptance-by-position.txt
+lang: text
+note: The range across prompts, with the number of prompts that reached each segment in brackets. The SGLang column comes from the same prompts on SGLang 0.5.22.
+---
+segment of the output   SGLang                 vLLM
+0 to 256                2.05 to 2.64 (8)       2.14 to 2.51 (8)
+256 to 512              1.95 to 2.64 (8)       2.09 to 2.55 (8)
+512 to 1,024            2.11 to 2.77 (8)       2.12 to 2.79 (8)
+1,024 to 2,048          2.09 to 2.47 (5)       1.72 to 2.66 (5)
+2,048 to 4,096          2.33 and 2.48 (2)      2.35 and 2.60 (2)
+```
+
+Up to 4,096 tokens, the acceptance length did not fall steadily. It stayed at about 2.1 to 2.8 tokens for each step on both engines. Only 2 of the 8 prompts ran past 2,048 tokens, so the last segment rests on two answers. The GPU was shared and had no clock lock, which changes the speed but not the acceptance. Our limit of 4,096 tokens came from the memory we could use on that GPU. So we did not reach the range of the paper.
+
+Read the acceptance on your own long answers before you trust a gain. The metrics at the end of this page give it.
 
 ## Lock the clock before you compare
 
@@ -108,4 +130,4 @@ Divide the accepted tokens by the draft tokens. vLLM also writes a `SpecDecoding
 - Lock or record the GPU clock before you compare speculative decoding.
 ```
 
-Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-eagle3-k1, load.vllm-lock-eagle3-k3, load.vllm-lock-eagle3-k5, and the unlocked load.vllm-eagle3 and load.vllm-eagle3-k5), the vLLM source at v0.31.0 (vllm/config/speculative.py, vllm/v1/spec_decode/metrics.py), vLLM documentation at v0.31.0 (docs/features/speculative_decoding/eagle.md, docs/features/speculative_decoding/dynamic_speculative_decoding.md), SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding (arXiv 2604.09557, 2026), Test-Time Speculation (arXiv 2605.09329, 2026).
+Sources: capture/gpu/summary/l4.json (load.vllm-lock-b, load.vllm-lock-eagle3-k1, load.vllm-lock-eagle3-k3, load.vllm-lock-eagle3-k5, and the unlocked load.vllm-eagle3 and load.vllm-eagle3-k5), the vLLM source at v0.31.0 (vllm/config/speculative.py, vllm/v1/spec_decode/metrics.py), vLLM documentation at v0.31.0 (docs/features/speculative_decoding/eagle.md, docs/features/speculative_decoding/dynamic_speculative_decoding.md), SPEED-Bench: A Unified and Diverse Benchmark for Speculative Decoding (arXiv 2604.09557, 2026), Test-Time Speculation (arXiv 2605.09329, 2026), capture/gpu/out-l4/eagle3-acceptance-by-position.txt.
