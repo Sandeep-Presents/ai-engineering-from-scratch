@@ -72,7 +72,7 @@ test('lessons completed on the lesson page show as done in the catalog', () => {
   api.recordVisit(other);
   const fromState = catalog.completedPaths(JSON.parse(storage.get('aifs:progress:v2')));
   assert.deepEqual(Object.keys(fromState), [LESSON_PATH]);
-  const fromApi = catalog.readCompletedPaths(api, [LESSON_PATH, other, '']);
+  const fromApi = catalog.readCompletedPaths(api);
   assert.deepEqual(Object.keys(fromApi), [LESSON_PATH]);
   assert.deepEqual(Object.keys(catalog.completedPaths(null)), []);
 });
@@ -81,7 +81,8 @@ test('legacy v1 completions appear as done in the catalog', () => {
   const { api } = loadProgress({
     'aifs:progress:v1': JSON.stringify({ lessons: { [LESSON_PATH]: { completedAt: 1700000000000 } } }),
   });
-  assert.deepEqual(Object.keys(catalog.readCompletedPaths(api, [LESSON_PATH])), [LESSON_PATH]);
+  assert.deepEqual(Object.keys(catalog.readCompletedPaths(api)), [LESSON_PATH]);
+  assert.deepEqual(Object.keys(catalog.readCompletedPaths(null)), []);
 });
 
 test('catalog page loads the shared progress runtime before the catalog helpers', () => {

@@ -36,12 +36,10 @@
     return done;
   }
 
-  function readCompletedPaths(progress, paths) {
+  function readCompletedPaths(progress) {
     var done = Object.create(null);
-    if (!progress) return done;
-    for (var i = 0; i < paths.length; i++) {
-      if (paths[i] && progress.isLessonComplete(paths[i])) done[paths[i]] = true;
-    }
+    var paths = progress ? progress.completedLessonPaths() : [];
+    for (var i = 0; i < paths.length; i++) done[paths[i]] = true;
     return done;
   }
 

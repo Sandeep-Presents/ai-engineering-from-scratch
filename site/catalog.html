@@ -1184,7 +1184,7 @@
         });
 
         if (progress) {
-          donePaths = catalog.readCompletedPaths(progress, allRows.map(function (row) { return row.path; }));
+          donePaths = catalog.readCompletedPaths(progress);
         } else {
           progressSelect.hidden = true;
         }
@@ -1389,7 +1389,7 @@
         function refreshProgress(state) {
           var active = document.activeElement;
           var focusedPath = active && active.hasAttribute && active.hasAttribute('data-lesson-done') ? active.getAttribute('data-lesson-done') : '';
-          donePaths = state ? catalog.completedPaths(state) : catalog.readCompletedPaths(progress, allRows.map(function (row) { return row.path; }));
+          donePaths = state ? catalog.completedPaths(state) : catalog.readCompletedPaths(progress);
           render();
           if (!focusedPath) return;
           var next = Array.prototype.find.call(bodyEl.querySelectorAll('input[data-lesson-done]'), function (input) {
