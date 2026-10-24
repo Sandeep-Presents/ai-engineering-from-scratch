@@ -270,3 +270,10 @@ test('English fallback strings in live.js match the canonical build-time strings
   assert.ok(liveSrc.includes('Inside an LLM Serving GPU - AI Engineering from Scratch'));
   assert.ok(liveSrc.includes('LLM serving GPU'));
 });
+
+test('run-finished announcement and picker label updates are localized', () => {
+  const liveSrc = fs.readFileSync(path.join(dir, 'live.js'), 'utf8');
+  assert.ok(liveSrc.includes('function updateLanguagePickerLabel()'));
+  assert.ok(liveSrc.includes('updateLanguagePickerLabel();'));
+  assert.ok(liveSrc.includes('运行结束：${statusZh}。${localizeOutcome(state.sim)}'));
+});

@@ -307,7 +307,8 @@ function advance(dt) {
     state.pose.hot = [];
     render(state.sim.events.length - 1);
     const o = state.sim.outcome;
-    $("[data-gm-live]").textContent = `Run finished: ${o.status}. ${o.text}`;
+    const statusZh = { served: "正常服务", queued: "排队等待", recomputed: "重算前缀", throttled: "过热降频" }[o.status] || o.status;
+    $("[data-gm-live]").textContent = currentLang === "zh" ? `运行结束：${statusZh}。${localizeOutcome(state.sim)}` : `Run finished: ${o.status}. ${o.text}`;
     syncButtons();
     if (mode === "auto" && !renderMode) setTimeout(() => mode === "auto" && state.done && play(), 1600);
   }
@@ -1240,6 +1241,20 @@ function renderSpecs() {
   `;
 }
 
+function updateLanguagePickerLabel() {
+  const btn = document.querySelector("#langPicker .lang-picker-btn");
+  if (!btn) return;
+  const label = currentLang === "zh" ? "简体中文" : "English";
+  const curLabel = btn.querySelector(".lang-current");
+  if (curLabel) curLabel.textContent = label;
+  btn.setAttribute(
+    "aria-label",
+    currentLang === "zh"
+      ? "选择语言。当前语言：" + label
+      : "Choose language. Current language: " + label
+  );
+}
+
 function applyLanguage() {
   document.documentElement.lang = currentLang;
   if (typeof window.AIFS_applyLangDir === "function") {
@@ -1247,6 +1262,7 @@ function applyLanguage() {
   } else {
     document.documentElement.dir = "ltr";
   }
+  updateLanguagePickerLabel();
 
   const isZh = currentLang === "zh";
 
@@ -1441,16 +1457,14 @@ function setLanguage(lang) {
   currentLang = norm;
   applyLanguage();
   writeUrl();
-  const curLabel = document.querySelector("#langPicker .lang-current");
-  if (curLabel) curLabel.textContent = currentLang === "zh" ? "简体中文" : "English";
-  const btn = document.querySelector("#langPicker .lang-picker-btn");
-  if (btn) {
-    const label = currentLang === "zh" ? "简体中文" : "English";
-    btn.setAttribute("aria-label", "Choose language. Current language: " + label);
-  }
 }
 window.AIFS_onLangChange = setLanguage;
 document.addEventListener("aifs:lang", (e) => setLanguage(e.detail && e.detail.lang));
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", updateLanguagePickerLabel, { once: true });
+} else {
+  updateLanguagePickerLabel();
+}
 
 window.__machine = {
   state,
