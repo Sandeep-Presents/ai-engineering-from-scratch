@@ -252,6 +252,14 @@
         continue;
       }
 
+      var h4 = line.match(/^#### (.+)/);
+      if (h4) {
+        out += flushList();
+        var slug4 = slugify(h4[1]);
+        out += '<h4 id="' + slug4 + '">' + inlineFormat(h4[1]) + '</h4>';
+        continue;
+      }
+
       if (line.match(/^---+$/)) {
         out += flushList();
         out += '<hr>';
