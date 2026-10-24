@@ -349,7 +349,12 @@ const html = `<!DOCTYPE html>
     })();
   </script>
   <script src="langs.js?v=20260802a"></script>
-  <script src="lang-picker.js?v=20261010a" defer></script>
+  <script>
+    if (Array.isArray(window.AIFS_LANGS)) {
+      window.AIFS_LANGS = window.AIFS_LANGS.filter(function (l) { return l.code === 'en' || l.code === 'zh'; });
+    }
+  </script>
+  <script src="lang-picker.js?v=20261010a"></script>
   <script src="header.js?v=20261021a" defer></script>
   <script>${wrapped.replace(/<\/(script)/gi, "<\\/$1")}</script>
 </body>

@@ -35,16 +35,53 @@ Ink.pillSvg = function ([ax, ay], dx, dy, text, on, size = 10.5) {
   return `<g class="pill${on ? " on" : ""}"><path class="lead" d="M${r(ax)} ${r(ay)}L${r(cx)} ${r(cy + h / 2)}"/><circle class="lead-dot" cx="${r(ax)}" cy="${r(ay)}" r="1.6"/><rect x="${r(cx - w / 2)}" y="${r(cy - h / 2)}" width="${r(w)}" height="${r(h)}" rx="${r(h / 2)}"/><text x="${r(cx)}" y="${r(cy + size * 0.36)}" font-size="${size}" text-anchor="middle">${text}</text></g>`;
 };
 
+const EN_TEXT = {
+  titleCorner: document.querySelector('[data-corner="title"]')?.textContent || "LLM serving GPU",
+  hintCorner: document.querySelector('[data-corner="hint"]')?.textContent || "Click a part · Space runs · → steps",
+  eyebrow: $("[data-gm-eyebrow]")?.textContent || "FIG_GPU · An interactive simulation",
+  title: $("[data-gm-title]")?.textContent || "Inside an LLM Serving GPU",
+  docTitle: document.title || "Inside an LLM Serving GPU - AI Engineering from Scratch",
+  hookHtml: $("[data-gm-hook]")?.innerHTML || "Decode reads every weight for every token. Watch the bytes leave the memory chips, and see why memory bandwidth sets the speed. <span class=\"gm-sub\" data-gm-sub>L4 or GB10. BF16 or FP8. Fill the pool. Break the cooling.</span>",
+  honest: $("[data-gm-honest]")?.textContent || "This is a simulation. The page does not run a model in your browser. The pool sizes, weight sizes, chunk sizes, step times, first-token times and throughputs are medians of three seeds from the SGLang 101 runs on one NVIDIA L4 and one NVIDIA GB10. The admission count and the weight-read share are arithmetic on those numbers and the published bandwidth. Where a setting was not measured, the page says so. The motion is paced for reading, not to scale.",
+  sourceLine: "Hardware sources: the NVIDIA L4 product page and product brief, the NVIDIA Ada GPU architecture whitepaper, the NVIDIA DGX Spark product page and user guide, and the NVIDIA GB10 talk at Hot Chips 2025.",
+  traceIntro: $('[data-gm-trace-intro]')?.textContent || "One line for each step of the request.",
+  whyTitle: $('[data-why="title"]')?.textContent || "What the machine shows",
+  whyP1: $('[data-why="p1"]')?.innerHTML || "<strong>Decode is a memory read.</strong> On the L4, one decode step of Qwen3-8B in BF16 reads 16.41 GB of weights. At the peak 300 GB/s that takes 54.7 ms, and the measured step at one user took 60.16 ms. The SMs wait for the bytes.",
+  whyP2: $('[data-why="p2"]')?.innerHTML || "<strong>Fewer bytes, faster steps.</strong> FP8 weights are 8.81 GB on the L4. The step at one user fell to 39.66 ms, and the freed memory grew the KV pool from 24,094 to 142,369 tokens. At 64 users the output went from 250.85 to 735.91 tok/s.",
+  whyP3: $('[data-why="p3"]')?.innerHTML || "<strong>The pool decides who runs.</strong> The scheduler admits a request only when the pool has room. At 64 users the BF16 pool holds 37 requests and the rest wait. At a memory fraction of 0.74, four 2,048-token prefixes no longer fit, and the median first token took 12.6 s, against 0.47 s at 1,024 shared tokens.",
+  whyP4: $('[data-why="p4"]')?.innerHTML || "<strong>Launch gaps are small.</strong> Without CUDA graphs, each kernel launch crosses from the host. On the L4 that added 0.47 ms to a 60 ms step at one user. Next to the weight read, the launch path barely matters.",
+  whyCtaP: $('[data-why="cta-p"]')?.textContent || "Measure it on your own GPU.",
+  whyCtaManual: $('[data-why="cta-manual"]')?.textContent || "Read the SGLang 101 manual",
+  whyCtaQuant: $('[data-why="cta-quant"]')?.textContent || "Production quantization",
+};
+
 let currentLang = "en";
 function getInitialLang() {
+  let lang = "en";
+  if (typeof window.AIFS_currentLang === "function") {
+    lang = window.AIFS_currentLang() === "zh" ? "zh" : "en";
+  } else {
+    try {
+      const q = new URLSearchParams(location.search).get("lang");
+      if (q && q.toLowerCase().startsWith("zh")) lang = "zh";
+      else {
+        const saved = localStorage.getItem("lang");
+        if (saved && saved.toLowerCase().startsWith("zh")) lang = "zh";
+        else if (!saved && navigator.language && navigator.language.toLowerCase().startsWith("zh")) lang = "zh";
+      }
+    } catch (_) {}
+  }
   try {
-    const q = new URLSearchParams(location.search).get("lang");
-    if (q && q.toLowerCase().startsWith("zh")) return "zh";
-    const saved = localStorage.getItem("lang");
-    if (saved && saved.toLowerCase().startsWith("zh")) return "zh";
-    if (!saved && navigator.language && navigator.language.toLowerCase().startsWith("zh")) return "zh";
+    const params = new URLSearchParams(location.search);
+    const q = params.get("lang");
+    if (q && ((lang === "en" && !q.toLowerCase().startsWith("zh")) || (lang === "zh" && !q.toLowerCase().startsWith("zh")))) {
+      params.delete("lang");
+      const query = params.toString();
+      const keep = /[?&]still\b/.test(location.search) ? (query ? "&still" : "still") : "";
+      history.replaceState(null, "", location.pathname + (query || keep ? "?" + query + keep : "") + location.hash);
+    }
   } catch (_) {}
-  return "en";
+  return lang;
 }
 currentLang = getInitialLang();
 
@@ -903,7 +940,7 @@ function localizeTrace(item) {
       return `${n(adm.matched)} 个前缀 Token 已存在于显存池中：SM 张量核心无需重复计算`;
     case "prefill":
       return item.chunks && item.chunks > 1
-        ? `Prefill 预填充分块 ${item.index} / ${item.chunks}：${n(item.size)} 个 Token 流经张量核心；其 Key 和 Value 写入缓存池`
+        ? `Prefill 预填充分块 ${item.chunk} / ${item.chunks}：${n(item.size)} 个 Token 流经张量核心；其 Key 和 Value 写入缓存池`
         : `Prefill 预填充：${n(item.size)} 个 Token 流经张量核心；其 Key 和 Value 写入缓存池`;
     case "first":
       return point
@@ -973,8 +1010,9 @@ function render(index) {
   const list = $("[data-gm-trace]");
   list.innerHTML = sim.events.slice(0, index + 1).map((item) => {
     const traceText = currentLang === "zh" ? localizeTrace(item) : item.trace;
+    const typeText = currentLang === "zh" ? localizeEventType(item.type) : item.type;
     const atText = currentLang === "zh" ? "耗时" : "at";
-    return `<li data-type="${item.type}"><span class="gm-n">${String(item.index + 1).padStart(2, "0")}</span><span class="gm-t">${item.type}</span><span class="gm-d">${escapeHtml(traceText)}${item.clock !== null && item.clock !== undefined ? ` <em>${atText} ${n(item.clock)} ms</em>` : ""}</span></li>`;
+    return `<li data-type="${item.type}"><span class="gm-n">${String(item.index + 1).padStart(2, "0")}</span><span class="gm-t">${escapeHtml(typeText)}</span><span class="gm-d">${escapeHtml(traceText)}${item.clock !== null && item.clock !== undefined ? ` <em>${atText} ${n(item.clock)} ms</em>` : ""}</span></li>`;
   }).join("");
   list.scrollTop = list.scrollHeight;
   syncSteps();
@@ -1189,7 +1227,7 @@ function renderSpecs() {
 
   const sourceLine = currentLang === "zh"
     ? I18n.ZH_UI.sourceLine
-    : "Hardware sources: the NVIDIA L4 product page and product brief, the NVIDIA Ada GPU architecture whitepaper, the NVIDIA DGX Spark product page and user guide, and the NVIDIA GB10 talk at Hot Chips 2025.";
+    : EN_TEXT.sourceLine;
 
   panel.innerHTML = `
     <p class="gm-label">NVIDIA L4</p>
@@ -1204,25 +1242,29 @@ function renderSpecs() {
 
 function applyLanguage() {
   document.documentElement.lang = currentLang;
-  document.documentElement.dir = "ltr";
+  if (typeof window.AIFS_applyLangDir === "function") {
+    window.AIFS_applyLangDir(currentLang);
+  } else {
+    document.documentElement.dir = "ltr";
+  }
 
   const isZh = currentLang === "zh";
 
   const titleCorner = document.querySelector('[data-corner="title"]');
-  if (titleCorner) titleCorner.textContent = isZh ? I18n.ZH_UI.plateTitle : "Inside an LLM serving GPU";
+  if (titleCorner) titleCorner.textContent = isZh ? I18n.ZH_UI.plateTitle : EN_TEXT.titleCorner;
   const hintCorner = document.querySelector('[data-corner="hint"]');
-  if (hintCorner) hintCorner.textContent = isZh ? I18n.ZH_UI.hint : "click a part · space runs · → steps";
+  if (hintCorner) hintCorner.textContent = isZh ? I18n.ZH_UI.hint : EN_TEXT.hintCorner;
 
   const eyebrow = $("[data-gm-eyebrow]");
-  if (eyebrow) eyebrow.textContent = isZh ? I18n.ZH_UI.eyebrow : "FIG_GPU · An interactive simulation";
+  if (eyebrow) eyebrow.textContent = isZh ? I18n.ZH_UI.eyebrow : EN_TEXT.eyebrow;
   const title = $("[data-gm-title]");
-  if (title) title.textContent = isZh ? I18n.ZH_UI.title : "Inside an LLM serving GPU";
-  document.title = isZh ? "Inside an LLM Serving GPU · 大模型推理 GPU 深度解析" : "Inside an LLM serving GPU";
+  if (title) title.textContent = isZh ? I18n.ZH_UI.title : EN_TEXT.title;
+  document.title = isZh ? "Inside an LLM Serving GPU · 大模型推理 GPU 深度解析" : EN_TEXT.docTitle;
   const hook = $("[data-gm-hook]");
   if (hook) {
     hook.innerHTML = isZh
       ? `${escapeHtml(I18n.ZH_UI.hook)} <span class="gm-sub" data-gm-sub>${escapeHtml(I18n.ZH_UI.sub)}</span>`
-      : "Decode reads every weight for every token. Watch the bytes leave the memory chips, and see why memory bandwidth sets the pace. <span class=\"gm-sub\" data-gm-sub>L4 or GB10. BF16 or FP8. Fill the pool. Break the cooling.</span>";
+      : EN_TEXT.hookHtml;
   }
 
   const stepBtn = $("[data-gm-step]");
@@ -1331,7 +1373,7 @@ function applyLanguage() {
   const oTitle = $('[data-run-outcome-title]');
   if (oTitle) oTitle.textContent = isZh ? "执行结果" : "Outcome";
   const honest = $('[data-gm-honest]');
-  if (honest) honest.textContent = isZh ? I18n.ZH_UI.simNote : "This is a simulation. The page does not run a model in your browser. The pool sizes, weight sizes, chunk sizes, step times, first-token times and throughputs are medians of three seeds from the SGLang 101 runs on one NVIDIA L4 and one NVIDIA GB10. The admission count and the weight-read share are arithmetic on those numbers and the published bandwidth. Where a setting was not measured, the page says so. The motion is paced for reading, not to scale.";
+  if (honest) honest.textContent = isZh ? I18n.ZH_UI.simNote : EN_TEXT.honest;
 
   for (const [key, text] of Object.entries(isZh ? I18n.ZH_UI.memoryLegend : { w: "weights", r: "read this step", kv: "pool: other requests", me: "pool: this request", pre: "pool: reused prefix", free: "pool: free" })) {
     const el = $(`[data-legend-key="${key}"]`);
@@ -1341,29 +1383,32 @@ function applyLanguage() {
   for (const part of C.PART_ORDER) {
     const lbl = document.querySelector(`[data-part-label="${part}"]`);
     if (lbl) {
-      lbl.textContent = isZh ? I18n.ZH_NAMES[part] : (typeof C.NAMES[part] === "string" ? C.NAMES[part] : C.NAMES[part].l4.replace("PCIE GEN4 X16", "LINK"));
+      const zhName = I18n.ZH_NAMES[part];
+      lbl.textContent = isZh
+        ? (typeof zhName === "string" ? zhName : zhName.l4.replace("PCIE GEN4 X16", "链路"))
+        : (typeof C.NAMES[part] === "string" ? C.NAMES[part] : C.NAMES[part].l4.replace("PCIE GEN4 X16", "LINK"));
     }
   }
 
   const traceIntro = $('[data-gm-trace-intro]');
-  if (traceIntro) traceIntro.textContent = isZh ? I18n.ZH_UI.traceIntro : "One line for each step of the request.";
+  if (traceIntro) traceIntro.textContent = isZh ? I18n.ZH_UI.traceIntro : EN_TEXT.traceIntro;
 
   const whyTitle = $('[data-why="title"]');
-  if (whyTitle) whyTitle.textContent = isZh ? I18n.ZH_UI.whatShowsTitle : "What the machine shows";
+  if (whyTitle) whyTitle.textContent = isZh ? I18n.ZH_UI.whatShowsTitle : EN_TEXT.whyTitle;
   const whyP1 = $('[data-why="p1"]');
-  if (whyP1) whyP1.innerHTML = isZh ? I18n.ZH_UI.p1 : "<strong>Decode is a memory read.</strong> On the L4, one decode step of Qwen3-8B in BF16 reads 16.41 GB of weights. At the peak 300 GB/s that takes 54.7 ms, and the measured step at one user took 60.16 ms. The SMs wait for the bytes.";
+  if (whyP1) whyP1.innerHTML = isZh ? I18n.ZH_UI.p1 : EN_TEXT.whyP1;
   const whyP2 = $('[data-why="p2"]');
-  if (whyP2) whyP2.innerHTML = isZh ? I18n.ZH_UI.p2 : "<strong>Fewer bytes, faster steps.</strong> FP8 weights are 8.81 GB on the L4. The step at one user fell to 39.66 ms, and the freed memory grew the KV pool from 24,094 to 142,369 tokens. At 64 users the output went from 250.85 to 735.91 tok/s.";
+  if (whyP2) whyP2.innerHTML = isZh ? I18n.ZH_UI.p2 : EN_TEXT.whyP2;
   const whyP3 = $('[data-why="p3"]');
-  if (whyP3) whyP3.innerHTML = isZh ? I18n.ZH_UI.p3 : "<strong>The pool decides who runs.</strong> The scheduler admits a request only when the pool has room. At 64 users the BF16 pool holds 37 requests and the rest wait. At a memory fraction of 0.74, four 2,048-token prefixes no longer fit, and the median first token took 12.6 s, against 0.47 s at 1,024 shared tokens.";
+  if (whyP3) whyP3.innerHTML = isZh ? I18n.ZH_UI.p3 : EN_TEXT.whyP3;
   const whyP4 = $('[data-why="p4"]');
-  if (whyP4) whyP4.innerHTML = isZh ? I18n.ZH_UI.p4 : "<strong>Launch gaps are small.</strong> Without CUDA graphs, each kernel launch crosses from the host. On the L4 that added 0.47 ms to a 60 ms step at one user. Next to the weight read, the launch path barely matters.";
+  if (whyP4) whyP4.innerHTML = isZh ? I18n.ZH_UI.p4 : EN_TEXT.whyP4;
   const whyCtaP = $('[data-why="cta-p"]');
-  if (whyCtaP) whyCtaP.textContent = isZh ? I18n.ZH_UI.ctaMeasure : "Measure it on your own GPU.";
+  if (whyCtaP) whyCtaP.textContent = isZh ? I18n.ZH_UI.ctaMeasure : EN_TEXT.whyCtaP;
   const whyCtaManual = $('[data-why="cta-manual"]');
-  if (whyCtaManual) whyCtaManual.textContent = isZh ? I18n.ZH_UI.ctaManual : "Read the SGLang 101 manual";
+  if (whyCtaManual) whyCtaManual.textContent = isZh ? I18n.ZH_UI.ctaManual : EN_TEXT.whyCtaManual;
   const whyCtaQuant = $('[data-why="cta-quant"]');
-  if (whyCtaQuant) whyCtaQuant.textContent = isZh ? I18n.ZH_UI.ctaQuant : "Production quantization";
+  if (whyCtaQuant) whyCtaQuant.textContent = isZh ? I18n.ZH_UI.ctaQuant : EN_TEXT.whyCtaQuant;
 
   const gTitle = document.querySelector("[data-gauge] .gauge-title");
   if (gTitle) gTitle.textContent = isZh ? I18n.ZH_UI.gauge.title : "MEMORY READ";
@@ -1396,6 +1441,13 @@ function setLanguage(lang) {
   currentLang = norm;
   applyLanguage();
   writeUrl();
+  const curLabel = document.querySelector("#langPicker .lang-current");
+  if (curLabel) curLabel.textContent = currentLang === "zh" ? "简体中文" : "English";
+  const btn = document.querySelector("#langPicker .lang-picker-btn");
+  if (btn) {
+    const label = currentLang === "zh" ? "简体中文" : "English";
+    btn.setAttribute("aria-label", "Choose language. Current language: " + label);
+  }
 }
 window.AIFS_onLangChange = setLanguage;
 document.addEventListener("aifs:lang", (e) => setLanguage(e.detail && e.detail.lang));

@@ -216,3 +216,57 @@ test('Chinese bilingual support covers every part, step, scenario and spec', asy
   assert.ok(html.includes('data-scenario-i='), 'missing data-scenario-i');
   assert.ok(html.includes('data-why='), 'missing data-why');
 });
+
+test('Chinese part button labels resolve to valid strings and never [object Object]', async () => {
+  const { PART_ORDER, NAMES } = await import(path.join(dir, 'content.mjs'));
+  const { ZH_NAMES } = await import(path.join(dir, 'i18n.mjs'));
+  for (const part of PART_ORDER) {
+    const zhName = ZH_NAMES[part];
+    const resolvedZh = typeof zhName === 'string' ? zhName : zhName.l4.replace('PCIE GEN4 X16', '链路');
+    const resolvedEn = typeof NAMES[part] === 'string' ? NAMES[part] : NAMES[part].l4.replace('PCIE GEN4 X16', 'LINK');
+    assert.ok(typeof resolvedZh === 'string' && resolvedZh.length > 0);
+    assert.notEqual(resolvedZh, '[object Object]');
+    assert.notEqual(resolvedEn, '[object Object]');
+    if (part === 'link') {
+      assert.equal(resolvedZh, '链路');
+      assert.equal(resolvedEn, 'LINK');
+    }
+  }
+});
+
+test('multi-chunk prefill trace in Chinese reports chunk number, not event index', async () => {
+  const M = await load();
+  const run = M.simulate({ workload: 'shared', shared: 4096, radix: false });
+  const prefillEvents = run.events.filter((e) => e.type === 'prefill');
+  assert.ok(prefillEvents.length > 1, 'expected multiple prefill chunks');
+  for (const ev of prefillEvents) {
+    assert.ok(ev.chunk > 0);
+    assert.ok(ev.chunks > 1);
+    assert.ok(ev.index > ev.chunk, 'event index should exceed chunk number due to earlier pipeline events');
+    const zhChunkText = `Prefill 预填充分块 ${ev.chunk} / ${ev.chunks}`;
+    assert.match(zhChunkText, new RegExp(`分块 ${ev.chunk} / ${ev.chunks}`));
+    assert.ok(!zhChunkText.includes(`分块 ${ev.index} /`));
+  }
+});
+
+test('trace types in Chinese are mapped to translated strings', () => {
+  const liveSrc = fs.readFileSync(path.join(dir, 'live.js'), 'utf8');
+  assert.ok(liveSrc.includes('const typeText = currentLang === "zh" ? localizeEventType(item.type) : item.type;'));
+  assert.ok(liveSrc.includes('"decode-rest": "后续 Decode"'));
+  assert.ok(liveSrc.includes('item.chunk} / ${item.chunks}'));
+  assert.ok(!liveSrc.includes('item.index} / ${item.chunks}'));
+});
+
+test('language picker on the GPU page is restricted to en and zh', () => {
+  const html = fs.readFileSync(page, 'utf8');
+  assert.match(html, /window\.AIFS_LANGS\s*=\s*window\.AIFS_LANGS\.filter/);
+  assert.ok(html.includes("l.code === 'en' || l.code === 'zh'"));
+});
+
+test('English fallback strings in live.js match the canonical build-time strings', () => {
+  const liveSrc = fs.readFileSync(path.join(dir, 'live.js'), 'utf8');
+  assert.ok(!liveSrc.includes('sets the pace'));
+  assert.ok(liveSrc.includes('sets the speed'));
+  assert.ok(liveSrc.includes('Inside an LLM Serving GPU - AI Engineering from Scratch'));
+  assert.ok(liveSrc.includes('LLM serving GPU'));
+});
